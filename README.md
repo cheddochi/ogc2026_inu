@@ -95,6 +95,12 @@ conda activate ogc2025
 
 > 💡 **설치 오류 발생 시**: pytorch, tensorflow 등 사용하지 않는 패키지는 yml 파일에서 해당 항목을 삭제 후 재설치하세요. 문제가 지속되면 Slack 채널로 문의하세요.
 
+***4단계.** Gurobi for Python 설치
+```bash
+conda install -c gurobi gurobi
+```
+
+
 ---
 
 ## 2. 알고리즘 제출 방법
