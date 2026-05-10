@@ -125,12 +125,6 @@ conda activate ogc2025
 
 터미널 프롬프트에 `(ogc2025)`가 표시되면 완료입니다.
 
-***4단계.** Gurobi for Python 설치
-```bash
-conda install -c gurobi gurobi
-```
-
-
 ---
 
 ## 2. 알고리즘 제출 방법

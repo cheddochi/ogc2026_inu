@@ -1,0 +1,10 @@
+# OGC 2025 - 핵심 의존 패키지 (conda 환경 없이 pip만으로 설치 시)
+# 사용법: pip install -r requirements.txt
+
+networkx==3.4.2
+numpy>=1.24
+scipy==1.15.2
+pandas==2.2.3
+scikit-learn==1.6.1
+matplotlib==3.8.4
+jsbeautifier
