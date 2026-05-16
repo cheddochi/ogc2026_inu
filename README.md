@@ -3,6 +3,8 @@
 > 🪟 **이 문서는 Windows + PowerShell 환경 기준입니다.**  
 > macOS Apple Silicon 환경은 `README_macOS.md`를 참고하세요.
 
+수정했어요(권도훈) 한번더 수정했어요.
+
 ## 📋 목차
 - [Update History](#update-history)
 - [1. 환경설정](#1-환경설정)
