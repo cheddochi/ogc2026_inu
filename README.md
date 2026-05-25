@@ -3,8 +3,6 @@
 > 🪟 **이 문서는 Windows + PowerShell 환경 기준입니다.**  
 > macOS Apple Silicon 환경은 `README_macOS.md`를 참고하세요.
 
-수정했어요(권도훈) 한번더 수정했어요.
-
 ## 📋 목차
 - [Update History](#update-history)
 - [1. 환경설정](#1-환경설정)
@@ -57,6 +55,81 @@
 | keras | 3.9.0 |
 
 > 💡 필요한 패키지가 목록에 없으면 Slack 채널에서 요청하세요.
+
+**numpy**
+파이썬 수치 계산의 기반 라이브러리입니다. 다차원 배열(ndarray)을 C 수준 속도로 처리하며, pandas/shapely/OR-Tools 모두 내부적으로 numpy에 의존합니다.
+
+```python
+import numpy as np
+
+a = np.array([1, 2, 3])
+np.zeros((3, 4))       # 3×4 영행렬
+np.mean(a)             # 평균
+np.argmin(a)           # 최솟값 인덱스
+```
+
+---
+
+**OGC에서의 활용**
+
+베이스라인 코드에서도 이미 핵심적으로 쓰이고 있습니다.
+
+```python
+# 노드 할당 상태 관리
+node_allocations = np.ones(N, dtype=int) * -1
+
+# 최단 거리 배열
+shortest_distances = np.zeros(N, dtype=int)
+
+# 경로를 indicator 벡터로 변환
+path_array = np.zeros(N, dtype=int)
+path_array[path[:-1]] = 1
+```
+
+리스트 대신 numpy 배열을 쓰면 노드 수가 커질수록 연산 속도 차이가 크게 납니다. 알고리즘 개선 시 거리 행렬이나 비용 계산 부분을 numpy로 벡터화하면 성능 향상에 효과적입니다.
+
+세 라이브러리 모두 최적화/물류 분야에서 자주 함께 쓰입니다.
+
+---
+
+**pandas**
+표 형태 데이터를 다루는 기본 라이브러리입니다. DataFrame 구조로 CSV, Excel, JSON 등을 읽고 필터링, 집계, 병합, 결측치 처리 등을 SQL처럼 다룰 수 있습니다. OGC 문제에서는 수요 데이터나 노드 정보를 전처리할 때 유용합니다.
+
+```python
+import pandas as pd
+df = pd.read_csv('demands.csv')
+df[df['quantity'] > 2]  # 수량 2 초과 필터링
+```
+
+---
+
+**shapely**
+2D 기하학 객체(점, 선, 다각형)를 다루는 라이브러리입니다. 좌표 기반으로 거리 계산, 교차 여부, 포함 관계 등을 처리합니다. 물류에서는 서비스 구역 설정, 경로의 공간적 분석, 지도 기반 최적화에 활용됩니다.
+
+```python
+from shapely.geometry import Point, Polygon
+zone = Polygon([(0,0), (4,0), (4,4), (0,4)])
+p = Point(2, 2)
+p.within(zone)  # True
+```
+
+---
+
+**OR-Tools**
+Google이 만든 조합 최적화 라이브러리입니다. VRP(차량 경로 문제), TSP(외판원 문제), 스케줄링, 정수 계획법 등을 풀 수 있습니다. OGC처럼 항구 경로 최적화 문제에 직접 적용 가능한 도구입니다.
+
+```python
+from ortools.constraint_solver import routing_enums_pb2
+from ortools.constraint_solver import pywrapcp
+# VRP 솔버 설정 후 최적 경로 탐색
+```
+
+---
+
+**세 라이브러리의 관계**
+
+OGC 문제 기준으로 보면 pandas로 입력 데이터를 정제하고, shapely로 노드 간 공간 관계를 분석하고, OR-Tools로 최적 경로를 탐색하는 흐름으로 연결됩니다. 특히 OR-Tools는 베이스라인의 휴리스틱을 대체하거나 보완하는 용도로 바로 활용할 수 있어 OGC에서 가장 주목할 라이브러리입니다.
+
 
 ### 추가 설치 패키지 (요청 반영)
 
