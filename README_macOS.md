@@ -1,9 +1,7 @@
-# OGC 2025 - 개발환경 가이드 (Windows PowerShell)
+# OGC 2025 - 개발환경 가이드 (macOS Apple Silicon)
 
-> 🪟 **이 문서는 Windows + PowerShell 환경 기준입니다.**  
-> macOS Apple Silicon 환경은 `README_macOS.md`를 참고하세요.
-
-수정했어요(권도훈) 한번더 수정했어요.
+> 🍎 **이 문서는 Apple Silicon (M1/M2/M3) + bash/zsh 환경 기준입니다.**  
+> Windows PowerShell 환경은 `README_Windows.md`를 참고하세요.
 
 ## 📋 목차
 - [Update History](#update-history)
@@ -60,78 +58,63 @@
 
 ### 추가 설치 패키지 (요청 반영)
 
-| 패키지 | 버전 | Windows 설치 비고 |
-|--------|------|-------------------|
-| torch_cluster | 1.6.3+pt26cu124 | GPU 있으면 CUDA 12.4 휠, 없으면 CPU 휠 |
+| 패키지 | 서버 버전 | macOS 설치 비고 |
+|--------|-----------|-----------------|
+| torch_cluster | 1.6.3+pt26cu124 | CPU 전용 휠로 설치 |
 | torch-geometric | 2.6.1 | 동일 |
-| torch_scatter | 2.1.2+pt26cu124 | GPU 있으면 CUDA 12.4 휠, 없으면 CPU 휠 |
-| torch_sparse | 0.6.18+pt26cu124 | GPU 있으면 CUDA 12.4 휠, 없으면 CPU 휠 |
-| torch_spline_conv | 1.2.2+pt26cu124 | GPU 있으면 CUDA 12.4 휄, 없으면 CPU 휠 |
+| torch_scatter | 2.1.2+pt26cu124 | CPU 전용 휠로 설치 |
+| torch_sparse | 0.6.18+pt26cu124 | CPU 전용 휠로 설치 |
+| torch_spline_conv | 1.2.2+pt26cu124 | CPU 전용 휠로 설치 |
 | cdlib | 0.4.0 | 동일 |
 | leidenalg | 0.10.2 | 동일 |
 | stable_baselines3 | 2.6.0 | 동일 |
+
+> ⚠️ Apple Silicon은 CUDA를 지원하지 않습니다. 로컬에서는 CPU/MPS 모드로 동작하며, CUDA 전용 기능이 있다면 평가 서버(Linux+GPU)에서만 작동합니다.
 
 ---
 
 ### Conda 환경 설정
 
-Windows에는 **Miniforge** 사용을 권장합니다.
+Apple Silicon에는 **Miniforge** (ARM64 네이티브) 사용을 권장합니다.
 
 #### 1단계. Miniforge 설치
 
-[https://github.com/conda-forge/miniforge](https://github.com/conda-forge/miniforge) 에서  
-`Miniforge3-Windows-x86_64.exe` 다운로드 후 설치합니다.
+```bash
+# Homebrew로 설치 (권장)
+brew install miniforge
 
-> 💡 설치 후 시작 메뉴에서 **Miniforge Prompt** 또는 **Anaconda Prompt**를 사용하세요.  
-> 일반 PowerShell에서 conda를 사용하려면 아래 명령어로 초기화가 필요합니다.
-
-```powershell
-# PowerShell에서 conda 활성화 초기화 (최초 1회)
-conda init powershell
-
-# 이후 PowerShell 재시작
+# 또는 직접 다운로드
+curl -L https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh -o miniforge.sh
+bash miniforge.sh
 ```
-
-> ⚠️ PowerShell 실행 정책 오류 발생 시 (스크립트 실행 차단):
-> ```powershell
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
 
 #### 2단계. 환경 생성
 
 `ogc2025_env_20250506.yml.zip`을 다운로드하고 압축 해제 후 실행합니다.
 
-```powershell
+```bash
 # yml 파일이 있는 폴더로 이동
-cd C:\Users\사용자명\Downloads
+cd ~/Downloads
 
 # 환경 생성
 conda env create -f ogc2025_env_20250506.yml
 ```
 
-> 💡 torch, tensorflow 설치 오류 시 해당 항목을 yml에서 삭제 후 아래와 같이 별도 설치하세요.
+> ⚠️ torch, tensorflow 설치 오류 시: Apple Silicon은 CUDA 빌드가 없어 yml 설치가 실패할 수 있습니다.  
+> 해당 패키지를 yml에서 제거 후 아래와 같이 별도 설치하세요.
 
-```powershell
-# GPU 없는 경우 (CPU 전용)
-pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
-
-# NVIDIA GPU가 있는 경우 (CUDA 12.4)
-pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
+```bash
+# torch Apple Silicon 전용 설치 (MPS 가속 지원)
+pip install torch==2.6.0 torchvision==0.21.0
 ```
 
 #### 3단계. 환경 활성화
 
-```powershell
+```bash
 conda activate ogc2025
 ```
 
 터미널 프롬프트에 `(ogc2025)`가 표시되면 완료입니다.
-
-***4단계.** Gurobi for Python 설치
-```bash
-conda install -c gurobi gurobi
-```
-
 
 ---
 
@@ -144,13 +127,16 @@ baseline_20250719.zip          ← 알고리즘 예제 코드
 exercise_problems_20250512.zip ← 연습 문제
 ```
 
-```powershell
-# PowerShell에서 압축 해제
-Expand-Archive -Path baseline_20250719.zip -DestinationPath .
-Expand-Archive -Path exercise_problems_20250512.zip -DestinationPath .
+> 💡 두 파일 모두 버그 수정 등으로 업데이트될 수 있으니 주기적으로 최신 버전을 확인하세요.  
+> 💡 `exercise_problems`는 연습 문제입니다. 평가 문제는 각 단계 종료 후 공개됩니다.
+
+```bash
+# 압축 해제
+unzip baseline_20250719.zip
+unzip exercise_problems_20250512.zip
 
 # 파일 목록 확인 (prob1.json ~ prob10.json 형식)
-Get-ChildItem exercise_problems\
+ls exercise_problems/
 ```
 
 ---
@@ -158,7 +144,7 @@ Get-ChildItem exercise_problems\
 ### 베이스라인 파일 구조
 
 ```
-baseline\
+baseline/
 ├── myalgorithm.py   ← 알고리즘 구현 파일 (가장 중요!)
 └── util.py          ← 알고리즘 구현 보조 함수 모음
 ```
@@ -227,9 +213,9 @@ result = check_feasibility(prob_info, solution)
 - `util.py` 수정 불가
 - **최대 파일 크기**: 30MB
 
-```powershell
-# 압축 파일 내부 구조 확인 (PowerShell)
-[System.IO.Compression.ZipFile]::OpenRead("submission.zip").Entries | Select-Object FullName
+```bash
+# 압축 파일 구조 확인
+unzip -vl submission.zip
 ```
 
 ---
@@ -252,16 +238,16 @@ result = check_feasibility(prob_info, solution)
 ### Python 외 언어 사용
 
 - 필요한 라이브러리를 **모두 압축 파일에 포함**하여 제출
-- 평가 서버 환경: **Linux/Ubuntu 24.04**
+- 평가 서버 환경: **Linux/Ubuntu 24.04** (ARM이 아닌 x86_64)
 
-> ⚠️ Windows에서 빌드한 `.exe` 바이너리는 평가 서버(Linux)에서 실행되지 않습니다.  
-> C/C++ 등을 사용하는 경우 WSL2(Ubuntu 24.04) 또는 Docker에서 빌드하세요.
+> ⚠️ macOS에서 빌드한 바이너리는 평가 서버(Linux x86_64)에서 실행되지 않습니다.  
+> C/C++, Java 등을 사용하는 경우 반드시 Linux x86_64 환경에서 크로스 컴파일하거나 Docker를 활용하세요.
 
 ---
 
 ## 3. alg_tester 사용법
 
-```powershell
+```bash
 # ogc2025 환경 활성화 후
 conda activate ogc2025
 jupyter lab
@@ -270,34 +256,34 @@ jupyter lab
 `alg_tester.ipynb` 파일을 열고 첫 번째 셀을 실행(`Ctrl + Enter`)합니다.
 
 > ⚠️ `alg_tester`에서 정상 동작해도 평가 서버 환경 차이로 오류가 발생할 수 있습니다.  
-> 최종 검증은 WSL2(Ubuntu 24.04) 또는 Docker 환경에서 진행하세요.
+> macOS에서 통과해도 Ubuntu 24.04 기준이므로 가능하면 Docker나 VM으로 최종 검증을 권장합니다.
 
 ---
 
 ## 4. 로컬 테스트 환경 (커스텀)
 
-공식 `alg_tester` 외에 PowerShell에서 바로 실행·검증·제출 패키지 빌드까지 가능한 커스텀 스크립트 셋입니다.
+공식 `alg_tester` 외에 터미널에서 바로 실행·검증·제출 패키지 빌드까지 가능한 커스텀 스크립트 셋입니다.
 
 ### 4-1. 프로젝트 파일 구조
 
 ```
-ogc2025\
-├── myalgorithm.py                ← 알고리즘 구현 (수정 대상)
-├── util.py                       ← 유틸 함수 (수정 불가)
-├── problem_generator.py          ← 테스트용 샘플 문제 생성기
-├── requirements.txt              ← pip 의존 패키지 목록
-├── install_extra_packages.bat    ← 추가 PyG 계열 패키지 설치 (Windows)
-└── exercise_problems\            ← 공식 연습 문제 폴더
+ogc2025/
+├── myalgorithm.py              ← 알고리즘 구현 (수정 대상)
+├── util.py                     ← 유틸 함수 (수정 불가)
+├── problem_generator.py        ← 테스트용 샘플 문제 생성기
+├── requirements.txt            ← pip 의존 패키지 목록
+├── run_test.sh                 ← 단일 문제 테스트 실행
+├── run_all_tests.sh            ← 전체 사이즈 일괄 테스트
+├── build_submit.sh             ← 제출용 zip 빌드 및 검증
+├── install_extra_packages.sh   ← 추가 PyG 계열 패키지 설치
+└── exercise_problems/          ← 공식 연습 문제 폴더
 ```
-
-> ℹ️ Windows에서는 `.sh` 스크립트를 직접 실행할 수 없습니다.  
-> 아래 섹션의 PowerShell 명령어를 직접 사용하거나, WSL2를 설치하면 `.sh` 스크립트도 사용 가능합니다.
 
 ---
 
 ### 4-2. 환경 설치
 
-```powershell
+```bash
 # conda 환경 생성 및 활성화
 conda env create -f ogc2025_env_20250506.yml
 conda activate ogc2025
@@ -305,8 +291,9 @@ conda activate ogc2025
 # 핵심 패키지 설치
 pip install -r requirements.txt
 
-# 추가 패키지 설치 (PyG 계열, 필요 시)
-.\install_extra_packages.bat
+# 추가 패키지 설치 (PyG 계열 등, 필요 시)
+# macOS는 자동으로 CPU 전용 휠로 설치됩니다
+bash install_extra_packages.sh
 ```
 
 ---
@@ -315,63 +302,43 @@ pip install -r requirements.txt
 
 #### 공식 연습 문제로 직접 실행
 
-```powershell
+```bash
 # 연습 문제 압축 해제
-Expand-Archive -Path exercise_problems_20250512.zip -DestinationPath .
+unzip exercise_problems_20250512.zip
 
 # 파일명은 prob1.json ~ prob10.json (prob_01 아님에 주의)
-python myalgorithm.py prob1 exercise_problems\prob1.json 60
+python myalgorithm.py prob1 exercise_problems/prob1.json 60
 ```
 
-#### 샘플 문제로 테스트
+#### 스크립트로 단일 테스트
 
-공식 연습 문제가 없는 경우 샘플 문제를 생성해서 테스트합니다.
-
-```powershell
-# 문제 생성
-python problem_generator.py --size small
-
-# 알고리즘 실행 (60초 제한)
-python myalgorithm.py test_small problem_small.json 60
+```bash
+bash run_test.sh              # small 문제, 60초 제한 (기본값)
+bash run_test.sh medium 120   # medium 문제, 120초 제한
 ```
 
-#### 전체 사이즈 일괄 테스트 (PowerShell)
+> 문제 파일이 없으면 `problem_generator.py`로 샘플 문제를 자동 생성합니다.
 
-```powershell
-# PowerShell에서 직접 일괄 실행
-foreach ($size in @("tiny", "small", "medium", "large")) {
-    $prob = "problem_$size.json"
+#### 전체 사이즈 일괄 테스트
 
-    # 문제 파일 없으면 생성
-    if (-not (Test-Path $prob)) {
-        python problem_generator.py --size $size --out $prob
-    }
-
-    # 알고리즘 실행
-    python myalgorithm.py $size $prob 60
-
-    # 결과 출력
-    if (Test-Path results.json) {
-        $r = Get-Content results.json | ConvertFrom-Json
-        Write-Host "[$size] feasible=$($r.feasible)  obj=$($r.obj)  time=$([math]::Round($r.time,2))s"
-        Copy-Item results.json "results_$size.json"
-    }
-}
+```bash
+bash run_all_tests.sh         # 60초 제한
+bash run_all_tests.sh 120     # 120초 제한
 ```
 
 실행 결과 예시:
 ```
-[tiny]   feasible=True  obj=2.0   time=0.00s
-[small]  feasible=True  obj=24.0  time=0.00s
-[medium] feasible=True  obj=68.0  time=0.01s
-[large]  feasible=True  obj=142.0 time=0.03s
+  [tiny]   ✅ feasible=True  obj=2.0   time=0.00s
+  [small]  ✅ feasible=True  obj=24.0  time=0.00s
+  [medium] ✅ feasible=True  obj=68.0  time=0.01s
+  [large]  ✅ feasible=True  obj=142.0 time=0.03s
 ```
 
 ---
 
 ### 4-4. 샘플 문제 생성기
 
-```powershell
+```bash
 python problem_generator.py                              # small (기본)
 python problem_generator.py --size tiny                  # tiny
 python problem_generator.py --size large                 # large
@@ -387,50 +354,25 @@ python problem_generator.py --size medium --seed 123 --out my_prob.json
 
 ---
 
-### 4-5. 제출 패키지 빌드 (PowerShell)
+### 4-5. 제출 패키지 빌드
 
-```powershell
-# 기존 zip 삭제 후 재생성
-$output = "submission_$(Get-Date -Format 'yyyyMMdd_HHmmss').zip"
-Remove-Item $output -ErrorAction SilentlyContinue
-
-Compress-Archive -Path myalgorithm.py, util.py -DestinationPath $output
-
-# modules 폴더가 있으면 포함
-if (Test-Path modules) {
-    Compress-Archive -Path modules -Update -DestinationPath $output
-}
-
-Write-Host "✅ 패키지 생성 완료: $output"
-
-# 구조 확인
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-$zip = [System.IO.Compression.ZipFile]::OpenRead($output)
-$zip.Entries | ForEach-Object { Write-Host "  $($_.FullName)" }
-$zip.Dispose()
-
-# myalgorithm.py 최상위 위치 검증
-$isTopLevel = $zip.Entries | Where-Object { $_.FullName -eq "myalgorithm.py" }
-if ($isTopLevel) {
-    Write-Host "✅ myalgorithm.py 위치: 최상위 (OK)"
-} else {
-    Write-Host "❌ myalgorithm.py가 최상위에 없습니다. 구조를 확인하세요."
-}
+```bash
+bash build_submit.sh                     # 타임스탬프 파일명 자동 생성
+bash build_submit.sh my_submission.zip   # 파일명 직접 지정
 ```
+
+스크립트가 자동으로 검증합니다:
+- `myalgorithm.py`가 zip 최상위에 위치하는지
+- 파일 크기 30MB 이하인지
 
 ---
 
 ### 4-6. 결과 확인
 
-```powershell
-# 결과 파일 읽기
-Get-Content results.json
+알고리즘 실행 후 `results.json`으로 결과가 저장됩니다.
 
-# 또는 파싱해서 요약 출력
-$r = Get-Content results.json | ConvertFrom-Json
-Write-Host "feasible : $($r.feasible)"
-Write-Host "obj      : $($r.obj)"
-Write-Host "time     : $([math]::Round($r.time, 4))s"
+```bash
+cat results.json
 ```
 
 ```json
@@ -441,7 +383,7 @@ Write-Host "time     : $([math]::Round($r.time, 4))s"
   "time": 0.0029,
   "timelimit_exception": false,
   "prob_name": "prob1",
-  "prob_file": "exercise_problems\\prob1.json"
+  "prob_file": "exercise_problems/prob1.json"
 }
 ```
 
@@ -455,22 +397,20 @@ Write-Host "time     : $([math]::Round($r.time, 4))s"
 
 ---
 
-## 📌 빠른 시작 체크리스트 (Windows)
+## 📌 빠른 시작 체크리스트 (macOS)
 
 ```
-[ ] Miniforge 설치 (Miniforge3-Windows-x86_64.exe)
-[ ] PowerShell 실행 정책 설정: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-[ ] conda init powershell 실행 후 PowerShell 재시작
+[ ] Miniforge 설치 (brew install miniforge)
 [ ] conda env create -f ogc2025_env_20250506.yml
 [ ] conda activate ogc2025
 [ ] pip install -r requirements.txt
 [ ] baseline_20250719.zip 및 exercise_problems_20250512.zip 다운로드
-[ ] Expand-Archive로 압축 해제  →  파일명: prob1.json ~ prob10.json
+[ ] unzip exercise_problems_20250512.zip  → 파일명: prob1.json ~ prob10.json
 [ ] myalgorithm.py에 알고리즘 작성
-[ ] python myalgorithm.py prob1 exercise_problems\prob1.json 60 으로 단일 테스트
-[ ] PowerShell 일괄 테스트 스크립트로 전체 사이즈 검증
+[ ] bash run_test.sh 로 단일 테스트
+[ ] bash run_all_tests.sh 로 전체 사이즈 검증
 [ ] check_feasibility()로 해 유효성 최종 확인
-[ ] Compress-Archive로 제출 패키지 빌드 및 구조 검증
+[ ] bash build_submit.sh 로 제출 패키지 빌드
 [ ] alg_tester로 제출 형식 최종 검증
 [ ] 제출
 ```

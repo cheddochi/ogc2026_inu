@@ -1,0 +1,22 @@
+{
+  "obj": 4.0,
+  "feasible": true,
+  "infeasibility": null,
+  "solution": {
+    "0": [
+      [
+        [0, 4, 5, 6], 0
+      ]
+    ],
+    "1": [
+      [
+        [6, 5, 4, 0], 0
+      ]
+    ]
+  },
+  "time": 0.0008339881896972656,
+  "timelimit_exception": false,
+  "exception": null,
+  "prob_name": "tiny",
+  "prob_file": "problem_tiny.json"
+}
