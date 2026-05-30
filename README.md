@@ -547,3 +547,285 @@ Write-Host "time     : $([math]::Round($r.time, 4))s"
 [ ] alg_tester로 제출 형식 최종 검증
 [ ] 제출
 ```
+
+
+# Gurobi Named-User Academic 라이선스 설치 가이드
+
+> 🎓 **이 문서는 Gurobi Named-User Academic 라이선스를 발급받고**  
+> **Windows PowerShell / macOS Apple Silicon 환경에 설치하는 방법을 설명합니다.**
+
+## 📋 목차
+- [1. 라이선스 발급](#1-라이선스-발급)
+- [2. Gurobi 설치](#2-gurobi-설치)
+  - [Windows PowerShell](#windows-powershell)
+  - [macOS Apple Silicon](#macos-apple-silicon)
+- [3. 라이선스 활성화](#3-라이선스-활성화)
+- [4. 환경변수 설정](#4-환경변수-설정)
+- [5. conda 환경에 gurobipy 설치](#5-conda-환경에-gurobipy-설치)
+- [6. 설치 확인](#6-설치-확인)
+- [7. 트러블슈팅](#7-트러블슈팅)
+
+---
+
+## 1. 라이선스 발급
+
+### 1-1. Gurobi 계정 등록
+
+1. [https://portal.gurobi.com/iam/register](https://portal.gurobi.com/iam/register) 접속
+2. **Academic** 선택 후 **대학 이메일**로 가입 (일반 Gmail 등은 불가)
+3. 가입 후 이메일 인증 완료
+
+### 1-2. Named-User Academic 라이선스 생성
+
+1. [https://portal.gurobi.com](https://portal.gurobi.com) 로그인
+2. 상단 메뉴 **Licenses** 클릭
+3. **Request** → **GENERATE NOW** (Named-User Academic 블록) 클릭
+4. 라이선스가 생성되면 목록에 표시됨
+
+> ⚠️ **라이선스 유효기간**: 최대 1년, 갱신 가능 (학적 유지 시)  
+> ⚠️ **Named-User 라이선스는 1인 1대 전용**입니다. 다른 PC에서 사용하려면 별도 라이선스를 발급받아야 합니다.
+
+### 1-3. grbgetkey 명령어 확인
+
+1. 라이선스 목록에서 해당 라이선스의 **설치 아이콘** 클릭
+2. 팝업에서 아래와 같은 명령어 복사:
+   ```
+   grbgetkey xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   ```
+
+> 💡 이 키는 이후 라이선스 활성화 단계에서 사용합니다.
+
+---
+
+## 2. Gurobi 설치
+
+### Windows PowerShell
+
+#### 방법 A — conda로 설치 (권장)
+
+```powershell
+# ogc2025 환경 활성화
+conda activate ogc2025
+
+# Gurobi conda 채널에서 설치
+conda install -c gurobi gurobi
+```
+
+#### 방법 B — pip으로 설치
+
+```powershell
+conda activate ogc2025
+pip install gurobipy
+```
+
+> ⚠️ pip 설치 시 `grbgetkey` 등 라이선스 도구가 포함되지 않습니다.  
+> 라이선스 활성화를 위해 **방법 A (conda)** 를 권장합니다.
+
+---
+
+### macOS Apple Silicon
+
+#### 방법 A — conda로 설치 (권장)
+
+```bash
+# ogc2025 환경 활성화
+conda activate ogc2025
+
+# Gurobi conda 채널에서 설치 (Apple Silicon arm64 자동 감지)
+conda install -c gurobi gurobi
+```
+
+#### 방법 B — pip으로 설치
+
+```bash
+conda activate ogc2025
+pip install gurobipy
+```
+
+> 💡 Gurobi 9.1 이후 버전은 Apple Silicon(arm64) 네이티브를 지원합니다.  
+> conda 설치 시 `macos_universal2` 패키지가 자동으로 선택됩니다.
+
+---
+
+## 3. 라이선스 활성화
+
+> ⚠️ **활성화 시 대학 네트워크 필수** — 교내 Wi-Fi에 직접 연결하거나, 대학 VPN을 통해 연결해야 합니다.  
+> 활성화 완료 후에는 인터넷 연결 없이도 사용 가능합니다.
+
+### Windows PowerShell
+
+```powershell
+# conda 환경 활성화 상태에서 실행
+conda activate ogc2025
+
+# 라이선스 키로 활성화 (1-3에서 복사한 키 사용)
+grbgetkey xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+라이선스 파일 저장 경로를 묻는 프롬프트가 나오면 **Enter**로 기본값 사용:
+```
+Enter the path in which to store the Gurobi license key file
+[default: C:\Users\사용자명]:
+```
+
+기본 저장 경로: `C:\Users\사용자명\gurobi.lic`
+
+---
+
+### macOS Apple Silicon
+
+```bash
+# conda 환경 활성화 상태에서 실행
+conda activate ogc2025
+
+# 라이선스 키로 활성화
+grbgetkey xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+라이선스 파일 저장 경로를 묻는 프롬프트:
+```
+Enter the path in which to store the Gurobi license key file
+[default: /Users/사용자명]:
+```
+
+**Enter**로 기본값 사용하거나 원하는 경로 입력:
+```bash
+# 예: 별도 폴더에 저장하는 경우
+/Users/dohunkwon/Workspace/gurobi_lic
+```
+
+기본 저장 경로: `/Users/사용자명/gurobi.lic`
+
+---
+
+## 4. 환경변수 설정
+
+라이선스 파일을 기본 경로(홈 디렉토리)가 아닌 **별도 경로에 저장**한 경우에만 설정이 필요합니다.
+
+### Windows PowerShell
+
+**영구 설정 (시스템 환경변수):**
+
+1. 시작 메뉴 → **환경 변수 편집** 검색 → 실행
+2. **시스템 변수** → **새로 만들기**
+3. 변수 이름: `GRB_LICENSE_FILE`
+4. 변수 값: `C:\Users\사용자명\gurobi_lic\gurobi.lic`
+5. 확인 → PowerShell 재시작
+
+**또는 PowerShell에서 영구 설정:**
+```powershell
+[System.Environment]::SetEnvironmentVariable(
+    "GRB_LICENSE_FILE",
+    "C:\Users\사용자명\gurobi_lic\gurobi.lic",
+    "User"
+)
+```
+
+**conda 환경에만 적용:**
+```powershell
+conda activate ogc2025
+conda env config vars set GRB_LICENSE_FILE=C:\Users\사용자명\gurobi_lic\gurobi.lic
+conda activate ogc2025  # 재활성화 후 적용
+```
+
+---
+
+### macOS Apple Silicon
+
+**영구 설정 (~/.zshrc):**
+```bash
+echo 'export GRB_LICENSE_FILE=/Users/dohunkwon/Workspace/gurobi_lic/gurobi.lic' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**conda 환경에만 적용 (권장):**
+```bash
+conda activate ogc2025
+conda env config vars set GRB_LICENSE_FILE=/Users/dohunkwon/Workspace/gurobi_lic/gurobi.lic
+conda activate ogc2025  # 재활성화 후 적용
+```
+
+---
+
+## 5. conda 환경에 gurobipy 설치
+
+OGC 환경에서 gurobipy를 사용하려면 conda 환경에 추가 설치가 필요합니다.
+
+```bash
+# Windows / macOS 공통
+conda activate ogc2025
+conda install -c gurobi gurobi
+
+# 또는 pip
+pip install gurobipy==11.0.0  # OGC 서버 버전(12.0.1)과 다를 수 있음
+```
+
+> 💡 OGC 평가 서버는 `gurobipy==12.0.1`을 사용합니다.  
+> 로컬에서 버전 불일치가 있어도 기본 동작에는 문제없으나, 정확한 재현을 원하면 버전을 맞추세요:
+> ```bash
+> pip install gurobipy==12.0.1
+> ```
+
+---
+
+## 6. 설치 확인
+
+### Python에서 확인
+
+```python
+import gurobipy as gp
+
+m = gp.Model()
+print("Gurobi 설치 확인 완료!")
+```
+
+정상 출력 예시:
+```
+Set parameter Username
+Set parameter LicenseID to value 2829206
+Academic license - for non-commercial use only - expires 2026-XX-XX
+Gurobi 설치 확인 완료!
+```
+
+### CLI에서 확인
+
+```bash
+# Windows
+gurobi_cl --version
+
+# macOS
+gurobi_cl --version
+```
+
+출력 예시:
+```
+Gurobi Optimizer version 13.0.1 build v13.0.1rc1 (mac64[arm])
+```
+
+---
+
+## 7. 트러블슈팅
+
+| 오류 | 원인 | 해결 |
+|------|------|------|
+| `ERROR 303` | 대학 네트워크 미연결 | 교내 Wi-Fi 또는 대학 VPN 연결 후 재시도 |
+| `grbgetkey: command not found` | Gurobi 미설치 | `conda install -c gurobi gurobi` 먼저 실행 |
+| `No Gurobi license found` | 라이선스 파일 경로 오류 | `GRB_LICENSE_FILE` 환경변수 확인 |
+| `License expired` | 라이선스 만료 | User Portal에서 갱신 요청 |
+| `Communication failed` | 네트워크 문제 | 방화벽/프록시 확인, VPN 재연결 |
+
+---
+
+## 📌 빠른 시작 체크리스트
+
+```
+[ ] gurobi.com 대학 이메일로 Academic 계정 가입
+[ ] User Portal → Licenses → GENERATE NOW (Named-User Academic)
+[ ] 라이선스 설치 아이콘 클릭 → grbgetkey 명령어 복사
+[ ] 대학 네트워크(교내 Wi-Fi 또는 VPN) 연결
+[ ] conda activate ogc2025
+[ ] conda install -c gurobi gurobi
+[ ] grbgetkey xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx 실행
+[ ] (별도 경로 저장 시) GRB_LICENSE_FILE 환경변수 설정
+[ ] python -c "import gurobipy as gp; gp.Model()" 로 확인
+```
