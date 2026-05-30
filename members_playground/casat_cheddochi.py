@@ -40,6 +40,9 @@ _MIP_LIMIT      = 150    # 이하: 전체 MIP / 초과: LNS
 _REPAIR_TLIMIT  = 2.0    # LNS 이터레이션당 Gurobi repair 제한 (초)
 _REPAIR_MAX_K   = 40     # MIP repair 최대 블록 수 (초과 시 greedy 폴백)
 _MIP_GAP        = 0.01   # Gurobi 최적성 갭 1%
+_PHASE2_RESERVE = 5.0    # Phase 2(공간 배치) + 출력 빌더용 예약 시간 (초)
+                          # deadline = t0 + timelimit - _PHASE2_RESERVE
+                          # algorithm() 내 모든 단계가 이 데드라인을 준수한다.
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -597,16 +600,21 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
 # §9  Adaptive LNS  (n > _MIP_LIMIT)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _adaptive_lns(prob_info, warm, orients, tlimit, use_gurobi_repair):
+def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
     """
     Adaptive LNS.
 
     use_gurobi_repair=True  → _gurobi_repair  (k블록 동시 최적화, 고품질)
     use_gurobi_repair=False → _greedy_repair  (greedy 순차, 고속)
 
+    deadline : 절대 시각 (time.time() 기준).
+               algorithm() 이 계산한 데드라인을 직접 받아
+               repair 1회 시간도 이 경계를 넘지 않도록 제한한다.
+
     k 조정 전략
-      성공 → k 감소 (intensification)
+      성공     → k 감소 (intensification)
       patience 횟수 미개선 → best 복귀 + k 증가 (diversification)
+      데드라인 임박(< 0.5초) → 즉시 종료, best 반환
     """
     n        = len(prob_info["blocks"])
     patience = 10 if use_gurobi_repair else 30
@@ -620,17 +628,22 @@ def _adaptive_lns(prob_info, warm, orients, tlimit, use_gurobi_repair):
     best_obj = _objective(prob_info, best)
     cur_obj  = best_obj
     no_impr  = 0
-    t0       = time.time()
+    t0_lns   = time.time()
     it       = 0
 
     print(f"[{tag}] n={n}  k_init={k}  k_range=[{k_min},{k_max}]  obj={best_obj:.2f}")
 
-    while time.time() - t0 < tlimit * 0.95:
-        remaining = tlimit * 0.95 - (time.time() - t0)
-        if remaining < 0.2:
+    while True:
+        remaining = deadline - time.time()   # 데드라인까지 남은 초 (절대 시각 기준)
+        if remaining < 0.5:                  # 0.5초 미만 → 즉시 중단
             break
 
-        t_rep   = min(_REPAIR_TLIMIT, remaining / 2.0) if use_gurobi_repair else 0.0
+        # repair 1회 시간 = 남은 시간의 절반 또는 _REPAIR_TLIMIT 중 작은 값
+        # 단, 새 이터레이션을 시작하기에 너무 짧으면 중단
+        t_rep = min(_REPAIR_TLIMIT, remaining * 0.5) if use_gurobi_repair else 0.0
+        if use_gurobi_repair and t_rep < 0.1:
+            break
+
         destroy = random.sample(range(n), min(k, n))
         fixed   = {i: current[i] for i in range(n) if i not in destroy}
 
@@ -647,7 +660,8 @@ def _adaptive_lns(prob_info, warm, orients, tlimit, use_gurobi_repair):
             if cand_obj < best_obj:
                 best     = copy.deepcopy(candidate)
                 best_obj = cand_obj
-                print(f"[{tag}] it={it:5d}  obj={best_obj:.2f}  k={k}  t={time.time()-t0:.1f}s")
+                print(f"[{tag}] it={it:5d}  obj={best_obj:.2f}"
+                      f"  k={k}  t={time.time()-t0_lns:.1f}s")
         else:
             no_impr += 1
             if no_impr >= patience:
@@ -657,7 +671,7 @@ def _adaptive_lns(prob_info, warm, orients, tlimit, use_gurobi_repair):
                 no_impr  = 0
         it += 1
 
-    print(f"[{tag}] done  it={it}  obj={best_obj:.2f}  t={time.time()-t0:.1f}s")
+    print(f"[{tag}] done  it={it}  obj={best_obj:.2f}  t={time.time()-t0_lns:.1f}s")
     return best
 
 
@@ -757,6 +771,22 @@ def algorithm(prob_info, timelimit=60):
     Bay scheduling 최적화 알고리즘.
     myalgorithm.py 에서 casat_cheddochi.algorithm(prob_info, timelimit) 으로 호출.
 
+    시간 관리 설계
+    ─────────────────────────────────────────────────────────────────
+    deadline  = 현재 시각 + timelimit - _PHASE2_RESERVE
+                Phase 2(공간 배치)·출력 빌더 실행 시간을 미리 예약한다.
+
+    best_solution 체크포인트
+      Phase 0 완료 직후: warm start 해 → best_solution 확보  ← 즉시 반환 가능
+      Phase 1 완료 직후: 최적화 해  → best_solution 갱신
+
+    각 단계별 시간 초과 처리
+      Phase 0  항상 실행 (빠름, 수 ms).
+      Phase 1  deadline 까지 남은 시간이 _MIN_PHASE1(2초) 미만이면 건너뜀.
+               Gurobi/CP-SAT: TimeLimit 파라미터로 내부 제어.
+               LNS          : deadline 을 직접 전달 → 이터레이션 수준 제어.
+      Phase 2  best_solution 확정 후 항상 실행 (_PHASE2_RESERVE 안에서 완료).
+
     실행 흐름
     ─────────
     Phase 0  EDD warm start          (fast greedy, 항상 실행)
@@ -773,8 +803,22 @@ def algorithm(prob_info, timelimit=60):
     pip install gurobipy   # 1순위 (Gurobi 라이선스 필요)
     pip install ortools    # 2순위 (무료)
     """
-    t0 = time.time()
-    n  = len(prob_info["blocks"])
+    t0       = time.time()
+    n        = len(prob_info["blocks"])
+    # Phase 2 + 출력 빌더를 위해 _PHASE2_RESERVE 초 예약
+    # timelimit 이 짧은 경우 예약량을 10% 로 줄임 (최소 2초)
+    reserve  = max(2.0, min(_PHASE2_RESERVE, timelimit * 0.10))
+    deadline = t0 + timelimit - reserve      # 이 시각까지만 최적화 수행
+    _MIN_PHASE1 = 2.0                        # Phase 1 시작 최소 잔여 시간 (초)
+
+    def _t_left():
+        """deadline 까지 남은 시간 (음수 = 이미 초과)."""
+        return deadline - time.time()
+
+    def _finalize(sched):
+        """스케줄 dict → check_feasibility 호환 solution dict (Phase 2)."""
+        pos = _spatial(prob_info, sched)
+        return _build_solution(sched, pos)
 
     # 솔버 레이블
     if _HAS_GUROBI:
@@ -786,7 +830,7 @@ def algorithm(prob_info, timelimit=60):
 
     print(f"\n[casat_cheddochi] {'═'*38}")
     print(f"[casat_cheddochi] n_blocks   = {n}")
-    print(f"[casat_cheddochi] timelimit  = {timelimit}s")
+    print(f"[casat_cheddochi] timelimit  = {timelimit}s  (reserve={reserve:.1f}s)")
     print(f"[casat_cheddochi] Gurobi={'O' if _HAS_GUROBI else 'X'}"
           f"  OR-Tools={'O' if _HAS_ORTOOLS else 'X'}")
     print(f"[casat_cheddochi] phase 1    = {label}")
@@ -798,39 +842,56 @@ def algorithm(prob_info, timelimit=60):
         import baseline_greedy
         return baseline_greedy.greedyalgorithm(prob_info, timelimit)
 
+    best_solution = None   # 언제든 반환 가능한 최선해 (체크포인트)
+
     try:
-        # ── Phase 0 ────────────────────────────────────────────────────────
+        # ── Phase 0: EDD warm start ────────────────────────────────────────
         orients = _precompute_orients(prob_info)
         warm    = _warm_start(prob_info, orients)
+
+        # 체크포인트 1: warm start 해 즉시 확보
+        # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
+        best_solution = _finalize(warm)
         print(f"[casat_cheddochi] Phase 0  obj={_objective(prob_info,warm):.2f}"
-              f"  t={time.time()-t0:.2f}s")
+              f"  t={time.time()-t0:.2f}s  (checkpoint saved)")
 
-        # ── Phase 1 ────────────────────────────────────────────────────────
-        t_left = timelimit * 0.95 - (time.time() - t0)
+        # ── 시간 가드: Phase 1 시작 가능 여부 확인 ─────────────────────────
+        if _t_left() < _MIN_PHASE1:
+            print(f"[casat_cheddochi] 시간 부족 ({_t_left():.1f}s < {_MIN_PHASE1}s)"
+                  f" → Phase 1 건너뜀, warm start 해 반환")
+            return best_solution
 
+        # ── Phase 1: 스케줄 최적화 ─────────────────────────────────────────
         if _HAS_GUROBI:
-            sched = (_gurobi_mip(prob_info, warm, orients, t_left)
-                     if n <= _MIP_LIMIT
-                     else _adaptive_lns(prob_info, warm, orients, t_left,
-                                        use_gurobi_repair=True))
+            if n <= _MIP_LIMIT:
+                # Gurobi TimeLimit 에 _t_left() 전달 → 내부에서 시간 제어
+                sched = _gurobi_mip(prob_info, warm, orients, _t_left())
+            else:
+                # deadline 직접 전달 → LNS 이터레이션 수준 제어
+                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                                      use_gurobi_repair=True)
         else:  # _HAS_ORTOOLS
-            sched = (_cpsat_mip(prob_info, warm, orients, t_left)
-                     if n <= _MIP_LIMIT
-                     else _adaptive_lns(prob_info, warm, orients, t_left,
-                                        use_gurobi_repair=False))
+            if n <= _MIP_LIMIT:
+                sched = _cpsat_mip(prob_info, warm, orients, _t_left())
+            else:
+                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                                      use_gurobi_repair=False)
 
+        # 체크포인트 2: Phase 1 최적화 해로 갱신
+        best_solution = _finalize(sched)
         print(f"[casat_cheddochi] Phase 1  obj={_objective(prob_info,sched):.2f}"
-              f"  t={time.time()-t0:.2f}s")
-
-        # ── Phase 2 ────────────────────────────────────────────────────────
-        pos      = _spatial(prob_info, sched)
-        solution = _build_solution(sched, pos)
-
-        print(f"[casat_cheddochi] done  total={time.time()-t0:.2f}s")
-        print(f"[casat_cheddochi] {'═'*38}\n")
-        return solution
+              f"  t={time.time()-t0:.2f}s  (checkpoint updated)")
 
     except Exception as e:
-        print(f"[casat_cheddochi] 오류: {e}  → baseline_greedy 폴백")
-        import baseline_greedy
-        return baseline_greedy.greedyalgorithm(prob_info, timelimit)
+        # Phase 1 도중 오류 발생 → 체크포인트 1 (warm start 해) 사용
+        print(f"[casat_cheddochi] Phase 1 오류: {e}"
+              f"  → checkpoint 해 반환 (t={time.time()-t0:.2f}s)")
+
+    # ── Phase 2: 공간 배치는 best_solution 확보 과정에서 이미 수행됨 ─────────
+    # _finalize() 가 _spatial + _build_solution 을 포함하므로 별도 Phase 2 없음.
+    elapsed = time.time() - t0
+    remaining_after = timelimit - elapsed
+    print(f"[casat_cheddochi] done  total={elapsed:.2f}s"
+          f"  (잔여={remaining_after:.2f}s / reserve={reserve:.1f}s)")
+    print(f"[casat_cheddochi] {'═'*38}\n")
+    return best_solution
