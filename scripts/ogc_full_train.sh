@@ -6,6 +6,8 @@ if [[ -n "${PYTHON:-}" ]]; then
   PYTHON_BIN="$PYTHON"
 elif [[ -x "$ROOT/.venv/bin/python" ]]; then
   PYTHON_BIN="$ROOT/.venv/bin/python"
+elif [[ -x "/private/tmp/ogc2026-venv/bin/python" ]]; then
+  PYTHON_BIN="/private/tmp/ogc2026-venv/bin/python"
 else
   PYTHON_BIN="python3"
 fi
