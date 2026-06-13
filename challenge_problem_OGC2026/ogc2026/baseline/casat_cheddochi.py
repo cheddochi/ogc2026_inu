@@ -823,6 +823,26 @@ def algorithm(prob_info, timelimit=60):
         pos = _spatial(prob_info, sched)
         return _build_solution(sched, pos)
 
+    def _checked_or_fallback(solution, reason):
+        """Validate with the official checker; fall back to greedy if needed."""
+        try:
+            from utils import check_feasibility
+            result = check_feasibility(prob_info, solution)
+            if result["feasible"]:
+                print(f"[casat_cheddochi] feasibility PASS ({reason})"
+                      f"  obj={result['objective']:.2f}")
+                return solution
+            print(f"[casat_cheddochi] feasibility FAIL ({reason})"
+                  f"  stage={result['stage']} → baseline_greedy fallback")
+            for v in result["violations"][:3]:
+                print(f"[casat_cheddochi]   {v}")
+        except Exception as e:
+            print(f"[casat_cheddochi] feasibility check error ({reason}): {e}"
+                  " → baseline_greedy fallback")
+
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, timelimit)
+
     # 솔버 레이블
     if _HAS_GUROBI:
         label = "Gurobi MIP" if n <= _MIP_LIMIT else "LNS+Gurobi repair"
@@ -838,6 +858,11 @@ def algorithm(prob_info, timelimit=60):
           f"  OR-Tools={'O' if _HAS_ORTOOLS else 'X'}")
     print(f"[casat_cheddochi] phase 1    = {label}")
     print(f"[casat_cheddochi] {'─'*38}")
+
+    if timelimit <= 10:
+        print("[casat_cheddochi] 짧은 timelimit → baseline_greedy fast fallback")
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, timelimit)
 
     # Gurobi / OR-Tools 모두 없으면 바로 baseline_greedy 폴백
     if not _HAS_GUROBI and not _HAS_ORTOOLS:
@@ -862,7 +887,7 @@ def algorithm(prob_info, timelimit=60):
         if _t_left() < _MIN_PHASE1:
             print(f"[casat_cheddochi] 시간 부족 ({_t_left():.1f}s < {_MIN_PHASE1}s)"
                   f" → Phase 1 건너뜀, warm start 해 반환")
-            return best_solution
+            return _checked_or_fallback(best_solution, "warm start")
 
         # ── Phase 1: 스케줄 최적화 ─────────────────────────────────────────
         if _HAS_GUROBI:
@@ -897,4 +922,4 @@ def algorithm(prob_info, timelimit=60):
     print(f"[casat_cheddochi] done  total={elapsed:.2f}s"
           f"  (잔여={remaining_after:.2f}s / reserve={reserve:.1f}s)")
     print(f"[casat_cheddochi] {'═'*38}\n")
-    return best_solution
+    return _checked_or_fallback(best_solution, "phase 1")
