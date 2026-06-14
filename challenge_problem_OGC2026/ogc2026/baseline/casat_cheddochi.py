@@ -713,7 +713,6 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
         candidate = (_gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
                      if use_gurobi_repair
                      else _greedy_repair(prob_info, fixed, destroy, orients))
-        candidate = _repair_capacity(prob_info, candidate, orients)
         cand_obj  = _objective(prob_info, candidate)
 
         if cand_obj < cur_obj:
@@ -737,48 +736,6 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
 
     print(f"[{tag}] done  it={it}  obj={best_obj:.2f}  t={time.time()-t0_lns:.1f}s")
     return best
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# §9.5  1D bay 용량 보정 (Phase 3 — repair/MIP 결과 2D 정합화)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _repair_capacity(prob_info, sched, orients):
-    """
-    동시 점유 column-width 합이 bay 폭을 넘는 1D 스케줄을 entry_time 지연으로
-    해소한다 (_warm_start/_greedy_repair와 동일한 timeline 기반 용량 체크).
-
-    _gurobi_repair/_gurobi_mip/_cpsat_mip의 pairwise 분리 제약(_conflict_pairs)은
-    cw_i+cw_j<=W 인 블록쌍은 시간 분리를 강제하지 않는다 — 이런 블록 3개 이상이
-    동시에 폭을 초과해도 MIP 입장에서는 "충돌 없음"이다. 이 위반 상태를 그대로
-    _spatial에 넘기면 대규모 postponement로 objective가 폭증한다
-    (예: prob_31 LNS+Gurobi 후보: _objective 583,584 → check_feasibility
-    300,901,137). 이 함수를 거치면 _objective가 _spatial 이후 실제 objective에
-    근접해, LNS의 accept/reject 및 Phase 5 ratchet 비교가 의미를 가진다.
-
-    이미 용량 위반이 없는 스케줄(예: warm start)에는 영향이 없다(no-op).
-    """
-    blocks, bays = prob_info["blocks"], prob_info["bays"]
-    repaired = {}
-    for b in range(len(bays)):
-        W   = int(bays[b]["width"])
-        ids = sorted((bi for bi in sched if sched[bi]["bay_id"] == b),
-                      key=lambda i: (sched[i]["entry_time"], sched[i]["exit_time"], i))
-        timeline = []
-        for bi in ids:
-            p, cw = blocks[bi]["processing_time"], orients[(bi, b)][1]
-            entry = sched[bi]["entry_time"]
-            if cw <= W:  # cw > W (들어갈 방향 없음)이면 보정 불가 → 원래 시각 유지
-                while True:
-                    exit_t = entry + p
-                    used = sum(cu for a, e, cu in timeline if a < exit_t and e > entry)
-                    if used + cw <= W:
-                        break
-                    entry = min(e for a, e, cu in timeline if a < exit_t and e > entry)
-            timeline.append((entry, entry + p, cw))
-            repaired[bi] = {"block_id": bi, "bay_id": b,
-                            "entry_time": int(entry), "exit_time": int(entry + p)}
-    return repaired
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -961,13 +918,7 @@ def algorithm(prob_info, timelimit=60):
         return deadline - time.time()
 
     def _finalize(sched):
-        """스케줄 dict → check_feasibility 호환 solution dict (Phase 2).
-
-        _spatial 전에 _repair_capacity로 1D bay 용량 위반(_gurobi_mip/
-        _cpsat_mip/_gurobi_repair의 pairwise 제약 한계)을 먼저 해소해
-        postponement 폭증을 방지한다.
-        """
-        sched = _repair_capacity(prob_info, sched, orients)
+        """스케줄 dict → check_feasibility 호환 solution dict (Phase 2)."""
         pos, sched2 = _spatial(prob_info, sched)
         return _build_solution(sched2, pos)
 

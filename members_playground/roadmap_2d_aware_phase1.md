@@ -270,21 +270,42 @@ Phase 2~3 완료 후:
       bottom-left-fill로 재작성 (AABB-분리 충분조건으로 Stage2~4 항상
       통과 보장) — **train set 40/40 feasible 달성** (iter2,
       objective 917,417,673 / T 90,704)
-- [x] Phase 3: `_greedy_repair`/`_gurobi_repair`를 2D 제약과 정합되게 수정 —
-      **`_repair_capacity`(§9.5, 신규) 추가**. `_conflict_pairs` 기반
-      pairwise 분리(`_gurobi_repair`/`_gurobi_mip`/`_cpsat_mip`)는
-      `cw_i+cw_j<=W`인 블록쌍은 분리하지 않으므로, 그런 블록 3개 이상이
-      동시에 bay 폭을 초과해도 MIP은 "충돌 없음"으로 본다. 이 위반을
-      그대로 `_spatial`에 넘기면 대규모 postponement로 objective가
-      폭증한다 (실측: prob_31 LNS+Gurobi 후보 `_objective` 583,584 →
-      `check_feasibility` 300,901,137, bay1 동시점유 cw합 504 vs
-      폭 37). `_repair_capacity`는 `_warm_start`/`_greedy_repair`와
-      동일한 timeline 기반 용량 체크로 entry_time을 지연시켜 위반을
-      해소한다 (이미 위반 없는 스케줄엔 no-op). 적용 지점:
-      (1) `_adaptive_lns`의 candidate 평가 직전 — LNS의 accept/reject가
-      실제 objective에 근접한 값을 보게 됨,
-      (2) `algorithm()`의 `_finalize` — `_spatial` 직전에 적용해
-      체크포인트 1/2 모두(워밍스타트·Phase1) 1D 용량 위반을 먼저 해소.
+- [x] Phase 3 (시도 → 회귀 확인 → 롤백): `_greedy_repair`/`_gurobi_repair`를
+      2D 제약과 정합되게 수정하기 위해 **`_repair_capacity`(1D timeline
+      기반 entry_time 지연 보정)** 를 (1) `_adaptive_lns`의 candidate
+      평가 직전, (2) `algorithm()`의 `_finalize`(=`_spatial` 직전)에
+      적용했다. 동기: `_conflict_pairs` 기반 pairwise 분리
+      (`_gurobi_repair`/`_gurobi_mip`/`_cpsat_mip`)는 `cw_i+cw_j<=W`인
+      블록쌍은 분리하지 않으므로, 그런 블록 3개 이상이 동시에 bay 폭을
+      초과해도 MIP은 "충돌 없음"으로 본다 (실측: prob_31 LNS+Gurobi
+      후보 `_objective` 583,584 → `check_feasibility` 300,901,137,
+      bay1 동시점유 cw합 504 vs 폭 37).
+
+      **결과: 40/40 feasible 유지했지만 전체 objective가 악화**
+      (iter5 580,313,244 → iter6 625,843,437, +7.8%). 원인 분석: warm
+      start처럼 1D 용량 위반이 없는 스케줄에는 no-op이지만,
+      `_gurobi_mip`/`_cpsat_mip`/`_gurobi_repair`의 출력처럼 "1D
+      column-width 합이 bay 폭을 넘는" 스케줄에 대해, **`_spatial`은
+      y축 stacking으로 이미 무리 없이(또는 적은 지연으로) 배치할 수
+      있는 경우가 많은데**, `_repair_capacity`는 1D 정보만 보고
+      선제적으로 entry_time을 지연시켜 **`_spatial`이 필요로 하지
+      않았을 tardiness를 추가로 만들어낸다** (실측: prob_1 — Gurobi
+      MIP 해를 그대로 `_spatial`에 넘기면 205,702, `_repair_capacity`
+      선보정 후 `_spatial`은 1,078,432로 악화). n>150(LNS) 쪽도 일부
+      개선(prob_10: 345,079→177,145)되었지만, capacity-aware 평가가
+      LNS의 탐색 경로를 바꿔 다른 인스턴스(prob_33/34/35 등)에서
+      기존에 ratchet이 채택했던 "1D상 위반이지만 `_spatial` 후에는
+      더 나은" 해를 못 찾게 되어 checkpoint1(warm)로 후퇴했다.
+
+      **조치: 두 적용 지점과 `_repair_capacity` 함수를 모두 롤백**
+      (커밋 497fc26 → 되돌림). 결론: 1D column-width 합 기반의
+      사후 보정은 `_spatial`의 실제 2D(x,y) 배치 능력보다 더
+      보수적인 근사라서 "수정"이 오히려 손해다. 진짜 2D-aware Phase 3을
+      하려면, repair 후보 평가 시 1D 근사가 아니라 **`_spatial`과
+      동일한 (x,y,orient) bottom-left-fill 탐색으로 실제 배치
+      가능성을 확인**해야 한다 (로드맵 원안의 Phase 3 방향 1번) —
+      이는 `_spatial` 자체를 부분적으로 호출/재사용해야 하는 더 큰
+      작업이라 별도 세션에서 다뤄야 한다.
 - [x] Phase 4: `_FAST_GREEDY_THRESHOLD` 재검토 — **버그 발견 및 수정**:
       값이 `1`로 설정되어 있어 `n >= _FAST_GREEDY_THRESHOLD`가 항상
       참이 되고, `algorithm()`이 Phase 0-1-2를 절대 실행하지 못한 채
