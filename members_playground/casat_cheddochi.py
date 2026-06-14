@@ -1272,13 +1272,17 @@ def algorithm(prob_info, timelimit=60):
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
-        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정하므로,
-        # Phase 1(_adaptive_lns 등)에 전달할 pre-spatial 스케줄이 오염되지
-        # 않도록 _finalize에는 별도 복사본을 전달한다.
+        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정한다.
+        # _adaptive_lns(LNS, n > _MIP_LIMIT)는 cumulative 근사 모델을 사용하므로
+        # _spatial의 2D 배치 repair로 변형된 entry/exit_time을 받으면 fixed
+        # 블록과의 시간/폭 정합이 깨져 repair 품질이 떨어진다 → pre-spatial
+        # 원본(warm_lns)을 별도로 보존해 _adaptive_lns에 전달한다.
+        # 반면 _cpsat_mip/_gurobi_mip(n <= _MIP_LIMIT)의 워밍스타트 힌트는
+        # post-spatial 버전을 사용하는 기존 동작을 유지한다 (회귀 방지).
         # _objective는 _finalize 호출 *이후*에 계산해야 실제 반환 해의 목적값과 일치한다.
-        warm_for_finalize = {bi: dict(v) for bi, v in warm.items()}
-        best_solution = _finalize(warm_for_finalize)
-        best_obj_final = _objective(prob_info, warm_for_finalize)
+        warm_lns = {bi: dict(v) for bi, v in warm.items()}
+        best_solution = _finalize(warm)
+        best_obj_final = _objective(prob_info, warm)
         print(f"[casat_cheddochi] Phase 0  obj={best_obj_final:.2f}"
               f"  t={time.time()-t0:.2f}s  (checkpoint saved)")
 
@@ -1295,13 +1299,14 @@ def algorithm(prob_info, timelimit=60):
                 sched = _gurobi_mip(prob_info, warm, orients, _t_left())
             else:
                 # deadline 직접 전달 → LNS 이터레이션 수준 제어
-                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                # pre-spatial 원본(warm_lns) 사용 → cumulative repair 정합성 보존
+                sched = _adaptive_lns(prob_info, warm_lns, orients, deadline,
                                       use_gurobi_repair=True, feasible_bays=feasible_bays)
         else:  # _HAS_ORTOOLS
             if n <= _MIP_LIMIT:
                 sched = _cpsat_mip(prob_info, warm, orients, _t_left())
             else:
-                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                sched = _adaptive_lns(prob_info, warm_lns, orients, deadline,
                                       use_gurobi_repair=False, feasible_bays=feasible_bays)
 
         # 체크포인트 2: Phase 1 최적화 해가 (post-spatial 기준) Phase 0보다
