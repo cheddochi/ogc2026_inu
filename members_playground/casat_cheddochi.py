@@ -928,7 +928,7 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
         elif len(destroy) <= _CPSAT_REPAIR_MAX_K:
             # CP-SAT 소형 repair (Gurobi 없을 때): k개 블록을 동시 최적화.
             # repair 1회 시간 = 남은 시간의 일부 또는 _REPAIR_TLIMIT 중 작은 값.
-            t_rep_cp = min(_REPAIR_TLIMIT, max(0.1, remaining * 0.3))
+            t_rep_cp = min(1.0, max(0.1, remaining * 0.3))
             candidate = _cpsat_repair(prob_info, fixed, destroy, orients, feasible_bays, t_rep_cp)
         else:
             candidate = _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays,
