@@ -53,7 +53,7 @@ _MAX_MEM_GB     = 14      # 솔버 허용 메모리 상한 (GB)
                           # 16GB 전체 중 OS·Python 프로세스용 2GB 여유 확보
                           # Gurobi : NodefileStart + SoftMemLimit 으로 적용
                           # CP-SAT : max_memory_in_mb 으로 적용
-_FEASIBLE_FIRST = True
+_FEASIBLE_FIRST = False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -71,17 +71,41 @@ def _col_w(blk, oi):
     lx0, _, lx1, _ = _bbox(blk, oi)
     return max(1, math.ceil(lx1 - lx0))
 
+
+def _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
+    """
+    정수 좌표 (px, py) 로 바운딩박스를 bay 안에 둘 수 있는지 확인.
+
+    px + lx0 >= 0  및  px + lx1 <= bay_w 를 동시에 만족하는 정수 px가
+    존재해야 한다 (마찬가지로 y에 대해서도).  즉
+        ceil(-lx0) <= floor(bay_w - lx1)
+    실수 폭(lx1-lx0)이 bay_w 이하라도, ceil/floor 라운딩 때문에
+    정수 그리드 상에는 들어갈 자리가 없을 수 있다 (margin이 1 미만일 때).
+    """
+    px_lo, px_hi = math.ceil(-lx0 - 1e-9), math.floor(bay_w - lx1 + 1e-9)
+    py_lo, py_hi = math.ceil(-ly0 - 1e-9), math.floor(bay_h - ly1 + 1e-9)
+    return px_lo <= px_hi and py_lo <= py_hi
+
+
 def _narrowest_orient(blk, bay_w, bay_h):
-    """bay 에 들어가는 방향 중 가장 좁은 것. (orient_idx, col_width)."""
+    """
+    bay 에 들어가는 방향 중 가장 좁은 것. (orient_idx, col_width).
+
+    정수 그리드 상에 배치 가능한 방향이 없으면 (= 이 블록을 이 bay에 절대
+    배치할 수 없으면) col_width = bay_w + 1 (capacity 초과 sentinel) 을
+    반환한다. 이렇게 하면 _conflict_pairs / AddCumulative / greedy 의
+    "used + cw <= W" 체크가 항상 실패해, Phase 1이 이 (block,bay) 조합을
+    선택하지 않도록 만든다 → _spatial 에서 "bay 자체에 안 맞음" 케이스 제거.
+    """
     best_oi, best_cw = 0, float("inf")
     for oi in range(len(blk["shape"])):
         lx0, ly0, lx1, ly1 = _bbox(blk, oi)
-        if (lx1 - lx0) <= bay_w + 1e-6 and (ly1 - ly0) <= bay_h + 1e-6:
+        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
             cw = math.ceil(lx1 - lx0)
             if cw < best_cw:
                 best_cw, best_oi = cw, oi
     if best_cw == float("inf"):
-        best_oi, best_cw = 0, _col_w(blk, 0)
+        best_oi, best_cw = 0, int(bay_w) + 1  # capacity 초과 sentinel → 선택 방지
     return best_oi, best_cw
 
 def _precompute_orients(prob_info):
@@ -91,6 +115,37 @@ def _precompute_orients(prob_info):
         (bi, b): _narrowest_orient(blocks[bi], bays[b]["width"], bays[b]["height"])
         for bi in range(len(blocks)) for b in range(len(bays))
     }
+
+
+def _fits_bay(blk, bay_w, bay_h):
+    """블록이 어떤 방향으로든 정수 그리드 상에서 (bay_w x bay_h) 안에 들어가면 True."""
+    for oi in range(len(blk["shape"])):
+        lx0, ly0, lx1, ly1 = _bbox(blk, oi)
+        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
+            return True
+    return False
+
+
+def _feasible_bays(prob_info):
+    """
+    block_id → 해당 블록이 들어갈 수 있는 bay_id 집합.
+
+    어떤 방향으로도 bay 크기에 맞지 않는 (block, bay) 조합은 Phase 1의
+    모든 솔버/휴리스틱에서 배제한다 (CP-SAT in_b 강제 0, greedy 후보 제외 등).
+    각 블록은 최소 한 개 이상의 bay에 들어맞는다고 가정한다
+    (문제 인스턴스가 그렇게 보장되어야 함; 그렇지 않으면 가장 큰 bay로 폴백).
+    """
+    blocks, bays = prob_info["blocks"], prob_info["bays"]
+    n, M = len(blocks), len(bays)
+    result = {}
+    for bi in range(n):
+        feas = {b for b in range(M)
+                if _fits_bay(blocks[bi], bays[b]["width"], bays[b]["height"])}
+        if not feas:
+            # 어떤 bay에도 안 맞음 (이론상 발생 안 함) → 가장 큰 bay로 폴백
+            feas = {max(range(M), key=lambda b: bays[b]["width"] * bays[b]["height"])}
+        result[bi] = feas
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -119,13 +174,15 @@ def _objective(prob_info, sched):
 # §3  Phase 0 — EDD warm start
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _warm_start(prob_info, orients):
+def _warm_start(prob_info, orients, feasible_bays=None):
     """
     EDD 순서로 bay 배정.
     각 블록에 대해 선호도 높은 bay부터 순회하며
     누적 열 폭 합 ≤ bay 폭인 가장 이른 진입 슬롯을 선택한다.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
+    if feasible_bays is None:
+        feasible_bays = _feasible_bays(prob_info)
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
     order  = sorted(range(len(blocks)),
@@ -157,7 +214,8 @@ def _warm_start(prob_info, orients):
                     break
 
         if best is None:                        # 빈 bay 구간 강제 배치
-            bay_id = max(range(n_bays), key=lambda j: prefs[j])
+            feas   = feasible_bays.get(bi, set(range(n_bays))) or set(range(n_bays))
+            bay_id = max(feas, key=lambda j: prefs[j])
             _, cw  = orients[(bi, bay_id)]
             entry  = r
             changed = True
@@ -334,6 +392,7 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
     w3 = prob_info.get("weights", {}).get("w3", 1.0)
 
     cw = [min(orients[(i, b)][1] for b in range(M)) for i in range(n)]
+    feasible_bays = _feasible_bays(prob_info)
     T  = (max(blocks[i]["due_date"] for i in range(n)) * 2
           + sum(blocks[i]["processing_time"] for i in range(n)))
     S  = 1000   # float → int 스케일
@@ -352,6 +411,8 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
         for b in range(M):
             mdl.Add(bay_v[i] == b).OnlyEnforceIf(in_b[i][b])
             mdl.Add(bay_v[i] != b).OnlyEnforceIf(in_b[i][b].Not())
+            if b not in feasible_bays[i]:
+                mdl.Add(in_b[i][b] == 0)  # 어떤 방향으로도 bay b에 안 맞음 → 배정 금지
 
     for b in range(M):
         ivs, dems = [], []
@@ -424,11 +485,13 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
 # §7  Greedy repair  (LNS 폴백 / Gurobi warm start 용)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _greedy_repair(prob_info, fixed, to_place, orients):
+def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None):
     """EDD 순서 greedy 재배치. MIP repair의 warm start 및 폴백으로 사용."""
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
+    if feasible_bays is None:
+        feasible_bays = _feasible_bays(prob_info)
 
     timeline = [[] for _ in range(n_bays)]
     for bi, s in fixed.items():
@@ -464,7 +527,8 @@ def _greedy_repair(prob_info, fixed, to_place, orients):
                     break
 
         if best is None:
-            bay_id = max(range(n_bays), key=lambda j: prefs[j])
+            feas   = feasible_bays.get(bi, set(range(n_bays))) or set(range(n_bays))
+            bay_id = max(feas, key=lambda j: prefs[j])
             _, cw  = orients[(bi, bay_id)]
             entry  = r
             changed = True
@@ -644,7 +708,7 @@ def _worst_blocks(prob_info, sched, k, n):
 # §9  Adaptive LNS  (n > _MIP_LIMIT)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
+def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasible_bays=None):
     """
     Adaptive LNS.
 
@@ -702,7 +766,7 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
 
         candidate = (_gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
                      if use_gurobi_repair
-                     else _greedy_repair(prob_info, fixed, destroy, orients))
+                     else _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays))
         cand_obj  = _objective(prob_info, candidate)
 
         if cand_obj < cur_obj:
@@ -732,13 +796,24 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
 # §10  Phase 2 — 열 기반 공간 배치 (후처리)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _rects_overlap(a, b, eps=1e-6):
+    """AABB overlap test (strict interior), a/b = (x0, y0, x1, y1)."""
+    return a[0] < b[2] - eps and b[0] < a[2] - eps and a[1] < b[3] - eps and b[1] < a[3] - eps
+
+
 def _spatial(prob_info, sched):
     """
     (bay_id, entry_time, exit_time) 확정 스케줄 → (x, y, orient_idx).
 
-    bay별로 진입 시각 순 처리.  이미 배치된 동시 거주 블록의 x 범위를
-    피해 첫 번째 빈 간격에 삽입한다.
-    Phase 1의 누적 폭 제약이 총 열 폭 ≤ bay 폭을 보장하므로 항상 성공.
+    bay별로 진입 시각 순 처리.  현재 블록과 시간적으로 겹치는(동시 거주)
+    이미 배치된 블록들의 전체 바운딩박스(x AND y)를 피해 빈 자리에 배치한다.
+    (단순 x-구간 패킹이 아니라 진짜 2D AABB 비충돌 배치.)
+
+    실패(빈 자리 없음) 시 repair: entry_time을 충돌 블록들 중 가장 이른
+    exit_time으로 미루고 재시도한다.  이렇게 미뤄진 entry_time은
+    sched 자체에 반영되어 _build_solution 출력과 일치한다.
+    Phase 1의 누적 폭 근사 제약이 보수적이므로 일반적으로 repair는
+    드물게만 발생한다.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     pos = {}
@@ -747,44 +822,91 @@ def _spatial(prob_info, sched):
         bay_w = bays[b]["width"]
         bay_h = bays[b]["height"]
         ids   = sorted((bi for bi in sched if sched[bi]["bay_id"] == b),
-                       key=lambda i: sched[i]["entry_time"])
+                       key=lambda i: (sched[i]["entry_time"], i))
 
         for bi in ids:
-            entry_i = sched[bi]["entry_time"]
-            exit_i  = sched[bi]["exit_time"]
+            n_orients = len(blocks[bi]["shape"])
+            # 좁은(열 폭 작은) 방향부터 시도
+            orient_order = sorted(range(n_orients), key=lambda o: _col_w(blocks[bi], o))
 
-            occupied = []
-            for bj, (px_j, _, oj) in pos.items():
-                if sched[bj]["bay_id"] != b:
-                    continue
-                if sched[bj]["entry_time"] < exit_i and sched[bj]["exit_time"] > entry_i:
-                    lx0j, _, lx1j, _ = _bbox(blocks[bj], oj)
-                    occupied.append((px_j + lx0j, px_j + lx1j))
-            occupied.sort()
+            while True:
+                entry_i = sched[bi]["entry_time"]
+                exit_i  = sched[bi]["exit_time"]
 
-            placed = False
-            for oi in sorted(range(len(blocks[bi]["shape"])),
-                             key=lambda o: _col_w(blocks[bi], o)):
-                lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
-                w, h = lx1 - lx0, ly1 - ly0
-                if h > bay_h + 1e-6:
-                    continue
-                for x_try in [0.0] + [xe for _, xe in occupied]:
-                    x_end = x_try + w
-                    if x_end > bay_w + 1e-6:
+                # 시간적으로 겹치는 이미 배치된 블록들의 전체 AABB 수집
+                actives = []  # (bj, (x0,y0,x1,y1), exit_time)
+                for bj, (px_j, py_j, oj) in pos.items():
+                    if sched[bj]["bay_id"] != b:
                         continue
-                    if not any(x_try < xe - 1e-6 and x_end > xs + 1e-6
-                                for xs, xe in occupied):
-                        pos[bi] = (max(0, math.ceil(x_try - lx0)),
-                                   max(0, math.ceil(-ly0)), oi)
-                        placed   = True
+                    if sched[bj]["entry_time"] < exit_i and sched[bj]["exit_time"] > entry_i:
+                        lx0j, ly0j, lx1j, ly1j = _bbox(blocks[bj], oj)
+                        actives.append((bj, (px_j + lx0j, py_j + ly0j,
+                                              px_j + lx1j, py_j + ly1j),
+                                        sched[bj]["exit_time"]))
+
+                placed = False
+                for oi in orient_order:
+                    lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
+                    if not _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
+                        continue
+
+                    # 정수 좌표 후보: bay 원점과 활성 블록들의 우측/상단 경계(올림)
+                    # px + lx0 >= 0  (bay 좌측 경계) 을 만족하는 최소값을 하한으로 사용
+                    px_min = max(0, math.ceil(-lx0 - 1e-9))
+                    py_min = max(0, math.ceil(-ly0 - 1e-9))
+                    px_cands = sorted({px_min} | {math.ceil(a[1][2] - lx0 - 1e-9) for a in actives})
+                    py_cands = sorted({py_min} | {math.ceil(a[1][3] - ly0 - 1e-9) for a in actives})
+
+                    for px in px_cands:
+                        if px < px_min:
+                            continue
+                        x0, x1 = px + lx0, px + lx1
+                        if x1 > bay_w + 1e-6 or x0 < -1e-6:
+                            continue
+                        for py in py_cands:
+                            if py < py_min:
+                                continue
+                            y0, y1 = py + ly0, py + ly1
+                            if y1 > bay_h + 1e-6 or y0 < -1e-6:
+                                continue
+                            cand = (x0, y0, x1, y1)
+                            if not any(_rects_overlap(cand, a[1]) for a in actives):
+                                pos[bi] = (px, py, oi)
+                                placed   = True
+                                break
+                        if placed:
+                            break
+                    if placed:
                         break
+
                 if placed:
                     break
 
-            if not placed:
-                lx0, ly0, _, _ = _bbox(blocks[bi], 0)
-                pos[bi] = (max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0)), 0)
+                # ── repair: 빈 자리가 없음 → entry_time을 미루고 재시도 ──
+                if not actives:
+                    # 활성 블록이 없는데도 배치 불가 → bay 자체에 못 들어감.
+                    # bay 크기에 실제로 맞는 방향(없으면 orient_order[0])으로
+                    # 원점에 강제 배치 (이론상 발생하지 않아야 함).
+                    fit_oi = None
+                    for oi in orient_order:
+                        lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
+                        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
+                            fit_oi = oi
+                            break
+                    if fit_oi is None:
+                        fit_oi = orient_order[0]
+                    lx0, ly0, _, _ = _bbox(blocks[bi], fit_oi)
+                    pos[bi] = (max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0)), fit_oi)
+                    break
+
+                new_entry = min(a[2] for a in actives)
+                if new_entry <= entry_i:
+                    new_entry = entry_i + 1  # 무한루프 방지 (이론상 발생 안 함)
+                proc = blocks[bi]["processing_time"]
+                sched[bi] = dict(sched[bi])
+                sched[bi]["entry_time"] = new_entry
+                sched[bi]["exit_time"]  = new_entry + proc
+                # while 루프 재시도
 
     return pos
 
@@ -979,7 +1101,8 @@ def algorithm(prob_info, timelimit=60):
     try:
         # ── Phase 0: EDD warm start ────────────────────────────────────────
         orients = _precompute_orients(prob_info)
-        warm    = _warm_start(prob_info, orients)
+        feasible_bays = _feasible_bays(prob_info)
+        warm    = _warm_start(prob_info, orients, feasible_bays)
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
@@ -1001,13 +1124,13 @@ def algorithm(prob_info, timelimit=60):
             else:
                 # deadline 직접 전달 → LNS 이터레이션 수준 제어
                 sched = _adaptive_lns(prob_info, warm, orients, deadline,
-                                      use_gurobi_repair=True)
+                                      use_gurobi_repair=True, feasible_bays=feasible_bays)
         else:  # _HAS_ORTOOLS
             if n <= _MIP_LIMIT:
                 sched = _cpsat_mip(prob_info, warm, orients, _t_left())
             else:
                 sched = _adaptive_lns(prob_info, warm, orients, deadline,
-                                      use_gurobi_repair=False)
+                                      use_gurobi_repair=False, feasible_bays=feasible_bays)
 
         # 체크포인트 2: Phase 1 최적화 해로 갱신
         best_solution = _finalize(sched)
