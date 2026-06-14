@@ -22,7 +22,7 @@ import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-from utils import _bounding_box, _resolve_layers
+from utils import Bay, Block, _bounding_box, _resolve_layers
 
 # ── 솔버 가용성 체크 ─────────────────────────────────────────────────────────
 try:
@@ -53,6 +53,7 @@ _MAX_MEM_GB     = 14      # 솔버 허용 메모리 상한 (GB)
                           # 16GB 전체 중 OS·Python 프로세스용 2GB 여유 확보
                           # Gurobi : NodefileStart + SoftMemLimit 으로 적용
                           # CP-SAT : max_memory_in_mb 으로 적용
+_FEASIBLE_FIRST = True
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -814,6 +815,81 @@ def _build_solution(sched, pos):
     return {"operations": ops}
 
 
+def _time_overlaps(a_entry, a_exit, b_entry, b_exit):
+    return a_entry < b_exit and b_entry < a_exit
+
+
+def _empty_bay_entry(schedule_in_bay, release_time, proc_time):
+    entry = int(release_time)
+    changed = True
+    while changed:
+        changed = False
+        exit_t = entry + int(proc_time)
+        for a, e in schedule_in_bay:
+            if _time_overlaps(entry, exit_t, a, e):
+                entry = max(entry, int(e))
+                changed = True
+    return entry
+
+
+def _serial_feasible_solution(prob_info):
+    """Official-tester-safe fallback: no time overlap inside the same bay."""
+    blocks, bays = prob_info["blocks"], prob_info["bays"]
+    bay_objs = [Bay.from_dict(d, i) for i, d in enumerate(bays)]
+    n_bays = len(bays)
+    bay_schedules = [[] for _ in range(n_bays)]
+    sched = {}
+    pos = {}
+    order = sorted(
+        range(len(blocks)),
+        key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"], i),
+    )
+
+    for bi in order:
+        blk = blocks[bi]
+        prefs = blk["bay_preferences"]
+        best = None
+        for bay_id in sorted(range(n_bays), key=lambda j: prefs[j], reverse=True):
+            bay = bay_objs[bay_id]
+            for oi in range(len(blk["shape"])):
+                test = Block(block_id=bi, block_data=blk, x=0, y=0, orient_idx=oi)
+                bb = test.bounding_rect()
+                x = max(0, math.ceil(-bb[0]))
+                y = max(0, math.ceil(-bb[1]))
+                placed = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=oi)
+                if bay.contains_block(placed):
+                    best = (bay_id, x, y, oi)
+                    break
+            if best is not None:
+                break
+
+        if best is None:
+            bay_id = max(range(n_bays), key=lambda j: prefs[j])
+            test = Block(block_id=bi, block_data=blk, x=0, y=0, orient_idx=0)
+            bb = test.bounding_rect()
+            x = max(0, min(math.ceil(-bb[0]), math.floor(bays[bay_id]["width"] - bb[2])))
+            y = max(0, min(math.ceil(-bb[1]), math.floor(bays[bay_id]["height"] - bb[3])))
+            best = (bay_id, x, y, 0)
+
+        bay_id, x, y, oi = best
+        entry = _empty_bay_entry(
+            bay_schedules[bay_id],
+            blk["release_time"],
+            blk["processing_time"],
+        )
+        exit_t = entry + int(blk["processing_time"])
+        bay_schedules[bay_id].append((entry, exit_t))
+        sched[bi] = {
+            "block_id": bi,
+            "bay_id": bay_id,
+            "entry_time": entry,
+            "exit_time": exit_t,
+        }
+        pos[bi] = (int(x), int(y), oi)
+
+    return _build_solution(sched, pos)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # §12  공개 진입점
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -887,6 +963,10 @@ def algorithm(prob_info, timelimit=60):
           f"  OR-Tools={'O' if _HAS_ORTOOLS else 'X'}")
     print(f"[casat_cheddochi] phase 1    = {label}")
     print(f"[casat_cheddochi] {'─'*38}")
+
+    if _FEASIBLE_FIRST:
+        print("[casat_cheddochi] feasible-first serial path")
+        return _serial_feasible_solution(prob_info)
 
     # Gurobi / OR-Tools 모두 없으면 바로 baseline_greedy 폴백
     if not _HAS_GUROBI and not _HAS_ORTOOLS:

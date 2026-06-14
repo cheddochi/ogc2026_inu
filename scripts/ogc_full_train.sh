@@ -18,7 +18,7 @@ elif [[ -x "/private/tmp/ogc2026-venv/bin/python" ]]; then
 else
   PYTHON_BIN="python3"
 fi
-ALG_FOLDER="${ALG_FOLDER:-$ROOT/challenge_problem_OGC2026/ogc2026/baseline}"
+ALG_FOLDER="${ALG_FOLDER:-$ROOT/members_playground}"
 TIMELIMIT="${TIMELIMIT:-60}"
 
 cd "$ROOT"
