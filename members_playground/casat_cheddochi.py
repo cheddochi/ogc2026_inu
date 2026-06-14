@@ -916,9 +916,9 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
     """
     n        = len(prob_info["blocks"])
     patience = 10 if use_gurobi_repair else 30
-    k_min    = max(2, n // (5  if use_gurobi_repair else 20))
+    k_min    = max(2, n // (5  if use_gurobi_repair else 25))
     k_max    = max(k_min + 2, n // (2 if use_gurobi_repair else 3))
-    k        = max(k_min, n // (5 if use_gurobi_repair else 10))
+    k        = max(k_min, n // (5 if use_gurobi_repair else 16))
     tag      = "LNS+Gurobi" if use_gurobi_repair else "LNS+greedy"
 
     # deepcopy 대신 경량 dict 복사 — schedule 값이 모두 정수/문자열이므로 shallow copy 안전
