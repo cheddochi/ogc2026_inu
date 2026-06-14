@@ -16,7 +16,20 @@ import pathlib
 import matplotlib
 
 matplotlib.use("Agg")
+import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
+
+# Register a CJK-capable font so Korean titles/notes render correctly
+# instead of falling back to tofu boxes.
+for _font_path in (
+    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+    "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
+):
+    if pathlib.Path(_font_path).exists():
+        fm.fontManager.addfont(_font_path)
+        plt.rcParams["font.family"] = fm.FontProperties(fname=_font_path).get_name()
+        break
+plt.rcParams["axes.unicode_minus"] = False
 
 
 def repo_root_from_here() -> pathlib.Path:
@@ -145,7 +158,7 @@ def write_png(rows, summary, title, note, png_path: pathlib.Path):
     fig, ax = plt.subplots(figsize=(10.5, fig_h))
     ax.axis("off")
 
-    ax.text(0, 1, title, fontsize=18, weight="bold", va="top", family="sans-serif")
+    ax.text(0, 1, title, fontsize=18, weight="bold", va="top")
 
     subtitle = (
         f"Feasible {summary['feasible']}/{summary['total']}   "
@@ -154,13 +167,13 @@ def write_png(rows, summary, title, note, png_path: pathlib.Path):
         f"Avg Runtime {summary['avg_runtime']:.2f}s   "
         f"Max Runtime {summary['max_runtime']:.2f}s"
     )
-    ax.text(0, 0.955, subtitle, fontsize=10.5, va="top", color="#555555", family="sans-serif",
+    ax.text(0, 0.955, subtitle, fontsize=10.5, va="top", color="#555555",
             transform=ax.transAxes)
 
     if note:
         ax.text(
-            0.5, 0.915, note, fontsize=9.5, va="top", ha="center",
-            color="#1a7a3a", family="sans-serif", transform=ax.transAxes,
+            0.5, 0.915, note, fontsize=9.5, va="top", ha="center", wrap=True,
+            color="#1a7a3a", transform=ax.transAxes,
             bbox=dict(boxstyle="round,pad=0.4", fc="#e6f7ec", ec="none"),
         )
 
@@ -180,9 +193,19 @@ def write_png(rows, summary, title, note, png_path: pathlib.Path):
             ]
         )
 
+    # Size columns by the widest content (header or any row) so long numbers
+    # like "1,234,567" never get clipped or overlap neighboring cells.
+    col_chars = []
+    for c, label in enumerate(columns):
+        widest = max([len(label)] + [len(row[c]) for row in cell_text])
+        col_chars.append(widest)
+    total_chars = sum(col_chars)
+    col_widths = [c / total_chars for c in col_chars]
+
     table = ax.table(
         cellText=cell_text,
         colLabels=columns,
+        colWidths=col_widths,
         cellLoc="right",
         colLoc="right",
         loc="upper left",
