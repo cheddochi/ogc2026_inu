@@ -65,16 +65,33 @@ def _col_w(blk, oi):
     return max(1, math.ceil(lx1 - lx0))
 
 def _narrowest_orient(blk, bay_w, bay_h):
-    """bay 에 들어가는 방향 중 가장 좁은 것. (orient_idx, col_width)."""
+    """
+    bay에 정수 좌표로 단독 배치 가능한 방향 중 가장 좁은 것.
+    (orient_idx, col_width).
+
+    "들어간다"의 기준은 단순히 bbox(lx1-lx0 <= bay_w, ly1-ly0 <= bay_h)가
+    아니라, baseline_greedy._candidate_positions(bay_w, bay_h, [], bbox)가
+    비지 않는지(=정수 (x,y) 배치가 실제로 존재하는지)이다 — 정수 반올림
+    간극으로 실수상 "맞는" 방향이 정수 격자에서는 못 들어가는 경우를
+    배제한다.
+
+    어떤 방향으로도 들어가지 않으면 (orient_idx=0, cw=int(bay_w)+1)을
+    반환한다. cw가 bay_w를 초과하므로, 1D 용량 체크(used+cw<=W)에서
+    이 (block, bay) 조합은 항상 배제된다.
+    """
+    import baseline_greedy
+
     best_oi, best_cw = 0, float("inf")
     for oi in range(len(blk["shape"])):
         lx0, ly0, lx1, ly1 = _bbox(blk, oi)
         if (lx1 - lx0) <= bay_w + 1e-6 and (ly1 - ly0) <= bay_h + 1e-6:
+            if not baseline_greedy._candidate_positions(bay_w, bay_h, [], (lx0, ly0, lx1, ly1)):
+                continue
             cw = math.ceil(lx1 - lx0)
             if cw < best_cw:
                 best_cw, best_oi = cw, oi
     if best_cw == float("inf"):
-        best_oi, best_cw = 0, _col_w(blk, 0)
+        best_oi, best_cw = 0, int(bay_w) + 1
     return best_oi, best_cw
 
 def _precompute_orients(prob_info):
@@ -177,8 +194,15 @@ def _warm_start(prob_info, orients):
 
 def _conflict_pairs(prob_info, orients):
     """
-    동시 거주 시 열 폭 합이 bay 폭을 초과하는 (i, j, [bays]) 목록.
-    이 경우 시간 분리 제약이 필요하다.
+    i, j 둘 다 개별적으로는 bay에 들어가지만 (cw <= bay_width) 동시 거주 시
+    열 폭 합이 bay 폭을 초과하는 (i, j, [bays]) 목록. 이 경우 시간 분리
+    제약이 필요하다.
+
+    i 또는 j가 해당 bay에 단독으로도 들어가지 않는 경우(orients[..][1] >
+    bay_width, _narrowest_orient의 infeasible sentinel)는 제외한다 —
+    이는 "시간 분리"가 아니라 "그 bay에 절대 배정되지 않아야 함"의
+    문제이며, 호출부(_cpsat_mip/_gurobi_mip)에서 in_b[i][b]==0 형태로
+    별도 처리한다.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     n, M = len(blocks), len(bays)
@@ -186,7 +210,9 @@ def _conflict_pairs(prob_info, orients):
     for i in range(n):
         for j in range(i + 1, n):
             cbays = [b for b in range(M)
-                     if orients[(i, b)][1] + orients[(j, b)][1] > int(bays[b]["width"])]
+                     if orients[(i, b)][1] <= int(bays[b]["width"])
+                     and orients[(j, b)][1] <= int(bays[b]["width"])
+                     and orients[(i, b)][1] + orients[(j, b)][1] > int(bays[b]["width"])]
             if cbays:
                 result.append((i, j, cbays))
     return result
@@ -243,6 +269,14 @@ def _gurobi_mip(prob_info, warm, orients, tlimit):
         m.addConstr(end[i] == start[i] + blocks[i]["processing_time"])
     m.addConstrs((gp.quicksum(x[i, b] for b in range(M)) == 1 for i in range(n)),
                  name="assign")
+
+    # block i가 어떤 방향으로도 들어가지 않는 bay는 배정 후보에서 제외
+    for i in range(n):
+        feasible_bays = [b for b in range(M) if orients[(i, b)][1] <= int(bays[b]["width"])]
+        if feasible_bays and len(feasible_bays) < M:
+            for b in range(M):
+                if b not in feasible_bays:
+                    x[i, b].ub = 0
 
     # 누적 폭 제약 (pairwise 분리)
     conflicts = _conflict_pairs(prob_info, orients)
@@ -318,7 +352,6 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
     w2 = prob_info.get("weights", {}).get("w2", 1.0)
     w3 = prob_info.get("weights", {}).get("w3", 1.0)
 
-    cw = [min(orients[(i, b)][1] for b in range(M)) for i in range(n)]
     T  = (max(blocks[i]["due_date"] for i in range(n)) * 2
           + sum(blocks[i]["processing_time"] for i in range(n)))
     S  = 1000   # float → int 스케일
@@ -338,13 +371,22 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
             mdl.Add(bay_v[i] == b).OnlyEnforceIf(in_b[i][b])
             mdl.Add(bay_v[i] != b).OnlyEnforceIf(in_b[i][b].Not())
 
+    # block i가 어떤 방향으로도 들어가지 않는 bay는 배정 후보에서 제외
+    # (단, 모든 bay가 infeasible이면 모델 자체가 infeasible해지므로 그대로 둔다)
+    for i in range(n):
+        feasible_bays = [b for b in range(M) if orients[(i, b)][1] <= int(bays[b]["width"])]
+        if feasible_bays and len(feasible_bays) < M:
+            for b in range(M):
+                if b not in feasible_bays:
+                    mdl.Add(in_b[i][b] == 0)
+
     for b in range(M):
         ivs, dems = [], []
         for i in range(n):
             p  = blocks[i]["processing_time"]
             iv = mdl.NewOptionalIntervalVar(st_v[i], p, end_v[i], in_b[i][b], f"iv{i}_{b}")
             ivs.append(iv)
-            dems.append(cw[i])
+            dems.append(orients[(i, b)][1])
         mdl.AddCumulative(ivs, dems, int(bays[b]["width"]))
 
     td_v = []
@@ -516,6 +558,14 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
     x     = m.addVars(k, M, vtype=GRB.BINARY, name="x")
     m.addConstrs((gp.quicksum(x[ki, b] for b in range(M)) == 1 for ki in range(k)))
 
+    # block bi가 어떤 방향으로도 들어가지 않는 bay는 배정 후보에서 제외
+    for ki, bi in enumerate(to_place):
+        feasible_bays = [b for b in range(M) if orients[(bi, b)][1] <= int(bays[b]["width"])]
+        if feasible_bays and len(feasible_bays) < M:
+            for b in range(M):
+                if b not in feasible_bays:
+                    x[ki, b].ub = 0
+
     def _end(ki):
         return start[ki] + blocks[to_place[ki]]["processing_time"]
 
@@ -526,7 +576,9 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
             if ki_a >= ki_b:
                 continue
             cbays = [b for b in range(M)
-                     if orients[(bi_a,b)][1] + orients[(bi_b,b)][1] > int(bays[b]["width"])]
+                     if orients[(bi_a,b)][1] <= int(bays[b]["width"])
+                     and orients[(bi_b,b)][1] <= int(bays[b]["width"])
+                     and orients[(bi_a,b)][1] + orients[(bi_b,b)][1] > int(bays[b]["width"])]
             if not cbays:
                 continue
             z_v = m.addVar(vtype=GRB.BINARY, name=f"zr_{ki_a}_{ki_b}")
@@ -541,6 +593,8 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
             fb = fs["bay_id"]
             fa = float(fs["entry_time"])
             fe = float(fs["exit_time"])
+            if orients[(bi,fb)][1] > int(bays[fb]["width"]):
+                continue  # bi는 fb에 단독으로도 안 들어감 → x[ki,fb]=0으로 이미 제외됨
             if orients[(bi,fb)][1] + orients[(fi,fb)][1] <= int(bays[fb]["width"]):
                 continue
             z_f = m.addVar(vtype=GRB.BINARY, name=f"zf_{ki}_{fi}")
@@ -685,26 +739,35 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
 
 def _spatial(prob_info, sched):
     """
-    (bay_id, entry_time, exit_time) 확정 스케줄 → (x, y, orient_idx).
+    (bay_id, entry_time, exit_time) 확정 스케줄 → (pos, sched2).
+
+    pos[bi]   = (x, y, orient_idx)
+    sched2[bi] = {"block_id", "bay_id", "entry_time", "exit_time"}
+                 (entry/exit_time은 Phase 1보다 지연되었을 수 있음)
 
     bay별로 진입 시각이 빠른 순서로 처리한다.  각 블록에 대해, 시간 구간이
-    겹치는 이미 배치된 블록들("neighbors")의 바운딩박스(AABB) 우측/상단
-    경계로부터 baseline_greedy._candidate_positions가 생성하는
-    bottom-left-fill 후보 (x, y) 중, 자신의 AABB가 모든 neighbor의 AABB와
-    겹치지 않는 첫 번째 후보를 채택한다.
+    겹치는 이미 배치된 블록들("neighbors")의 바운딩박스(AABB)와 겹치지 않는
+    bottom-left-fill 후보 (x, y)를 원래 진입 시각(entry0)에서 먼저 찾는다.
+
+    entry0에서 그런 후보가 없으면 진입 시각을 늦춘다.  후보 진입 시각은
+    {entry0} ∪ {이미 이 bay에 배치된 블록들의 exit_time 중 entry0보다 큰 것}
+    을 오름차순으로 시도한다.  가장 늦은 후보(이 bay의 모든 placed 블록이
+    빠져나간 시각)에서는 neighbors=[]이 되므로, _narrowest_orient(Phase 2-0)가
+    보장하는 "적어도 한 방향은 정수 좌표로 bay에 들어간다"에 의해 항상
+    배치 가능하다.
 
     두 블록의 시간 구간이 겹칠 때 AABB가 서로 분리되어 있고 각자 bay
     경계 내부에 있으면, AABB는 모든 레이어(층)의 합집합이므로 어떤
     레이어 쌍도 겹칠 수 없다 — 즉 check_entry/check_exit/check_collisions
-    (Stage2~4)가 항상 통과한다.  이 함수는 시간이 겹치는 모든 블록 쌍에
-    대해 이 충분조건을 보장한다 (Phase 1의 1D 누적 폭 제약과 무관하게
-    성립하는 독립적인 2D feasibility 보장).
+    (Stage2~4)가 항상 통과한다.  이 함수는 (지연 가능성을 포함해) 시간이
+    겹치는 모든 블록 쌍에 대해 이 충분조건을 보장한다.
     """
     import baseline_greedy
     from utils import Block, _bb_overlap
 
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     pos = {}
+    new_sched = {}
 
     for b in range(len(bays)):
         bay_w = bays[b]["width"]
@@ -715,49 +778,42 @@ def _spatial(prob_info, sched):
         placed = []  # [(Block, entry_time, exit_time), ...] — 이 bay에 배치 완료된 블록들
 
         for bi in ids:
-            entry_i = sched[bi]["entry_time"]
-            exit_i  = sched[bi]["exit_time"]
-            blk = blocks[bi]
+            blk    = blocks[bi]
+            p      = blk["processing_time"]
+            entry0 = sched[bi]["entry_time"]
 
-            neighbors    = [pb for pb, e, x in placed if e < exit_i and entry_i < x]
-            neighbor_bbs = [pb.bounding_rect() for pb in neighbors]
+            candidates_t = sorted({entry0} | {e for _, _, e in placed if e > entry0})
 
             chosen = None
-            for oi in sorted(range(len(blk["shape"])), key=lambda o: _col_w(blk, o)):
-                lx0, ly0, lx1, ly1 = _bbox(blk, oi)
-                if (lx1 - lx0) > bay_w + 1e-6 or (ly1 - ly0) > bay_h + 1e-6:
-                    continue
+            chosen_entry = entry0
+            for entry_i in candidates_t:
+                exit_i = entry_i + p
+                neighbors    = [pb for pb, a, e in placed if a < exit_i and entry_i < e]
+                neighbor_bbs = [pb.bounding_rect() for pb in neighbors]
 
-                for x, y in baseline_greedy._candidate_positions(
-                        bay_w, bay_h, neighbors, (lx0, ly0, lx1, ly1)):
-                    cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=oi)
-                    cbb  = cand.bounding_rect()
-                    if any(_bb_overlap(cbb, nbb) for nbb in neighbor_bbs):
-                        continue
-                    chosen = (x, y, oi, cand)
-                    break
-                if chosen is not None:
-                    break
-
-            if chosen is None:
-                # neighbor와 겹치지 않는 후보가 없는 경우 — neighbor를 무시하고
-                # bay 경계 내부에 (정수 좌표로) 들어가는 방향/위치를 우선 찾는다.
-                # (단순히 원점에 놓으면, bbox가 원점 기준 음수 영역으로 뻗어
-                # 있는 방향에서는 bay 경계를 벗어날 수 있다.)
                 for oi in sorted(range(len(blk["shape"])), key=lambda o: _col_w(blk, o)):
                     lx0, ly0, lx1, ly1 = _bbox(blk, oi)
-                    cands = baseline_greedy._candidate_positions(
-                        bay_w, bay_h, [], (lx0, ly0, lx1, ly1))
-                    if cands:
-                        x, y = cands[0]
+                    if (lx1 - lx0) > bay_w + 1e-6 or (ly1 - ly0) > bay_h + 1e-6:
+                        continue
+
+                    for x, y in baseline_greedy._candidate_positions(
+                            bay_w, bay_h, neighbors, (lx0, ly0, lx1, ly1)):
                         cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=oi)
+                        cbb  = cand.bounding_rect()
+                        if any(_bb_overlap(cbb, nbb) for nbb in neighbor_bbs):
+                            continue
                         chosen = (x, y, oi, cand)
                         break
+                    if chosen is not None:
+                        break
+                if chosen is not None:
+                    chosen_entry = entry_i
+                    break
 
             if chosen is None:
-                # 이 bay에는 어떤 방향으로도 정수 좌표 배치가 불가능한 경우
-                # (Phase 1의 bay 배정 자체가 infeasible) — 최소 면적 방향으로
-                # 원점에 배치하는 최후의 안전망.
+                # 모든 후보 진입 시각에서도 배치 불가 — 어떤 bay도 이 block에
+                # 맞지 않는 경우 (Phase 2-0의 보장이 적용되지 않은 극단적 경우).
+                # 최소 면적 방향으로 원점에 배치하는 최후의 안전망.
                 best_oi = min(range(len(blk["shape"])),
                                key=lambda o: ((_bbox(blk, o)[2] - _bbox(blk, o)[0])
                                               * (_bbox(blk, o)[3] - _bbox(blk, o)[1])))
@@ -765,12 +821,16 @@ def _spatial(prob_info, sched):
                 x, y = max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0))
                 cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=best_oi)
                 chosen = (x, y, best_oi, cand)
+                chosen_entry = entry0
 
             x, y, oi, cand = chosen
+            exit_f = chosen_entry + p
             pos[bi] = (x, y, oi)
-            placed.append((cand, entry_i, exit_i))
+            new_sched[bi] = {"block_id": bi, "bay_id": b,
+                             "entry_time": int(chosen_entry), "exit_time": int(exit_f)}
+            placed.append((cand, chosen_entry, exit_f))
 
-    return pos
+    return pos, new_sched
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -854,8 +914,8 @@ def algorithm(prob_info, timelimit=60):
 
     def _finalize(sched):
         """스케줄 dict → check_feasibility 호환 solution dict (Phase 2)."""
-        pos = _spatial(prob_info, sched)
-        return _build_solution(sched, pos)
+        pos, sched2 = _spatial(prob_info, sched)
+        return _build_solution(sched2, pos)
 
     def _greedy_rebuild_from_sched(sched):
         """Use CP/MIP schedule order as a hint for baseline's robust placer."""
