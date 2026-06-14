@@ -1064,11 +1064,28 @@ def algorithm(prob_info, timelimit=60):
                 sched = _adaptive_lns(prob_info, warm, orients, deadline,
                                       use_gurobi_repair=False)
 
-        # 체크포인트 2: Phase 1 최적화 해로 갱신
-        best_solution = _finalize(sched)
-        best_sched = sched
-        print(f"[casat_cheddochi] Phase 1  obj={_objective(prob_info,sched):.2f}"
-              f"  t={time.time()-t0:.2f}s  (checkpoint updated)")
+        # 체크포인트 2: Phase 1 해가 체크포인트 1(warm start)보다 실제
+        # check_feasibility 기준 objective가 더 좋을 때만 갱신한다.
+        # CP-SAT/LNS의 내부 목적함수는 obj2(워크로드 불균형)·obj3(선호도
+        # 패널티)를 _objective()와 동일하게 반영하지 않을 수 있어, "내부
+        # 최적/개선"이 실제로는 더 나쁜 해로 이어지는 경우가 있다 — 두
+        # 체크포인트 중 실제 objective가 더 낮은 쪽을 채택하는 ratchet.
+        from utils import check_feasibility as _check_feas
+        phase1_solution = _finalize(sched)
+        phase1_result = _check_feas(prob_info, phase1_solution)
+        checkpoint_result = _check_feas(prob_info, best_solution)
+        if phase1_result["feasible"] and (
+            not checkpoint_result["feasible"]
+            or phase1_result["objective"] <= checkpoint_result["objective"]
+        ):
+            best_solution = phase1_solution
+            best_sched = sched
+            print(f"[casat_cheddochi] Phase 1  obj={phase1_result['objective']:.2f}"
+                  f"  t={time.time()-t0:.2f}s  (checkpoint updated: phase 1)")
+        else:
+            print(f"[casat_cheddochi] Phase 1  obj={phase1_result.get('objective')}"
+                  f"  worse than checkpoint obj={checkpoint_result.get('objective'):.2f}"
+                  f"  t={time.time()-t0:.2f}s  (checkpoint kept: warm start)")
 
     except Exception as e:
         # Phase 1 도중 오류 발생 → 체크포인트 1 (warm start 해) 사용
