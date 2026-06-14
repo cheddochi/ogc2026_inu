@@ -412,14 +412,45 @@ _spatial(prob_info, sched) → pos_dict {block_id: (x, y, orient_idx)}
 
 확정된 스케줄 `(bay_id, entry_time, exit_time)`에서 x, y 좌표와 방향을 결정한다.
 
-**알고리즘** — bay별로 진입 시각 순 처리:
+**알고리즘 (2D bottom-left-fill)** — bay별로 진입 시각 순 처리:
 
-1. 현재 블록의 동시 거주 블록들의 x 범위를 `occupied` 리스트로 수집
-2. 가장 좁은 방향(orient)부터 시도
-3. `x=0` 또는 각 occupied 범위의 오른쪽 끝에서 첫 번째 빈 간격 선택
-4. 실패 시 fallback: `(x=0, y=0, orient=0)`
+1. 시간 구간이 겹치는 이미 배치된 블록들("neighbors")의 바운딩박스(AABB)를 수집
+2. `_col_w`(열 폭) 오름차순으로 방향(orient)을 시도. 바운딩박스가 bay 크기를
+   초과하는 방향은 제외
+3. `baseline_greedy._candidate_positions`가 생성하는 bottom-left-fill 후보
+   `(x, y)` (neighbors의 우측/상단 경계 기반, x·y 양축 모두 사용) 중,
+   자신의 AABB가 모든 neighbor AABB와 겹치지 않는 첫 번째 후보를 채택
+4. 실패 시 1차 폴백: neighbor를 무시하고 bay 경계 내부에 정수 좌표로
+   들어가는 방향/위치(`_candidate_positions(bay_w, bay_h, [], bbox)`)를
+   채택 — 겹침은 허용하되 bay 경계 초과는 방지
+5. 1차 폴백도 실패하면(= 이 bay에 어떤 방향으로도 정수 좌표 배치가
+   불가능, 아래 "알려진 한계" 참고) 최소 면적 방향으로 원점에 배치
 
-Phase 1의 누적 폭 제약이 `총 열 폭 ≤ bay 폭`을 보장하므로 항상 성공한다.
+**정합성 근거 (AABB-분리 충분조건)**
+
+시간 구간이 겹치는 두 블록의 AABB가 분리되어 있고 각자 bay 경계 내부에
+있으면, AABB는 모든 레이어(층)의 합집합이므로 어떤 레이어 쌍도 겹칠 수
+없다 — 즉 `check_entry`/`check_exit`/`check_collisions` (Stage2~4)가 항상
+통과한다. 이 함수는 시간이 겹치는 모든 블록 쌍에 대해 이 충분조건을
+보장하도록 설계되었다.
+
+**알려진 한계 (Phase 1 스케줄에서 기인하는 잔여 실패)**
+
+`_candidate_positions`는 corner-point 기반 bottom-left-fill로, *고정된*
+neighbor 배치에 대해 "실수 좌표상 빈 자리가 존재하는가"는 완전(complete)
+하게 탐색하지만, 한 번 배치된 블록의 위치는 되돌리지 않는다(non-
+backtracking). 따라서 Phase 1의 1D 누적 열 폭 제약(`Σcw ≤ bay_width`)만
+만족하는 스케줄이 주어지면, 먼저 배치된 블록들이 만든 단편화된 빈 공간에
+나중 블록이 들어갈 자리가 없는 경우(예: `train/prob_1.json`의 block 84),
+또는 정수 좌표 반올림으로 인해 실수상으로는 맞는 방향이 어떤 정수
+`(x,y)`로도 표현되지 않는 경우, 더 나아가 **블록이 배정된 bay에 어떤
+방향으로도 전혀 들어가지 않는 경우**(`_narrowest_orient`의 "맞는 방향
+없음" 폴백 — 예: `train/prob_9.json`의 block 95)가 실제로 발생한다.
+
+이는 `_spatial`의 버그가 아니라 Phase 1 스케줄이 **2D 배치를 보장하지
+않기 때문**이며, 근본적인 해결에는 Phase 1 자체의 2D-aware화가 필요하다
+— 세 가지 실패 유형의 상세 분석, train set(40개) 검증 결과, 다음 단계는
+`members_playground/roadmap_2d_aware_phase1.md` 참고.
 
 ### §11  출력 빌더
 

@@ -680,17 +680,29 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# §10  Phase 2 — 열 기반 공간 배치 (후처리)
+# §10  Phase 2 — 2D bottom-left-fill 공간 배치 (후처리)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _spatial(prob_info, sched):
     """
     (bay_id, entry_time, exit_time) 확정 스케줄 → (x, y, orient_idx).
 
-    bay별로 진입 시각 순 처리.  이미 배치된 동시 거주 블록의 x 범위를
-    피해 첫 번째 빈 간격에 삽입한다.
-    Phase 1의 누적 폭 제약이 총 열 폭 ≤ bay 폭을 보장하므로 항상 성공.
+    bay별로 진입 시각이 빠른 순서로 처리한다.  각 블록에 대해, 시간 구간이
+    겹치는 이미 배치된 블록들("neighbors")의 바운딩박스(AABB) 우측/상단
+    경계로부터 baseline_greedy._candidate_positions가 생성하는
+    bottom-left-fill 후보 (x, y) 중, 자신의 AABB가 모든 neighbor의 AABB와
+    겹치지 않는 첫 번째 후보를 채택한다.
+
+    두 블록의 시간 구간이 겹칠 때 AABB가 서로 분리되어 있고 각자 bay
+    경계 내부에 있으면, AABB는 모든 레이어(층)의 합집합이므로 어떤
+    레이어 쌍도 겹칠 수 없다 — 즉 check_entry/check_exit/check_collisions
+    (Stage2~4)가 항상 통과한다.  이 함수는 시간이 겹치는 모든 블록 쌍에
+    대해 이 충분조건을 보장한다 (Phase 1의 1D 누적 폭 제약과 무관하게
+    성립하는 독립적인 2D feasibility 보장).
     """
+    import baseline_greedy
+    from utils import Block, _bb_overlap
+
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     pos = {}
 
@@ -698,44 +710,65 @@ def _spatial(prob_info, sched):
         bay_w = bays[b]["width"]
         bay_h = bays[b]["height"]
         ids   = sorted((bi for bi in sched if sched[bi]["bay_id"] == b),
-                       key=lambda i: sched[i]["entry_time"])
+                       key=lambda i: (sched[i]["entry_time"], sched[i]["exit_time"], i))
+
+        placed = []  # [(Block, entry_time, exit_time), ...] — 이 bay에 배치 완료된 블록들
 
         for bi in ids:
             entry_i = sched[bi]["entry_time"]
             exit_i  = sched[bi]["exit_time"]
+            blk = blocks[bi]
 
-            occupied = []
-            for bj, (px_j, _, oj) in pos.items():
-                if sched[bj]["bay_id"] != b:
-                    continue
-                if sched[bj]["entry_time"] < exit_i and sched[bj]["exit_time"] > entry_i:
-                    lx0j, _, lx1j, _ = _bbox(blocks[bj], oj)
-                    occupied.append((px_j + lx0j, px_j + lx1j))
-            occupied.sort()
+            neighbors    = [pb for pb, e, x in placed if e < exit_i and entry_i < x]
+            neighbor_bbs = [pb.bounding_rect() for pb in neighbors]
 
-            placed = False
-            for oi in sorted(range(len(blocks[bi]["shape"])),
-                             key=lambda o: _col_w(blocks[bi], o)):
-                lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
-                w, h = lx1 - lx0, ly1 - ly0
-                if h > bay_h + 1e-6:
+            chosen = None
+            for oi in sorted(range(len(blk["shape"])), key=lambda o: _col_w(blk, o)):
+                lx0, ly0, lx1, ly1 = _bbox(blk, oi)
+                if (lx1 - lx0) > bay_w + 1e-6 or (ly1 - ly0) > bay_h + 1e-6:
                     continue
-                for x_try in [0.0] + [xe for _, xe in occupied]:
-                    x_end = x_try + w
-                    if x_end > bay_w + 1e-6:
+
+                for x, y in baseline_greedy._candidate_positions(
+                        bay_w, bay_h, neighbors, (lx0, ly0, lx1, ly1)):
+                    cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=oi)
+                    cbb  = cand.bounding_rect()
+                    if any(_bb_overlap(cbb, nbb) for nbb in neighbor_bbs):
                         continue
-                    if not any(x_try < xe - 1e-6 and x_end > xs + 1e-6
-                                for xs, xe in occupied):
-                        pos[bi] = (max(0, math.ceil(x_try - lx0)),
-                                   max(0, math.ceil(-ly0)), oi)
-                        placed   = True
-                        break
-                if placed:
+                    chosen = (x, y, oi, cand)
+                    break
+                if chosen is not None:
                     break
 
-            if not placed:
-                lx0, ly0, _, _ = _bbox(blocks[bi], 0)
-                pos[bi] = (max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0)), 0)
+            if chosen is None:
+                # neighbor와 겹치지 않는 후보가 없는 경우 — neighbor를 무시하고
+                # bay 경계 내부에 (정수 좌표로) 들어가는 방향/위치를 우선 찾는다.
+                # (단순히 원점에 놓으면, bbox가 원점 기준 음수 영역으로 뻗어
+                # 있는 방향에서는 bay 경계를 벗어날 수 있다.)
+                for oi in sorted(range(len(blk["shape"])), key=lambda o: _col_w(blk, o)):
+                    lx0, ly0, lx1, ly1 = _bbox(blk, oi)
+                    cands = baseline_greedy._candidate_positions(
+                        bay_w, bay_h, [], (lx0, ly0, lx1, ly1))
+                    if cands:
+                        x, y = cands[0]
+                        cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=oi)
+                        chosen = (x, y, oi, cand)
+                        break
+
+            if chosen is None:
+                # 이 bay에는 어떤 방향으로도 정수 좌표 배치가 불가능한 경우
+                # (Phase 1의 bay 배정 자체가 infeasible) — 최소 면적 방향으로
+                # 원점에 배치하는 최후의 안전망.
+                best_oi = min(range(len(blk["shape"])),
+                               key=lambda o: ((_bbox(blk, o)[2] - _bbox(blk, o)[0])
+                                              * (_bbox(blk, o)[3] - _bbox(blk, o)[1])))
+                lx0, ly0, _, _ = _bbox(blk, best_oi)
+                x, y = max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0))
+                cand = Block(block_id=bi, block_data=blk, x=x, y=y, orient_idx=best_oi)
+                chosen = (x, y, best_oi, cand)
+
+            x, y, oi, cand = chosen
+            pos[bi] = (x, y, oi)
+            placed.append((cand, entry_i, exit_i))
 
     return pos
 
