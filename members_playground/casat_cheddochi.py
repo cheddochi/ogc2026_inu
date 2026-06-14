@@ -1106,8 +1106,11 @@ def algorithm(prob_info, timelimit=60):
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
+        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정하므로
+        # _objective는 _finalize 호출 *이후*에 계산해야 실제 반환 해의 목적값과 일치한다.
         best_solution = _finalize(warm)
-        print(f"[casat_cheddochi] Phase 0  obj={_objective(prob_info,warm):.2f}"
+        best_obj_final = _objective(prob_info, warm)
+        print(f"[casat_cheddochi] Phase 0  obj={best_obj_final:.2f}"
               f"  t={time.time()-t0:.2f}s  (checkpoint saved)")
 
         # ── 시간 가드: Phase 1 시작 가능 여부 확인 ─────────────────────────
@@ -1132,10 +1135,20 @@ def algorithm(prob_info, timelimit=60):
                 sched = _adaptive_lns(prob_info, warm, orients, deadline,
                                       use_gurobi_repair=False, feasible_bays=feasible_bays)
 
-        # 체크포인트 2: Phase 1 최적화 해로 갱신
-        best_solution = _finalize(sched)
-        print(f"[casat_cheddochi] Phase 1  obj={_objective(prob_info,sched):.2f}"
-              f"  t={time.time()-t0:.2f}s  (checkpoint updated)")
+        # 체크포인트 2: Phase 1 최적화 해가 (post-spatial 기준) Phase 0보다
+        # 실제로 더 좋을 때만 교체한다.  CP-SAT/LNS가 8초 안에 warm start보다
+        # 못한 해를 반환하거나, _spatial repair로 악화되는 경우를 방지한다.
+        phase1_solution = _finalize(sched)
+        phase1_obj_final = _objective(prob_info, sched)
+        print(f"[casat_cheddochi] Phase 1  obj={phase1_obj_final:.2f}"
+              f"  (warm start obj={best_obj_final:.2f})"
+              f"  t={time.time()-t0:.2f}s")
+        if phase1_obj_final < best_obj_final:
+            best_solution  = phase1_solution
+            best_obj_final = phase1_obj_final
+            print(f"[casat_cheddochi] Phase 1 채택 (checkpoint updated)")
+        else:
+            print(f"[casat_cheddochi] Phase 1 기각 → warm start 해 유지")
 
     except Exception as e:
         # Phase 1 도중 오류 발생 → 체크포인트 1 (warm start 해) 사용
