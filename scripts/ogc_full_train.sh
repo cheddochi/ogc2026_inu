@@ -2,6 +2,13 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if command -v caffeinate >/dev/null 2>&1 \
+  && [[ "${OGC_CAFFEINATED:-0}" != "1" ]] \
+  && [[ "${OGC_NO_CAFFEINATE:-0}" != "1" ]]; then
+  exec env OGC_CAFFEINATED=1 caffeinate -dimsu "$0" "$@"
+fi
+
 if [[ -n "${PYTHON:-}" ]]; then
   PYTHON_BIN="$PYTHON"
 elif [[ -x "$ROOT/.venv/bin/python" ]]; then
