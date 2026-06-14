@@ -67,6 +67,8 @@ entry_time = int(t_str) for ENTRY ops; exit_time = int(t_str) for EXIT ops.
 Feasibility checking and objective computation: utils.check_feasibility(prob_info, solution).
 """
 
+from __future__ import annotations
+
 import math
 import time
 from utils import Bay, Block, check_entry, check_exit, check_collisions, _resolve_layers, _bounding_box
@@ -347,6 +349,27 @@ def greedyalgorithm(prob_info: dict, timelimit: float,
     for i, b in enumerate(bays):
         print(f"[Greedy]   bay[{i}]  {b.width}x{b.height}")
 
+    if timelimit <= 10:
+        print("[Greedy] Short timelimit -> serial empty-window fallback")
+        assignments = _serial_empty_bay_fallback(prob_info, bays, blocks_data)
+        final_sol = {"operations": _build_operations(list(assignments.values()))}
+        from utils import check_feasibility
+        final_result = check_feasibility(prob_info, final_sol)
+        elapsed_total = time.time() - t_start
+        print(f"[Greedy] {'-' * 56}")
+        print(f"[Greedy] Done  |  assigned={len(assignments)}/{n_blocks}  "
+              f"elapsed={elapsed_total:.2f}s")
+        if final_result["feasible"]:
+            print(f"[Greedy] Objective : {final_result['objective']:.0f}  "
+                  f"(obj1={final_result['obj1']:.1f}  "
+                  f"obj2={final_result['obj2']:.1f}  "
+                  f"obj3={final_result['obj3']:.1f})")
+        else:
+            print(f"[Greedy] INFEASIBLE stage={final_result['stage']}")
+            for v in final_result["violations"][:5]:
+                print(f"[Greedy]   {v}")
+        return final_sol
+
     # -- Phase 1: aggressive greedy --------------------------------------------
     sorted_indices = sorted(
         range(n_blocks),
@@ -384,6 +407,13 @@ def greedyalgorithm(prob_info: dict, timelimit: float,
 
     from utils import check_feasibility
     final_result = check_feasibility(prob_info, final_sol)
+    if not final_result["feasible"]:
+        print(f"[Greedy] Repair result infeasible stage={final_result['stage']} "
+              "-> serial empty-window fallback")
+        assignments = _serial_empty_bay_fallback(prob_info, bays, blocks_data)
+        final_sol = {"operations": _build_operations(list(assignments.values()))}
+        final_result = check_feasibility(prob_info, final_sol)
+
     print(f"[Greedy] {'-' * 56}")
     print(f"[Greedy] Done  |  assigned={len(assignments)}/{n_blocks}  "
           f"elapsed={elapsed_total:.2f}s")
@@ -398,6 +428,45 @@ def greedyalgorithm(prob_info: dict, timelimit: float,
             print(f"[Greedy]   {v}")
 
     return final_sol
+
+
+def _serial_empty_bay_fallback(prob_info: dict,
+                               bays: list[Bay],
+                               blocks_data: list[dict]) -> dict[int, dict]:
+    """
+    Last-resort feasible schedule.
+
+    Each block is placed in an empty interval of its best fitting preferred bay.
+    Blocks may overlap across different bays, but never overlap inside the same
+    bay.  That makes entry/exit crane checks and spatial collision checks pass
+    by construction for normal instances.
+    """
+    n_bays = len(bays)
+    bay_schedule: list[list[tuple[int, int]]] = [[] for _ in range(n_bays)]
+    assignments: dict[int, dict] = {}
+    order = sorted(
+        range(len(blocks_data)),
+        key=lambda i: (blocks_data[i]["due_date"], blocks_data[i]["processing_time"])
+    )
+
+    for bi in order:
+        blk = blocks_data[bi]
+        prefs = blk["bay_preferences"]
+        bay_id, x, y, oi, entry, exit_t = _force_place(
+            bi, blocks_data, bays, bay_schedule, prefs
+        )
+        bay_schedule[bay_id].append((entry, exit_t))
+        assignments[bi] = {
+            "block_id": bi,
+            "bay_id": bay_id,
+            "x": int(round(x)),
+            "y": int(round(y)),
+            "orient_idx": oi,
+            "entry_time": int(round(entry)),
+            "exit_time": int(round(exit_t)),
+        }
+
+    return assignments
 
 
 # -----------------------------------------------------------------------------
@@ -454,14 +523,18 @@ def _force_place(bi: int,
                 bb = _block_bbox(blk_data, oi)
                 px = max(0, math.ceil(-bb[0]))
                 py = max(0, math.ceil(-bb[1]))
+                blk = Block(block_id=bi, block_data=blk_data,
+                            x=px, y=py, orient_idx=oi)
+                if not bay.contains_block(blk):
+                    continue
                 entry = _empty_bay_entry(bay_schedule[bay_id], r_time, proc)
                 return (bay_id, px, py, oi, entry, entry + proc)
 
-    # absolute last resort -- ignore fit
+    # absolute last resort -- use the preferred bay and safest reference point
     bay_id = max(range(n_bays), key=lambda j: prefs[j])
-    bb     = _block_bbox(blk_data, 0)
-    px     = max(0, math.ceil(-bb[0]))
-    py     = max(0, math.ceil(-bb[1]))
+    bb = _block_bbox(blk_data, 0)
+    px = max(0, min(math.ceil(-bb[0]), math.floor(bays[bay_id].width - bb[2])))
+    py = max(0, min(math.ceil(-bb[1]), math.floor(bays[bay_id].height - bb[3])))
     entry  = _empty_bay_entry(bay_schedule[bay_id], r_time, proc)
     return (bay_id, px, py, 0, entry, entry + proc)
 

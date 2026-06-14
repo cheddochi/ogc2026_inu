@@ -46,6 +46,7 @@ _MIP_GAP        = 0.01   # Gurobi 최적성 갭 1%
 _PHASE2_RESERVE = 5.0    # Phase 2(공간 배치) + 출력 빌더용 예약 시간 (초)
                           # deadline = t0 + timelimit - _PHASE2_RESERVE
                           # algorithm() 내 모든 단계가 이 데드라인을 준수한다.
+_FAST_GREEDY_THRESHOLD = 1
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -823,6 +824,79 @@ def algorithm(prob_info, timelimit=60):
         pos = _spatial(prob_info, sched)
         return _build_solution(sched, pos)
 
+    def _greedy_rebuild_from_sched(sched):
+        """Use CP/MIP schedule order as a hint for baseline's robust placer."""
+        import baseline_greedy
+        from utils import Bay
+
+        blocks = prob_info["blocks"]
+        bays = [Bay.from_dict(d, i) for i, d in enumerate(prob_info["bays"])]
+        n_bays = len(bays)
+        w1 = prob_info.get("weights", {}).get("w1", 1.0)
+        w2 = prob_info.get("weights", {}).get("w2", 1.0)
+        w3 = prob_info.get("weights", {}).get("w3", 1.0)
+
+        order = sorted(
+            range(len(blocks)),
+            key=lambda i: (
+                sched.get(i, {}).get("entry_time", blocks[i]["release_time"]),
+                sched.get(i, {}).get("exit_time", blocks[i]["release_time"] + blocks[i]["processing_time"]),
+                blocks[i]["due_date"],
+                blocks[i]["processing_time"],
+            ),
+        )
+        bay_placed = [[] for _ in range(n_bays)]
+        bay_schedule = [[] for _ in range(n_bays)]
+        bay_loads = [0.0] * n_bays
+
+        assignments = baseline_greedy._place_blocks(
+            order, blocks, bays,
+            bay_placed, bay_schedule, bay_loads,
+            w1, w2, w3, forced_ids=set(),
+            t_start=t0, log_interval=0,
+        )
+        sol = {"operations": baseline_greedy._build_operations(list(assignments.values()))}
+        assignments = baseline_greedy._repair(
+            prob_info, sol, assignments, bays, blocks,
+            w1, w2, w3, t0, timelimit,
+            repair_mode="greedy",
+        )
+        return {"operations": baseline_greedy._build_operations(list(assignments.values()))}
+
+    def _checked_or_fallback(solution, reason, sched=None):
+        """Validate with the official checker; fall back to greedy if needed."""
+        try:
+            from utils import check_feasibility
+            result = check_feasibility(prob_info, solution)
+            if result["feasible"]:
+                print(f"[casat_cheddochi] feasibility PASS ({reason})"
+                      f"  obj={result['objective']:.2f}")
+                return solution
+            print(f"[casat_cheddochi] feasibility FAIL ({reason})"
+                  f"  stage={result['stage']} → baseline_greedy fallback")
+            for v in result["violations"][:3]:
+                print(f"[casat_cheddochi]   {v}")
+        except Exception as e:
+            print(f"[casat_cheddochi] feasibility check error ({reason}): {e}"
+                  " → baseline_greedy fallback")
+
+        if sched is not None:
+            try:
+                from utils import check_feasibility
+                rebuilt = _greedy_rebuild_from_sched(sched)
+                rebuilt_result = check_feasibility(prob_info, rebuilt)
+                if rebuilt_result["feasible"]:
+                    print("[casat_cheddochi] schedule-order greedy rebuild PASS"
+                          f"  obj={rebuilt_result['objective']:.2f}")
+                    return rebuilt
+                print("[casat_cheddochi] schedule-order greedy rebuild FAIL"
+                      f"  stage={rebuilt_result['stage']}")
+            except Exception as e:
+                print(f"[casat_cheddochi] schedule-order greedy rebuild error: {e}")
+
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, timelimit)
+
     # 솔버 레이블
     if _HAS_GUROBI:
         label = "Gurobi MIP" if n <= _MIP_LIMIT else "LNS+Gurobi repair"
@@ -839,6 +913,16 @@ def algorithm(prob_info, timelimit=60):
     print(f"[casat_cheddochi] phase 1    = {label}")
     print(f"[casat_cheddochi] {'─'*38}")
 
+    if n >= _FAST_GREEDY_THRESHOLD:
+        print("[casat_cheddochi] 큰 인스턴스 → baseline_greedy serial fast path")
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, min(float(timelimit), 10.0))
+
+    if timelimit <= 10:
+        print("[casat_cheddochi] 짧은 timelimit → baseline_greedy fast fallback")
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, timelimit)
+
     # Gurobi / OR-Tools 모두 없으면 바로 baseline_greedy 폴백
     if not _HAS_GUROBI and not _HAS_ORTOOLS:
         print("[casat_cheddochi] 솔버 없음 → baseline_greedy 폴백")
@@ -846,11 +930,13 @@ def algorithm(prob_info, timelimit=60):
         return baseline_greedy.greedyalgorithm(prob_info, timelimit)
 
     best_solution = None   # 언제든 반환 가능한 최선해 (체크포인트)
+    best_sched = None
 
     try:
         # ── Phase 0: EDD warm start ────────────────────────────────────────
         orients = _precompute_orients(prob_info)
         warm    = _warm_start(prob_info, orients)
+        best_sched = warm
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
@@ -862,7 +948,7 @@ def algorithm(prob_info, timelimit=60):
         if _t_left() < _MIN_PHASE1:
             print(f"[casat_cheddochi] 시간 부족 ({_t_left():.1f}s < {_MIN_PHASE1}s)"
                   f" → Phase 1 건너뜀, warm start 해 반환")
-            return best_solution
+            return _checked_or_fallback(best_solution, "warm start", warm)
 
         # ── Phase 1: 스케줄 최적화 ─────────────────────────────────────────
         if _HAS_GUROBI:
@@ -882,6 +968,7 @@ def algorithm(prob_info, timelimit=60):
 
         # 체크포인트 2: Phase 1 최적화 해로 갱신
         best_solution = _finalize(sched)
+        best_sched = sched
         print(f"[casat_cheddochi] Phase 1  obj={_objective(prob_info,sched):.2f}"
               f"  t={time.time()-t0:.2f}s  (checkpoint updated)")
 
@@ -897,4 +984,4 @@ def algorithm(prob_info, timelimit=60):
     print(f"[casat_cheddochi] done  total={elapsed:.2f}s"
           f"  (잔여={remaining_after:.2f}s / reserve={reserve:.1f}s)")
     print(f"[casat_cheddochi] {'═'*38}\n")
-    return best_solution
+    return _checked_or_fallback(best_solution, "phase 1", best_sched)

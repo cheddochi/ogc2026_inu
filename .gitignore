@@ -6,3 +6,6 @@ __pycache__/
 *.ipynb
 __pycache__/
 *.pyc
+reports/ogc_batch/
+.venv/
+tools/__pycache__/
