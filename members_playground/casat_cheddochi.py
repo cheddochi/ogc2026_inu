@@ -448,7 +448,13 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
         mdl.Add(pp == sum(round((s_max - prefs[b]) * S) * in_b[i][b] for b in range(M)))
         pp_v.append(pp)
 
-    mdl.Minimize(round(w1*S)*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
+    # imb_v, pp_v 는 wl_v/pp 스케일(S) 때문에 "S * 실제값" 단위이지만
+    # td_v 는 실제값(정수 시간) 그대로다. 세 항의 상대 가중치가
+    # _objective()의 w1*tard + w2*imb + w3*pen 과 일치하도록
+    # td_v 항에도 S를 곱해 동일한 "S * 실제값" 스케일로 맞춘다.
+    # (이전 버전은 td_v에 S를 곱하지 않아 tardiness가 1000배 과소평가되어
+    #  CP-SAT가 워밍스타트보다 나쁜 "최적" 해를 반환하는 문제가 있었다.)
+    mdl.Minimize(round(w1*S)*S*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
 
     for i in range(n):
         if i in warm:
