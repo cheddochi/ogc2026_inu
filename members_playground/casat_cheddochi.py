@@ -174,19 +174,15 @@ def _objective(prob_info, sched):
 # §3  Phase 0 — EDD warm start
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _warm_start(prob_info, orients, feasible_bays=None):
+def _warm_start_ordered(prob_info, orients, feasible_bays, order):
     """
-    EDD 순서로 bay 배정.
+    주어진 블록 순서(order)대로 bay 배정.
     각 블록에 대해 선호도 높은 bay부터 순회하며
     누적 열 폭 합 ≤ bay 폭인 가장 이른 진입 슬롯을 선택한다.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
-    if feasible_bays is None:
-        feasible_bays = _feasible_bays(prob_info)
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
-    order  = sorted(range(len(blocks)),
-                    key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
     timeline = [[] for _ in range(n_bays)]
     sched    = {}
 
@@ -234,6 +230,45 @@ def _warm_start(prob_info, orients, feasible_bays=None):
         sched[bi] = {"block_id": bi, "bay_id": bay_id,
                      "entry_time": int(entry), "exit_time": int(exit_t)}
     return sched
+
+
+def _warm_start(prob_info, orients, feasible_bays=None):
+    """
+    여러 정렬 기준으로 warm start 후보를 생성하고 _objective() 기준 최선을 선택.
+
+    후보 순서
+      1. EDD            : (due_date, processing_time)               — 기존 기준
+      2. SPT            : (processing_time, due_date)                — 짧은 작업 우선
+                          → 전체 처리량 증가, 평균 대기시간 감소 경향
+      3. Slack(EDD-ish) : (due_date - release_time - processing_time, due_date)
+                          → 여유시간(slack)이 작은(급한) 블록을 우선 배치해
+                            tardiness(w1 가중치가 가장 큼) 직접 감소 시도
+
+    각 후보는 동일한 _warm_start_ordered 그리디로 배치되며, 생성 비용은
+    블록 수백 개 기준 수십 ms 수준으로 매우 저렴 → 항상 3개 모두 평가.
+    """
+    blocks = prob_info["blocks"]
+    if feasible_bays is None:
+        feasible_bays = _feasible_bays(prob_info)
+    n = len(blocks)
+
+    orders = {
+        "edd":   sorted(range(n), key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"])),
+        "spt":   sorted(range(n), key=lambda i: (blocks[i]["processing_time"], blocks[i]["due_date"])),
+        "slack": sorted(range(n), key=lambda i: (
+            blocks[i]["due_date"] - blocks[i]["release_time"] - blocks[i]["processing_time"],
+            blocks[i]["due_date"])),
+    }
+
+    best_sched, best_obj, best_tag = None, float("inf"), None
+    for tag, order in orders.items():
+        sched = _warm_start_ordered(prob_info, orients, feasible_bays, order)
+        obj   = _objective(prob_info, sched)
+        if obj < best_obj:
+            best_sched, best_obj, best_tag = sched, obj, tag
+
+    print(f"[warm_start] best={best_tag}  obj={best_obj:.2f}")
+    return best_sched
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
