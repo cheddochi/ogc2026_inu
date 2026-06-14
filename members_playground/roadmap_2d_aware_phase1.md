@@ -298,14 +298,20 @@ Phase 2~3 완료 후:
       더 나은" 해를 못 찾게 되어 checkpoint1(warm)로 후퇴했다.
 
       **조치: 두 적용 지점과 `_repair_capacity` 함수를 모두 롤백**
-      (커밋 497fc26 → 되돌림). 결론: 1D column-width 합 기반의
-      사후 보정은 `_spatial`의 실제 2D(x,y) 배치 능력보다 더
+      (커밋 497fc26 → 되돌림, 커밋 c4d6928). 결론: 1D column-width 합
+      기반의 사후 보정은 `_spatial`의 실제 2D(x,y) 배치 능력보다 더
       보수적인 근사라서 "수정"이 오히려 손해다. 진짜 2D-aware Phase 3을
       하려면, repair 후보 평가 시 1D 근사가 아니라 **`_spatial`과
       동일한 (x,y,orient) bottom-left-fill 탐색으로 실제 배치
       가능성을 확인**해야 한다 (로드맵 원안의 Phase 3 방향 1번) —
       이는 `_spatial` 자체를 부분적으로 호출/재사용해야 하는 더 큰
       작업이라 별도 세션에서 다뤄야 한다.
+
+      **iter7 (롤백 확인)**: 40/40 feasible, Total Objective 581,615,080,
+      Total T 64,773 — iter5(580,313,244)와 0.2% 이내로 일치 (차이는
+      time-limit에 걸린 Gurobi MIP 해들의 wall-clock 비결정성). 롤백이
+      정확히 pre-Phase3 상태로 복원되었음을 확인. **현재 최선
+      baseline = Gurobi 활성화 + Phase 2 (≈580M, iter5/iter7).**
 - [x] Phase 4: `_FAST_GREEDY_THRESHOLD` 재검토 — **버그 발견 및 수정**:
       값이 `1`로 설정되어 있어 `n >= _FAST_GREEDY_THRESHOLD`가 항상
       참이 되고, `algorithm()`이 Phase 0-1-2를 절대 실행하지 못한 채
