@@ -46,7 +46,12 @@ _MIP_GAP        = 0.01   # Gurobi 최적성 갭 1%
 _PHASE2_RESERVE = 5.0    # Phase 2(공간 배치) + 출력 빌더용 예약 시간 (초)
                           # deadline = t0 + timelimit - _PHASE2_RESERVE
                           # algorithm() 내 모든 단계가 이 데드라인을 준수한다.
-_FAST_GREEDY_THRESHOLD = 1
+# NOTE: 이전 값(1)은 n>=1이 항상 참이 되어 algorithm()이 Phase 0-1-2를
+# 절대 실행하지 못하고 매번 baseline_greedy로 직행하는 버그였다 (40문제 합산
+# objective 32.0B). Phase 2-0/2-1/2-2 이후 Phase 0-1-2 파이프라인은 40/40
+# feasible을 달성하므로(917M), 현실적인 인스턴스 크기에서는 절대 트리거되지
+# 않을 만큼 높은 값으로 둔다. _checked_or_fallback이 안전망 역할을 한다.
+_FAST_GREEDY_THRESHOLD = 100_000
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
