@@ -703,6 +703,141 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
     return greedy   # MIP 실패 → greedy 폴백
 
 
+_CPSAT_REPAIR_MAX_K = 25   # CP-SAT repair 최대 블록 수 (초과 시 greedy 폴백)
+
+
+def _cpsat_repair(prob_info, fixed, to_place, orients, feasible_bays=None, tlimit=_REPAIR_TLIMIT):
+    """
+    OR-Tools 버전의 _gurobi_repair.
+
+    k개 파괴 블록을 CP-SAT 소형 모델로 동시 최적화한다. fixed 블록들은
+    각 bay의 AddCumulative에 "고정 demand" 구간(NewIntervalVar, 변수 아님)으로
+    포함시켜 to_place 블록들이 그 구간을 회피하도록 강제한다.
+
+    k > _CPSAT_REPAIR_MAX_K 면 greedy 폴백.
+    """
+    from ortools.sat.python import cp_model
+
+    if not to_place:
+        return dict(fixed)
+    if len(to_place) > _CPSAT_REPAIR_MAX_K:
+        return _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays)
+
+    blocks, bays = prob_info["blocks"], prob_info["bays"]
+    k, M = len(to_place), len(bays)
+    w1 = prob_info.get("weights", {}).get("w1", 1.0)
+    w2 = prob_info.get("weights", {}).get("w2", 1.0)
+    w3 = prob_info.get("weights", {}).get("w3", 1.0)
+    if feasible_bays is None:
+        feasible_bays = _feasible_bays(prob_info)
+
+    T = (max(blk["due_date"] for blk in blocks) * 2
+         + sum(blk["processing_time"] for blk in blocks))
+    S = 1000
+
+    mdl = cp_model.CpModel()
+
+    bay_v = [mdl.NewIntVar(0, M-1, f"b{ki}") for ki in range(k)]
+    st_v  = []
+    end_v = []
+    in_b  = [[mdl.NewBoolVar(f"in{ki}_{b}") for b in range(M)] for ki in range(k)]
+
+    for ki, bi in enumerate(to_place):
+        p = blocks[bi]["processing_time"]
+        r = blocks[bi]["release_time"]
+        s = mdl.NewIntVar(r, T, f"s{ki}")
+        e = mdl.NewIntVar(r + p, T + p, f"e{ki}")
+        mdl.Add(e == s + p)
+        st_v.append(s)
+        end_v.append(e)
+
+        mdl.AddExactlyOne(in_b[ki])
+        for b in range(M):
+            mdl.Add(bay_v[ki] == b).OnlyEnforceIf(in_b[ki][b])
+            mdl.Add(bay_v[ki] != b).OnlyEnforceIf(in_b[ki][b].Not())
+            if b not in feasible_bays.get(bi, set(range(M))):
+                mdl.Add(in_b[ki][b] == 0)
+
+    # AddCumulative per bay: to_place 블록(optional) + fixed 블록(고정 interval)
+    for b in range(M):
+        ivs, dems = [], []
+        for ki, bi in enumerate(to_place):
+            p = blocks[bi]["processing_time"]
+            cw = orients[(bi, b)][1]
+            iv = mdl.NewOptionalIntervalVar(st_v[ki], p, end_v[ki], in_b[ki][b], f"iv{ki}_{b}")
+            ivs.append(iv)
+            dems.append(cw)
+        for fi, fs in fixed.items():
+            if fs["bay_id"] != b:
+                continue
+            fa, fe = int(fs["entry_time"]), int(fs["exit_time"])
+            cw = orients[(fi, b)][1]
+            iv = mdl.NewFixedSizeIntervalVar(fa, fe - fa, f"fx{fi}_{b}")
+            ivs.append(iv)
+            dems.append(cw)
+        if ivs:
+            mdl.AddCumulative(ivs, dems, int(bays[b]["width"]))
+
+    # 목적함수: tardiness + workload imbalance + pref penalty
+    td_v = []
+    for ki, bi in enumerate(to_place):
+        td = mdl.NewIntVar(0, T, f"td{ki}")
+        mdl.AddMaxEquality(td, [end_v[ki] - blocks[bi]["due_date"], mdl.NewConstant(0)])
+        td_v.append(td)
+
+    fixed_loads = [round(sum(blocks[fi]["workload"] for fi, fs in fixed.items()
+                              if fs["bay_id"] == b) * S) for b in range(M)]
+    wls = [round(blocks[bi]["workload"] * S) for bi in to_place]
+    total_wl = sum(wls) + sum(fixed_loads) + 1
+    wl_v = [mdl.NewIntVar(0, total_wl, f"wl{b}") for b in range(M)]
+    for b in range(M):
+        mdl.Add(wl_v[b] == fixed_loads[b] + sum(wls[ki] * in_b[ki][b] for ki in range(k)))
+    mx_wl = mdl.NewIntVar(0, total_wl, "mx")
+    mn_wl = mdl.NewIntVar(0, total_wl, "mn")
+    mdl.AddMaxEquality(mx_wl, wl_v)
+    mdl.AddMinEquality(mn_wl, wl_v)
+    imb_v = mdl.NewIntVar(0, total_wl, "imb")
+    mdl.Add(imb_v == mx_wl - mn_wl)
+
+    pp_v = []
+    for ki, bi in enumerate(to_place):
+        prefs = blocks[bi]["bay_preferences"]; s_max = max(prefs)
+        pp = mdl.NewIntVar(0, round(s_max * S) + 1, f"pp{ki}")
+        mdl.Add(pp == sum(round((s_max - prefs[b]) * S) * in_b[ki][b] for b in range(M)))
+        pp_v.append(pp)
+
+    mdl.Minimize(round(w1*S)*S*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
+
+    # greedy warm start as hint
+    greedy = _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays)
+    for ki, bi in enumerate(to_place):
+        gs = greedy[bi]
+        mdl.AddHint(bay_v[ki], gs["bay_id"])
+        mdl.AddHint(st_v[ki], gs["entry_time"])
+        for b in range(M):
+            mdl.AddHint(in_b[ki][b], 1 if b == gs["bay_id"] else 0)
+
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = tlimit
+    solver.parameters.num_search_workers  = _MAX_THREADS
+    solver.parameters.max_memory_in_mb    = _MAX_MEM_GB * 1024
+    solver.parameters.linearization_level = 1
+    solver.parameters.log_search_progress = False
+
+    status = solver.Solve(mdl)
+    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        result = dict(fixed)
+        for ki, bi in enumerate(to_place):
+            b = solver.Value(bay_v[ki])
+            s = solver.Value(st_v[ki])
+            p = blocks[bi]["processing_time"]
+            result[bi] = {"block_id": bi, "bay_id": b,
+                          "entry_time": int(s), "exit_time": int(s + p)}
+        return result
+
+    return greedy   # CP-SAT 실패 → greedy 폴백
+
+
 def _worst_blocks(prob_info, sched, k, n):
     """
     Worst-first destroy: 지연(tardiness) 기여도가 높은 블록을 우선 선택.
@@ -788,10 +923,16 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
         # 거의 같은 해로 수렴해 개선을 찾지 못한다 (관찰: 450+ iter, obj 불변).
         # 순서를 무작위로 섞어 탐색 다양성을 확보한다.
         repair_order = "shuffled" if (not use_gurobi_repair and random.random() < 0.7) else "edd"
-        candidate = (_gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
-                     if use_gurobi_repair
-                     else _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays,
-                                          order_mode=repair_order))
+        if use_gurobi_repair:
+            candidate = _gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
+        elif len(destroy) <= _CPSAT_REPAIR_MAX_K:
+            # CP-SAT 소형 repair (Gurobi 없을 때): k개 블록을 동시 최적화.
+            # repair 1회 시간 = 남은 시간의 일부 또는 _REPAIR_TLIMIT 중 작은 값.
+            t_rep_cp = min(_REPAIR_TLIMIT, max(0.1, remaining * 0.3))
+            candidate = _cpsat_repair(prob_info, fixed, destroy, orients, feasible_bays, t_rep_cp)
+        else:
+            candidate = _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays,
+                                        order_mode=repair_order)
         cand_obj  = _objective(prob_info, candidate)
 
         if cand_obj < cur_obj:
@@ -1131,10 +1272,13 @@ def algorithm(prob_info, timelimit=60):
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
-        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정하므로
+        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정하므로,
+        # Phase 1(_adaptive_lns 등)에 전달할 pre-spatial 스케줄이 오염되지
+        # 않도록 _finalize에는 별도 복사본을 전달한다.
         # _objective는 _finalize 호출 *이후*에 계산해야 실제 반환 해의 목적값과 일치한다.
-        best_solution = _finalize(warm)
-        best_obj_final = _objective(prob_info, warm)
+        warm_for_finalize = {bi: dict(v) for bi, v in warm.items()}
+        best_solution = _finalize(warm_for_finalize)
+        best_obj_final = _objective(prob_info, warm_for_finalize)
         print(f"[casat_cheddochi] Phase 0  obj={best_obj_final:.2f}"
               f"  t={time.time()-t0:.2f}s  (checkpoint saved)")
 
