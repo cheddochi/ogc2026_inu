@@ -46,6 +46,7 @@ _MIP_GAP        = 0.01   # Gurobi 최적성 갭 1%
 _PHASE2_RESERVE = 5.0    # Phase 2(공간 배치) + 출력 빌더용 예약 시간 (초)
                           # deadline = t0 + timelimit - _PHASE2_RESERVE
                           # algorithm() 내 모든 단계가 이 데드라인을 준수한다.
+_FAST_GREEDY_THRESHOLD = 1
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -911,6 +912,11 @@ def algorithm(prob_info, timelimit=60):
           f"  OR-Tools={'O' if _HAS_ORTOOLS else 'X'}")
     print(f"[casat_cheddochi] phase 1    = {label}")
     print(f"[casat_cheddochi] {'─'*38}")
+
+    if n >= _FAST_GREEDY_THRESHOLD:
+        print("[casat_cheddochi] 큰 인스턴스 → baseline_greedy serial fast path")
+        import baseline_greedy
+        return baseline_greedy.greedyalgorithm(prob_info, min(float(timelimit), 10.0))
 
     if timelimit <= 10:
         print("[casat_cheddochi] 짧은 timelimit → baseline_greedy fast fallback")

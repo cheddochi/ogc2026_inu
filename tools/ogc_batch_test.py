@@ -12,6 +12,7 @@ import importlib.util
 import json
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -78,6 +79,14 @@ def natural_key(path: pathlib.Path):
     return parts
 
 
+def output_text(output) -> str:
+    if output is None:
+        return ""
+    if isinstance(output, bytes):
+        return output.decode("utf-8", errors="replace")
+    return str(output)
+
+
 def load_checker(alg_tester_dir: pathlib.Path):
     utils_path = alg_tester_dir / "utils.py"
     sys.path.insert(0, str(alg_tester_dir))
@@ -95,6 +104,7 @@ def collect_problem_paths(args, repo_root: pathlib.Path):
         pattern = args.problems
         paths = [pathlib.Path(p) for p in pathlib.Path().glob(pattern)]
     paths = [(p if p.is_absolute() else repo_root / p).resolve() for p in paths]
+    paths = [p for p in paths if re.fullmatch(r"prob_\d+\.json", p.name)]
     paths = sorted(paths, key=natural_key)
     if args.limit is not None:
         paths = paths[: args.limit]
@@ -146,7 +156,7 @@ def run_one(problem_path, alg_folder, timelimit, timeout_grace, out_dir, python_
         wall_time = time.time() - started
         return_code = proc.returncode
     except subprocess.TimeoutExpired as exc:
-        stdout_path.write_text(exc.stdout or "", encoding="utf-8")
+        stdout_path.write_text(output_text(exc.stdout), encoding="utf-8")
         wall_time = time.time() - started
         return {
             "problem": problem_path.name,
