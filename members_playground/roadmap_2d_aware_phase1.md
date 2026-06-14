@@ -270,7 +270,21 @@ Phase 2~3 완료 후:
       bottom-left-fill로 재작성 (AABB-분리 충분조건으로 Stage2~4 항상
       통과 보장) — **train set 40/40 feasible 달성** (iter2,
       objective 917,417,673 / T 90,704)
-- [ ] Phase 3: `_greedy_repair`/`_gurobi_repair`를 2D 제약과 정합되게 수정
+- [x] Phase 3: `_greedy_repair`/`_gurobi_repair`를 2D 제약과 정합되게 수정 —
+      **`_repair_capacity`(§9.5, 신규) 추가**. `_conflict_pairs` 기반
+      pairwise 분리(`_gurobi_repair`/`_gurobi_mip`/`_cpsat_mip`)는
+      `cw_i+cw_j<=W`인 블록쌍은 분리하지 않으므로, 그런 블록 3개 이상이
+      동시에 bay 폭을 초과해도 MIP은 "충돌 없음"으로 본다. 이 위반을
+      그대로 `_spatial`에 넘기면 대규모 postponement로 objective가
+      폭증한다 (실측: prob_31 LNS+Gurobi 후보 `_objective` 583,584 →
+      `check_feasibility` 300,901,137, bay1 동시점유 cw합 504 vs
+      폭 37). `_repair_capacity`는 `_warm_start`/`_greedy_repair`와
+      동일한 timeline 기반 용량 체크로 entry_time을 지연시켜 위반을
+      해소한다 (이미 위반 없는 스케줄엔 no-op). 적용 지점:
+      (1) `_adaptive_lns`의 candidate 평가 직전 — LNS의 accept/reject가
+      실제 objective에 근접한 값을 보게 됨,
+      (2) `algorithm()`의 `_finalize` — `_spatial` 직전에 적용해
+      체크포인트 1/2 모두(워밍스타트·Phase1) 1D 용량 위반을 먼저 해소.
 - [x] Phase 4: `_FAST_GREEDY_THRESHOLD` 재검토 — **버그 발견 및 수정**:
       값이 `1`로 설정되어 있어 `n >= _FAST_GREEDY_THRESHOLD`가 항상
       참이 되고, `algorithm()`이 Phase 0-1-2를 절대 실행하지 못한 채
@@ -283,11 +297,23 @@ Phase 2~3 완료 후:
 
 ### 남은 작업 / 참고
 
-- Phase 3(LNS repair 2D-aware화)은 n>150 (22/40) 문제의 `_adaptive_lns`가
-  만드는 중간 스케줄의 품질을 높여 `_spatial`의 postponement 의존도를
-  낮추는 것이 목표 — Phase 4 적용 후 objective/T 추이를 보고 필요성을
-  재평가한다.
 - `algorithm()`에는 `_FAST_GREEDY_THRESHOLD`와 별개로 `timelimit <= 10`
   → `baseline_greedy` 폴백 분기가 있다. 프로덕션 기본값
   `timelimit=60`에서는 트리거되지 않으므로 이번 수정의 영향은 없지만,
   매우 짧은 timelimit으로 호출되는 경우라면 별도 검토가 필요하다.
+
+### Gurobi 라이선스 조사 (참고)
+
+- `grbgetkey`는 `apps.gurobi.com`/`packages.gurobi.com`/`www.gurobi.com`과
+  통신해야 하는데, 이 샌드박스의 네트워크 정책이 모든 gurobi.com
+  서브도메인을 차단(`host_not_allowed`)한다 — 이 환경에서는 라이선스 키
+  활성화가 불가능하다.
+- `pip install gurobipy`만으로 내장된 "Restricted license (non-production,
+  2027-11-29 만료)"가 활성화 없이 오프라인으로 동작한다. prob_1(n=100,
+  Gurobi MIP)·prob_26(n=150)·prob_31(n=200, LNS+Gurobi repair)에서
+  `GurobiError`(라이선스 크기 제한) 없이 정상 동작 확인 — 모델 크기가
+  제한 내에 들어옴.
+- `ogc2026_env.yml`에 `gurobipy==13.0.2`가 명시되어 있어 production도
+  `_HAS_GUROBI=True`일 가능성이 높다. 이 샌드박스의 Restricted
+  license로 크래시가 없었으므로, production에서도 크래시 위험은 낮아
+  보인다 (단, production의 실제 라이선스 종류는 확인 불가).
