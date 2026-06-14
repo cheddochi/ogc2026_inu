@@ -491,8 +491,18 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
 # §7  Greedy repair  (LNS 폴백 / Gurobi warm start 용)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None):
-    """EDD 순서 greedy 재배치. MIP repair의 warm start 및 폴백으로 사용."""
+def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None, order_mode="edd"):
+    """
+    Greedy 재배치. MIP repair의 warm start 및 폴백, LNS repair로 사용.
+
+    order_mode:
+      "edd"      - EDD(due_date, processing_time) 순서 (warm start와 동일).
+      "shuffled" - to_place 를 무작위 순서로 섞은 뒤 배치.
+                   destroy=k개를 항상 EDD 순서로 동일하게 재배치하면 warm start와
+                   거의 같은 해로 수렴해 LNS가 개선을 찾지 못한다 (탐색 다양성 부족).
+                   순서를 섞으면 같은 (bay,time) 슬롯 경쟁에서 다른 블록이 우선권을
+                   얻어 다른 지역해를 탐색할 수 있다.
+    """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
@@ -506,8 +516,12 @@ def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None):
         timeline[b].append((s["entry_time"], s["exit_time"], cw))
 
     sched = dict(fixed)
-    order = sorted(to_place,
-                   key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
+    if order_mode == "shuffled":
+        order = list(to_place)
+        random.shuffle(order)
+    else:
+        order = sorted(to_place,
+                       key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
 
     for bi in order:
         blk   = blocks[bi]
@@ -770,9 +784,14 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
             destroy = random.sample(range(n), min(k, n))
         fixed = {i: current[i] for i in range(n) if i not in destroy}
 
+        # greedy repair는 항상 EDD 순서로 동일하게 재배치하면 destroy 전과
+        # 거의 같은 해로 수렴해 개선을 찾지 못한다 (관찰: 450+ iter, obj 불변).
+        # 순서를 무작위로 섞어 탐색 다양성을 확보한다.
+        repair_order = "shuffled" if (not use_gurobi_repair and random.random() < 0.7) else "edd"
         candidate = (_gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
                      if use_gurobi_repair
-                     else _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays))
+                     else _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays,
+                                          order_mode=repair_order))
         cand_obj  = _objective(prob_info, candidate)
 
         if cand_obj < cur_obj:
