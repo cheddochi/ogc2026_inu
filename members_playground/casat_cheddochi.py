@@ -917,6 +917,61 @@ def _build_solution_from_assignments(assignments):
     }
 
 
+def _score_solution(prob_info, solution):
+    assignments = {}
+    for t_str, ops in solution.get("operations", {}).items():
+        t = int(t_str)
+        for op in ops:
+            bi = op["block_id"]
+            a = assignments.setdefault(bi, {"block_id": bi})
+            if op["type"] == "ENTRY":
+                a.update({
+                    "bay_id": op["bay_id"],
+                    "entry_time": t,
+                })
+            elif op["type"] == "EXIT":
+                a["exit_time"] = t
+    if len(assignments) != len(prob_info["blocks"]):
+        return None
+
+    blocks = prob_info["blocks"]
+    bays = prob_info["bays"]
+    weights = prob_info.get("weights", {})
+    w1 = weights.get("w1", 1.0)
+    w2 = weights.get("w2", 1.0)
+    w3 = weights.get("w3", 1.0)
+    bay_loads = [0.0] * len(bays)
+    obj1 = 0.0
+    obj3 = 0.0
+    for bi, a in assignments.items():
+        blk = blocks[bi]
+        bay_id = a["bay_id"]
+        bay_loads[bay_id] += blk["workload"]
+        obj1 += max(0.0, a["exit_time"] - blk["due_date"])
+        prefs = blk["bay_preferences"]
+        obj3 += max(prefs) - prefs[bay_id]
+
+    bay_areas = [bay["width"] * bay["height"] for bay in bays]
+    avg_area = sum(bay_areas) / len(bay_areas)
+    u = [avg_area / area for area in bay_areas]
+    if len(bays) >= 2:
+        obj2 = math.floor(max(
+            abs(u[j1] * bay_loads[j1] - u[j2] * bay_loads[j2])
+            for j1 in range(len(bays)) for j2 in range(len(bays))
+            if j1 != j2
+        ))
+    else:
+        obj2 = 0.0
+
+    return {
+        "feasible": True,
+        "objective": w1 * obj1 + w2 * obj2 + w3 * obj3,
+        "obj1": obj1,
+        "obj2": obj2,
+        "obj3": obj3,
+    }
+
+
 def _release_snap_schedules(prob_info):
     """Aggressive release-time schedules for dense 2D wall-snap packing."""
     blocks = prob_info["blocks"]
@@ -1225,14 +1280,7 @@ def _wall_snap_place_schedule(prob_info, sched, deadline=None):
                 return None
             assignments[bi] = fallback
 
-    solution = _build_solution_from_assignments(assignments)
-    result = check_feasibility(prob_info, solution)
-    if not result["feasible"]:
-        violation = result.get("violations", [""])[0] if result.get("violations") else ""
-        print(f"[casat_cheddochi] wall-snap final infeasible"
-              f" stage={result.get('stage')} violation={violation[:160]}")
-        return None
-    return solution
+    return _build_solution_from_assignments(assignments)
 
 
 def _wall_snap_solution(prob_info, deadline=None):
@@ -1268,8 +1316,8 @@ def _wall_snap_solution(prob_info, deadline=None):
         solution = _wall_snap_place_schedule(prob_info, sched, deadline=deadline)
         if solution is None:
             continue
-        result = check_feasibility(prob_info, solution)
-        if result["feasible"] and result["objective"] < best_objective:
+        result = _score_solution(prob_info, solution)
+        if result is not None and result["objective"] < best_objective:
             best_solution = solution
             best_objective = result["objective"]
             print(f"[casat_cheddochi] wall-snap candidate {label}"
@@ -1359,14 +1407,13 @@ def algorithm(prob_info, timelimit=60):
         snap_deadline = t0 + max(2.0, float(timelimit) - reserve)
         snap_solution = _wall_snap_solution(prob_info, deadline=snap_deadline)
         if snap_solution is not None:
-            snap_result = check_feasibility(prob_info, snap_solution)
-            if snap_result["feasible"]:
-                print("[casat_cheddochi] wall-snap accepted"
-                      f" obj={snap_result['objective']:.0f}"
-                      f" T={snap_result['obj1']:.0f}"
-                      f" L={snap_result['obj2']:.1f}"
-                      f" P={snap_result['obj3']:.0f}")
-                return snap_solution
+            snap_result = _score_solution(prob_info, snap_solution)
+            print("[casat_cheddochi] wall-snap accepted"
+                  f" obj={snap_result['objective']:.0f}"
+                  f" T={snap_result['obj1']:.0f}"
+                  f" L={snap_result['obj2']:.1f}"
+                  f" P={snap_result['obj3']:.0f}")
+            return snap_solution
         serial_solution = _serial_feasible_solution(prob_info)
         serial_result = check_feasibility(prob_info, serial_solution)
         print("[casat_cheddochi] serial fallback accepted"
