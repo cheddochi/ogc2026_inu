@@ -216,7 +216,7 @@ def resolve_algorithm_path(path_text: str, repo_root: pathlib.Path) -> tuple[pat
 def parse_algorithm_specs(values: list[str] | None, repo_root: pathlib.Path) -> list[AlgorithmSpec]:
     if not values:
         values = [
-            "name=baseline_hh,version=v005_active,path=challenge_problem_OGC2026/ogc2026/baseline"
+            "name=baseline_hh,version=v006_active,path=challenge_problem_OGC2026/ogc2026/baseline"
         ]
 
     specs: list[AlgorithmSpec] = []
