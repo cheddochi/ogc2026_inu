@@ -239,8 +239,8 @@ def _result_key(result: dict) -> tuple[float, float, float, float]:
     if not result.get("feasible"):
         return (float("inf"), float("inf"), float("inf"), float("inf"))
     return (
-        float(result["objective"]),
         float(result["obj1"]),
+        float(result["objective"]),
         float(result["obj2"]),
         float(result["obj3"]),
     )
@@ -282,7 +282,7 @@ def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
             f"obj1={estimate[1]:.1f} obj2={estimate[2]} obj3={estimate[3]:.1f}"
         )
 
-    ranked.sort(key=lambda item: item[3])
+    ranked.sort(key=lambda item: (item[3][1], item[3][0], item[3][2], item[3][3]))
     labels_to_validate = {item[1] for item in ranked[:5]}
     labels_to_validate.add("official_serial")
 

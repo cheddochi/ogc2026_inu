@@ -115,6 +115,20 @@ CSV_FIELDS = [
     "tester_summary",
 ]
 
+COMPACT_CSV_FIELDS = [
+    "instance",
+    "feasible",
+    "T_obj1",
+    "obj2",
+    "obj3",
+    "objective",
+    "runtime_sec",
+    "delta_T_vs_previous_best",
+    "delta_objective_vs_previous_best",
+    "status",
+    "solution_file",
+]
+
 
 @dataclass(frozen=True)
 class AlgorithmSpec:
@@ -452,6 +466,42 @@ def append_csv(path: pathlib.Path, rows: list[dict]) -> None:
             writer.writerow({field: row.get(field, "") for field in CSV_FIELDS})
 
 
+def write_compact_csv(path: pathlib.Path, run_rows: list[dict], previous_rows: list[dict]) -> None:
+    previous_t_best = best_by_instance(previous_rows, metric="obj1")
+    previous_objective_best = best_by_instance(previous_rows, metric="objective")
+    compact_rows = []
+    for row in sorted(run_rows, key=lambda r: natural_key(r.get("instance_name", ""))):
+        instance = row.get("instance_name", "")
+        t_value = as_float(row.get("obj1"))
+        objective = as_float(row.get("objective"))
+        prev_t = as_float(previous_t_best.get(instance, {}).get("obj1"))
+        prev_objective = as_float(previous_objective_best.get(instance, {}).get("objective"))
+        compact_rows.append(
+            {
+                "instance": instance,
+                "feasible": row.get("feasible", ""),
+                "T_obj1": row.get("obj1", ""),
+                "obj2": row.get("obj2", ""),
+                "obj3": row.get("obj3", ""),
+                "objective": row.get("objective", ""),
+                "runtime_sec": row.get("runtime_sec", ""),
+                "delta_T_vs_previous_best": ""
+                if t_value is None or prev_t is None
+                else f"{t_value - prev_t:.6f}",
+                "delta_objective_vs_previous_best": ""
+                if objective is None or prev_objective is None
+                else f"{objective - prev_objective:.6f}",
+                "status": "PASS" if is_feasible_row(row) else f"FAIL stage={row.get('stage', '')}",
+                "solution_file": row.get("solution_file", ""),
+            }
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=COMPACT_CSV_FIELDS)
+        writer.writeheader()
+        writer.writerows(compact_rows)
+
+
 def as_float(value) -> float | None:
     try:
         if value in ("", None):
@@ -465,17 +515,18 @@ def is_feasible_row(row: dict) -> bool:
     return str(row.get("feasible")).lower() == "true"
 
 
-def best_by_instance(rows: Iterable[dict]) -> dict[str, dict]:
+def best_by_instance(rows: Iterable[dict], metric: str = "objective") -> dict[str, dict]:
     best: dict[str, dict] = {}
     for row in rows:
         if not is_feasible_row(row):
             continue
-        obj = as_float(row.get("objective"))
-        if obj is None:
+        value = as_float(row.get(metric))
+        if value is None:
             continue
         instance = row.get("instance_name", "")
         current = best.get(instance)
-        if current is None or obj < as_float(current.get("objective")):
+        current_value = as_float(current.get(metric)) if current is not None else None
+        if current is None or current_value is None or value < current_value:
             best[instance] = row
     return best
 
@@ -484,6 +535,12 @@ def summarize_rows(rows: list[dict]) -> dict:
     feasible_rows = [row for row in rows if is_feasible_row(row)]
     objectives = [as_float(row.get("objective")) for row in feasible_rows]
     objectives = [v for v in objectives if v is not None]
+    obj1_values = [as_float(row.get("obj1")) for row in feasible_rows]
+    obj1_values = [v for v in obj1_values if v is not None]
+    obj2_values = [as_float(row.get("obj2")) for row in feasible_rows]
+    obj2_values = [v for v in obj2_values if v is not None]
+    obj3_values = [as_float(row.get("obj3")) for row in feasible_rows]
+    obj3_values = [v for v in obj3_values if v is not None]
     runtimes = [as_float(row.get("runtime_sec")) for row in rows]
     runtimes = [v for v in runtimes if v is not None]
     return {
@@ -492,6 +549,11 @@ def summarize_rows(rows: list[dict]) -> dict:
         "failed": len(rows) - len(feasible_rows),
         "objective_sum": sum(objectives) if objectives else None,
         "objective_avg": (sum(objectives) / len(objectives)) if objectives else None,
+        "obj1_sum": sum(obj1_values) if obj1_values else None,
+        "obj1_avg": (sum(obj1_values) / len(obj1_values)) if obj1_values else None,
+        "obj1_max": max(obj1_values) if obj1_values else None,
+        "obj2_avg": (sum(obj2_values) / len(obj2_values)) if obj2_values else None,
+        "obj3_avg": (sum(obj3_values) / len(obj3_values)) if obj3_values else None,
         "runtime_sum": sum(runtimes) if runtimes else 0.0,
         "runtime_avg": (sum(runtimes) / len(runtimes)) if runtimes else 0.0,
         "runtime_max": max(runtimes) if runtimes else 0.0,
@@ -527,13 +589,15 @@ def write_html_report(
     timelimit: float,
     cumulative_csv: pathlib.Path,
     run_csv: pathlib.Path,
+    compact_csv: pathlib.Path,
     repo_root: pathlib.Path,
 ) -> None:
     summary = summarize_rows(run_rows)
-    current_best = best_by_instance(run_rows)
-    previous_best = best_by_instance(previous_rows)
+    current_best = best_by_instance(run_rows, metric="obj1")
+    previous_best_t = best_by_instance(previous_rows, metric="obj1")
 
-    alg_labels = [f"{spec.name}:{spec.version}" for spec in algorithms]
+    alg_labels = [spec.version for spec in algorithms]
+    internal_alg_labels = [f"{spec.name}:{spec.version}" for spec in algorithms]
     rows_by_instance_alg = {
         (row["instance_name"], f"{row['algorithm_name']}:{row['algorithm_version']}"): row
         for row in run_rows
@@ -544,22 +608,25 @@ def write_html_report(
         instance = problem.name
         row = current_best.get(instance)
         if not row:
-            best_rows.append([html.escape(instance), "<span class='bad'>no feasible</span>", "", "", ""])
+            best_rows.append([html.escape(instance), "<span class='bad'>no</span>", "", "", "", "", "", ""])
             continue
-        prev = previous_best.get(instance)
-        obj = as_float(row.get("objective"))
-        prev_obj = as_float(prev.get("objective")) if prev else None
-        if prev_obj is None or obj is None:
+        prev = previous_best_t.get(instance)
+        t_value = as_float(row.get("obj1"))
+        prev_t = as_float(prev.get("obj1")) if prev else None
+        if prev_t is None or t_value is None:
             delta = "new"
             cls = "neutral"
         else:
-            diff = obj - prev_obj
+            diff = t_value - prev_t
             delta = f"{diff:,.0f}"
             cls = "good" if diff < 0 else "bad" if diff > 0 else "neutral"
         best_rows.append(
             [
                 html.escape(instance),
-                html.escape(f"{row['algorithm_name']}:{row['algorithm_version']}"),
+                "<span class='good'>yes</span>",
+                fmt(row.get("obj1")),
+                fmt(row.get("obj2")),
+                fmt(row.get("obj3")),
                 fmt(row.get("objective")),
                 fmt(row.get("runtime_sec"), 2) + "s",
                 f"<span class='{cls}'>{html.escape(delta)}</span>",
@@ -569,7 +636,6 @@ def write_html_report(
     infeasible_rows = [
         [
             html.escape(row["instance_name"]),
-            html.escape(f"{row['algorithm_name']}:{row['algorithm_version']}"),
             html.escape(str(row.get("stage", ""))),
             html.escape(row.get("error_message", "")),
         ]
@@ -584,25 +650,25 @@ def write_html_report(
     def runtime_row(row: dict) -> list[str]:
         return [
             html.escape(row["instance_name"]),
-            html.escape(f"{row['algorithm_name']}:{row['algorithm_version']}"),
             fmt(row.get("runtime_sec"), 2) + "s",
             "PASS" if is_feasible_row(row) else html.escape(str(row.get("stage", ""))),
+            fmt(row.get("obj1")),
             fmt(row.get("objective")),
         ]
 
     comparison_rows = []
     for problem in problems:
         line = [html.escape(problem.name)]
-        best_obj = as_float(current_best.get(problem.name, {}).get("objective"))
-        for label in alg_labels:
+        best_t = as_float(current_best.get(problem.name, {}).get("obj1"))
+        for label in internal_alg_labels:
             row = rows_by_instance_alg.get((problem.name, label))
             if not row:
                 line.append("")
                 continue
             if is_feasible_row(row):
-                obj = as_float(row.get("objective"))
-                cls = "best" if best_obj is not None and obj == best_obj else ""
-                line.append(f"<span class='{cls}'>{fmt(obj)}</span>")
+                t_value = as_float(row.get("obj1"))
+                cls = "best" if best_t is not None and t_value == best_t else ""
+                line.append(f"<span class='{cls}'>{fmt(t_value)}</span>")
             else:
                 line.append(f"<span class='bad'>FAIL {html.escape(str(row.get('stage', '')))}</span>")
         comparison_rows.append(line)
@@ -629,7 +695,7 @@ def write_html_report(
     """
 
     infeasible_html = (
-        html_table(["Instance", "Algorithm", "Stage", "Error"], infeasible_rows)
+        html_table(["Instance", "Stage", "Error"], infeasible_rows)
         if infeasible_rows
         else "<p class='good'>No infeasible rows in this run.</p>"
     )
@@ -642,31 +708,37 @@ def write_html_report(
 <style>{style}</style>
 </head>
 <body>
-<h1>OGC2026 Benchmark Report</h1>
+<h1>OGC2026 T Benchmark</h1>
 <div class="meta">
-  run_id=<code>{html.escape(run_id)}</code> |
   timestamp=<code>{html.escape(timestamp)}</code> |
-  timelimit=<code>{timelimit}s</code><br>
-  run_csv=<code>{html.escape(to_repo_path(run_csv, repo_root))}</code> |
-  cumulative_csv=<code>{html.escape(to_repo_path(cumulative_csv, repo_root))}</code>
+  timelimit=<code>{timelimit}s</code>
+  <details>
+    <summary>Files and internal ids</summary>
+    run_id=<code>{html.escape(run_id)}</code><br>
+    readable_csv=<code>{html.escape(to_repo_path(compact_csv, repo_root))}</code><br>
+    raw_csv=<code>{html.escape(to_repo_path(run_csv, repo_root))}</code><br>
+    cumulative_csv=<code>{html.escape(to_repo_path(cumulative_csv, repo_root))}</code>
+  </details>
 </div>
 <div class="cards">
   <div class="card"><div class="label">Rows</div><div class="value">{summary['total']}</div></div>
   <div class="card"><div class="label">Feasible</div><div class="value">{summary['feasible']}/{summary['total']}</div></div>
-  <div class="card"><div class="label">Objective Sum</div><div class="value">{fmt(summary['objective_sum'])}</div></div>
+  <div class="card"><div class="label">Avg T (obj1)</div><div class="value">{fmt(summary['obj1_avg'], 2)}</div></div>
+  <div class="card"><div class="label">Max T (obj1)</div><div class="value">{fmt(summary['obj1_max'])}</div></div>
+  <div class="card"><div class="label">Avg obj2</div><div class="value">{fmt(summary['obj2_avg'], 2)}</div></div>
+  <div class="card"><div class="label">Avg obj3</div><div class="value">{fmt(summary['obj3_avg'], 2)}</div></div>
   <div class="card"><div class="label">Avg Runtime</div><div class="value">{summary['runtime_avg']:.2f}s</div></div>
-  <div class="card"><div class="label">Max Runtime</div><div class="value">{summary['runtime_max']:.2f}s</div></div>
 </div>
-<h2>Instance Best</h2>
-{html_table(["Instance", "Best Algorithm", "Objective", "Runtime", "Delta vs Previous Best"], best_rows)}
-<h2>Score Comparison</h2>
+<h2>T By Instance</h2>
+{html_table(["Instance", "Feasible", "T (obj1)", "obj2", "obj3", "Objective", "Runtime", "Delta T"], best_rows)}
+<h2>T Comparison</h2>
 {html_table(["Instance", *alg_labels], comparison_rows)}
 <h2>Infeasible Instances</h2>
 {infeasible_html}
 <h2>Slowest Rows</h2>
-{html_table(["Instance", "Algorithm", "Runtime", "Status", "Objective"], [runtime_row(r) for r in slowest])}
+{html_table(["Instance", "Runtime", "Status", "T (obj1)", "Objective"], [runtime_row(r) for r in slowest])}
 <h2>Fastest Rows</h2>
-{html_table(["Instance", "Algorithm", "Runtime", "Status", "Objective"], [runtime_row(r) for r in fastest])}
+{html_table(["Instance", "Runtime", "Status", "T (obj1)", "Objective"], [runtime_row(r) for r in fastest])}
 </body>
 </html>
 """
@@ -777,10 +849,12 @@ def main() -> int:
                 break
 
     run_csv = run_dir / "results.csv"
+    compact_csv = run_dir / "readable_results.csv"
     summary_json = run_dir / "summary.json"
     report_path = run_dir / "report.html"
     write_csv(run_csv, run_rows)
     append_csv(cumulative_csv, run_rows)
+    write_compact_csv(compact_csv, run_rows, previous_rows)
     summary = summarize_rows(run_rows)
     summary_json.write_text(
         json.dumps(
@@ -814,12 +888,14 @@ def main() -> int:
         timelimit=args.timelimit,
         cumulative_csv=cumulative_csv,
         run_csv=run_csv,
+        compact_csv=compact_csv,
         repo_root=repo_root,
     )
 
     print("[benchmark] summary")
     print(textwrap.indent(json.dumps(summary, ensure_ascii=False, indent=2), "  "))
     print(f"[benchmark] wrote {run_csv}")
+    print(f"[benchmark] wrote {compact_csv}")
     print(f"[benchmark] wrote {summary_json}")
     print(f"[benchmark] wrote {report_path}")
     print(f"[benchmark] appended {cumulative_csv}")
