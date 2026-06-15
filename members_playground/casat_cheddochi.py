@@ -20,8 +20,6 @@ import copy
 import random
 import sys
 import io
-import json
-import pathlib
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 from utils import (
@@ -59,7 +57,6 @@ _MAX_MEM_GB     = 14      # 솔버 허용 메모리 상한 (GB)
                           # Gurobi : NodefileStart + SoftMemLimit 으로 적용
                           # CP-SAT : max_memory_in_mb 으로 적용
 _FEASIBLE_FIRST = True
-_ACCEPTED_SOLUTION_DIR = pathlib.Path(__file__).resolve().parent / "accepted_solutions"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -920,28 +917,6 @@ def _build_solution_from_assignments(assignments):
     }
 
 
-def _accepted_solution(prob_info):
-    name = prob_info.get("name", "")
-    if not name.startswith("prob_"):
-        return None
-    path = _ACCEPTED_SOLUTION_DIR / f"{name}.solution.json"
-    if not path.exists():
-        return None
-    try:
-        solution = json.loads(path.read_text(encoding="utf-8"))
-        result = check_feasibility(prob_info, solution)
-        if result["feasible"]:
-            print("[casat_cheddochi] accepted cached solution"
-                  f" obj={result['objective']:.0f}"
-                  f" T={result['obj1']:.0f}"
-                  f" L={result['obj2']:.1f}"
-                  f" P={result['obj3']:.0f}")
-            return solution
-    except Exception as exc:
-        print(f"[casat_cheddochi] cached solution skipped: {exc}")
-    return None
-
-
 def _release_snap_schedules(prob_info):
     """Aggressive release-time schedules for dense 2D wall-snap packing."""
     blocks = prob_info["blocks"]
@@ -1381,9 +1356,6 @@ def algorithm(prob_info, timelimit=60):
 
     if _FEASIBLE_FIRST:
         print("[casat_cheddochi] feasible-first wall-snap path")
-        cached_solution = _accepted_solution(prob_info)
-        if cached_solution is not None:
-            return cached_solution
         snap_deadline = t0 + max(2.0, float(timelimit) - reserve)
         snap_solution = _wall_snap_solution(prob_info, deadline=snap_deadline)
         if snap_solution is not None:
