@@ -22,7 +22,10 @@ import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-from utils import Bay, Block, _bounding_box, _resolve_layers
+from utils import (
+    Bay, Block, check_collisions, check_entry, check_exit, check_feasibility,
+    _bounding_box, _resolve_layers,
+)
 
 # ── 솔버 가용성 체크 ─────────────────────────────────────────────────────────
 try:
@@ -1213,6 +1216,441 @@ def _serial_feasible_solution(prob_info):
     return _build_solution(sched, pos)
 
 
+def _build_solution_from_assignments(assignments):
+    buckets = {}
+    for a in assignments.values():
+        buckets.setdefault(a["exit_time"], []).append(
+            (0, {"type": "EXIT", "block_id": a["block_id"], "bay_id": a["bay_id"]})
+        )
+        buckets.setdefault(a["entry_time"], []).append(
+            (1, {
+                "type": "ENTRY",
+                "block_id": a["block_id"],
+                "bay_id": a["bay_id"],
+                "x": a["x"],
+                "y": a["y"],
+                "orient_idx": a["orient_idx"],
+            })
+        )
+    return {
+        "operations": {
+            str(t): [op for _, op in sorted(v, key=lambda item: (item[0], item[1]["block_id"]))]
+            for t, v in sorted(buckets.items())
+        }
+    }
+
+
+def _score_solution(prob_info, solution):
+    assignments = {}
+    for t_str, ops in solution.get("operations", {}).items():
+        t = int(t_str)
+        for op in ops:
+            bi = op["block_id"]
+            a = assignments.setdefault(bi, {"block_id": bi})
+            if op["type"] == "ENTRY":
+                a.update({
+                    "bay_id": op["bay_id"],
+                    "entry_time": t,
+                })
+            elif op["type"] == "EXIT":
+                a["exit_time"] = t
+    if len(assignments) != len(prob_info["blocks"]):
+        return None
+
+    blocks = prob_info["blocks"]
+    bays = prob_info["bays"]
+    weights = prob_info.get("weights", {})
+    w1 = weights.get("w1", 1.0)
+    w2 = weights.get("w2", 1.0)
+    w3 = weights.get("w3", 1.0)
+    bay_loads = [0.0] * len(bays)
+    obj1 = 0.0
+    obj3 = 0.0
+    for bi, a in assignments.items():
+        blk = blocks[bi]
+        bay_id = a["bay_id"]
+        bay_loads[bay_id] += blk["workload"]
+        obj1 += max(0.0, a["exit_time"] - blk["due_date"])
+        prefs = blk["bay_preferences"]
+        obj3 += max(prefs) - prefs[bay_id]
+
+    bay_areas = [bay["width"] * bay["height"] for bay in bays]
+    avg_area = sum(bay_areas) / len(bay_areas)
+    u = [avg_area / area for area in bay_areas]
+    if len(bays) >= 2:
+        obj2 = math.floor(max(
+            abs(u[j1] * bay_loads[j1] - u[j2] * bay_loads[j2])
+            for j1 in range(len(bays)) for j2 in range(len(bays))
+            if j1 != j2
+        ))
+    else:
+        obj2 = 0.0
+
+    return {
+        "feasible": True,
+        "objective": w1 * obj1 + w2 * obj2 + w3 * obj3,
+        "obj1": obj1,
+        "obj2": obj2,
+        "obj3": obj3,
+    }
+
+
+def _release_snap_schedules(prob_info):
+    """Aggressive release-time schedules for dense 2D wall-snap packing."""
+    blocks = prob_info["blocks"]
+    n_bays = len(prob_info["bays"])
+    if n_bays == 0:
+        return []
+
+    pref_sched = {}
+    for bi, blk in enumerate(blocks):
+        bay_id = max(range(n_bays), key=lambda j: blk["bay_preferences"][j])
+        entry = int(blk["release_time"])
+        pref_sched[bi] = {
+            "block_id": bi,
+            "bay_id": bay_id,
+            "entry_time": entry,
+            "exit_time": entry + int(blk["processing_time"]),
+        }
+
+    loads = [0.0] * n_bays
+    bal_sched = {}
+    order = sorted(
+        range(len(blocks)),
+        key=lambda i: (blocks[i]["due_date"], blocks[i]["release_time"], i),
+    )
+    for bi in order:
+        blk = blocks[bi]
+        prefs = blk["bay_preferences"]
+        bay_id = max(range(n_bays), key=lambda j: (prefs[j] - 0.02 * loads[j], prefs[j]))
+        entry = int(blk["release_time"])
+        bal_sched[bi] = {
+            "block_id": bi,
+            "bay_id": bay_id,
+            "entry_time": entry,
+            "exit_time": entry + int(blk["processing_time"]),
+        }
+        loads[bay_id] += blk["workload"]
+
+    return [("release_pref", pref_sched), ("release_balpref", bal_sched)]
+
+
+def _wall_snap_candidates(blocks, bi, bay, assignments, entry, exit_t):
+    blk = blocks[bi]
+    active = [
+        (bj, a) for bj, a in assignments.items()
+        if a["bay_id"] == bay.id
+        and _time_overlaps(entry, exit_t, a["entry_time"], a["exit_time"])
+    ]
+    result = []
+    for oi in range(len(blk["shape"])):
+        base = Block(block_id=bi, block_data=blk, x=0, y=0, orient_idx=oi)
+        bb = base.bounding_rect()
+        xs = {0, math.ceil(-bb[0]), math.floor(bay.width - bb[2])}
+        ys = {0, math.ceil(-bb[1]), math.floor(bay.height - bb[3])}
+        for bj, a in active:
+            other = Block(
+                block_id=bj,
+                block_data=blocks[bj],
+                x=a["x"],
+                y=a["y"],
+                orient_idx=a["orient_idx"],
+            )
+            obb = other.bounding_rect()
+            xs.update((math.ceil(obb[2] - bb[0]), math.floor(obb[0] - bb[2])))
+            ys.update((math.ceil(obb[3] - bb[1]), math.floor(obb[1] - bb[3])))
+
+        for y in sorted(ys):
+            for x in sorted(xs):
+                if x < 0 or y < 0:
+                    continue
+                candidate = Block(block_id=bi, block_data=blk, x=int(x), y=int(y), orient_idx=oi)
+                if bay.contains_block(candidate):
+                    result.append((int(x), int(y), oi))
+    return list(dict.fromkeys(result))
+
+
+def _candidate_is_incrementally_feasible(prob_info, assignments, candidate):
+    blocks = prob_info["blocks"]
+    bays = [Bay.from_dict(d, i) for i, d in enumerate(prob_info["bays"])]
+    bi = candidate["block_id"]
+    bay_id = candidate["bay_id"]
+    bay = bays[bay_id]
+    ai = candidate["entry_time"]
+    ei = candidate["exit_time"]
+    new_block = Block(
+        block_id=bi,
+        block_data=blocks[bi],
+        x=candidate["x"],
+        y=candidate["y"],
+        orient_idx=candidate["orient_idx"],
+    )
+
+    present_at_entry = []
+    present_at_exit = [new_block]
+    overlapping = []
+    for bj, other in assignments.items():
+        if other["bay_id"] != bay_id:
+            continue
+        other_block = Block(
+            block_id=bj,
+            block_data=blocks[bj],
+            x=other["x"],
+            y=other["y"],
+            orient_idx=other["orient_idx"],
+        )
+        if other["entry_time"] < ai < other["exit_time"]:
+            present_at_entry.append(other_block)
+        if other["entry_time"] < ei < other["exit_time"]:
+            present_at_exit.append(other_block)
+        if _time_overlaps(ai, ei, other["entry_time"], other["exit_time"]):
+            overlapping.append((bj, other, other_block))
+
+    if check_entry(bay, present_at_entry, new_block, fast=True):
+        return False
+    if check_exit(bay, present_at_exit, new_block, fast=True):
+        return False
+
+    for bj, other, other_block in overlapping:
+        if check_collisions(bay, [new_block, other_block]):
+            return False
+        other_exit = other["exit_time"]
+        if ai < other_exit < ei:
+            present = [other_block, new_block]
+            for bk, placed in assignments.items():
+                if bk == bj or placed["bay_id"] != bay_id:
+                    continue
+                if placed["entry_time"] < other_exit < placed["exit_time"]:
+                    present.append(Block(
+                        block_id=bk,
+                        block_data=blocks[bk],
+                        x=placed["x"],
+                        y=placed["y"],
+                        orient_idx=placed["orient_idx"],
+                    ))
+            if check_exit(bay, present, other_block, fast=True):
+                return False
+    if not _timepoint_replay_feasible(prob_info, assignments, candidate, ai):
+        return False
+    if ei != ai and not _timepoint_replay_feasible(prob_info, assignments, candidate, ei):
+        return False
+    return True
+
+
+def _timepoint_replay_feasible(prob_info, assignments, candidate, t):
+    """Stage5-style replay for one bay/time after adding a candidate."""
+    blocks = prob_info["blocks"]
+    bay_id = candidate["bay_id"]
+    bay = Bay.from_dict(prob_info["bays"][bay_id], bay_id)
+    merged = dict(assignments)
+    merged[candidate["block_id"]] = candidate
+
+    present = []
+    for bi, a in merged.items():
+        if a["bay_id"] != bay_id:
+            continue
+        if a["entry_time"] < t <= a["exit_time"]:
+            present.append(Block(
+                block_id=bi,
+                block_data=blocks[bi],
+                x=a["x"],
+                y=a["y"],
+                orient_idx=a["orient_idx"],
+            ))
+    present_by_id = {blk.block_id: blk for blk in present}
+
+    exits = sorted(
+        bi for bi, a in merged.items()
+        if a["bay_id"] == bay_id and a["exit_time"] == t
+    )
+    entries = sorted(
+        bi for bi, a in merged.items()
+        if a["bay_id"] == bay_id and a["entry_time"] == t
+    )
+
+    for bi in exits:
+        blk = present_by_id.get(bi)
+        if blk is None:
+            return False
+        if check_exit(bay, list(present_by_id.values()), blk, fast=True):
+            return False
+        present_by_id.pop(bi, None)
+
+    for bi in entries:
+        a = merged[bi]
+        blk = Block(
+            block_id=bi,
+            block_data=blocks[bi],
+            x=a["x"],
+            y=a["y"],
+            orient_idx=a["orient_idx"],
+        )
+        if check_entry(bay, list(present_by_id.values()), blk, fast=True):
+            return False
+        present_by_id[bi] = blk
+    return True
+
+
+def _wall_snap_place_schedule(prob_info, sched, deadline=None):
+    """Place a fixed bay/time schedule with checker-safe wall-snap positions."""
+    blocks = prob_info["blocks"]
+    bays = [Bay.from_dict(d, i) for i, d in enumerate(prob_info["bays"])]
+    assignments = {}
+    def _placement_priority(i):
+        prefs = blocks[i]["bay_preferences"]
+        regret = max(prefs) - min(prefs)
+        oi = sched[i].get("orient_idx", 0)
+        try:
+            base = Block(block_id=i, block_data=blocks[i], x=0, y=0, orient_idx=oi)
+        except Exception:
+            base = Block(block_id=i, block_data=blocks[i], x=0, y=0, orient_idx=0)
+        bb = base.bounding_rect()
+        area = max(0.0, (bb[2] - bb[0]) * (bb[3] - bb[1]))
+        return (sched[i]["entry_time"], sched[i]["exit_time"], -regret, -area, i)
+
+    order = sorted(sched, key=_placement_priority)
+
+    for bi in order:
+        if deadline is not None and time.time() > deadline:
+            print(f"[casat_cheddochi] wall-snap placement timeout after {len(assignments)}/{len(blocks)} blocks")
+            return None
+        s = sched[bi]
+        bay_id = s["bay_id"]
+        proc = int(blocks[bi]["processing_time"])
+        base_entry = int(max(blocks[bi]["release_time"], s["entry_time"]))
+        start_times = sorted({
+            base_entry,
+            int(s["entry_time"]),
+            *(
+                int(a["exit_time"])
+                for a in assignments.values()
+                if a["bay_id"] == bay_id and a["exit_time"] >= blocks[bi]["release_time"]
+            ),
+        })
+        bay_attempts = [bay_id] + [
+            b for b in sorted(
+                range(len(bays)),
+                key=lambda j: blocks[bi]["bay_preferences"][j],
+                reverse=True,
+            )
+            if b != bay_id
+        ]
+        attempts = [(b, base_entry) for b in bay_attempts]
+        attempts.extend((bay_id, entry) for entry in start_times if entry != base_entry)
+        placed = False
+        seen_attempts = set()
+        for try_bay_id, entry in attempts[:80]:
+            key = (try_bay_id, entry)
+            if key in seen_attempts:
+                continue
+            seen_attempts.add(key)
+            exit_t = entry + proc
+            for x, y, oi in _wall_snap_candidates(
+                blocks, bi, bays[try_bay_id], assignments, entry, exit_t
+            )[:1600]:
+                candidate = {
+                    "block_id": bi,
+                    "bay_id": try_bay_id,
+                    "x": x,
+                    "y": y,
+                    "orient_idx": oi,
+                    "entry_time": int(entry),
+                    "exit_time": int(exit_t),
+                }
+                if _candidate_is_incrementally_feasible(prob_info, assignments, candidate):
+                    assignments[bi] = candidate
+                    placed = True
+                    break
+            if placed:
+                break
+        if not placed:
+            prefs = blocks[bi]["bay_preferences"]
+            fallback = None
+            for alt_bay_id in sorted(range(len(bays)), key=lambda j: prefs[j], reverse=True):
+                entry = int(max(blocks[bi]["release_time"], s["entry_time"]))
+                changed = True
+                while changed:
+                    changed = False
+                    exit_t = entry + proc
+                    for other in assignments.values():
+                        if other["bay_id"] == alt_bay_id and _time_overlaps(
+                            entry, exit_t, other["entry_time"], other["exit_time"]
+                        ):
+                            entry = max(entry, other["exit_time"])
+                            changed = True
+                exit_t = entry + proc
+                for x, y, oi in _wall_snap_candidates(
+                    blocks, bi, bays[alt_bay_id], assignments, entry, exit_t
+                )[:800]:
+                    candidate = {
+                        "block_id": bi,
+                        "bay_id": alt_bay_id,
+                        "x": x,
+                        "y": y,
+                        "orient_idx": oi,
+                        "entry_time": int(entry),
+                        "exit_time": int(exit_t),
+                    }
+                    if _candidate_is_incrementally_feasible(prob_info, assignments, candidate):
+                        fallback = candidate
+                        break
+                if fallback is not None:
+                    break
+            if fallback is None:
+                print(f"[casat_cheddochi] wall-snap placement failed"
+                      f" block={bi} placed={len(assignments)}/{len(blocks)}"
+                      f" entry={base_entry} bay={bay_id}")
+                return None
+            assignments[bi] = fallback
+
+    return _build_solution_from_assignments(assignments)
+
+
+def _wall_snap_solution(prob_info, deadline=None):
+    """Try low-tardiness schedule candidates with checker-safe positions."""
+    blocks = prob_info["blocks"]
+    orients = _precompute_orients(prob_info)
+    warm = _warm_start(prob_info, orients)
+    schedules = _release_snap_schedules(prob_info) + [("warm", warm)]
+
+    if _HAS_GUROBI and deadline is not None and deadline - time.time() > 5.0:
+        try:
+            opt_budget = min(20.0, max(1.0, (deadline - time.time()) * 0.55))
+            if len(blocks) <= _MIP_LIMIT:
+                opt_sched = _gurobi_mip(prob_info, warm, orients, opt_budget)
+            else:
+                opt_sched = _adaptive_lns(
+                    prob_info,
+                    warm,
+                    orients,
+                    time.time() + opt_budget,
+                    use_gurobi_repair=True,
+                )
+            if _objective(prob_info, opt_sched) < _objective(prob_info, warm):
+                schedules.insert(0, ("optimized", opt_sched))
+        except Exception as exc:
+            print(f"[casat_cheddochi] wall-snap schedule optimize skipped: {exc}")
+
+    best_solution = None
+    best_objective = float("inf")
+    for label, sched in schedules:
+        if deadline is not None and time.time() > deadline:
+            break
+        solution = _wall_snap_place_schedule(prob_info, sched, deadline=deadline)
+        if solution is None:
+            continue
+        result = _score_solution(prob_info, solution)
+        if result is not None and result["objective"] < best_objective:
+            best_solution = solution
+            best_objective = result["objective"]
+            print(f"[casat_cheddochi] wall-snap candidate {label}"
+                  f" obj={result['objective']:.0f}"
+                  f" T={result['obj1']:.0f}"
+                  f" L={result['obj2']:.1f}"
+                  f" P={result['obj3']:.0f}")
+    return best_solution
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # §12  공개 진입점
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1288,8 +1726,22 @@ def algorithm(prob_info, timelimit=60):
     print(f"[casat_cheddochi] {'─'*38}")
 
     if _FEASIBLE_FIRST:
-        print("[casat_cheddochi] feasible-first serial path")
-        return _serial_feasible_solution(prob_info)
+        print("[casat_cheddochi] feasible-first wall-snap path")
+        snap_deadline = t0 + max(2.0, float(timelimit) - reserve)
+        snap_solution = _wall_snap_solution(prob_info, deadline=snap_deadline)
+        if snap_solution is not None:
+            snap_result = _score_solution(prob_info, snap_solution)
+            print("[casat_cheddochi] wall-snap accepted"
+                  f" obj={snap_result['objective']:.0f}"
+                  f" T={snap_result['obj1']:.0f}"
+                  f" L={snap_result['obj2']:.1f}"
+                  f" P={snap_result['obj3']:.0f}")
+            return snap_solution
+        serial_solution = _serial_feasible_solution(prob_info)
+        serial_result = check_feasibility(prob_info, serial_solution)
+        print("[casat_cheddochi] serial fallback accepted"
+              f" obj={serial_result['objective']:.0f}")
+        return serial_solution
 
     # Gurobi / OR-Tools 모두 없으면 바로 baseline_greedy 폴백
     if not _HAS_GUROBI and not _HAS_ORTOOLS:
