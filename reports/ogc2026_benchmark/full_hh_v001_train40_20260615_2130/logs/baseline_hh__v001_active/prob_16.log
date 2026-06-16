@@ -1,0 +1,45 @@
+[baseline_hh v001] instance=prob_16 blocks=250 bays=4 timelimit=60.0s
+[Greedy] Instance : prob_16
+[Greedy] Bays     : 4  |  Blocks : 250  |  Timelimit : 9.0s
+[Greedy] Weights  : w1=8889  w2=5  w3=133
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  141x29
+[Greedy]   bay[1]  142x28
+[Greedy]   bay[2]  46x23
+[Greedy]   bay[3]  94x18
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=250/250  elapsed=0.11s
+[Greedy] Objective : 386012332  (obj1=43422.0  obj2=5824.0  obj3=38.0)
+[baseline_hh v001] greedy_serial_fallback: PASS obj=386012332.00 elapsed=0.11s remaining=59.85s
+[baseline_hh v001] skip team_solver: no optional exact solver backend
+[Greedy] Instance : prob_16
+[Greedy] Bays     : 4  |  Blocks : 250  |  Timelimit : 59.6s
+[Greedy] Weights  : w1=8889  w2=5  w3=133
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  141x29
+[Greedy]   bay[1]  142x28
+[Greedy]   bay[2]  46x23
+[Greedy]   bay[3]  94x18
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 1 : EDD greedy placement ...
+[Greedy]     25/250  block219  -> bay0 (15,0) oi=0  t=[18,23)  loads=[b0=665 b1=728 b2=227 b3=201]  fallback=0  2.0s
+[Greedy]     50/250  block122  -> bay3 (28,0) oi=0  t=[24,31)  loads=[b0=1552 b1=1071 b2=435 b3=895]  fallback=0  7.9s
+[Greedy]     75/250  block17   -> bay3 (17,0) oi=0  t=[45,53)  loads=[b0=2574 b1=1600 b2=753 b3=1330]  fallback=0  13.7s
+[Greedy]    100/250  block77   -> bay0 (71,15) oi=5  t=[51,61)  loads=[b0=3489 b1=2195 b2=1037 b3=1623]  fallback=0  20.2s
+[Greedy]    125/250  block231  -> bay3 (21,0) oi=4  t=[63,71)  loads=[b0=3993 b1=2262 b2=1455 b3=1909]  fallback=0  31.8s
+[Greedy]    150/250  block133  -> bay0 (42,3) oi=2  t=[84,89)  loads=[b0=4823 b1=3183 b2=1624 b3=2127]  fallback=0  35.3s
+[Greedy]    175/250  block212  -> bay0 (7,0) oi=0  t=[99,103)  loads=[b0=5779 b1=3897 b2=1743 b3=2697]  fallback=0  43.3s
+[Greedy]    200/250  block209  -> bay0 (17,0) oi=1  t=[111,120)  loads=[b0=6690 b1=5026 b2=1803 b3=3071]  fallback=0  54.6s
+[Greedy]    225/250  block240  -> bay3 (8,7) oi=4  t=[127,135)  loads=[b0=7796 b1=5409 b2=2210 b3=3556]  fallback=0  56.9s
+[Greedy]    250/250  block83   -> bay2 (14,12) oi=3  t=[138,147)  loads=[b0=8804 b1=6257 b2=2297 b3=3672]  fallback=0  63.0s
+[Greedy] Phase 1 done  |  placed=250  bay0=8804  bay1=6257  bay2=2297  bay3=3672  elapsed=62.98s
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 2 : repair  mode=greedy
+[Greedy] Repair done  |  INFEASIBLE stage=2    elapsed=63.0s
+[Greedy] Repair result infeasible stage=2 -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=250/250  elapsed=63.01s
+[Greedy] Objective : 386012332  (obj1=43422.0  obj2=5824.0  obj3=38.0)
+[baseline_hh v001] greedy_repair_full: PASS obj=386012332.00 elapsed=63.13s remaining=0.00s
+[baseline_hh v001] selected feasible obj=386012332.00 total_elapsed=63.31s

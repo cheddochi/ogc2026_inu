@@ -1,0 +1,14 @@
+[baseline_hh v005] instance=prob_25 blocks=100 bays=2 timelimit=60.0s
+[baseline_hh v005] candidate=official_serial estimated_obj=33265903.00 obj1=49864.0 obj2=6615 obj3=0.0
+[baseline_hh v005] candidate=v002_objective estimated_obj=31974841.00 obj1=47875.0 obj2=2496 obj3=1986.0
+[baseline_hh v005] candidate=slack_tardiness estimated_obj=32101391.00 obj1=48034.0 obj2=3593 obj3=2956.0
+[baseline_hh v005] candidate=release_finish estimated_obj=33345916.00 obj1=49896.0 obj2=6484 obj3=2940.0
+[baseline_hh v005] candidate=due_balance estimated_obj=34716486.00 obj1=51957.0 obj2=7 obj3=3058.0
+[baseline_hh v005] candidate=long_proc_tardiness estimated_obj=32008544.00 obj1=47891.0 obj2=6047 obj3=2960.0
+[baseline_hh v005] candidate=workload_objective estimated_obj=31974485.00 obj1=47854.0 obj2=2747 obj3=2656.0
+[baseline_hh v005] validate=workload_objective feasible=True actual_obj=31974485.0 estimated_obj=31974485.00
+[baseline_hh v005] validate=v002_objective feasible=True actual_obj=31974841.0 estimated_obj=31974841.00
+[baseline_hh v005] validate=long_proc_tardiness feasible=True actual_obj=32008544.0 estimated_obj=32008544.00
+[baseline_hh v005] validate=slack_tardiness feasible=True actual_obj=32101391.0 estimated_obj=32101391.00
+[baseline_hh v005] validate=official_serial feasible=True actual_obj=33265903.0 estimated_obj=33265903.00
+[baseline_hh v005] selected obj=31974485.00 elapsed=3.45s

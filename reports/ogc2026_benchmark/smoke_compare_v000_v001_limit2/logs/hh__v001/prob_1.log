@@ -1,0 +1,25 @@
+[baseline_hh v001] instance=prob_1 blocks=100 bays=2 timelimit=5.0s
+[Greedy] Instance : prob_1
+[Greedy] Bays     : 2  |  Blocks : 100  |  Timelimit : 3.0s
+[Greedy] Weights  : w1=29091  w2=7  w3=200
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  51x20
+[Greedy]   bay[1]  54x18
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=100/100  elapsed=0.03s
+[Greedy] Objective : 440672533  (obj1=15148.0  obj2=295.0  obj3=0.0)
+[baseline_hh v001] greedy_serial_fallback: PASS obj=440672533.00 elapsed=0.03s remaining=4.96s
+[baseline_hh v001] skip team_solver: no optional exact solver backend
+[Greedy] Instance : prob_1
+[Greedy] Bays     : 2  |  Blocks : 100  |  Timelimit : 4.7s
+[Greedy] Weights  : w1=29091  w2=7  w3=200
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  51x20
+[Greedy]   bay[1]  54x18
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=100/100  elapsed=0.02s
+[Greedy] Objective : 440672533  (obj1=15148.0  obj2=295.0  obj3=0.0)
+[baseline_hh v001] greedy_repair_full: PASS obj=440672533.00 elapsed=0.02s remaining=4.93s
+[baseline_hh v001] selected feasible obj=440672533.00 total_elapsed=0.07s

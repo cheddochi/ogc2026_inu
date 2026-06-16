@@ -1,0 +1,2 @@
+[baseline_hh v002] instance=prob_33 blocks=200 bays=3 timelimit=60.0s
+[baseline_hh v002] safe_serial PASS obj=661538818.00 elapsed=0.67s

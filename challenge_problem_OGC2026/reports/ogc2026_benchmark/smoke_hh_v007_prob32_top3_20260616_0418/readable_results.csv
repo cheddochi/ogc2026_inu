@@ -1,0 +1,2 @@
+instance,feasible,T_obj1,obj2,obj3,objective,runtime_sec,delta_T_vs_previous_best,delta_objective_vs_previous_best,status,solution_file
+prob_32.json,True,4190.0,876,5750.0,17419650.0,36.571605,,,PASS,challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_prob32_top3_20260616_0418\solutions\baseline_hh__v007_active\prob_32.solution.json

@@ -1,0 +1,4 @@
+instance,feasible,T_obj1,obj2,obj3,objective,runtime_sec,delta_T_vs_previous_best,delta_objective_vs_previous_best,status,solution_file
+prob_27.json,False,,,,,30.248789,,,FAIL stage=TIMEOUT,
+prob_38.json,False,,,,,30.028002,,,FAIL stage=TIMEOUT,
+prob_40.json,False,,,,,30.194978,,,FAIL stage=TIMEOUT,

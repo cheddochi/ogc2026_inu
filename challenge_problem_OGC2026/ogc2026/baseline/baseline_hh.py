@@ -6,4 +6,4 @@ linked to a concrete algorithm version.
 
 from __future__ import annotations
 
-from alg_versions.baseline_hh_v006_hard_timeout_greedy import algorithm
+from alg_versions.baseline_hh_v007_limited_concurrent import algorithm

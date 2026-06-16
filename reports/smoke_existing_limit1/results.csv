@@ -1,0 +1,2 @@
+problem,ok,feasible,stage,objective,obj1,obj2,obj3,assigned,blocks,runner_elapsed,wall_time,error,log,solution_file
+prob_1.json,True,True,5,440672533.0,15148.0,295,0.0,100,100,0.36497068405151367,0.6049988269805908,,D:\dev\ogc2026_inu\reports\smoke_existing_limit1\logs\prob_1.log,D:\dev\ogc2026_inu\reports\smoke_existing_limit1\solutions\prob_1.solution.json

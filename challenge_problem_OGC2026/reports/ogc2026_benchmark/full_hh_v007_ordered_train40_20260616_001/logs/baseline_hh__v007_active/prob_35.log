@@ -1,0 +1,3 @@
+[baseline_hh v007] instance=prob_35 blocks=200 bays=3 timelimit=60.0s
+[baseline_hh v007] limited_concurrent built forced=0 order=due_release_proc elapsed=10.85s
+[baseline_hh v007] limited_first feasible=True order=due_release_proc T=6905.0 objective=92829615.0

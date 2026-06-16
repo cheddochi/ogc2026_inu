@@ -1,0 +1,4 @@
+[baseline_hh v007] instance=prob_9 blocks=200 bays=3 timelimit=60.0s
+[baseline_hh v007] empty-window repair feasible=True stage=5 rounds=1 T=905.0 objective=12566025.0
+[baseline_hh v007] limited_concurrent built forced=0 elapsed=9.64s
+[baseline_hh v007] limited_first feasible=True T=905.0 objective=12566025.0

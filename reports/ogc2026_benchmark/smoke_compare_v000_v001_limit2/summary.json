@@ -1,0 +1,30 @@
+{
+  "run_id": "smoke_compare_v000_v001_limit2",
+  "timestamp": "2026-06-15T21:21:40",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "failed": 0,
+    "objective_sum": 1436705496.0,
+    "objective_avg": 359176374.0,
+    "runtime_sum": 1.926466,
+    "runtime_avg": 0.4816165,
+    "runtime_max": 0.583232
+  },
+  "algorithms": [
+    {
+      "name": "greedy",
+      "version": "v000",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\alg_versions\\baseline_hh_v000_original.py"
+    },
+    {
+      "name": "hh",
+      "version": "v001",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_1.json",
+    "challenge_problem_OGC2026\\train\\prob_2.json"
+  ]
+}

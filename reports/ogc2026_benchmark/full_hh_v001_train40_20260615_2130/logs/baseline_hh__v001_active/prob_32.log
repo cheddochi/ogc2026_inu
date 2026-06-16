@@ -1,0 +1,13 @@
+[baseline_hh v001] instance=prob_32 blocks=200 bays=3 timelimit=60.0s
+[Greedy] Instance : prob_32
+[Greedy] Bays     : 3  |  Blocks : 200  |  Timelimit : 9.0s
+[Greedy] Weights  : w1=3333  w2=5  w3=600
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  59x20
+[Greedy]   bay[1]  88x15
+[Greedy]   bay[2]  170x16
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=200/200  elapsed=0.28s
+[Greedy] Objective : 228878218  (obj1=68626.0  obj2=4952.0  obj3=205.0)
+[baseline_hh v001] greedy_serial_fallback: PASS obj=228878218.00 elapsed=0.28s remaining=59.66s

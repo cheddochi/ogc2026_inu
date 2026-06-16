@@ -1,0 +1,29 @@
+{
+  "run_id": "smoke_report_t_first_20260616_001",
+  "timestamp": "2026-06-16T01:15:14",
+  "summary": {
+    "total": 1,
+    "feasible": 1,
+    "failed": 0,
+    "objective_sum": 426422855.0,
+    "objective_avg": 426422855.0,
+    "obj1_sum": 14642.0,
+    "obj1_avg": 14642.0,
+    "obj1_max": 14642.0,
+    "obj2_avg": 519.0,
+    "obj3_avg": 2344.0,
+    "runtime_sum": 3.177269,
+    "runtime_avg": 3.177269,
+    "runtime_max": 3.177269
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v005_active",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_1.json"
+  ]
+}

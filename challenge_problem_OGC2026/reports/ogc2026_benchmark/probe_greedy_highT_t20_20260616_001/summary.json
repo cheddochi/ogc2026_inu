@@ -1,0 +1,31 @@
+{
+  "run_id": "probe_greedy_highT_t20_20260616_001",
+  "timestamp": "2026-06-16T07:23:29",
+  "summary": {
+    "total": 3,
+    "feasible": 0,
+    "failed": 3,
+    "objective_sum": null,
+    "objective_avg": null,
+    "obj1_sum": null,
+    "obj1_avg": null,
+    "obj1_max": null,
+    "obj2_avg": null,
+    "obj3_avg": null,
+    "runtime_sum": 90.471769,
+    "runtime_avg": 30.157256333333333,
+    "runtime_max": 30.248789
+  },
+  "algorithms": [
+    {
+      "name": "greedy",
+      "version": "v000",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\alg_versions\\baseline_hh_v000_original.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_27.json",
+    "challenge_problem_OGC2026\\train\\prob_38.json",
+    "challenge_problem_OGC2026\\train\\prob_40.json"
+  ]
+}

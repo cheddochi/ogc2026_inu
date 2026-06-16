@@ -1,0 +1,29 @@
+{
+  "run_id": "smoke_restore_v006_prob7_20260616_003",
+  "timestamp": "2026-06-16T02:25:44",
+  "summary": {
+    "total": 1,
+    "feasible": 1,
+    "failed": 0,
+    "objective_sum": 13571780.0,
+    "objective_avg": 13571780.0,
+    "obj1_sum": 757.0,
+    "obj1_avg": 757.0,
+    "obj1_max": 757.0,
+    "obj2_avg": 2312.0,
+    "obj3_avg": 651.0,
+    "runtime_sum": 77.753685,
+    "runtime_avg": 77.753685,
+    "runtime_max": 77.753685
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v006_active",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_7.json"
+  ]
+}

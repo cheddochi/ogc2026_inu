@@ -1,0 +1,23 @@
+[baseline_hh v007] instance=prob_30 blocks=150 bays=2 timelimit=60.0s
+[baseline_hh v006] instance=prob_30 blocks=150 bays=2 timelimit=60.0s
+[baseline_hh v005] instance=prob_30 blocks=150 bays=2 timelimit=60.0s
+[baseline_hh v005] candidate=official_serial estimated_obj=799284926.00 obj1=59946.0 obj2=6227 obj3=0.0
+[baseline_hh v005] candidate=v002_objective estimated_obj=750544376.00 obj1=56220.0 obj2=6279 obj3=4690.0
+[baseline_hh v005] candidate=slack_tardiness estimated_obj=764445770.00 obj1=57266.0 obj2=6548 obj3=4460.0
+[baseline_hh v005] candidate=release_finish estimated_obj=770898026.00 obj1=57738.0 obj2=9618 obj3=5194.0
+[baseline_hh v005] candidate=due_balance estimated_obj=801608271.00 obj1=60043.0 obj2=38 obj3=5274.0
+[baseline_hh v005] candidate=long_proc_tardiness estimated_obj=750896281.00 obj1=56241.0 obj2=10957 obj3=4956.0
+[baseline_hh v005] candidate=workload_objective estimated_obj=750773794.00 obj1=56238.0 obj2=8035 obj3=4602.0
+[baseline_hh v005] validate=v002_objective feasible=True actual_obj=750544376.0 estimated_obj=750544376.00
+[baseline_hh v005] validate=workload_objective feasible=True actual_obj=750773794.0 estimated_obj=750773794.00
+[baseline_hh v005] validate=long_proc_tardiness feasible=True actual_obj=750896281.0 estimated_obj=750896281.00
+[baseline_hh v005] validate=slack_tardiness feasible=True actual_obj=764445770.0 estimated_obj=764445770.00
+[baseline_hh v005] validate=release_finish feasible=True actual_obj=770898026.0 estimated_obj=770898026.00
+[baseline_hh v005] validate=official_serial feasible=True actual_obj=799284926.0 estimated_obj=799284926.00
+[baseline_hh v005] selected obj=750544376.00 elapsed=5.82s
+[baseline_hh v006] v005 fallback feasible=True T=56220.0 objective=750544376.0
+[baseline_hh v006] skip repaired_greedy remaining=54.16s name=prob_30
+[baseline_hh v007] v006 fallback feasible=True T=56220.0 objective=750544376.0
+[baseline_hh v007] limited_concurrent built forced=0 elapsed=7.63s
+[baseline_hh v007] limited_concurrent feasible=True T=5921.0 objective=79766001.0
+[baseline_hh v007] selected limited_concurrent T=5921.0 objective=79766001.0

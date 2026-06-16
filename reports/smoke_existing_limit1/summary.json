@@ -1,0 +1,31 @@
+{
+  "summary": {
+    "passed": 1,
+    "failed": 0,
+    "total": 1,
+    "timelimit": 5.0,
+    "elapsed": 0.7009108066558838,
+    "objective_sum": 440672533.0,
+    "objective_avg": 440672533.0,
+    "alg_folder": "D:\\dev\\ogc2026_inu\\challenge_problem_OGC2026\\ogc2026\\baseline"
+  },
+  "results": [
+    {
+      "problem": "prob_1.json",
+      "ok": true,
+      "runner_elapsed": 0.36497068405151367,
+      "wall_time": 0.6049988269805908,
+      "log": "D:\\dev\\ogc2026_inu\\reports\\smoke_existing_limit1\\logs\\prob_1.log",
+      "solution_file": "D:\\dev\\ogc2026_inu\\reports\\smoke_existing_limit1\\solutions\\prob_1.solution.json",
+      "feasible": true,
+      "stage": 5,
+      "objective": 440672533.0,
+      "obj1": 15148.0,
+      "obj2": 295,
+      "obj3": 0.0,
+      "assigned": 100,
+      "blocks": 100,
+      "error": ""
+    }
+  ]
+}

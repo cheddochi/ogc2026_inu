@@ -1,0 +1,4 @@
+[baseline_hh v003] instance=prob_30 blocks=150 bays=2 timelimit=60.0s
+[baseline_hh v003] official_serial feasible=True obj=799284926.0
+[baseline_hh v003] objective_aware_serial feasible=True obj=750544376.0
+[baseline_hh v003] selected=objective_aware_serial obj=750544376.00 elapsed=1.35s

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OGC2026 Benchmark smoke_hh_v002_limit2</title>
+<style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; color: #1f2933; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    h2 { font-size: 18px; margin-top: 28px; border-bottom: 1px solid #d8dee9; padding-bottom: 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+    .card { border: 1px solid #d8dee9; border-radius: 6px; padding: 10px 12px; min-width: 150px; }
+    .card .label { color: #52606d; font-size: 12px; }
+    .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #d8dee9; padding: 6px 8px; text-align: right; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #243447; color: #ffffff; position: sticky; top: 0; }
+    tr:nth-child(even) td { background: #f7f9fb; }
+    .good { color: #0f7b35; font-weight: 700; }
+    .bad { color: #b42318; font-weight: 700; }
+    .neutral { color: #52606d; }
+    .best { color: #0f7b35; font-weight: 700; }
+    code { background: #eef2f7; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h1>OGC2026 Benchmark Report</h1>
+<div class="meta">
+  run_id=<code>smoke_hh_v002_limit2</code> |
+  timestamp=<code>2026-06-15T22:19:42</code> |
+  timelimit=<code>60.0s</code><br>
+  run_csv=<code>reports\ogc2026_benchmark\smoke_hh_v002_limit2\results.csv</code> |
+  cumulative_csv=<code>reports\ogc2026_benchmark\benchmark_results.csv</code>
+</div>
+<div class="cards">
+  <div class="card"><div class="label">Rows</div><div class="value">2</div></div>
+  <div class="card"><div class="label">Feasible</div><div class="value">2/2</div></div>
+  <div class="card"><div class="label">Objective Sum</div><div class="value">716,235,880</div></div>
+  <div class="card"><div class="label">Avg Runtime</div><div class="value">0.73s</div></div>
+  <div class="card"><div class="label">Max Runtime</div><div class="value">0.78s</div></div>
+</div>
+<h2>Instance Best</h2>
+<table><thead><tr><th>Instance</th><th>Best Algorithm</th><th>Objective</th><th>Runtime</th><th>Delta vs Previous Best</th></tr></thead><tbody><tr><td>prob_1.json</td><td>baseline_hh:v002_active</td><td>443,830,697</td><td>0.68s</td><td><span class='bad'>3,158,164</span></td></tr><tr><td>prob_2.json</td><td>baseline_hh:v002_active</td><td>272,405,183</td><td>0.78s</td><td><span class='bad'>261,543,240</span></td></tr></tbody></table>
+<h2>Score Comparison</h2>
+<table><thead><tr><th>Instance</th><th>baseline_hh:v002_active</th></tr></thead><tbody><tr><td>prob_1.json</td><td><span class='best'>443,830,697</span></td></tr><tr><td>prob_2.json</td><td><span class='best'>272,405,183</span></td></tr></tbody></table>
+<h2>Infeasible Instances</h2>
+<p class='good'>No infeasible rows in this run.</p>
+<h2>Slowest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Algorithm</th><th>Runtime</th><th>Status</th><th>Objective</th></tr></thead><tbody><tr><td>prob_2.json</td><td>baseline_hh:v002_active</td><td>0.78s</td><td>PASS</td><td>272,405,183</td></tr><tr><td>prob_1.json</td><td>baseline_hh:v002_active</td><td>0.68s</td><td>PASS</td><td>443,830,697</td></tr></tbody></table>
+<h2>Fastest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Algorithm</th><th>Runtime</th><th>Status</th><th>Objective</th></tr></thead><tbody><tr><td>prob_1.json</td><td>baseline_hh:v002_active</td><td>0.68s</td><td>PASS</td><td>443,830,697</td></tr><tr><td>prob_2.json</td><td>baseline_hh:v002_active</td><td>0.78s</td><td>PASS</td><td>272,405,183</td></tr></tbody></table>
+</body>
+</html>

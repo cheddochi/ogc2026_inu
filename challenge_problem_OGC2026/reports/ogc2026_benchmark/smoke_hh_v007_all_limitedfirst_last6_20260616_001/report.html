@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OGC2026 Benchmark smoke_hh_v007_all_limitedfirst_last6_20260616_001</title>
+<style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; color: #1f2933; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    h2 { font-size: 18px; margin-top: 28px; border-bottom: 1px solid #d8dee9; padding-bottom: 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+    .card { border: 1px solid #d8dee9; border-radius: 6px; padding: 10px 12px; min-width: 150px; }
+    .card .label { color: #52606d; font-size: 12px; }
+    .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #d8dee9; padding: 6px 8px; text-align: right; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #243447; color: #ffffff; position: sticky; top: 0; }
+    tr:nth-child(even) td { background: #f7f9fb; }
+    .good { color: #0f7b35; font-weight: 700; }
+    .bad { color: #b42318; font-weight: 700; }
+    .neutral { color: #52606d; }
+    .best { color: #0f7b35; font-weight: 700; }
+    code { background: #eef2f7; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h1>OGC2026 T Benchmark</h1>
+<div class="meta">
+  timestamp=<code>2026-06-16T08:52:06</code> |
+  timelimit=<code>60.0s</code>
+  <details>
+    <summary>Files and internal ids</summary>
+    run_id=<code>smoke_hh_v007_all_limitedfirst_last6_20260616_001</code><br>
+    readable_csv=<code>challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_all_limitedfirst_last6_20260616_001\readable_results.csv</code><br>
+    raw_csv=<code>challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_all_limitedfirst_last6_20260616_001\results.csv</code><br>
+    cumulative_csv=<code>challenge_problem_OGC2026\reports\ogc2026_benchmark\benchmark_results.csv</code>
+  </details>
+</div>
+<div class="cards">
+  <div class="card"><div class="label">Rows</div><div class="value">6</div></div>
+  <div class="card"><div class="label">Feasible</div><div class="value">6/6</div></div>
+  <div class="card"><div class="label">Avg T (obj1)</div><div class="value">1,022.83</div></div>
+  <div class="card"><div class="label">Max T (obj1)</div><div class="value">1,724</div></div>
+  <div class="card"><div class="label">Avg obj2</div><div class="value">4,109.00</div></div>
+  <div class="card"><div class="label">Avg obj3</div><div class="value">2,712.50</div></div>
+  <div class="card"><div class="label">Avg Runtime</div><div class="value">7.73s</div></div>
+</div>
+<h2>T By Instance</h2>
+<table><thead><tr><th>Instance</th><th>Feasible</th><th>T (obj1)</th><th>obj2</th><th>obj3</th><th>Objective</th><th>Runtime</th><th>Delta T</th></tr></thead><tbody><tr><td>prob_1.json</td><td><span class='good'>yes</span></td><td>957</td><td>1,047</td><td>1,828</td><td>28,213,016</td><td>9.02s</td><td><span class='good'>-13,685</span></td></tr><tr><td>prob_4.json</td><td><span class='good'>yes</span></td><td>334</td><td>1,452</td><td>2,228</td><td>7,776,376</td><td>9.07s</td><td><span class='good'>-14,789</span></td></tr><tr><td>prob_5.json</td><td><span class='good'>yes</span></td><td>451</td><td>9,032</td><td>2,819</td><td>7,702,074</td><td>6.79s</td><td><span class='good'>-19,517</span></td></tr><tr><td>prob_6.json</td><td><span class='good'>yes</span></td><td>1,131</td><td>3,714</td><td>3,443</td><td>34,053,978</td><td>7.51s</td><td><span class='good'>-21,884</span></td></tr><tr><td>prob_22.json</td><td><span class='good'>yes</span></td><td>1,540</td><td>6,561</td><td>3,838</td><td>22,087,703</td><td>5.63s</td><td><span class='good'>-22,312</span></td></tr><tr><td>prob_24.json</td><td><span class='good'>yes</span></td><td>1,724</td><td>2,848</td><td>2,119</td><td>23,636,032</td><td>8.35s</td><td><span class='good'>-20,758</span></td></tr></tbody></table>
+<h2>T Comparison</h2>
+<table><thead><tr><th>Instance</th><th>v007_active</th></tr></thead><tbody><tr><td>prob_1.json</td><td><span class='best'>957</span></td></tr><tr><td>prob_4.json</td><td><span class='best'>334</span></td></tr><tr><td>prob_5.json</td><td><span class='best'>451</span></td></tr><tr><td>prob_6.json</td><td><span class='best'>1,131</span></td></tr><tr><td>prob_22.json</td><td><span class='best'>1,540</span></td></tr><tr><td>prob_24.json</td><td><span class='best'>1,724</span></td></tr></tbody></table>
+<h2>Infeasible Instances</h2>
+<p class='good'>No infeasible rows in this run.</p>
+<h2>Slowest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Runtime</th><th>Status</th><th>T (obj1)</th><th>Objective</th></tr></thead><tbody><tr><td>prob_4.json</td><td>9.07s</td><td>PASS</td><td>334</td><td>7,776,376</td></tr><tr><td>prob_1.json</td><td>9.02s</td><td>PASS</td><td>957</td><td>28,213,016</td></tr><tr><td>prob_24.json</td><td>8.35s</td><td>PASS</td><td>1,724</td><td>23,636,032</td></tr><tr><td>prob_6.json</td><td>7.51s</td><td>PASS</td><td>1,131</td><td>34,053,978</td></tr><tr><td>prob_5.json</td><td>6.79s</td><td>PASS</td><td>451</td><td>7,702,074</td></tr><tr><td>prob_22.json</td><td>5.63s</td><td>PASS</td><td>1,540</td><td>22,087,703</td></tr></tbody></table>
+<h2>Fastest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Runtime</th><th>Status</th><th>T (obj1)</th><th>Objective</th></tr></thead><tbody><tr><td>prob_22.json</td><td>5.63s</td><td>PASS</td><td>1,540</td><td>22,087,703</td></tr><tr><td>prob_5.json</td><td>6.79s</td><td>PASS</td><td>451</td><td>7,702,074</td></tr><tr><td>prob_6.json</td><td>7.51s</td><td>PASS</td><td>1,131</td><td>34,053,978</td></tr><tr><td>prob_24.json</td><td>8.35s</td><td>PASS</td><td>1,724</td><td>23,636,032</td></tr><tr><td>prob_1.json</td><td>9.02s</td><td>PASS</td><td>957</td><td>28,213,016</td></tr><tr><td>prob_4.json</td><td>9.07s</td><td>PASS</td><td>334</td><td>7,776,376</td></tr></tbody></table>
+</body>
+</html>

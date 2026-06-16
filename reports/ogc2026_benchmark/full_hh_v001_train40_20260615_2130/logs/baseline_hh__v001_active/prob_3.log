@@ -1,0 +1,60 @@
+[baseline_hh v001] instance=prob_3 blocks=100 bays=3 timelimit=60.0s
+[Greedy] Instance : prob_3
+[Greedy] Bays     : 3  |  Blocks : 100  |  Timelimit : 9.0s
+[Greedy] Weights  : w1=26667  w2=10  w3=150
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  70x23
+[Greedy]   bay[1]  136x29
+[Greedy]   bay[2]  85x22
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=100/100  elapsed=0.03s
+[Greedy] Objective : 270847055  (obj1=10155.0  obj2=4367.0  obj3=0.0)
+[baseline_hh v001] greedy_serial_fallback: PASS obj=270847055.00 elapsed=0.03s remaining=59.97s
+[baseline_hh v001] skip team_solver: no optional exact solver backend
+[Greedy] Instance : prob_3
+[Greedy] Bays     : 3  |  Blocks : 100  |  Timelimit : 59.7s
+[Greedy] Weights  : w1=26667  w2=10  w3=150
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  70x23
+[Greedy]   bay[1]  136x29
+[Greedy]   bay[2]  85x22
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 1 : EDD greedy placement ...
+[Greedy]     10/100  block84   -> bay0 (60,0) oi=0  t=[1,10)  loads=[b0=96 b1=130 b2=60]  fallback=0  0.4s
+[Greedy]     20/100  block91   -> bay2 (50,11) oi=4  t=[9,17)  loads=[b0=270 b1=198 b2=251]  fallback=0  1.1s
+[Greedy]     30/100  block70   -> bay2 (37,21) oi=4  t=[11,21)  loads=[b0=560 b1=639 b2=705]  fallback=0  6.3s
+[Greedy]     40/100  block4    -> bay2 (12,0) oi=7  t=[15,26)  loads=[b0=852 b1=1030 b2=784]  fallback=0  8.9s
+[Greedy]     50/100  block3    -> bay0 (43,0) oi=0  t=[21,30)  loads=[b0=920 b1=1997 b2=1080]  fallback=0  13.0s
+[Greedy]     60/100  block89   -> bay1 (0,6) oi=6  t=[25,32)  loads=[b0=1387 b1=2135 b2=1263]  fallback=0  20.0s
+[Greedy]     70/100  block62   -> bay0 (18,0) oi=0  t=[31,38)  loads=[b0=1478 b1=2194 b2=1695]  fallback=0  24.6s
+[Greedy]     80/100  block52   -> bay1 (51,0) oi=6  t=[35,45)  loads=[b0=1570 b1=2731 b2=1865]  fallback=0  27.8s
+[Greedy]     90/100  block24   -> bay0 (18,10) oi=3  t=[47,52)  loads=[b0=1922 b1=3489 b2=1984]  fallback=0  29.6s
+[Greedy]    100/100  block97   -> bay2 (61,9) oi=4  t=[45,54)  loads=[b0=2095 b1=3964 b2=2306]  fallback=0  33.5s
+[Greedy] Phase 1 done  |  placed=100  bay0=2095  bay1=3964  bay2=2306  elapsed=33.52s
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 2 : repair  mode=greedy
+[Greedy] Repair pass 1: 30 violation(s)  stage=2  elapsed=33.5s
+[Greedy]   repair   1/14  block50   [time]  bay1 (77,0)  N/A -> [6,12)  elapsed=44.7s
+[Greedy]   repair   2/14  block64   [time]  bay0 (46,8)  N/A -> [12,15)  elapsed=53.2s
+[Greedy]   repair   3/14  block90   [time]  bay0 (40,19)  N/A -> [8,16)  elapsed=56.9s
+[Greedy]   repair   4/14  block48   [forced]  bay2 (18,0)  N/A -> [55,63)  elapsed=56.9s
+[Greedy]   repair   5/14  block20   [forced]  bay0 (1,0)  N/A -> [54,61)  elapsed=56.9s
+[Greedy]   repair   6/14  block69   [forced]  bay0 (0,1)  N/A -> [61,71)  elapsed=56.9s
+[Greedy]   repair   7/14  block82   [forced]  bay1 (0,1)  N/A -> [51,58)  elapsed=56.9s
+[Greedy]   repair   8/14  block76   [forced]  bay2 (21,1)  N/A -> [63,71)  elapsed=56.9s
+[Greedy]   repair   9/14  block71   [forced]  bay2 (3,0)  N/A -> [71,77)  elapsed=56.9s
+[Greedy]   repair  10/14  block33   [forced]  bay2 (0,5)  N/A -> [77,82)  elapsed=56.9s
+[Greedy]   repair  11/14  block14   [forced]  bay0 (10,5)  N/A -> [71,78)  elapsed=56.9s
+[Greedy]   repair  12/14  block87   [forced]  bay1 (16,1)  N/A -> [58,67)  elapsed=56.9s
+[Greedy]   repair  13/14  block95   [forced]  bay1 (10,11)  N/A -> [67,73)  elapsed=56.9s
+[Greedy]   repair  14/14  block23   [forced]  bay0 (11,0)  N/A -> [78,85)  elapsed=56.9s
+[Greedy] Repair pass 2: 2 violation(s)  stage=3  elapsed=57.0s
+[Greedy]   repair   1/2  block27   [forced]  bay0 (14,1)  N/A -> [85,93)  elapsed=57.0s
+[Greedy]   repair   2/2  block67   [forced]  bay2 (0,1)  N/A -> [82,89)  elapsed=57.0s
+[Greedy] Repair done  |  feasible  obj=14645959  forced=13  elapsed=57.1s
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=100/100  elapsed=57.14s
+[Greedy] Objective : 14645959  (obj1=547.0  obj2=856.0  obj3=337.0)
+[baseline_hh v001] greedy_repair_full: PASS obj=14645959.00 elapsed=57.22s remaining=2.67s
+[baseline_hh v001] selected feasible obj=14645959.00 total_elapsed=57.33s

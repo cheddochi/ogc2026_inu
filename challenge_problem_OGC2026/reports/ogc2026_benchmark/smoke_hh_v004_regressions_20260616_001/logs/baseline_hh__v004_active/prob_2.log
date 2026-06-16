@@ -1,0 +1,35 @@
+[baseline_hh v004] instance=prob_2 blocks=100 bays=3 timelimit=60.0s
+[baseline_hh v003] instance=prob_2 blocks=100 bays=3 timelimit=60.0s
+[baseline_hh v003] official_serial feasible=True obj=277680215.0
+[baseline_hh v003] objective_aware_serial feasible=True obj=272405183.0
+[baseline_hh v003] selected=objective_aware_serial obj=272405183.00 elapsed=0.38s
+[baseline_hh v004] v003_hybrid_serial feasible=True obj=272405183.0 elapsed=0.40s
+[Greedy] Instance : prob_2
+[Greedy] Bays     : 3  |  Blocks : 100  |  Timelimit : 24.0s
+[Greedy] Weights  : w1=29091  w2=10  w3=150
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  66x22
+[Greedy]   bay[1]  54x27
+[Greedy]   bay[2]  64x23
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 1 : EDD greedy placement ...
+[Greedy]     10/100  block6    -> bay2 (31,0) oi=6  t=[0,8)  loads=[b0=58 b1=89 b2=275]  fallback=0  0.7s
+[Greedy]     20/100  block58   -> bay0 (45,0) oi=0  t=[9,18)  loads=[b0=234 b1=258 b2=544]  fallback=0  2.7s
+[Greedy]     30/100  block39   -> bay2 (6,8) oi=2  t=[10,19)  loads=[b0=605 b1=932 b2=858]  fallback=0  6.2s
+[Greedy]     40/100  block93   -> bay2 (28,0) oi=0  t=[16,23)  loads=[b0=858 b1=964 b2=1354]  fallback=0  11.7s
+[Greedy]     50/100  block69   -> bay0 (46,0) oi=6  t=[20,27)  loads=[b0=1011 b1=1130 b2=1693]  fallback=0  24.8s
+[Greedy]     60/100  block76   -> bay2 (39,0) oi=0  t=[28,35)  loads=[b0=1022 b1=1282 b2=2081]  fallback=0  28.9s
+[Greedy]     70/100  block34   -> bay1 (0,1) oi=4  t=[35,39)  loads=[b0=1209 b1=1663 b2=2507]  fallback=0  34.3s
+[Greedy]     80/100  block94   -> bay1 (24,19) oi=2  t=[30,40)  loads=[b0=1487 b1=1904 b2=2884]  fallback=0  42.5s
+[Greedy]     90/100  block99   -> bay0 (41,16) oi=6  t=[35,44)  loads=[b0=2112 b1=2053 b2=2884]  fallback=0  55.5s
+[Greedy]    100/100  block72   -> bay1 (53,2) oi=3  t=[43,53)  loads=[b0=2192 b1=2690 b2=2884]  fallback=0  73.4s
+[Greedy] Phase 1 done  |  placed=100  bay0=2192  bay1=2690  bay2=2884  elapsed=73.37s
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 2 : repair  mode=greedy
+[Greedy] Repair done  |  INFEASIBLE stage=2    elapsed=73.4s
+[Greedy] Repair result infeasible stage=2 -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=100/100  elapsed=73.40s
+[Greedy] Objective : 277680215  (obj1=9545.0  obj2=662.0  obj3=0.0)
+[baseline_hh v004] guarded_repaired_greedy feasible=True obj=277680215.0 budget=24.0s elapsed=73.52s
+[baseline_hh v004] selected=v003_hybrid_serial obj=272405183.00 elapsed=73.92s

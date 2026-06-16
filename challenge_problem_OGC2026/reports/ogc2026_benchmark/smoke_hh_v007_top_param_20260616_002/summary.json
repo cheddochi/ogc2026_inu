@@ -1,0 +1,31 @@
+{
+  "run_id": "smoke_hh_v007_top_param_20260616_002",
+  "timestamp": "2026-06-16T11:25:13",
+  "summary": {
+    "total": 3,
+    "feasible": 3,
+    "failed": 0,
+    "objective_sum": 418279851.0,
+    "objective_avg": 139426617.0,
+    "obj1_sum": 46192.0,
+    "obj1_avg": 15397.333333333334,
+    "obj1_max": 23051.0,
+    "obj2_avg": 6120.666666666667,
+    "obj3_avg": 9455.0,
+    "runtime_sum": 69.757439,
+    "runtime_avg": 23.25247966666667,
+    "runtime_max": 24.988504
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v007_active",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_38.json",
+    "challenge_problem_OGC2026\\train\\prob_39.json",
+    "challenge_problem_OGC2026\\train\\prob_40.json"
+  ]
+}

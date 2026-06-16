@@ -1,0 +1,3 @@
+[baseline_hh v007] instance=prob_33 blocks=200 bays=3 timelimit=60.0s
+[baseline_hh v007] limited_concurrent built forced=0 elapsed=15.75s
+[baseline_hh v007] limited_first feasible=True T=10121.0 objective=68205807.0

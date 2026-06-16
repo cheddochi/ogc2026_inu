@@ -1,0 +1,5 @@
+[baseline_hh v007] instance=prob_3 blocks=100 bays=3 timelimit=60.0s
+[baseline_hh v006] repaired_greedy child feasible=True T=10155.0 objective=270847055.0 elapsed=78.7115375995636
+[baseline_hh v007] greedy_first selected T=10155.0 objective=270847055.0
+[baseline_hh v007] initial candidate feasible=True T=10155.0 objective=270847055.0
+[baseline_hh v007] skip limited_concurrent remaining=0.00s name=prob_3

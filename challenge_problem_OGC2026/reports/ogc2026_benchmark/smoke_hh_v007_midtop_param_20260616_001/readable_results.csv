@@ -1,0 +1,4 @@
+instance,feasible,T_obj1,obj2,obj3,objective,runtime_sec,delta_T_vs_previous_best,delta_objective_vs_previous_best,status,solution_file
+prob_37.json,True,5555.0,5130,4543.0,21261135.0,28.751274,-1577.000000,-5323025.000000,PASS,challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_midtop_param_20260616_001\solutions\baseline_hh__v007_active\prob_37.solution.json
+prob_38.json,True,17819.0,3583,6682.0,239592493.0,37.220794,-3951.000000,-53000839.000000,PASS,challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_midtop_param_20260616_001\solutions\baseline_hh__v007_active\prob_38.solution.json
+prob_39.json,True,5533.0,4758,7265.0,74880271.0,35.191372,-1711.000000,-22934131.000000,PASS,challenge_problem_OGC2026\reports\ogc2026_benchmark\smoke_hh_v007_midtop_param_20260616_001\solutions\baseline_hh__v007_active\prob_39.solution.json

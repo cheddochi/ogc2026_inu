@@ -1,0 +1,25 @@
+{
+  "run_id": "smoke_hh_loop_now_limit2",
+  "timestamp": "2026-06-16T00:19:09",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "failed": 0,
+    "objective_sum": 713077716.0,
+    "objective_avg": 356538858.0,
+    "runtime_sum": 4.180666,
+    "runtime_avg": 2.090333,
+    "runtime_max": 2.58177
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v003_active",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_1.json",
+    "challenge_problem_OGC2026\\train\\prob_2.json"
+  ]
+}

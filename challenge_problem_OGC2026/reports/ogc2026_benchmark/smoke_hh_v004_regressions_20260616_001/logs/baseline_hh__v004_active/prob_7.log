@@ -1,0 +1,24 @@
+[baseline_hh v004] instance=prob_7 blocks=150 bays=3 timelimit=60.0s
+[baseline_hh v003] instance=prob_7 blocks=150 bays=3 timelimit=60.0s
+[baseline_hh v003] official_serial feasible=True obj=390481456.0
+[baseline_hh v003] objective_aware_serial feasible=True obj=390531784.0
+[baseline_hh v003] selected=official_serial obj=390481456.00 elapsed=1.15s
+[baseline_hh v004] v003_hybrid_serial feasible=True obj=390481456.0 elapsed=1.19s
+[Greedy] Instance : prob_7
+[Greedy] Bays     : 3  |  Blocks : 150  |  Timelimit : 36.0s
+[Greedy] Weights  : w1=17778  w2=7  w3=150
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  36x23
+[Greedy]   bay[1]  32x22
+[Greedy]   bay[2]  176x19
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 1 : EDD greedy placement ...
+[Greedy]     15/150  block111  -> bay1 (28,7) oi=0  t=[7,14)  loads=[b0=20 b1=446 b2=692]  fallback=0  2.5s
+[Greedy]     30/150  block38   -> bay2 (28,0) oi=6  t=[19,25)  loads=[b0=157 b1=797 b2=1091]  fallback=0  7.8s
+[Greedy]     45/150  block114  -> bay0 (32,12) oi=0  t=[19,30)  loads=[b0=778 b1=964 b2=1393]  fallback=0  14.6s
+[Greedy]     60/150  block46   -> bay1 (20,10) oi=0  t=[24,33)  loads=[b0=1159 b1=1154 b2=1997]  fallback=0  31.8s
+[Greedy]     75/150  block99   -> bay1 (10,2) oi=0  t=[37,44)  loads=[b0=1521 b1=1421 b2=2703]  fallback=0  42.3s
+[Greedy]     90/150  block22   -> bay2 (109,0) oi=0  t=[37,49)  loads=[b0=1722 b1=1573 b2=3674]  fallback=0  50.3s
+[Greedy]    105/150  block121  -> bay2 (99,0) oi=2  t=[52,59)  loads=[b0=1998 b1=1833 b2=4180]  fallback=0  54.2s
+[Greedy]    120/150  block84   -> bay1 (28,0) oi=0  t=[64,68)  loads=[b0=2177 b1=1905 b2=5095]  fallback=0  64.1s
+[Greedy]    135/150  block7    -> bay2 (18,0) oi=0  t=[65,73)  loads=[b0=2415 b1=2212 b2=5285]  fallback=0  73.1s

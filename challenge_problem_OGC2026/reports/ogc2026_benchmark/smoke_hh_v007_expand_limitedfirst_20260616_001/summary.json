@@ -1,0 +1,47 @@
+{
+  "run_id": "smoke_hh_v007_expand_limitedfirst_20260616_001",
+  "timestamp": "2026-06-16T08:46:51",
+  "summary": {
+    "total": 19,
+    "feasible": 19,
+    "failed": 0,
+    "objective_sum": 498135087.0,
+    "objective_avg": 26217636.157894738,
+    "obj1_sum": 47744.0,
+    "obj1_avg": 2512.842105263158,
+    "obj1_max": 7655.0,
+    "obj2_avg": 5009.263157894737,
+    "obj3_avg": 3648.9473684210525,
+    "runtime_sum": 203.290995,
+    "runtime_avg": 10.69952605263158,
+    "runtime_max": 16.265288
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v007_active",
+      "path": "challenge_problem_OGC2026\\ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "challenge_problem_OGC2026\\train\\prob_9.json",
+    "challenge_problem_OGC2026\\train\\prob_10.json",
+    "challenge_problem_OGC2026\\train\\prob_11.json",
+    "challenge_problem_OGC2026\\train\\prob_12.json",
+    "challenge_problem_OGC2026\\train\\prob_13.json",
+    "challenge_problem_OGC2026\\train\\prob_14.json",
+    "challenge_problem_OGC2026\\train\\prob_15.json",
+    "challenge_problem_OGC2026\\train\\prob_16.json",
+    "challenge_problem_OGC2026\\train\\prob_17.json",
+    "challenge_problem_OGC2026\\train\\prob_18.json",
+    "challenge_problem_OGC2026\\train\\prob_19.json",
+    "challenge_problem_OGC2026\\train\\prob_20.json",
+    "challenge_problem_OGC2026\\train\\prob_21.json",
+    "challenge_problem_OGC2026\\train\\prob_23.json",
+    "challenge_problem_OGC2026\\train\\prob_25.json",
+    "challenge_problem_OGC2026\\train\\prob_29.json",
+    "challenge_problem_OGC2026\\train\\prob_32.json",
+    "challenge_problem_OGC2026\\train\\prob_34.json",
+    "challenge_problem_OGC2026\\train\\prob_35.json"
+  ]
+}

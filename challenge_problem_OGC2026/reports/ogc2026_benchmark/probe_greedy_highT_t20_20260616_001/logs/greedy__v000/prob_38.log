@@ -1,0 +1,10 @@
+[Greedy] Instance : prob_38
+[Greedy] Bays     : 3  |  Blocks : 250  |  Timelimit : 20.0s
+[Greedy] Weights  : w1=13333  w2=2  w3=300
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  68x16
+[Greedy]   bay[1]  104x24
+[Greedy]   bay[2]  109x27
+[Greedy] --------------------------------------------------------
+[Greedy] Phase 1 : EDD greedy placement ...
+[Greedy]     25/250  block29   -> bay1 (59,10) oi=2  t=[9,26)  loads=[b0=173 b1=634 b2=583]  fallback=0  9.5s

@@ -1,0 +1,12 @@
+[Greedy] Instance : prob_13
+[Greedy] Bays     : 4  |  Blocks : 250  |  Timelimit : 5.0s
+[Greedy] Weights  : w1=18605  w2=5  w3=133
+[Greedy] --------------------------------------------------------
+[Greedy]   bay[0]  166x19
+[Greedy]   bay[1]  98x17
+[Greedy]   bay[2]  179x17
+[Greedy]   bay[3]  131x23
+[Greedy] Short timelimit -> serial empty-window fallback
+[Greedy] --------------------------------------------------------
+[Greedy] Done  |  assigned=250/250  elapsed=0.12s
+[Greedy] Objective : 929553929  (obj1=49960.0  obj2=6886.0  obj3=103.0)

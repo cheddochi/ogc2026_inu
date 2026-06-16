@@ -1,0 +1,24 @@
+[baseline_hh v007] instance=prob_39 blocks=250 bays=3 timelimit=60.0s
+[baseline_hh v006] instance=prob_39 blocks=250 bays=3 timelimit=60.0s
+[baseline_hh v005] instance=prob_39 blocks=250 bays=3 timelimit=60.0s
+[baseline_hh v005] candidate=official_serial estimated_obj=1788903265.00 obj1=134169.0 obj2=6997 obj3=0.0
+[baseline_hh v005] candidate=v002_objective estimated_obj=1383350846.00 obj1=103644.0 obj2=3686 obj3=9671.0
+[baseline_hh v005] candidate=slack_tardiness estimated_obj=1365635119.00 obj1=102305.0 obj2=3026 obj3=10603.0
+[baseline_hh v005] candidate=release_finish estimated_obj=1424494890.00 obj1=106726.0 obj2=3983 obj3=10008.0
+[baseline_hh v005] candidate=due_balance estimated_obj=1385717758.00 obj1=103816.0 obj2=120 obj3=10257.0
+[baseline_hh v005] candidate=long_proc_tardiness estimated_obj=1383839114.00 obj1=103670.0 obj2=5526 obj3=10566.0
+[baseline_hh v005] candidate=workload_objective estimated_obj=1381550187.00 obj1=103519.0 obj2=3365 obj3=8786.0
+[baseline_hh v005] validate=slack_tardiness feasible=True actual_obj=1365635119.0 estimated_obj=1365635119.00
+[baseline_hh v005] validate=workload_objective feasible=True actual_obj=1381550187.0 estimated_obj=1381550187.00
+[baseline_hh v005] validate=v002_objective feasible=True actual_obj=1383350846.0 estimated_obj=1383350846.00
+[baseline_hh v005] validate=long_proc_tardiness feasible=True actual_obj=1383839114.0 estimated_obj=1383839114.00
+[baseline_hh v005] validate=due_balance feasible=True actual_obj=1385717758.0 estimated_obj=1385717758.00
+[baseline_hh v005] validate=official_serial feasible=True actual_obj=1788903265.0 estimated_obj=1788903265.00
+[baseline_hh v005] selected obj=1365635119.00 elapsed=20.78s
+[baseline_hh v006] v005 fallback feasible=True T=102305.0 objective=1365635119.0
+[baseline_hh v006] skip repaired_greedy remaining=39.16s name=prob_39
+[baseline_hh v007] v006 fallback feasible=True T=102305.0 objective=1365635119.0
+[baseline_hh v007] empty-window repair feasible=True stage=5 rounds=2 T=11692.0 objective=156987682.0
+[baseline_hh v007] limited_concurrent built forced=0 elapsed=13.99s
+[baseline_hh v007] limited_concurrent feasible=True T=11692.0 objective=156987682.0
+[baseline_hh v007] selected limited_concurrent T=11692.0 objective=156987682.0
