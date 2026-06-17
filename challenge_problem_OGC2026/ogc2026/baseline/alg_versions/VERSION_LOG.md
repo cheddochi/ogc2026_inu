@@ -3219,7 +3219,7 @@
 
 - File: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`
 - Parent: `reboot_v050_20260617_2015_prob38like_release_aware`
-- Status: accepted BEST
+- Status: archived
 - Strategy:
   - Keep trusted v050 behavior for every row except one narrow prob31-like
     4-bay concentrated high-proc class.
@@ -3258,11 +3258,31 @@
     - `prob_39` T `3563`
     - `prob_32` T `3076`
 - Decision:
-  - accepted as new BEST.
+  - accepted as new BEST at the time of the original train40 run.
   - Rationale: the rule improves the targeted residual-T row under the official
     40-row benchmark, preserves `accepted_for_score=40/40`, and introduces no
     T or objective regressions versus v050.
 - Rollback target: `reboot_v050_20260617_2015_prob38like_release_aware.py`
+
+## Active BEST Recovery 2026-06-17 22:20 KST
+
+- Recovery target: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- Restored BEST: `reboot_v050_20260617_2015_prob38like_release_aware`
+- Reason:
+  - post-accept re-verification on `prob_31` produced two different accepted
+    rows under the same committed v051 source and the same 60-second limit:
+    - `verify_reboot_v051_prob31_current_20260617_001`:
+      T `2825`, objective `40671512`
+    - `verify_current_v051_prob31_20260617_001`:
+      T `3784`, objective `53458849`
+  - the logs show the direct-build path can cross a timing cliff and fall into
+    many forced placements, so the published v051 source is not stable enough
+    to remain the trusted active BEST.
+- Action:
+  - `baseline_hh.py` and `ACTIVE_VERSION.md` were restored to v050
+  - v051 remains preserved as an archived benchmark checkpoint
+  - future candidates may reuse the idea only after the timing-cliff behavior
+    is repaired and revalidated end-to-end
 
 ## Manual Loop Note 2026-06-17 21:35 KST
 
@@ -3344,4 +3364,96 @@
     the smoke rows, and the inherited warm-start chain reproduced a much worse
     `prob_31` result than the trusted v051 evidence. That makes the candidate
     untrustworthy for further promotion.
+- Rollback target: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`
+
+## Manual Loop Note 2026-06-17 21:42 KST
+
+- version_id: `reboot_v053_20260617_2142_highproc_pressure_portfolio`
+- parent_version: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- hypothesis:
+  - The current trusted BEST already fixes several exact rows, but the largest
+    residual-T tail is still concentrated in one broader high-proc,
+    high-preference-pressure subtype.
+  - A warm-start-aware, timelimit-sensitive mini portfolio over alternate block
+    orders should improve that subtype more reliably than another single-row
+    override.
+- targeted instances:
+  - expected class members:
+    `prob_23`, `prob_25`, `prob_26`, `prob_27`, `prob_31`, `prob_38`,
+    `prob_40`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+- feature selector:
+  - `2 <= bays <= 4`
+  - `blocks >= 100`
+  - `proc_mean >= 16.0`
+  - `tight_slack_ratio <= 0.12`
+  - `pref_concentration >= 0.55`
+  - `pref_gap_mean >= 50.0`
+- anytime behavior:
+  - very_short/short: keep v051 path
+  - standard+: build the trusted v051 warm start first, then try a bounded
+    alternative-order portfolio only when enough wall time remains
+  - long/very_long: allow one extra order probe if the remaining budget is
+    still safe
+- expected metric movement:
+  - reduce the residual T tail on the shared high-proc class
+  - improve at least one of `prob_25`, `prob_27`, `prob_31`, `prob_38`,
+    `prob_40`
+  - keep low-risk rows unchanged via warm-start fallback
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with at least one improvement and no timeout row
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v051
+- rollback criteria:
+  - reject if the added portfolio regresses smoke-8, pushes runtime-risk rows
+    over the limit, or fails to show any targeted improvement
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_25`, `prob_27`, `prob_31`, `prob_38`,
+    `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the warm start is already expensive on the heaviest rows, so the
+    portfolio must split only the remaining safe wall-time budget.
+
+## reboot_v053_20260617_2142_highproc_pressure_portfolio
+
+- File: `reboot_v053_20260617_2142_highproc_pressure_portfolio.py`
+- Parent: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- Status: rejected
+- Strategy:
+  - Keep trusted v051 as the warm start.
+  - On a broader high-proc / high-preference-pressure class, spend the
+    remaining safe wall time on a tiny order portfolio.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v053_core8_20260617_001/`
+  - raw smoke rows were accepted `8/8`; timeout `0`, invalid `0`
+  - benchmark process exited nonzero only because the legacy cumulative CSV
+    path had a schema mismatch; the per-run smoke artifacts were still written
+  - comparative smoke gate failed on `prob_31`:
+    - trusted v051 smoke: T `2825`, objective `40671512`
+    - v053 smoke: T `3784`, objective `53458849`
+    - runtime increased `42.240692s -> 46.090664s`
+  - all other mandatory smoke rows held their T/objective values
+  - targeted subset and full train40 were not run because the mandatory
+    smoke-8 comparative gate already showed a severe regression
+  - follow-up single-row verification also showed that the current v051 file
+    can reproduce both the trusted `prob_31` row and the regressed row under
+    the same code hash, indicating a timing-cliff reliability issue in the
+    inherited direct-build path
+- Decision:
+  - rejected.
+  - Rationale: even though the smoke rows remained accepted, the candidate
+    regressed the most sensitive smoke row and exposed that the inherited
+    prob31-like direct build is not trustworthy enough to layer more search on
+    top of it.
 - Rollback target: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`

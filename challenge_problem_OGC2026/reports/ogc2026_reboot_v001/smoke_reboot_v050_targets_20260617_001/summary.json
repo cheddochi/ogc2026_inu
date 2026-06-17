@@ -1,0 +1,33 @@
+{
+  "run_id": "smoke_reboot_v050_targets_20260617_001",
+  "timestamp": "2026-06-17T20:14:58",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 158971406.0,
+    "objective_avg": 79485703.0,
+    "obj1_sum": 20754.0,
+    "obj1_avg": 10377.0,
+    "obj1_max": 11212.0,
+    "obj2_avg": 4105.5,
+    "obj3_avg": 10662.5,
+    "runtime_sum": 83.296929,
+    "runtime_avg": 41.6484645,
+    "runtime_max": 44.003842
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v050_20260617_2015_prob38like_release_aware",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v050_20260617_2015_prob38like_release_aware.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}
