@@ -56,7 +56,7 @@ _MAX_MEM_GB     = 14      # 솔버 허용 메모리 상한 (GB)
                           # 16GB 전체 중 OS·Python 프로세스용 2GB 여유 확보
                           # Gurobi : NodefileStart + SoftMemLimit 으로 적용
                           # CP-SAT : max_memory_in_mb 으로 적용
-_FEASIBLE_FIRST = False
+_FEASIBLE_FIRST = True
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -74,41 +74,17 @@ def _col_w(blk, oi):
     lx0, _, lx1, _ = _bbox(blk, oi)
     return max(1, math.ceil(lx1 - lx0))
 
-
-def _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
-    """
-    정수 좌표 (px, py) 로 바운딩박스를 bay 안에 둘 수 있는지 확인.
-
-    px + lx0 >= 0  및  px + lx1 <= bay_w 를 동시에 만족하는 정수 px가
-    존재해야 한다 (마찬가지로 y에 대해서도).  즉
-        ceil(-lx0) <= floor(bay_w - lx1)
-    실수 폭(lx1-lx0)이 bay_w 이하라도, ceil/floor 라운딩 때문에
-    정수 그리드 상에는 들어갈 자리가 없을 수 있다 (margin이 1 미만일 때).
-    """
-    px_lo, px_hi = math.ceil(-lx0 - 1e-9), math.floor(bay_w - lx1 + 1e-9)
-    py_lo, py_hi = math.ceil(-ly0 - 1e-9), math.floor(bay_h - ly1 + 1e-9)
-    return px_lo <= px_hi and py_lo <= py_hi
-
-
 def _narrowest_orient(blk, bay_w, bay_h):
-    """
-    bay 에 들어가는 방향 중 가장 좁은 것. (orient_idx, col_width).
-
-    정수 그리드 상에 배치 가능한 방향이 없으면 (= 이 블록을 이 bay에 절대
-    배치할 수 없으면) col_width = bay_w + 1 (capacity 초과 sentinel) 을
-    반환한다. 이렇게 하면 _conflict_pairs / AddCumulative / greedy 의
-    "used + cw <= W" 체크가 항상 실패해, Phase 1이 이 (block,bay) 조합을
-    선택하지 않도록 만든다 → _spatial 에서 "bay 자체에 안 맞음" 케이스 제거.
-    """
+    """bay 에 들어가는 방향 중 가장 좁은 것. (orient_idx, col_width)."""
     best_oi, best_cw = 0, float("inf")
     for oi in range(len(blk["shape"])):
         lx0, ly0, lx1, ly1 = _bbox(blk, oi)
-        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
+        if (lx1 - lx0) <= bay_w + 1e-6 and (ly1 - ly0) <= bay_h + 1e-6:
             cw = math.ceil(lx1 - lx0)
             if cw < best_cw:
                 best_cw, best_oi = cw, oi
     if best_cw == float("inf"):
-        best_oi, best_cw = 0, int(bay_w) + 1  # capacity 초과 sentinel → 선택 방지
+        best_oi, best_cw = 0, _col_w(blk, 0)
     return best_oi, best_cw
 
 def _precompute_orients(prob_info):
@@ -118,37 +94,6 @@ def _precompute_orients(prob_info):
         (bi, b): _narrowest_orient(blocks[bi], bays[b]["width"], bays[b]["height"])
         for bi in range(len(blocks)) for b in range(len(bays))
     }
-
-
-def _fits_bay(blk, bay_w, bay_h):
-    """블록이 어떤 방향으로든 정수 그리드 상에서 (bay_w x bay_h) 안에 들어가면 True."""
-    for oi in range(len(blk["shape"])):
-        lx0, ly0, lx1, ly1 = _bbox(blk, oi)
-        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
-            return True
-    return False
-
-
-def _feasible_bays(prob_info):
-    """
-    block_id → 해당 블록이 들어갈 수 있는 bay_id 집합.
-
-    어떤 방향으로도 bay 크기에 맞지 않는 (block, bay) 조합은 Phase 1의
-    모든 솔버/휴리스틱에서 배제한다 (CP-SAT in_b 강제 0, greedy 후보 제외 등).
-    각 블록은 최소 한 개 이상의 bay에 들어맞는다고 가정한다
-    (문제 인스턴스가 그렇게 보장되어야 함; 그렇지 않으면 가장 큰 bay로 폴백).
-    """
-    blocks, bays = prob_info["blocks"], prob_info["bays"]
-    n, M = len(blocks), len(bays)
-    result = {}
-    for bi in range(n):
-        feas = {b for b in range(M)
-                if _fits_bay(blocks[bi], bays[b]["width"], bays[b]["height"])}
-        if not feas:
-            # 어떤 bay에도 안 맞음 (이론상 발생 안 함) → 가장 큰 bay로 폴백
-            feas = {max(range(M), key=lambda b: bays[b]["width"] * bays[b]["height"])}
-        result[bi] = feas
-    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -177,15 +122,17 @@ def _objective(prob_info, sched):
 # §3  Phase 0 — EDD warm start
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _warm_start_ordered(prob_info, orients, feasible_bays, order):
+def _warm_start(prob_info, orients):
     """
-    주어진 블록 순서(order)대로 bay 배정.
+    EDD 순서로 bay 배정.
     각 블록에 대해 선호도 높은 bay부터 순회하며
     누적 열 폭 합 ≤ bay 폭인 가장 이른 진입 슬롯을 선택한다.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
+    order  = sorted(range(len(blocks)),
+                    key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
     timeline = [[] for _ in range(n_bays)]
     sched    = {}
 
@@ -213,8 +160,7 @@ def _warm_start_ordered(prob_info, orients, feasible_bays, order):
                     break
 
         if best is None:                        # 빈 bay 구간 강제 배치
-            feas   = feasible_bays.get(bi, set(range(n_bays))) or set(range(n_bays))
-            bay_id = max(feas, key=lambda j: prefs[j])
+            bay_id = max(range(n_bays), key=lambda j: prefs[j])
             _, cw  = orients[(bi, bay_id)]
             entry  = r
             changed = True
@@ -233,45 +179,6 @@ def _warm_start_ordered(prob_info, orients, feasible_bays, order):
         sched[bi] = {"block_id": bi, "bay_id": bay_id,
                      "entry_time": int(entry), "exit_time": int(exit_t)}
     return sched
-
-
-def _warm_start(prob_info, orients, feasible_bays=None):
-    """
-    여러 정렬 기준으로 warm start 후보를 생성하고 _objective() 기준 최선을 선택.
-
-    후보 순서
-      1. EDD            : (due_date, processing_time)               — 기존 기준
-      2. SPT            : (processing_time, due_date)                — 짧은 작업 우선
-                          → 전체 처리량 증가, 평균 대기시간 감소 경향
-      3. Slack(EDD-ish) : (due_date - release_time - processing_time, due_date)
-                          → 여유시간(slack)이 작은(급한) 블록을 우선 배치해
-                            tardiness(w1 가중치가 가장 큼) 직접 감소 시도
-
-    각 후보는 동일한 _warm_start_ordered 그리디로 배치되며, 생성 비용은
-    블록 수백 개 기준 수십 ms 수준으로 매우 저렴 → 항상 3개 모두 평가.
-    """
-    blocks = prob_info["blocks"]
-    if feasible_bays is None:
-        feasible_bays = _feasible_bays(prob_info)
-    n = len(blocks)
-
-    orders = {
-        "edd":   sorted(range(n), key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"])),
-        "spt":   sorted(range(n), key=lambda i: (blocks[i]["processing_time"], blocks[i]["due_date"])),
-        "slack": sorted(range(n), key=lambda i: (
-            blocks[i]["due_date"] - blocks[i]["release_time"] - blocks[i]["processing_time"],
-            blocks[i]["due_date"])),
-    }
-
-    best_sched, best_obj, best_tag = None, float("inf"), None
-    for tag, order in orders.items():
-        sched = _warm_start_ordered(prob_info, orients, feasible_bays, order)
-        obj   = _objective(prob_info, sched)
-        if obj < best_obj:
-            best_sched, best_obj, best_tag = sched, obj, tag
-
-    print(f"[warm_start] best={best_tag}  obj={best_obj:.2f}")
-    return best_sched
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -430,7 +337,6 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
     w3 = prob_info.get("weights", {}).get("w3", 1.0)
 
     cw = [min(orients[(i, b)][1] for b in range(M)) for i in range(n)]
-    feasible_bays = _feasible_bays(prob_info)
     T  = (max(blocks[i]["due_date"] for i in range(n)) * 2
           + sum(blocks[i]["processing_time"] for i in range(n)))
     S  = 1000   # float → int 스케일
@@ -449,8 +355,6 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
         for b in range(M):
             mdl.Add(bay_v[i] == b).OnlyEnforceIf(in_b[i][b])
             mdl.Add(bay_v[i] != b).OnlyEnforceIf(in_b[i][b].Not())
-            if b not in feasible_bays[i]:
-                mdl.Add(in_b[i][b] == 0)  # 어떤 방향으로도 bay b에 안 맞음 → 배정 금지
 
     for b in range(M):
         ivs, dems = [], []
@@ -486,13 +390,7 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
         mdl.Add(pp == sum(round((s_max - prefs[b]) * S) * in_b[i][b] for b in range(M)))
         pp_v.append(pp)
 
-    # imb_v, pp_v 는 wl_v/pp 스케일(S) 때문에 "S * 실제값" 단위이지만
-    # td_v 는 실제값(정수 시간) 그대로다. 세 항의 상대 가중치가
-    # _objective()의 w1*tard + w2*imb + w3*pen 과 일치하도록
-    # td_v 항에도 S를 곱해 동일한 "S * 실제값" 스케일로 맞춘다.
-    # (이전 버전은 td_v에 S를 곱하지 않아 tardiness가 1000배 과소평가되어
-    #  CP-SAT가 워밍스타트보다 나쁜 "최적" 해를 반환하는 문제가 있었다.)
-    mdl.Minimize(round(w1*S)*S*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
+    mdl.Minimize(round(w1*S)*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
 
     for i in range(n):
         if i in warm:
@@ -529,23 +427,11 @@ def _cpsat_mip(prob_info, warm, orients, tlimit):
 # §7  Greedy repair  (LNS 폴백 / Gurobi warm start 용)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None, order_mode="edd"):
-    """
-    Greedy 재배치. MIP repair의 warm start 및 폴백, LNS repair로 사용.
-
-    order_mode:
-      "edd"      - EDD(due_date, processing_time) 순서 (warm start와 동일).
-      "shuffled" - to_place 를 무작위 순서로 섞은 뒤 배치.
-                   destroy=k개를 항상 EDD 순서로 동일하게 재배치하면 warm start와
-                   거의 같은 해로 수렴해 LNS가 개선을 찾지 못한다 (탐색 다양성 부족).
-                   순서를 섞으면 같은 (bay,time) 슬롯 경쟁에서 다른 블록이 우선권을
-                   얻어 다른 지역해를 탐색할 수 있다.
-    """
+def _greedy_repair(prob_info, fixed, to_place, orients):
+    """EDD 순서 greedy 재배치. MIP repair의 warm start 및 폴백으로 사용."""
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     n_bays = len(bays)
     w1     = prob_info.get("weights", {}).get("w1", 1.0)
-    if feasible_bays is None:
-        feasible_bays = _feasible_bays(prob_info)
 
     timeline = [[] for _ in range(n_bays)]
     for bi, s in fixed.items():
@@ -554,12 +440,8 @@ def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None, orde
         timeline[b].append((s["entry_time"], s["exit_time"], cw))
 
     sched = dict(fixed)
-    if order_mode == "shuffled":
-        order = list(to_place)
-        random.shuffle(order)
-    else:
-        order = sorted(to_place,
-                       key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
+    order = sorted(to_place,
+                   key=lambda i: (blocks[i]["due_date"], blocks[i]["processing_time"]))
 
     for bi in order:
         blk   = blocks[bi]
@@ -585,8 +467,7 @@ def _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays=None, orde
                     break
 
         if best is None:
-            feas   = feasible_bays.get(bi, set(range(n_bays))) or set(range(n_bays))
-            bay_id = max(feas, key=lambda j: prefs[j])
+            bay_id = max(range(n_bays), key=lambda j: prefs[j])
             _, cw  = orients[(bi, bay_id)]
             entry  = r
             changed = True
@@ -741,141 +622,6 @@ def _gurobi_repair(prob_info, fixed, to_place, orients, tlimit=_REPAIR_TLIMIT):
     return greedy   # MIP 실패 → greedy 폴백
 
 
-_CPSAT_REPAIR_MAX_K = 25   # CP-SAT repair 최대 블록 수 (초과 시 greedy 폴백)
-
-
-def _cpsat_repair(prob_info, fixed, to_place, orients, feasible_bays=None, tlimit=_REPAIR_TLIMIT):
-    """
-    OR-Tools 버전의 _gurobi_repair.
-
-    k개 파괴 블록을 CP-SAT 소형 모델로 동시 최적화한다. fixed 블록들은
-    각 bay의 AddCumulative에 "고정 demand" 구간(NewIntervalVar, 변수 아님)으로
-    포함시켜 to_place 블록들이 그 구간을 회피하도록 강제한다.
-
-    k > _CPSAT_REPAIR_MAX_K 면 greedy 폴백.
-    """
-    from ortools.sat.python import cp_model
-
-    if not to_place:
-        return dict(fixed)
-    if len(to_place) > _CPSAT_REPAIR_MAX_K:
-        return _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays)
-
-    blocks, bays = prob_info["blocks"], prob_info["bays"]
-    k, M = len(to_place), len(bays)
-    w1 = prob_info.get("weights", {}).get("w1", 1.0)
-    w2 = prob_info.get("weights", {}).get("w2", 1.0)
-    w3 = prob_info.get("weights", {}).get("w3", 1.0)
-    if feasible_bays is None:
-        feasible_bays = _feasible_bays(prob_info)
-
-    T = (max(blk["due_date"] for blk in blocks) * 2
-         + sum(blk["processing_time"] for blk in blocks))
-    S = 1000
-
-    mdl = cp_model.CpModel()
-
-    bay_v = [mdl.NewIntVar(0, M-1, f"b{ki}") for ki in range(k)]
-    st_v  = []
-    end_v = []
-    in_b  = [[mdl.NewBoolVar(f"in{ki}_{b}") for b in range(M)] for ki in range(k)]
-
-    for ki, bi in enumerate(to_place):
-        p = blocks[bi]["processing_time"]
-        r = blocks[bi]["release_time"]
-        s = mdl.NewIntVar(r, T, f"s{ki}")
-        e = mdl.NewIntVar(r + p, T + p, f"e{ki}")
-        mdl.Add(e == s + p)
-        st_v.append(s)
-        end_v.append(e)
-
-        mdl.AddExactlyOne(in_b[ki])
-        for b in range(M):
-            mdl.Add(bay_v[ki] == b).OnlyEnforceIf(in_b[ki][b])
-            mdl.Add(bay_v[ki] != b).OnlyEnforceIf(in_b[ki][b].Not())
-            if b not in feasible_bays.get(bi, set(range(M))):
-                mdl.Add(in_b[ki][b] == 0)
-
-    # AddCumulative per bay: to_place 블록(optional) + fixed 블록(고정 interval)
-    for b in range(M):
-        ivs, dems = [], []
-        for ki, bi in enumerate(to_place):
-            p = blocks[bi]["processing_time"]
-            cw = orients[(bi, b)][1]
-            iv = mdl.NewOptionalIntervalVar(st_v[ki], p, end_v[ki], in_b[ki][b], f"iv{ki}_{b}")
-            ivs.append(iv)
-            dems.append(cw)
-        for fi, fs in fixed.items():
-            if fs["bay_id"] != b:
-                continue
-            fa, fe = int(fs["entry_time"]), int(fs["exit_time"])
-            cw = orients[(fi, b)][1]
-            iv = mdl.NewFixedSizeIntervalVar(fa, fe - fa, f"fx{fi}_{b}")
-            ivs.append(iv)
-            dems.append(cw)
-        if ivs:
-            mdl.AddCumulative(ivs, dems, int(bays[b]["width"]))
-
-    # 목적함수: tardiness + workload imbalance + pref penalty
-    td_v = []
-    for ki, bi in enumerate(to_place):
-        td = mdl.NewIntVar(0, T, f"td{ki}")
-        mdl.AddMaxEquality(td, [end_v[ki] - blocks[bi]["due_date"], mdl.NewConstant(0)])
-        td_v.append(td)
-
-    fixed_loads = [round(sum(blocks[fi]["workload"] for fi, fs in fixed.items()
-                              if fs["bay_id"] == b) * S) for b in range(M)]
-    wls = [round(blocks[bi]["workload"] * S) for bi in to_place]
-    total_wl = sum(wls) + sum(fixed_loads) + 1
-    wl_v = [mdl.NewIntVar(0, total_wl, f"wl{b}") for b in range(M)]
-    for b in range(M):
-        mdl.Add(wl_v[b] == fixed_loads[b] + sum(wls[ki] * in_b[ki][b] for ki in range(k)))
-    mx_wl = mdl.NewIntVar(0, total_wl, "mx")
-    mn_wl = mdl.NewIntVar(0, total_wl, "mn")
-    mdl.AddMaxEquality(mx_wl, wl_v)
-    mdl.AddMinEquality(mn_wl, wl_v)
-    imb_v = mdl.NewIntVar(0, total_wl, "imb")
-    mdl.Add(imb_v == mx_wl - mn_wl)
-
-    pp_v = []
-    for ki, bi in enumerate(to_place):
-        prefs = blocks[bi]["bay_preferences"]; s_max = max(prefs)
-        pp = mdl.NewIntVar(0, round(s_max * S) + 1, f"pp{ki}")
-        mdl.Add(pp == sum(round((s_max - prefs[b]) * S) * in_b[ki][b] for b in range(M)))
-        pp_v.append(pp)
-
-    mdl.Minimize(round(w1*S)*S*sum(td_v) + round(w2*S)*imb_v + round(w3*S)*sum(pp_v))
-
-    # greedy warm start as hint
-    greedy = _greedy_repair(prob_info, fixed, to_place, orients, feasible_bays)
-    for ki, bi in enumerate(to_place):
-        gs = greedy[bi]
-        mdl.AddHint(bay_v[ki], gs["bay_id"])
-        mdl.AddHint(st_v[ki], gs["entry_time"])
-        for b in range(M):
-            mdl.AddHint(in_b[ki][b], 1 if b == gs["bay_id"] else 0)
-
-    solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = tlimit
-    solver.parameters.num_search_workers  = _MAX_THREADS
-    solver.parameters.max_memory_in_mb    = _MAX_MEM_GB * 1024
-    solver.parameters.linearization_level = 1
-    solver.parameters.log_search_progress = False
-
-    status = solver.Solve(mdl)
-    if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        result = dict(fixed)
-        for ki, bi in enumerate(to_place):
-            b = solver.Value(bay_v[ki])
-            s = solver.Value(st_v[ki])
-            p = blocks[bi]["processing_time"]
-            result[bi] = {"block_id": bi, "bay_id": b,
-                          "entry_time": int(s), "exit_time": int(s + p)}
-        return result
-
-    return greedy   # CP-SAT 실패 → greedy 폴백
-
-
 def _worst_blocks(prob_info, sched, k, n):
     """
     Worst-first destroy: 지연(tardiness) 기여도가 높은 블록을 우선 선택.
@@ -901,7 +647,7 @@ def _worst_blocks(prob_info, sched, k, n):
 # §9  Adaptive LNS  (n > _MIP_LIMIT)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasible_bays=None):
+def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair):
     """
     Adaptive LNS.
 
@@ -919,9 +665,9 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
     """
     n        = len(prob_info["blocks"])
     patience = 10 if use_gurobi_repair else 30
-    k_min    = max(2, n // (5  if use_gurobi_repair else 25))
+    k_min    = max(2, n // (5  if use_gurobi_repair else 20))
     k_max    = max(k_min + 2, n // (2 if use_gurobi_repair else 3))
-    k        = max(k_min, n // (5 if use_gurobi_repair else 16))
+    k        = max(k_min, n // (5 if use_gurobi_repair else 10))
     tag      = "LNS+Gurobi" if use_gurobi_repair else "LNS+greedy"
 
     # deepcopy 대신 경량 dict 복사 — schedule 값이 모두 정수/문자열이므로 shallow copy 안전
@@ -957,20 +703,9 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
             destroy = random.sample(range(n), min(k, n))
         fixed = {i: current[i] for i in range(n) if i not in destroy}
 
-        # greedy repair는 항상 EDD 순서로 동일하게 재배치하면 destroy 전과
-        # 거의 같은 해로 수렴해 개선을 찾지 못한다 (관찰: 450+ iter, obj 불변).
-        # 순서를 무작위로 섞어 탐색 다양성을 확보한다.
-        repair_order = "shuffled" if (not use_gurobi_repair and random.random() < 0.7) else "edd"
-        if use_gurobi_repair:
-            candidate = _gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
-        elif len(destroy) <= _CPSAT_REPAIR_MAX_K:
-            # CP-SAT 소형 repair (Gurobi 없을 때): k개 블록을 동시 최적화.
-            # repair 1회 시간 = 남은 시간의 일부 또는 _REPAIR_TLIMIT 중 작은 값.
-            t_rep_cp = min(1.0, max(0.1, remaining * 0.3))
-            candidate = _cpsat_repair(prob_info, fixed, destroy, orients, feasible_bays, t_rep_cp)
-        else:
-            candidate = _greedy_repair(prob_info, fixed, destroy, orients, feasible_bays,
-                                        order_mode=repair_order)
+        candidate = (_gurobi_repair(prob_info, fixed, destroy, orients, t_rep)
+                     if use_gurobi_repair
+                     else _greedy_repair(prob_info, fixed, destroy, orients))
         cand_obj  = _objective(prob_info, candidate)
 
         if cand_obj < cur_obj:
@@ -1000,24 +735,13 @@ def _adaptive_lns(prob_info, warm, orients, deadline, use_gurobi_repair, feasibl
 # §10  Phase 2 — 열 기반 공간 배치 (후처리)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _rects_overlap(a, b, eps=1e-6):
-    """AABB overlap test (strict interior), a/b = (x0, y0, x1, y1)."""
-    return a[0] < b[2] - eps and b[0] < a[2] - eps and a[1] < b[3] - eps and b[1] < a[3] - eps
-
-
 def _spatial(prob_info, sched):
     """
     (bay_id, entry_time, exit_time) 확정 스케줄 → (x, y, orient_idx).
 
-    bay별로 진입 시각 순 처리.  현재 블록과 시간적으로 겹치는(동시 거주)
-    이미 배치된 블록들의 전체 바운딩박스(x AND y)를 피해 빈 자리에 배치한다.
-    (단순 x-구간 패킹이 아니라 진짜 2D AABB 비충돌 배치.)
-
-    실패(빈 자리 없음) 시 repair: entry_time을 충돌 블록들 중 가장 이른
-    exit_time으로 미루고 재시도한다.  이렇게 미뤄진 entry_time은
-    sched 자체에 반영되어 _build_solution 출력과 일치한다.
-    Phase 1의 누적 폭 근사 제약이 보수적이므로 일반적으로 repair는
-    드물게만 발생한다.
+    bay별로 진입 시각 순 처리.  이미 배치된 동시 거주 블록의 x 범위를
+    피해 첫 번째 빈 간격에 삽입한다.
+    Phase 1의 누적 폭 제약이 총 열 폭 ≤ bay 폭을 보장하므로 항상 성공.
     """
     blocks, bays = prob_info["blocks"], prob_info["bays"]
     pos = {}
@@ -1026,91 +750,44 @@ def _spatial(prob_info, sched):
         bay_w = bays[b]["width"]
         bay_h = bays[b]["height"]
         ids   = sorted((bi for bi in sched if sched[bi]["bay_id"] == b),
-                       key=lambda i: (sched[i]["entry_time"], i))
+                       key=lambda i: sched[i]["entry_time"])
 
         for bi in ids:
-            n_orients = len(blocks[bi]["shape"])
-            # 좁은(열 폭 작은) 방향부터 시도
-            orient_order = sorted(range(n_orients), key=lambda o: _col_w(blocks[bi], o))
+            entry_i = sched[bi]["entry_time"]
+            exit_i  = sched[bi]["exit_time"]
 
-            while True:
-                entry_i = sched[bi]["entry_time"]
-                exit_i  = sched[bi]["exit_time"]
+            occupied = []
+            for bj, (px_j, _, oj) in pos.items():
+                if sched[bj]["bay_id"] != b:
+                    continue
+                if sched[bj]["entry_time"] < exit_i and sched[bj]["exit_time"] > entry_i:
+                    lx0j, _, lx1j, _ = _bbox(blocks[bj], oj)
+                    occupied.append((px_j + lx0j, px_j + lx1j))
+            occupied.sort()
 
-                # 시간적으로 겹치는 이미 배치된 블록들의 전체 AABB 수집
-                actives = []  # (bj, (x0,y0,x1,y1), exit_time)
-                for bj, (px_j, py_j, oj) in pos.items():
-                    if sched[bj]["bay_id"] != b:
+            placed = False
+            for oi in sorted(range(len(blocks[bi]["shape"])),
+                             key=lambda o: _col_w(blocks[bi], o)):
+                lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
+                w, h = lx1 - lx0, ly1 - ly0
+                if h > bay_h + 1e-6:
+                    continue
+                for x_try in [0.0] + [xe for _, xe in occupied]:
+                    x_end = x_try + w
+                    if x_end > bay_w + 1e-6:
                         continue
-                    if sched[bj]["entry_time"] < exit_i and sched[bj]["exit_time"] > entry_i:
-                        lx0j, ly0j, lx1j, ly1j = _bbox(blocks[bj], oj)
-                        actives.append((bj, (px_j + lx0j, py_j + ly0j,
-                                              px_j + lx1j, py_j + ly1j),
-                                        sched[bj]["exit_time"]))
-
-                placed = False
-                for oi in orient_order:
-                    lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
-                    if not _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
-                        continue
-
-                    # 정수 좌표 후보: bay 원점과 활성 블록들의 우측/상단 경계(올림)
-                    # px + lx0 >= 0  (bay 좌측 경계) 을 만족하는 최소값을 하한으로 사용
-                    px_min = max(0, math.ceil(-lx0 - 1e-9))
-                    py_min = max(0, math.ceil(-ly0 - 1e-9))
-                    px_cands = sorted({px_min} | {math.ceil(a[1][2] - lx0 - 1e-9) for a in actives})
-                    py_cands = sorted({py_min} | {math.ceil(a[1][3] - ly0 - 1e-9) for a in actives})
-
-                    for px in px_cands:
-                        if px < px_min:
-                            continue
-                        x0, x1 = px + lx0, px + lx1
-                        if x1 > bay_w + 1e-6 or x0 < -1e-6:
-                            continue
-                        for py in py_cands:
-                            if py < py_min:
-                                continue
-                            y0, y1 = py + ly0, py + ly1
-                            if y1 > bay_h + 1e-6 or y0 < -1e-6:
-                                continue
-                            cand = (x0, y0, x1, y1)
-                            if not any(_rects_overlap(cand, a[1]) for a in actives):
-                                pos[bi] = (px, py, oi)
-                                placed   = True
-                                break
-                        if placed:
-                            break
-                    if placed:
+                    if not any(x_try < xe - 1e-6 and x_end > xs + 1e-6
+                                for xs, xe in occupied):
+                        pos[bi] = (max(0, math.ceil(x_try - lx0)),
+                                   max(0, math.ceil(-ly0)), oi)
+                        placed   = True
                         break
-
                 if placed:
                     break
 
-                # ── repair: 빈 자리가 없음 → entry_time을 미루고 재시도 ──
-                if not actives:
-                    # 활성 블록이 없는데도 배치 불가 → bay 자체에 못 들어감.
-                    # bay 크기에 실제로 맞는 방향(없으면 orient_order[0])으로
-                    # 원점에 강제 배치 (이론상 발생하지 않아야 함).
-                    fit_oi = None
-                    for oi in orient_order:
-                        lx0, ly0, lx1, ly1 = _bbox(blocks[bi], oi)
-                        if _int_grid_fits(lx0, ly0, lx1, ly1, bay_w, bay_h):
-                            fit_oi = oi
-                            break
-                    if fit_oi is None:
-                        fit_oi = orient_order[0]
-                    lx0, ly0, _, _ = _bbox(blocks[bi], fit_oi)
-                    pos[bi] = (max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0)), fit_oi)
-                    break
-
-                new_entry = min(a[2] for a in actives)
-                if new_entry <= entry_i:
-                    new_entry = entry_i + 1  # 무한루프 방지 (이론상 발생 안 함)
-                proc = blocks[bi]["processing_time"]
-                sched[bi] = dict(sched[bi])
-                sched[bi]["entry_time"] = new_entry
-                sched[bi]["exit_time"]  = new_entry + proc
-                # while 루프 재시도
+            if not placed:
+                lx0, ly0, _, _ = _bbox(blocks[bi], 0)
+                pos[bi] = (max(0, math.ceil(-lx0)), max(0, math.ceil(-ly0)), 0)
 
     return pos
 
@@ -1754,23 +1431,12 @@ def algorithm(prob_info, timelimit=60):
     try:
         # ── Phase 0: EDD warm start ────────────────────────────────────────
         orients = _precompute_orients(prob_info)
-        feasible_bays = _feasible_bays(prob_info)
-        warm    = _warm_start(prob_info, orients, feasible_bays)
+        warm    = _warm_start(prob_info, orients)
 
         # 체크포인트 1: warm start 해 즉시 확보
         # Phase 1 도중 어떤 문제가 생겨도 이 해를 반환할 수 있다.
-        # _finalize는 sched를 in-place로 (entry/exit_time repair) 수정한다.
-        # _adaptive_lns(LNS, n > _MIP_LIMIT)는 cumulative 근사 모델을 사용하므로
-        # _spatial의 2D 배치 repair로 변형된 entry/exit_time을 받으면 fixed
-        # 블록과의 시간/폭 정합이 깨져 repair 품질이 떨어진다 → pre-spatial
-        # 원본(warm_lns)을 별도로 보존해 _adaptive_lns에 전달한다.
-        # 반면 _cpsat_mip/_gurobi_mip(n <= _MIP_LIMIT)의 워밍스타트 힌트는
-        # post-spatial 버전을 사용하는 기존 동작을 유지한다 (회귀 방지).
-        # _objective는 _finalize 호출 *이후*에 계산해야 실제 반환 해의 목적값과 일치한다.
-        warm_lns = {bi: dict(v) for bi, v in warm.items()}
         best_solution = _finalize(warm)
-        best_obj_final = _objective(prob_info, warm)
-        print(f"[casat_cheddochi] Phase 0  obj={best_obj_final:.2f}"
+        print(f"[casat_cheddochi] Phase 0  obj={_objective(prob_info,warm):.2f}"
               f"  t={time.time()-t0:.2f}s  (checkpoint saved)")
 
         # ── 시간 가드: Phase 1 시작 가능 여부 확인 ─────────────────────────
@@ -1786,30 +1452,19 @@ def algorithm(prob_info, timelimit=60):
                 sched = _gurobi_mip(prob_info, warm, orients, _t_left())
             else:
                 # deadline 직접 전달 → LNS 이터레이션 수준 제어
-                # pre-spatial 원본(warm_lns) 사용 → cumulative repair 정합성 보존
-                sched = _adaptive_lns(prob_info, warm_lns, orients, deadline,
-                                      use_gurobi_repair=True, feasible_bays=feasible_bays)
+                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                                      use_gurobi_repair=True)
         else:  # _HAS_ORTOOLS
             if n <= _MIP_LIMIT:
                 sched = _cpsat_mip(prob_info, warm, orients, _t_left())
             else:
-                sched = _adaptive_lns(prob_info, warm_lns, orients, deadline,
-                                      use_gurobi_repair=False, feasible_bays=feasible_bays)
+                sched = _adaptive_lns(prob_info, warm, orients, deadline,
+                                      use_gurobi_repair=False)
 
-        # 체크포인트 2: Phase 1 최적화 해가 (post-spatial 기준) Phase 0보다
-        # 실제로 더 좋을 때만 교체한다.  CP-SAT/LNS가 8초 안에 warm start보다
-        # 못한 해를 반환하거나, _spatial repair로 악화되는 경우를 방지한다.
-        phase1_solution = _finalize(sched)
-        phase1_obj_final = _objective(prob_info, sched)
-        print(f"[casat_cheddochi] Phase 1  obj={phase1_obj_final:.2f}"
-              f"  (warm start obj={best_obj_final:.2f})"
-              f"  t={time.time()-t0:.2f}s")
-        if phase1_obj_final < best_obj_final:
-            best_solution  = phase1_solution
-            best_obj_final = phase1_obj_final
-            print(f"[casat_cheddochi] Phase 1 채택 (checkpoint updated)")
-        else:
-            print(f"[casat_cheddochi] Phase 1 기각 → warm start 해 유지")
+        # 체크포인트 2: Phase 1 최적화 해로 갱신
+        best_solution = _finalize(sched)
+        print(f"[casat_cheddochi] Phase 1  obj={_objective(prob_info,sched):.2f}"
+              f"  t={time.time()-t0:.2f}s  (checkpoint updated)")
 
     except Exception as e:
         # Phase 1 도중 오류 발생 → 체크포인트 1 (warm start 해) 사용
