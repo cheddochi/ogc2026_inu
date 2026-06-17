@@ -1,25 +1,35 @@
-"""baseline_hh_v007_limited_concurrent.py
+"""reboot_v003_20260616_1624_candidate_critical_ratio.py
 
 Strategy:
-    Evidence-gated limited concurrent placement.
+    Long-job critical-ratio ordering on top of reboot v002.
+
+Metadata:
+    version_id: reboot_v003_20260616_1624_candidate_critical_ratio
+    parent_version: reboot_v002_20260616_1547_candidate_slack_preference
+    status: rejected
+    timestamp: 2026-06-16 16:24 KST
+    strategy: use critical-ratio ordering for long-processing, non
+        preference-dominated instances.
+    hypothesis: high-T long-job instances such as prob_38 have enough average
+        slack that pure due/long-proc ordering can leave some long operations
+        late; ordering by slack per processing time should reduce the tardy
+        tail without increasing search width.
+    intended_metric_target: reduce T and objective on long-job high-T cases
+        while preserving accepted_for_score and timeout safety.
+    validation_status: rejected after subset smoke; accepted_for_score passed
+        but high-T target prob_38 regressed versus reboot_v002.
+    benchmark_evidence_path:
+        reports/ogc2026_reboot_v001/smoke_reboot_v003_subset_20260616_162542/
+    rollback_target: reboot_v002_20260616_1547_candidate_slack_preference
 
 Problem focus:
     T/obj1 is total tardiness, L/obj2 is normalized bay workload imbalance,
     P/obj3 is bay-preference penalty, and objective = w1*T + w2*L + w3*P.
 
-Changes from v006:
-    - Keeps v006 as the safe default candidate.
-    - Adds a limited concurrent greedy candidate only for training instances
-      where probe runs produced official-checker-feasible, lower-T solutions.
-    - Preserves chronological entry order per bay and checks whether a new
-      concurrent block would break already-scheduled exits.
-    - Repairs final checker violations by moving only implicated blocks to
-      empty-bay windows, then re-validates the full solution.
-    - Runs the limited candidate first on small instances where it beats the
-      slower hard-timeout greedy child.
-    - Uses evidence-gated instance-specific block ordering for high-T training
-      instances where smoke probes reduced T without hurting feasibility.
-    - Validates the whole candidate with the official checker before selection.
+Changes from reboot_v002:
+    - For long-processing instances that are not preference-dominated, use
+      `critical_ratio` block ordering instead of `due_long_proc`.
+    - No search-width, repair, fallback, or checker contract changes.
 """
 
 from __future__ import annotations
@@ -77,46 +87,12 @@ LIMITED_CONCURRENT_TARGETS = {
 }
 LIMITED_FIRST_TARGETS = set(LIMITED_CONCURRENT_TARGETS)
 DEFAULT_ORDER_STRATEGY = "due_release_proc"
-INSTANCE_ORDER_STRATEGY = {
-    "prob_27": "due_long_proc",
-    "prob_32": "preference_spread",
-    "prob_33": "due_long_proc",
-    "prob_34": "release_due",
-    "prob_37": "preference_spread",
-    "prob_38": "due_long_proc",
-    "prob_39": "release_due",
-}
-INSTANCE_BUILD_PARAMS = {
-    "prob_27": {"max_positions": 14},
-    "prob_31": {"top_bays": 3, "max_positions": 12},
-    "prob_32": {"top_bays": 3, "max_positions": 10},
-    "prob_33": {"max_positions": 12},
-    "prob_34": {"max_positions": 10},
-    "prob_35": {"max_positions": 10},
-    "prob_36": {"max_positions": 14},
-    "prob_37": {"top_bays": 3, "max_positions": 14},
-    "prob_38": {"top_bays": 2, "max_positions": 12},
-    "prob_39": {"top_bays": 3, "max_positions": 14},
-    "prob_40": {"top_bays": 3, "max_positions": 10},
-    "prob_25": {"max_positions": 8},
-    "prob_26": {"max_positions": 10},
-    "prob_30": {"max_positions": 10},
-}
-INSTANCE_BUDGET_CAP = {
-    "prob_27": 32.0,
-    "prob_31": 45.0,
-    "prob_32": 40.0,
-    "prob_33": 40.0,
-    "prob_34": 32.0,
-    "prob_35": 32.0,
-    "prob_36": 45.0,
-    "prob_37": 55.0,
-    "prob_38": 55.0,
-    "prob_39": 55.0,
-    "prob_40": 55.0,
-    "prob_25": 32.0,
-    "prob_26": 40.0,
-    "prob_30": 40.0,
+DEFAULT_POLICY = {
+    "order_strategy": DEFAULT_ORDER_STRATEGY,
+    "top_bays": 2,
+    "max_positions": 6,
+    "max_orients": 4,
+    "budget_cap": 24.0,
 }
 
 
@@ -132,6 +108,93 @@ def _block_area(block: dict) -> float:
         )
         for orient_idx in range(len(block["shape"]))
     )
+
+
+def _instance_features(prob_info: dict) -> dict[str, float]:
+    blocks = prob_info.get("blocks", [])
+    bays = prob_info.get("bays", [])
+    if not blocks:
+        return {
+            "n_blocks": 0.0,
+            "n_bays": float(len(bays)),
+            "avg_slack": 0.0,
+            "tight_ratio": 0.0,
+            "avg_proc": 0.0,
+            "avg_pref_spread": 0.0,
+            "pref_concentration": 0.0,
+        }
+
+    slacks = [
+        float(block["due_date"] - block["release_time"] - block["processing_time"])
+        for block in blocks
+    ]
+    procs = [float(block["processing_time"]) for block in blocks]
+    pref_spreads = [
+        float(max(block["bay_preferences"]) - min(block["bay_preferences"]))
+        for block in blocks
+    ]
+    pref_counts = []
+    for bay_id in range(len(bays)):
+        pref_counts.append(
+            sum(
+                1
+                for block in blocks
+                if block["bay_preferences"][bay_id] == max(block["bay_preferences"])
+            )
+        )
+
+    return {
+        "n_blocks": float(len(blocks)),
+        "n_bays": float(len(bays)),
+        "avg_slack": sum(slacks) / len(slacks),
+        "tight_ratio": sum(1 for slack in slacks if slack <= 0.0) / len(slacks),
+        "avg_proc": sum(procs) / len(procs),
+        "avg_pref_spread": sum(pref_spreads) / len(pref_spreads),
+        "pref_concentration": (max(pref_counts) / len(blocks)) if pref_counts else 0.0,
+    }
+
+
+def _policy_for(prob_info: dict) -> dict:
+    features = _instance_features(prob_info)
+    policy = dict(DEFAULT_POLICY)
+
+    tight_slack = features["avg_slack"] <= 1.4 or features["tight_ratio"] >= 0.32
+    preference_pressure = (
+        features["pref_concentration"] >= 0.70
+        or features["avg_pref_spread"] >= 74.0
+    )
+    long_jobs = features["avg_proc"] >= 16.0
+    runtime_risk = features["n_blocks"] >= 250.0
+
+    if tight_slack:
+        policy.update(
+            order_strategy="slack_workload",
+            max_positions=10,
+            budget_cap=30.0,
+        )
+    elif long_jobs:
+        policy.update(
+            order_strategy="critical_ratio",
+            max_positions=8,
+            budget_cap=28.0,
+        )
+
+    if preference_pressure:
+        policy.update(
+            order_strategy="preference_critical" if tight_slack else "preference_spread",
+            top_bays=2,
+            max_positions=max(int(policy["max_positions"]), 8),
+            budget_cap=max(float(policy["budget_cap"]), 30.0),
+        )
+
+    if runtime_risk:
+        policy.update(
+            max_positions=min(int(policy["max_positions"]), 8),
+            budget_cap=min(float(policy["budget_cap"]), 28.0),
+        )
+
+    policy["features"] = features
+    return policy
 
 
 def _block_order_key(blocks: list[dict], strategy: str, block_id: int) -> tuple:
@@ -155,6 +218,10 @@ def _block_order_key(blocks: list[dict], strategy: str, block_id: int) -> tuple:
         return (slack, -_block_area(block), due, release, block_id)
     if strategy == "preference_spread":
         return (due, -pref_spread, release, -proc, block_id)
+    if strategy == "preference_critical":
+        return (slack, due, -pref_spread, -workload, release, block_id)
+    if strategy == "critical_ratio":
+        return (slack / max(1, proc), due, release, -proc, block_id)
     return (due, release, proc, block_id)
 
 
@@ -166,16 +233,21 @@ def _ordered_block_ids(blocks: list[dict], strategy: str) -> list[int]:
 
 
 def _order_strategy_for(prob_info: dict) -> str:
-    return INSTANCE_ORDER_STRATEGY.get(str(prob_info.get("name", "")), DEFAULT_ORDER_STRATEGY)
+    return str(_policy_for(prob_info)["order_strategy"])
 
 
 def _limited_budget_for(prob_info: dict, available: float) -> float:
-    cap = INSTANCE_BUDGET_CAP.get(str(prob_info.get("name", "")), 24.0)
+    cap = float(_policy_for(prob_info)["budget_cap"])
     return min(cap, max(8.0, available - 2.0))
 
 
 def _build_params_for(prob_info: dict) -> dict[str, int]:
-    return dict(INSTANCE_BUILD_PARAMS.get(str(prob_info.get("name", "")), {}))
+    policy = _policy_for(prob_info)
+    return {
+        "top_bays": int(policy["top_bays"]),
+        "max_positions": int(policy["max_positions"]),
+        "max_orients": int(policy["max_orients"]),
+    }
 
 
 def _time_overlaps(a_start: float, a_end: float, b_start: float, b_end: float) -> bool:
@@ -392,6 +464,12 @@ def _build_limited_concurrent_solution(
     order_strategy: str = DEFAULT_ORDER_STRATEGY,
 ) -> dict:
     started = time.time()
+    features = _instance_features(prob_info)
+    tight_pressure = features["avg_slack"] <= 1.4 or features["tight_ratio"] >= 0.32
+    preference_pressure = (
+        features["pref_concentration"] >= 0.70
+        or features["avg_pref_spread"] >= 74.0
+    )
     bays = [Bay.from_dict(data, idx) for idx, data in enumerate(prob_info["bays"])]
     blocks = prob_info["blocks"]
     weights = prob_info.get("weights", {})
@@ -480,17 +558,30 @@ def _build_limited_concurrent_solution(
                             _imbalance_after(bay_loads, bay_weights, bay_id, workload)
                         )
                         weighted = w1 * tardiness + w2 * imbalance + w3 * pref_penalty
-                        key = (
-                            tardiness,
-                            exit_at,
-                            weighted,
-                            pref_penalty,
-                            imbalance,
-                            y + bb[3],
-                            bay_loads[bay_id],
-                            bay_id,
-                            orient_idx,
-                        )
+                        if preference_pressure and not tight_pressure:
+                            key = (
+                                tardiness,
+                                pref_penalty,
+                                weighted,
+                                exit_at,
+                                imbalance,
+                                y + bb[3],
+                                bay_loads[bay_id],
+                                bay_id,
+                                orient_idx,
+                            )
+                        else:
+                            key = (
+                                tardiness,
+                                exit_at,
+                                weighted,
+                                pref_penalty,
+                                imbalance,
+                                y + bb[3],
+                                bay_loads[bay_id],
+                                bay_id,
+                                orient_idx,
+                            )
                         if best_key is None or key < best_key:
                             best_key = key
                             best = (bay_id, x, y, orient_idx, int(entry), int(exit_at))
@@ -527,7 +618,7 @@ def _build_limited_concurrent_solution(
     if not result.get("feasible"):
         repaired, repaired_result, rounds = _repair_with_empty_windows(prob_info, assignments)
         print(
-            f"[baseline_hh v007] empty-window repair feasible={repaired_result.get('feasible')} "
+            f"[baseline_hh reboot_v003] empty-window repair feasible={repaired_result.get('feasible')} "
             f"stage={repaired_result.get('stage')} rounds={rounds} "
             f"T={repaired_result.get('obj1')} objective={repaired_result.get('objective')}"
         )
@@ -535,7 +626,7 @@ def _build_limited_concurrent_solution(
             solution = _solution_from_assignments(repaired)
 
     print(
-        f"[baseline_hh v007] limited_concurrent built forced={forced} "
+        f"[baseline_hh reboot_v003] limited_concurrent built forced={forced} "
         f"order={order_strategy} elapsed={time.time() - started:.2f}s"
     )
     return solution
@@ -550,10 +641,18 @@ def _should_try_limited_concurrent(prob_info: dict, remaining: float) -> bool:
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
     started = time.time()
     name = str(prob_info.get("name", ""))
+    policy = _policy_for(prob_info)
+    features = policy["features"]
     print(
-        f"[baseline_hh v007] instance={name or '?'} "
+        f"[baseline_hh reboot_v003] instance={name or '?'} "
         f"blocks={len(prob_info.get('blocks', []))} bays={len(prob_info.get('bays', []))} "
         f"timelimit={timelimit:.1f}s"
+    )
+    print(
+        f"[baseline_hh reboot_v003] policy order={policy['order_strategy']} "
+        f"top_bays={policy['top_bays']} max_positions={policy['max_positions']} "
+        f"budget_cap={policy['budget_cap']} avg_slack={features['avg_slack']:.2f} "
+        f"tight_ratio={features['tight_ratio']:.2f} pref_conc={features['pref_concentration']:.2f}"
     )
 
     if name in LIMITED_FIRST_TARGETS:
@@ -567,19 +666,19 @@ def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
         )
         result = check_feasibility(prob_info, candidate)
         print(
-            f"[baseline_hh v007] limited_first feasible={result.get('feasible')} "
+            f"[baseline_hh reboot_v003] limited_first feasible={result.get('feasible')} "
             f"order={order_strategy} T={result.get('obj1')} objective={result.get('objective')}"
         )
         if result.get("feasible"):
             return candidate
-        print("[baseline_hh v007] limited_first failed; using v006 fallback")
+        print("[baseline_hh reboot_v003] limited_first failed; using v006 fallback")
 
     fallback = v006.algorithm(prob_info, timelimit)
     fallback_result = check_feasibility(prob_info, fallback)
     best_solution = fallback
     best_result = fallback_result
     print(
-        f"[baseline_hh v007] v006 fallback feasible={fallback_result.get('feasible')} "
+        f"[baseline_hh reboot_v003] v006 fallback feasible={fallback_result.get('feasible')} "
         f"T={fallback_result.get('obj1')} objective={fallback_result.get('objective')}"
     )
 
@@ -596,21 +695,21 @@ def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
         )
         result = check_feasibility(prob_info, candidate)
         print(
-            f"[baseline_hh v007] limited_concurrent feasible={result.get('feasible')} "
+            f"[baseline_hh reboot_v003] limited_concurrent feasible={result.get('feasible')} "
             f"order={order_strategy} T={result.get('obj1')} objective={result.get('objective')}"
         )
         if _result_key(result) < _result_key(best_result):
             best_solution = candidate
             best_result = result
             print(
-                f"[baseline_hh v007] selected limited_concurrent "
+                f"[baseline_hh reboot_v003] selected limited_concurrent "
                 f"T={best_result.get('obj1')} objective={best_result.get('objective')}"
             )
         else:
-            print("[baseline_hh v007] keep v006 fallback")
+            print("[baseline_hh reboot_v003] keep v006 fallback")
     else:
         print(
-            f"[baseline_hh v007] skip limited_concurrent "
+            f"[baseline_hh reboot_v003] skip limited_concurrent "
             f"remaining={remaining:.2f}s name={name or '?'}"
         )
 

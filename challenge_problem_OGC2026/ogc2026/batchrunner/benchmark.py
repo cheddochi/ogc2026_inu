@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import importlib.util
 import json
@@ -96,7 +97,20 @@ CSV_FIELDS = [
     "algorithm_name",
     "algorithm_version",
     "algorithm_path",
+    "algorithm_sha256",
+    "checker_sha256",
+    "git_branch",
+    "git_head",
+    "git_dirty",
     "instance_name",
+    "requested_timelimit",
+    "official_limit",
+    "timeout_grace",
+    "watchdog_timeout_sec",
+    "checker_feasible",
+    "timed_out",
+    "valid_under_time_limit",
+    "accepted_for_score",
     "feasible",
     "stage",
     "objective",
@@ -109,23 +123,30 @@ CSV_FIELDS = [
     "runner_elapsed_sec",
     "assigned_blocks",
     "total_blocks",
+    "total_bays",
     "error_message",
     "solution_file",
     "log_file",
     "tester_summary",
+    "benchmark_command",
 ]
 
 COMPACT_CSV_FIELDS = [
     "instance",
-    "feasible",
-    "T_obj1",
-    "obj2",
-    "obj3",
+    "blocks",
+    "bays",
     "objective",
+    "T",
+    "L",
+    "P",
     "runtime_sec",
-    "delta_T_vs_previous_best",
-    "delta_objective_vs_previous_best",
-    "status",
+    "checker_feasible",
+    "timed_out",
+    "valid_under_time_limit",
+    "accepted_for_score",
+    "error_message",
+    "algorithm_version",
+    "report_path",
     "solution_file",
 ]
 
@@ -145,8 +166,10 @@ class AlgorithmSpec:
 def repo_root_from_here() -> pathlib.Path:
     here = pathlib.Path(__file__).resolve()
     for parent in [here.parent, *here.parents]:
-        if (parent / "challenge_problem_OGC2026" / "train").exists():
+        if (parent / "train").exists() and (parent / "ogc2026").exists():
             return parent
+        if (parent / "challenge_problem_OGC2026" / "train").exists():
+            return parent / "challenge_problem_OGC2026"
     raise RuntimeError("could not locate repository root")
 
 
@@ -178,12 +201,146 @@ def to_repo_path(path: pathlib.Path, repo_root: pathlib.Path) -> str:
         return str(path.resolve())
 
 
+def resolve_repo_relative_path(path_text: str, repo_root: pathlib.Path) -> pathlib.Path:
+    path = pathlib.Path(path_text)
+    if path.is_absolute():
+        return path
+    candidate = repo_root / path
+    if candidate.exists():
+        return candidate
+    parts = path.parts
+    if parts and parts[0] == "challenge_problem_OGC2026":
+        stripped = repo_root.joinpath(*parts[1:])
+        if stripped.exists():
+            return stripped
+    return candidate
+
+
+def sha256_file(path: pathlib.Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def git_output(repo_root: pathlib.Path, args: list[str]) -> str:
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=10,
+        )
+    except Exception:
+        return ""
+    if result.returncode != 0:
+        return ""
+    return (result.stdout or "").strip()
+
+
+def git_snapshot(repo_root: pathlib.Path) -> dict:
+    status = git_output(repo_root, ["status", "--short"])
+    return {
+        "branch": git_output(repo_root, ["branch", "--show-current"]) or "unknown",
+        "head": git_output(repo_root, ["rev-parse", "--short", "HEAD"]) or "unknown",
+        "dirty": bool(status),
+        "status_short": status.splitlines(),
+    }
+
+
+def algorithm_source_manifest(spec: AlgorithmSpec, repo_root: pathlib.Path) -> list[dict]:
+    files: set[pathlib.Path] = {spec.file}
+    if spec.path.is_dir():
+        files.update(spec.path.glob("*.py"))
+        alg_versions = spec.path / "alg_versions"
+        if alg_versions.exists():
+            files.update(alg_versions.glob("*.py"))
+            readme = alg_versions / "README.md"
+            if readme.exists():
+                files.add(readme)
+    return [
+        {
+            "path": to_repo_path(path, repo_root),
+            "sha256": sha256_file(path),
+            "bytes": path.stat().st_size,
+        }
+        for path in sorted(files, key=lambda p: str(p).lower())
+        if path.exists()
+    ]
+
+
 def output_text(value) -> str:
     if value is None:
         return ""
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return str(value)
+
+
+def bool_text(value: bool) -> str:
+    return "true" if bool(value) else "false"
+
+
+def parse_float(value) -> float | None:
+    try:
+        if value in ("", None):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def acceptance_fields(
+    *,
+    checker_feasible: bool,
+    runtime_sec,
+    runner_elapsed_sec,
+    official_limit: float,
+    timeout_expired: bool,
+    error_message: str,
+) -> dict:
+    runtime_value = parse_float(runtime_sec)
+    runner_elapsed_value = parse_float(runner_elapsed_sec)
+    over_runtime = runtime_value is not None and runtime_value > official_limit + 1e-9
+    over_runner_elapsed = (
+        runner_elapsed_value is not None
+        and runner_elapsed_value > official_limit + 1e-9
+    )
+    timed_out = bool(timeout_expired or over_runtime or over_runner_elapsed)
+    valid_under_time_limit = (
+        runtime_value is not None
+        and runtime_value <= official_limit + 1e-9
+        and not timed_out
+    )
+    accepted = (
+        checker_feasible
+        and valid_under_time_limit
+        and not timed_out
+        and not (error_message or "").strip()
+    )
+    return {
+        "checker_feasible": bool_text(checker_feasible),
+        "timed_out": bool_text(timed_out),
+        "valid_under_time_limit": bool_text(valid_under_time_limit),
+        "accepted_for_score": bool_text(accepted),
+        # Backward-compatible alias. From reboot onward this means accepted,
+        # not merely checker PASS.
+        "feasible": bool_text(accepted),
+    }
+
+
+def runtime_limit_error(runtime_sec, runner_elapsed_sec, official_limit: float) -> str:
+    runtime_value = parse_float(runtime_sec)
+    runner_elapsed_value = parse_float(runner_elapsed_sec)
+    values = [v for v in (runtime_value, runner_elapsed_value) if v is not None]
+    if values and max(values) > official_limit + 1e-9:
+        return f"runtime exceeded official_limit {official_limit:.6f}s"
+    return ""
 
 
 def load_checker(alg_tester_dir: pathlib.Path):
@@ -199,10 +356,7 @@ def load_checker(alg_tester_dir: pathlib.Path):
 
 
 def resolve_algorithm_path(path_text: str, repo_root: pathlib.Path) -> tuple[pathlib.Path, pathlib.Path]:
-    path = pathlib.Path(path_text)
-    if not path.is_absolute():
-        path = repo_root / path
-    path = path.resolve()
+    path = resolve_repo_relative_path(path_text, repo_root).resolve()
     if path.is_dir():
         algorithm_file = path / "myalgorithm.py"
     else:
@@ -216,7 +370,7 @@ def resolve_algorithm_path(path_text: str, repo_root: pathlib.Path) -> tuple[pat
 def parse_algorithm_specs(values: list[str] | None, repo_root: pathlib.Path) -> list[AlgorithmSpec]:
     if not values:
         values = [
-            "name=baseline_hh,version=v007_active,path=challenge_problem_OGC2026/ogc2026/baseline"
+            "name=baseline_hh,version=v007_active,path=ogc2026/baseline"
         ]
 
     specs: list[AlgorithmSpec] = []
@@ -241,9 +395,15 @@ def parse_algorithm_specs(values: list[str] | None, repo_root: pathlib.Path) -> 
 
 def collect_problem_paths(args, repo_root: pathlib.Path) -> list[pathlib.Path]:
     if args.problem:
-        paths = [pathlib.Path(p) for p in args.problem]
+        paths = [resolve_repo_relative_path(p, repo_root) for p in args.problem]
     else:
-        paths = list((repo_root).glob(args.problems))
+        patterns = [args.problems]
+        raw_parts = pathlib.Path(args.problems).parts
+        if raw_parts and raw_parts[0] == "challenge_problem_OGC2026":
+            patterns.append(str(pathlib.Path(*raw_parts[1:])))
+        paths = []
+        for pattern in patterns:
+            paths.extend(repo_root.glob(pattern))
     resolved = []
     for path in paths:
         if not path.is_absolute():
@@ -298,6 +458,9 @@ def run_one(
     alg_tester_dir: pathlib.Path,
     python_bin: str,
     check_feasibility,
+    checker_sha256: str,
+    git_meta: dict,
+    benchmark_command: str,
     repo_root: pathlib.Path,
 ) -> dict:
     alg_dir_name = safe_name(algorithm.key)
@@ -325,6 +488,10 @@ def run_one(
         str(raw_path),
     ]
     timeout = max(timelimit + timeout_grace, timelimit * 1.5)
+    algorithm_sha256 = sha256_file(algorithm.file)
+    prob_info = json.loads(problem_path.read_text(encoding="utf-8"))
+    total_blocks = len(prob_info.get("blocks", []))
+    total_bays = len(prob_info.get("bays", []))
     started = time.time()
 
     base_row = {
@@ -333,8 +500,21 @@ def run_one(
         "algorithm_name": algorithm.name,
         "algorithm_version": algorithm.version,
         "algorithm_path": to_repo_path(algorithm.file, repo_root),
+        "algorithm_sha256": algorithm_sha256,
+        "checker_sha256": checker_sha256,
+        "git_branch": git_meta.get("branch", ""),
+        "git_head": git_meta.get("head", ""),
+        "git_dirty": git_meta.get("dirty", ""),
         "instance_name": instance_name,
-        "feasible": False,
+        "requested_timelimit": f"{timelimit:.6f}",
+        "official_limit": f"{timelimit:.6f}",
+        "timeout_grace": f"{timeout_grace:.6f}",
+        "watchdog_timeout_sec": f"{timeout:.6f}",
+        "checker_feasible": "false",
+        "timed_out": "false",
+        "valid_under_time_limit": "false",
+        "accepted_for_score": "false",
+        "feasible": "false",
         "stage": "",
         "objective": "",
         "score": "",
@@ -345,11 +525,13 @@ def run_one(
         "runtime_sec": "",
         "runner_elapsed_sec": "",
         "assigned_blocks": "",
-        "total_blocks": "",
+        "total_blocks": total_blocks,
+        "total_bays": total_bays,
         "error_message": "",
         "solution_file": "",
         "log_file": to_repo_path(log_path, repo_root),
         "tester_summary": "",
+        "benchmark_command": benchmark_command,
     }
 
     try:
@@ -365,22 +547,40 @@ def run_one(
         wall_time = time.time() - started
         log_path.write_text(proc.stdout or "", encoding="utf-8")
         if proc.returncode != 0:
+            error_message = f"runner exited with code {proc.returncode}"
             return {
                 **base_row,
                 "stage": "RUNNER_EXIT",
                 "runtime_sec": f"{wall_time:.6f}",
-                "error_message": f"runner exited with code {proc.returncode}",
+                "error_message": error_message,
                 "tester_summary": "runner process failed",
+                **acceptance_fields(
+                    checker_feasible=False,
+                    runtime_sec=f"{wall_time:.6f}",
+                    runner_elapsed_sec="",
+                    official_limit=timelimit,
+                    timeout_expired=False,
+                    error_message=error_message,
+                ),
             }
     except subprocess.TimeoutExpired as exc:
         wall_time = time.time() - started
         log_path.write_text(output_text(exc.stdout), encoding="utf-8")
+        error_message = f"subprocess timeout after {timeout:.1f}s"
         return {
             **base_row,
             "stage": "TIMEOUT",
             "runtime_sec": f"{wall_time:.6f}",
-            "error_message": f"subprocess timeout after {timeout:.1f}s",
+            "error_message": error_message,
             "tester_summary": "timeout",
+            **acceptance_fields(
+                checker_feasible=False,
+                runtime_sec=f"{wall_time:.6f}",
+                runner_elapsed_sec="",
+                official_limit=timelimit,
+                timeout_expired=True,
+                error_message=error_message,
+            ),
         }
     finally:
         try:
@@ -391,38 +591,72 @@ def run_one(
     try:
         runner_result = json.loads(raw_path.read_text(encoding="utf-8"))
     except Exception as exc:
+        error_message = f"could not read runner result: {exc}"
         return {
             **base_row,
             "stage": "BAD_RESULT",
             "runtime_sec": f"{wall_time:.6f}",
-            "error_message": f"could not read runner result: {exc}",
+            "error_message": error_message,
             "tester_summary": "bad runner json",
+            **acceptance_fields(
+                checker_feasible=False,
+                runtime_sec=f"{wall_time:.6f}",
+                runner_elapsed_sec="",
+                official_limit=timelimit,
+                timeout_expired=False,
+                error_message=error_message,
+            ),
         }
 
     if not runner_result.get("ok"):
+        error_message = compact_error(runner_result.get("traceback", "unknown exception"))
+        runner_elapsed = runner_result.get("elapsed", "")
         return {
             **base_row,
             "stage": "EXCEPTION",
             "runtime_sec": f"{wall_time:.6f}",
-            "runner_elapsed_sec": runner_result.get("elapsed", ""),
-            "error_message": compact_error(runner_result.get("traceback", "unknown exception")),
+            "runner_elapsed_sec": runner_elapsed,
+            "error_message": error_message,
             "tester_summary": "algorithm exception",
+            **acceptance_fields(
+                checker_feasible=False,
+                runtime_sec=f"{wall_time:.6f}",
+                runner_elapsed_sec=runner_elapsed,
+                official_limit=timelimit,
+                timeout_expired=False,
+                error_message=error_message,
+            ),
         }
 
     solution = runner_result.get("solution")
     solution_path.write_text(json.dumps(solution, ensure_ascii=False), encoding="utf-8")
-    prob_info = json.loads(problem_path.read_text(encoding="utf-8"))
     result = check_feasibility(prob_info, solution)
     assigned = count_assigned(solution)
-    total_blocks = len(prob_info.get("blocks", []))
-    feasible = bool(result.get("feasible"))
+    runner_elapsed = runner_result.get("elapsed", "")
+    checker_feasible = bool(result.get("feasible"))
     objective = result.get("objective")
-    error = "" if feasible else "; ".join((result.get("violations") or [])[:5])
+    error_parts = []
+    if not checker_feasible:
+        error_parts.append("; ".join((result.get("violations") or [])[:5]))
+    limit_error = runtime_limit_error(f"{wall_time:.6f}", runner_elapsed, timelimit)
+    if limit_error:
+        error_parts.append(limit_error)
+    error = compact_error("; ".join(part for part in error_parts if part))
+    flags = acceptance_fields(
+        checker_feasible=checker_feasible,
+        runtime_sec=f"{wall_time:.6f}",
+        runner_elapsed_sec=runner_elapsed,
+        official_limit=timelimit,
+        timeout_expired=False,
+        error_message=error,
+    )
+    summary_text = tester_summary(result)
+    if flags["timed_out"] == "true":
+        summary_text = f"{summary_text} | INVALID runtime exceeded official limit"
 
     return {
         **base_row,
-        "feasible": feasible,
-        "stage": result.get("stage", ""),
+        "stage": "TIMEOUT" if flags["timed_out"] == "true" else result.get("stage", ""),
         "objective": objective if objective is not None else "",
         "score": objective if objective is not None else "",
         "cost": objective if objective is not None else "",
@@ -430,12 +664,14 @@ def run_one(
         "obj2": result.get("obj2", "") if result.get("obj2") is not None else "",
         "obj3": result.get("obj3", "") if result.get("obj3") is not None else "",
         "runtime_sec": f"{wall_time:.6f}",
-        "runner_elapsed_sec": runner_result.get("elapsed", ""),
+        "runner_elapsed_sec": runner_elapsed,
         "assigned_blocks": assigned,
         "total_blocks": total_blocks,
+        "total_bays": total_bays,
         "error_message": compact_error(error),
         "solution_file": to_repo_path(solution_path, repo_root),
-        "tester_summary": compact_error(tester_summary(result), 1200),
+        "tester_summary": compact_error(summary_text, 1200),
+        **flags,
     }
 
 
@@ -458,6 +694,15 @@ def write_csv(path: pathlib.Path, rows: list[dict]) -> None:
 def append_csv(path: pathlib.Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     exists = path.exists()
+    if exists:
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            existing_header = next(reader, [])
+        if existing_header != CSV_FIELDS:
+            raise SystemExit(
+                "Refusing to append to cumulative CSV with a different schema: "
+                f"{path}. Use a fresh reboot cumulative CSV."
+            )
     with path.open("a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
         if not exists:
@@ -466,32 +711,33 @@ def append_csv(path: pathlib.Path, rows: list[dict]) -> None:
             writer.writerow({field: row.get(field, "") for field in CSV_FIELDS})
 
 
-def write_compact_csv(path: pathlib.Path, run_rows: list[dict], previous_rows: list[dict]) -> None:
-    previous_t_best = best_by_instance(previous_rows, metric="obj1")
-    previous_objective_best = best_by_instance(previous_rows, metric="objective")
+def write_compact_csv(
+    path: pathlib.Path,
+    run_rows: list[dict],
+    *,
+    report_path: pathlib.Path,
+    repo_root: pathlib.Path,
+) -> None:
+    report_repo_path = to_repo_path(report_path, repo_root)
     compact_rows = []
     for row in sorted(run_rows, key=lambda r: natural_key(r.get("instance_name", ""))):
-        instance = row.get("instance_name", "")
-        t_value = as_float(row.get("obj1"))
-        objective = as_float(row.get("objective"))
-        prev_t = as_float(previous_t_best.get(instance, {}).get("obj1"))
-        prev_objective = as_float(previous_objective_best.get(instance, {}).get("objective"))
         compact_rows.append(
             {
-                "instance": instance,
-                "feasible": row.get("feasible", ""),
-                "T_obj1": row.get("obj1", ""),
-                "obj2": row.get("obj2", ""),
-                "obj3": row.get("obj3", ""),
+                "instance": row.get("instance_name", ""),
+                "blocks": row.get("total_blocks", ""),
+                "bays": row.get("total_bays", ""),
                 "objective": row.get("objective", ""),
+                "T": row.get("obj1", ""),
+                "L": row.get("obj2", ""),
+                "P": row.get("obj3", ""),
                 "runtime_sec": row.get("runtime_sec", ""),
-                "delta_T_vs_previous_best": ""
-                if t_value is None or prev_t is None
-                else f"{t_value - prev_t:.6f}",
-                "delta_objective_vs_previous_best": ""
-                if objective is None or prev_objective is None
-                else f"{objective - prev_objective:.6f}",
-                "status": "PASS" if is_feasible_row(row) else f"FAIL stage={row.get('stage', '')}",
+                "checker_feasible": row.get("checker_feasible", ""),
+                "timed_out": row.get("timed_out", ""),
+                "valid_under_time_limit": row.get("valid_under_time_limit", ""),
+                "accepted_for_score": row.get("accepted_for_score", ""),
+                "error_message": row.get("error_message", ""),
+                "algorithm_version": row.get("algorithm_version", ""),
+                "report_path": report_repo_path,
                 "solution_file": row.get("solution_file", ""),
             }
         )
@@ -503,16 +749,34 @@ def write_compact_csv(path: pathlib.Path, run_rows: list[dict], previous_rows: l
 
 
 def as_float(value) -> float | None:
-    try:
-        if value in ("", None):
-            return None
-        return float(value)
-    except (TypeError, ValueError):
-        return None
+    return parse_float(value)
+
+
+def is_true(value) -> bool:
+    return str(value).lower() == "true"
+
+
+def is_checker_feasible_row(row: dict) -> bool:
+    return is_true(row.get("checker_feasible"))
+
+
+def is_timed_out_row(row: dict) -> bool:
+    return is_true(row.get("timed_out"))
 
 
 def is_feasible_row(row: dict) -> bool:
-    return str(row.get("feasible")).lower() == "true"
+    return is_true(row.get("accepted_for_score"))
+
+
+def row_status(row: dict) -> str:
+    if is_feasible_row(row):
+        return "PASS"
+    if is_timed_out_row(row):
+        return "TIMEOUT"
+    if is_checker_feasible_row(row):
+        return "INVALID"
+    stage = row.get("stage", "")
+    return f"FAIL stage={stage}" if stage != "" else "FAIL"
 
 
 def best_by_instance(rows: Iterable[dict], metric: str = "objective") -> dict[str, dict]:
@@ -532,21 +796,26 @@ def best_by_instance(rows: Iterable[dict], metric: str = "objective") -> dict[st
 
 
 def summarize_rows(rows: list[dict]) -> dict:
-    feasible_rows = [row for row in rows if is_feasible_row(row)]
-    objectives = [as_float(row.get("objective")) for row in feasible_rows]
+    accepted_rows = [row for row in rows if is_feasible_row(row)]
+    checker_feasible_rows = [row for row in rows if is_checker_feasible_row(row)]
+    timed_out_rows = [row for row in rows if is_timed_out_row(row)]
+    objectives = [as_float(row.get("objective")) for row in accepted_rows]
     objectives = [v for v in objectives if v is not None]
-    obj1_values = [as_float(row.get("obj1")) for row in feasible_rows]
+    obj1_values = [as_float(row.get("obj1")) for row in accepted_rows]
     obj1_values = [v for v in obj1_values if v is not None]
-    obj2_values = [as_float(row.get("obj2")) for row in feasible_rows]
+    obj2_values = [as_float(row.get("obj2")) for row in accepted_rows]
     obj2_values = [v for v in obj2_values if v is not None]
-    obj3_values = [as_float(row.get("obj3")) for row in feasible_rows]
+    obj3_values = [as_float(row.get("obj3")) for row in accepted_rows]
     obj3_values = [v for v in obj3_values if v is not None]
     runtimes = [as_float(row.get("runtime_sec")) for row in rows]
     runtimes = [v for v in runtimes if v is not None]
     return {
         "total": len(rows),
-        "feasible": len(feasible_rows),
-        "failed": len(rows) - len(feasible_rows),
+        "feasible": len(accepted_rows),
+        "accepted_for_score": len(accepted_rows),
+        "checker_feasible": len(checker_feasible_rows),
+        "timed_out": len(timed_out_rows),
+        "failed": len(rows) - len(accepted_rows),
         "objective_sum": sum(objectives) if objectives else None,
         "objective_avg": (sum(objectives) / len(objectives)) if objectives else None,
         "obj1_sum": sum(obj1_values) if obj1_values else None,
@@ -636,7 +905,9 @@ def write_html_report(
     infeasible_rows = [
         [
             html.escape(row["instance_name"]),
-            html.escape(str(row.get("stage", ""))),
+            html.escape(row_status(row)),
+            html.escape(str(row.get("checker_feasible", ""))),
+            html.escape(str(row.get("timed_out", ""))),
             html.escape(row.get("error_message", "")),
         ]
         for row in run_rows
@@ -651,7 +922,7 @@ def write_html_report(
         return [
             html.escape(row["instance_name"]),
             fmt(row.get("runtime_sec"), 2) + "s",
-            "PASS" if is_feasible_row(row) else html.escape(str(row.get("stage", ""))),
+            html.escape(row_status(row)),
             fmt(row.get("obj1")),
             fmt(row.get("objective")),
         ]
@@ -670,7 +941,7 @@ def write_html_report(
                 cls = "best" if best_t is not None and t_value == best_t else ""
                 line.append(f"<span class='{cls}'>{fmt(t_value)}</span>")
             else:
-                line.append(f"<span class='bad'>FAIL {html.escape(str(row.get('stage', '')))}</span>")
+                line.append(f"<span class='bad'>{html.escape(row_status(row))}</span>")
         comparison_rows.append(line)
 
     style = """
@@ -695,9 +966,9 @@ def write_html_report(
     """
 
     infeasible_html = (
-        html_table(["Instance", "Stage", "Error"], infeasible_rows)
+        html_table(["Instance", "Status", "Checker Feasible", "Timed Out", "Error"], infeasible_rows)
         if infeasible_rows
-        else "<p class='good'>No infeasible rows in this run.</p>"
+        else "<p class='good'>No unaccepted rows in this run.</p>"
     )
 
     content = f"""<!doctype html>
@@ -722,7 +993,9 @@ def write_html_report(
 </div>
 <div class="cards">
   <div class="card"><div class="label">Rows</div><div class="value">{summary['total']}</div></div>
-  <div class="card"><div class="label">Feasible</div><div class="value">{summary['feasible']}/{summary['total']}</div></div>
+  <div class="card"><div class="label">Feasible (accepted)</div><div class="value">{summary['feasible']}/{summary['total']}</div></div>
+  <div class="card"><div class="label">Checker PASS</div><div class="value">{summary['checker_feasible']}/{summary['total']}</div></div>
+  <div class="card"><div class="label">Timed Out</div><div class="value">{summary['timed_out']}</div></div>
   <div class="card"><div class="label">Avg T (obj1)</div><div class="value">{fmt(summary['obj1_avg'], 2)}</div></div>
   <div class="card"><div class="label">Max T (obj1)</div><div class="value">{fmt(summary['obj1_max'])}</div></div>
   <div class="card"><div class="label">Avg obj2</div><div class="value">{fmt(summary['obj2_avg'], 2)}</div></div>
@@ -730,10 +1003,10 @@ def write_html_report(
   <div class="card"><div class="label">Avg Runtime</div><div class="value">{summary['runtime_avg']:.2f}s</div></div>
 </div>
 <h2>T By Instance</h2>
-{html_table(["Instance", "Feasible", "T (obj1)", "obj2", "obj3", "Objective", "Runtime", "Delta T"], best_rows)}
+{html_table(["Instance", "Accepted", "T (obj1)", "obj2", "obj3", "Objective", "Runtime", "Delta T"], best_rows)}
 <h2>T Comparison</h2>
 {html_table(["Instance", *alg_labels], comparison_rows)}
-<h2>Infeasible Instances</h2>
+<h2>Unaccepted Rows</h2>
 {infeasible_html}
 <h2>Slowest Rows</h2>
 {html_table(["Instance", "Runtime", "Status", "T (obj1)", "Objective"], [runtime_row(r) for r in slowest])}
@@ -757,7 +1030,7 @@ def parse_args():
     )
     parser.add_argument(
         "--problems",
-        default="challenge_problem_OGC2026/train/prob_*.json",
+        default="train/prob_*.json",
         help="Problem glob relative to repo root.",
     )
     parser.add_argument("--problem", action="append", help="Specific problem path; repeatable.")
@@ -771,6 +1044,11 @@ def parse_args():
         "--cumulative-csv",
         default="reports/ogc2026_benchmark/benchmark_results.csv",
         help="Append-only benchmark CSV path.",
+    )
+    parser.add_argument(
+        "--require-fresh-cumulative",
+        action="store_true",
+        help="Fail if the cumulative CSV already exists; use for clean reboot runs.",
     )
     parser.add_argument("--fail-fast", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -787,15 +1065,23 @@ def main() -> int:
     if not run_dir.is_absolute():
         run_dir = repo_root / run_dir
     run_dir = run_dir.resolve()
-    run_dir.mkdir(parents=True, exist_ok=True)
 
     cumulative_csv = pathlib.Path(args.cumulative_csv)
     if not cumulative_csv.is_absolute():
         cumulative_csv = repo_root / cumulative_csv
     cumulative_csv = cumulative_csv.resolve()
+    cumulative_preexisting = cumulative_csv.exists()
+    if args.require_fresh_cumulative and cumulative_preexisting:
+        raise SystemExit(f"--require-fresh-cumulative refused existing file: {cumulative_csv}")
 
-    baseline_dir = repo_root / "challenge_problem_OGC2026" / "ogc2026" / "baseline"
-    alg_tester_dir = repo_root / "challenge_problem_OGC2026" / "ogc2026" / "alg_tester"
+    baseline_dir = repo_root / "ogc2026" / "baseline"
+    alg_tester_dir = repo_root / "ogc2026" / "alg_tester"
+    checker_path = alg_tester_dir / "utils.py"
+    checker_sha256 = sha256_file(checker_path)
+    benchmark_path = pathlib.Path(__file__).resolve()
+    benchmark_sha256 = sha256_file(benchmark_path)
+    git_meta = git_snapshot(repo_root)
+    benchmark_command = subprocess.list2cmdline([sys.executable, *sys.argv])
     check_feasibility = load_checker(alg_tester_dir)
     algorithms = parse_algorithm_specs(args.algorithm, repo_root)
     problems = collect_problem_paths(args, repo_root)
@@ -818,6 +1104,8 @@ def main() -> int:
             print(problem)
         return 0
 
+    run_dir.mkdir(parents=True, exist_ok=True)
+
     previous_rows = read_csv_rows(cumulative_csv)
     run_rows: list[dict] = []
 
@@ -839,10 +1127,13 @@ def main() -> int:
                 alg_tester_dir=alg_tester_dir,
                 python_bin=args.python,
                 check_feasibility=check_feasibility,
+                checker_sha256=checker_sha256,
+                git_meta=git_meta,
+                benchmark_command=benchmark_command,
                 repo_root=repo_root,
             )
             run_rows.append(row)
-            status = "PASS" if is_feasible_row(row) else f"FAIL stage={row.get('stage')}"
+            status = row_status(row)
             obj = f" obj={fmt(row.get('objective'))}" if row.get("objective") != "" else ""
             print(f"[benchmark]   {status}{obj} runtime={fmt(row.get('runtime_sec'), 2)}s")
             if args.fail_fast and not is_feasible_row(row):
@@ -851,10 +1142,16 @@ def main() -> int:
     run_csv = run_dir / "results.csv"
     compact_csv = run_dir / "readable_results.csv"
     summary_json = run_dir / "summary.json"
+    manifest_json = run_dir / "run_manifest.json"
     report_path = run_dir / "report.html"
     write_csv(run_csv, run_rows)
     append_csv(cumulative_csv, run_rows)
-    write_compact_csv(compact_csv, run_rows, previous_rows)
+    write_compact_csv(
+        compact_csv,
+        run_rows,
+        report_path=report_path,
+        repo_root=repo_root,
+    )
     summary = summarize_rows(run_rows)
     summary_json.write_text(
         json.dumps(
@@ -871,6 +1168,68 @@ def main() -> int:
                     for spec in algorithms
                 ],
                 "problems": [to_repo_path(p, repo_root) for p in problems],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    manifest_json.write_text(
+        json.dumps(
+            {
+                "schema_version": "ogc2026_benchmark_run_manifest_v1",
+                "run_id": run_id,
+                "timestamp": timestamp,
+                "command": benchmark_command,
+                "repo_root": str(repo_root),
+                "git": git_meta,
+                "python": args.python,
+                "timelimit": args.timelimit,
+                "timeout_grace": args.timeout_grace,
+                "external_watchdog_formula": "max(timelimit + timeout_grace, timelimit * 1.5)",
+                "official_checker": {
+                    "path": to_repo_path(checker_path, repo_root),
+                    "sha256": checker_sha256,
+                },
+                "benchmark_runner": {
+                    "path": to_repo_path(benchmark_path, repo_root),
+                    "sha256": benchmark_sha256,
+                    "require_fresh_cumulative": bool(args.require_fresh_cumulative),
+                    "cumulative_csv_preexisting": cumulative_preexisting,
+                },
+                "outputs": {
+                    "run_csv": to_repo_path(run_csv, repo_root),
+                    "readable_results_csv": to_repo_path(compact_csv, repo_root),
+                    "summary_json": to_repo_path(summary_json, repo_root),
+                    "report_html": to_repo_path(report_path, repo_root),
+                    "cumulative_csv": to_repo_path(cumulative_csv, repo_root),
+                },
+                "row_contract": CSV_FIELDS,
+                "readable_row_contract": COMPACT_CSV_FIELDS,
+                "official_contract": {
+                    "algorithm_interface": "algorithm(prob_info: dict, timelimit: float) -> dict",
+                    "checker_feasible_true_requires": "official check_feasibility pass",
+                    "accepted_for_score": (
+                        "checker_feasible == true AND timed_out == false "
+                        "AND runtime_sec <= official_limit AND error_message empty"
+                    ),
+                    "objective": "w1*obj1 + w2*obj2 + w3*obj3",
+                    "obj1": "T total tardiness",
+                    "obj2": "L normalized bay workload imbalance",
+                    "obj3": "P bay-preference penalty",
+                },
+                "algorithms": [
+                    {
+                        "name": spec.name,
+                        "version": spec.version,
+                        "path": to_repo_path(spec.file, repo_root),
+                        "sha256": sha256_file(spec.file),
+                        "source_files": algorithm_source_manifest(spec, repo_root),
+                    }
+                    for spec in algorithms
+                ],
+                "problems": [to_repo_path(p, repo_root) for p in problems],
+                "summary": summary,
             },
             ensure_ascii=False,
             indent=2,
@@ -897,6 +1256,7 @@ def main() -> int:
     print(f"[benchmark] wrote {run_csv}")
     print(f"[benchmark] wrote {compact_csv}")
     print(f"[benchmark] wrote {summary_json}")
+    print(f"[benchmark] wrote {manifest_json}")
     print(f"[benchmark] wrote {report_path}")
     print(f"[benchmark] appended {cumulative_csv}")
     return 0 if summary["failed"] == 0 else 1
