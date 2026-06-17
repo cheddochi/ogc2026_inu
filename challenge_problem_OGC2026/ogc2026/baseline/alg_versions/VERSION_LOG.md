@@ -3284,6 +3284,191 @@
   - future candidates may reuse the idea only after the timing-cliff behavior
     is repaired and revalidated end-to-end
 
+## Current-Source Revalidation 2026-06-17 22:48 KST
+
+- Active surface:
+  `baseline_hh.py -> reboot_v050_20260617_2015_prob38like_release_aware`
+- Purpose:
+  - rebuild trustworthy evidence from the current tracked source after
+    discovering that multiple historical accepted manifests record source
+    hashes that do not match the files currently present in the repo
+- Validation:
+  - import smoke passed
+  - current-source smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_active_v050_revalidate_20260617_001/`
+  - current-source full train40 path:
+    `reports/ogc2026_reboot_v001/full_active_v050_revalidate_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - current-source full metrics:
+    - avg T `3631.85`
+    - avg L `3205.7`
+    - avg P `4290.9`
+    - avg objective `35310706.5`
+    - runtime max `57.853508`
+  - high-T rows under the current tracked source:
+    - `prob_38`: T `41939`, objective `562020241`
+    - `prob_40`: T `23973`, objective `16148296`
+    - `prob_31`: T `10940`, objective `148886915`
+    - `prob_35`: T `9178`, objective `123402594`
+    - `prob_36`: T `9067`, objective `6203535`
+  - historical checkpoint mismatch:
+    - archived accepted v050 manifest recorded avg T `1605.55`,
+      avg objective `15372214.675`, runtime max `42.293924`
+    - current-source revalidation is materially worse, so the archived numbers
+      must not be used as the live comparison baseline for new candidates
+- Decision:
+  - keep `baseline_hh.py` on v050 for now only as the active current-source
+    baseline
+  - use the revalidated current-source evidence above as the new comparison
+    point for the next candidate loop
+
+## Manual Loop Note 2026-06-17 22:54 KST
+
+- version_id: `reboot_v055_20260617_2254_runtime_stable_rollback_guard`
+- parent_version: `reboot_v050_20260617_2015_prob38like_release_aware`
+- hypothesis:
+  - The later current-source regressions appear to come from unstable high-proc
+    direct overrides, not from the earlier runtime-sensitive guard itself.
+  - A rollback to the narrower current-source v039 policy surface may recover a
+    materially better 40/40 baseline before we attempt another forward change.
+- targeted instances:
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted runtime-risk rows:
+    `prob_31`, `prob_38`, `prob_40`
+- candidate type:
+  - broad rollback probe; no new search operator, no new instance-specific
+    table, only a rollback to the earlier feature-based runtime guard
+- expected metric movement:
+  - improve current-source avg T and objective versus revalidated active v050
+  - reduce the current-source catastrophic rows on `prob_31`, `prob_38`,
+    and `prob_40`
+  - preserve `accepted_for_score=40/40`, timeout `0`, invalid `0`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted runtime-risk rows accepted with no new regression versus the
+    current-source v050 baseline
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus
+    `full_active_v050_revalidate_20260617_001`
+- rollback criteria:
+  - reject if smoke fails, or if the rollback still produces the same
+    current-source runtime-sensitive collapses
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - runtime-risk probe on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+
+## reboot_v055_20260617_2254_runtime_stable_rollback_guard
+
+- File: `reboot_v055_20260617_2254_runtime_stable_rollback_guard.py`
+- Parent: `reboot_v050_20260617_2015_prob38like_release_aware`
+- Status: rejected
+- Strategy:
+  - Roll back the current-source surface to the narrower v039
+    runtime-sensitive guard.
+  - Add no new search; treat the candidate as a stability rollback probe.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v055_core8_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - but the rollback materially regressed two mandatory smoke rows versus the
+    current-source active v050 baseline:
+    - `prob_31`: T `2836 -> 7492`,
+      objective `40956985 -> 102908188`
+    - `prob_36`: T `2010 -> 9220`,
+      objective `1499988 -> 6306507`
+  - `runtime_max` stayed within limit at `57.436363s`, but the score collapse
+    is too large to justify any full benchmark
+  - targeted runtime-risk probe and full train40 were not run because the
+    mandatory smoke gate already failed on user-facing T
+- Decision:
+  - rejected.
+  - Rationale: the earlier runtime-sensitive guard is not a safe rollback under
+    the current tracked source. It preserves feasibility but collapses key
+    smoke rows, so it cannot serve as the next trusted baseline.
+
+## Manual Loop Note 2026-06-17 23:06 KST
+
+- version_id: `reboot_v056_20260617_2306_runtime_stable_capped_portfolio`
+- parent_version: `reboot_v050_20260617_2015_prob38like_release_aware`
+- hypothesis:
+  - The catastrophic current-source rows are caused by deep runtime-sensitive
+    searches crossing a forced-placement cliff.
+  - Replacing those rows with a shallow capped direct portfolio should improve
+    stability and reduce T even if it gives up some local search depth.
+- targeted instances:
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted runtime-risk rows:
+    `prob_31`, `prob_38`, `prob_40`
+- candidate type:
+  - broad feature-based runtime-stability fix
+- expected metric movement:
+  - improve current-source `prob_31`, `prob_38`, and `prob_40`
+  - improve current-source avg T and objective versus
+    `full_active_v050_revalidate_20260617_001`
+  - preserve `accepted_for_score=40/40`, timeout `0`, invalid `0`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted runtime-risk rows accepted with improved or non-regressed T
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus current-source v050 baseline
+- rollback criteria:
+  - reject if the shallow portfolio still collapses the mandatory smoke rows or
+    if targeted runtime-risk rows stay catastrophic
+
+## reboot_v056_20260617_2306_runtime_stable_capped_portfolio
+
+- File: `reboot_v056_20260617_2306_runtime_stable_capped_portfolio.py`
+- Parent: `reboot_v050_20260617_2015_prob38like_release_aware`
+- Status: rejected
+- Strategy:
+  - Keep the current-source active v050 behavior on ordinary rows.
+  - On runtime-sensitive high-proc rows, replace the deeper direct-build path
+    with a shallow capped policy portfolio to avoid the forced-placement cliff.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v056_core8_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted runtime-risk probe path:
+    `reports/ogc2026_reboot_v001/probe_reboot_v056_runtime_rows_20260617_001/`
+  - targeted runtime-risk rows did improve materially versus the current-source
+    active v050 probe:
+    - `prob_31`: T `14755 -> 4600`,
+      objective `199749169 -> 64308787`
+    - `prob_38`: T `53747 -> 31795`,
+      objective `719660843 -> 219773012`
+    - `prob_40`: T `23973 -> 16280`,
+      objective `16148296 -> 21364554`
+  - but the mandatory smoke comparative gate failed on `prob_31`:
+    - current-source active v050 smoke:
+      T `2836`, objective `40956985`, runtime `36.734803s`
+    - v056 smoke:
+      T `4600`, objective `64308787`, runtime `57.918639s`
+  - `prob_36` held unchanged on score:
+    - T `2010`
+    - objective `1499988`
+  - the candidate also pushed the runtime-risk probe to the edge of the limit:
+    - probe runtime max `59.700926s`
+  - full train40 was not run because the updated smoke rule says a new smoke
+    row with `T >= 3000` counts as a failure when the current trusted baseline
+    is below that threshold
+- Decision:
+  - rejected.
+  - Rationale: the capped portfolio is promising on the worst runtime-risk
+    rows, but it still regresses the mandatory smoke row `prob_31` beyond the
+    accepted comparative threshold and runs too close to the official limit to
+    promote safely.
+
 ## Manual Loop Note 2026-06-17 21:35 KST
 
 - version_id: `reboot_v052_20260617_2135_three_bay_lowproc_tardy_reinsert`
