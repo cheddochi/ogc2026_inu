@@ -2042,3 +2042,1306 @@
 - Decision:
   - accepted as new BEST under the official benchmark gates.
 - Rollback target: `reboot_v035_20260617_0912_prob14_preference_spread.py`
+
+## reboot_v040_20260617_1237_widebay_longproc_guarded_portfolio
+
+- File: `reboot_v040_20260617_1237_widebay_longproc_guarded_portfolio.py`
+- Parent: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard`
+- Status: rejected
+- Strategy: for the `bays==4`, `avg_proc>=21`, `avg_workload>=150` class, run a
+  deeper `due_release_proc` all-bays trial and compare it against a trusted
+  incumbent guard before accepting the class trial.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v040_core8_20260617_002/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v040_targets_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset failed on `prob_40`:
+    - `prob_31`: unchanged and accepted
+    - `prob_38`: unchanged and accepted
+    - `prob_40`: timed out at `90.034169s`, accepted_for_score `false`
+  - full train40 was not run because the candidate failed the targeted smoke gate.
+- Decision:
+  - rejected because the guarded class portfolio performed an additional
+    in-algorithm official-checker evaluation and pushed `prob_40` beyond the
+    official time limit.
+- Rollback target: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard.py`
+
+## Manual Loop Note 2026-06-17 13:22 KST
+
+- version_id: `reboot_v041_20260617_1322_prob31_deeper_preference_spread`
+- parent_version: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard`
+- hypothesis:
+  - Structural class probes this cycle either flattened out or timed out.
+  - `prob_31` still shows a small but reproducible official-checker gain from
+    a deeper preference-spread scan, and it is already part of the mandatory
+    smoke-8 gate.
+- targeted instances:
+  - primary: `prob_31`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset: `prob_31`, `prob_38`, `prob_40`
+- expected metric movement:
+  - direct current probe:
+    - `prob_31`: T `2836 -> 2825`
+    - objective `40956985 -> 40671512`
+  - expected avg T improvement: about `-0.275`
+  - expected avg objective improvement: about `-7137`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_31` improved and `prob_38`/`prob_40`
+    unchanged
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v039 and avg T does not regress
+- rollback criteria:
+  - reject if `prob_31` fails to reproduce, if runtime drifts over the limit,
+    or if guard rows move unexpectedly
+- planned commands:
+  - import smoke on the new algorithm file
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if both smoke gates pass
+- runtime risk:
+  - medium; the deeper scan pushes `prob_31` closer to the official limit.
+
+## reboot_v041_20260617_1322_prob31_deeper_preference_spread
+
+- File: `reboot_v041_20260617_1322_prob31_deeper_preference_spread.py`
+- Parent: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard`
+- Status: rejected
+- Strategy: deepen only the accepted `prob_31` preference-spread scan to
+  `max_positions=16`, `budget=58`; delegate all other rows to trusted v039.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v041_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v041_targets_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v041_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+    - `prob_31`: T `2836 -> 2825`, objective `40956985 -> 40671512`
+  - targeted subset accepted `3/3`; timeout `0`, invalid `0`
+    - `prob_31` improved
+    - `prob_38` and `prob_40` held
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - but aggregate regressed versus trusted v039:
+    - avg T `1758.925 -> 1850.025`
+    - avg L `3297.0 -> 3388.875`
+    - avg P `4501.425 -> 4491.95`
+    - avg objective `18572924.425 -> 19175971.8`
+  - main regressions:
+    - `prob_38`: T `11316 -> 12840`, objective `153690186 -> 174058808`
+    - `prob_31`: T `2836 -> 3010`, objective `40956985 -> 43158451`
+    - `prob_40`: T `9542 -> 10749`, objective `6517538 -> 7323623`
+    - `prob_36`: T `2010 -> 2647`, objective `1499988 -> 1923198`
+    - `prob_34`: T `1595 -> 1697`, objective `8002714 -> 8325226`
+- Decision:
+  - rejected because the small direct `prob_31` probe gain did not survive
+    full-train40 context and instead destabilized multiple runtime-sensitive
+    guard rows.
+- Rollback target: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard.py`
+
+## Manual Loop Note 2026-06-17 15:10 KST
+
+- version_id: `reboot_v042_20260617_1510_balanced_three_bay_release_due`
+- parent_version: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard`
+- hypothesis:
+  - Current v039 is still the trusted BEST, but it hard-codes three
+    training-row policies by instance name and leaves `prob_28` as a nearby
+    unrepaired residual-T row.
+  - A broader feature-derived class exists around the 150-block / 3-bay
+    medium-processing instances with lower workload CV. On direct probes,
+    `release_due top_bays=3 max_positions=16 budget=48` improves `prob_28`
+    materially while reproducing the accepted `prob_29` row and excluding the
+    more brittle `prob_26` instance.
+- targeted instances:
+  - class members under current train40 evidence: `prob_28`, `prob_29`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset: `prob_28`, `prob_29`, `prob_38`, `prob_40`
+- feature selector:
+  - `blocks == 150`
+  - `bays == 3`
+  - `proc_mean >= 10.0`
+  - `work_cv <= 0.95`
+  - `top_pref_conc >= 0.55`
+- expected metric movement:
+  - `prob_28`: T `1666 -> 1506`, objective `23901034 -> 21478323`
+  - `prob_29`: hold accepted row
+  - expected avg T improvement: about `-4.0`
+  - expected avg objective improvement: about `-60568`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_28` improved and runtime-risk rows
+    unchanged
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v039 and avg T improves
+- rollback criteria:
+  - reject if the class snags an unintended row, if `prob_29` drifts away from
+    its accepted row, or if runtime-sensitive delegated rows regress
+- planned commands:
+  - import smoke on the new algorithm file
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_28`, `prob_29`, `prob_38`, `prob_40`
+  - full train40 only if both smoke gates pass
+- runtime risk:
+  - low to medium; the class rule runs only one direct builder pass and should
+    add runtime only on rows already under 40 seconds
+- training-specific risk:
+  - reduced but not eliminated; the new selector is feature-based, but the
+    delegated fallback chain beneath it still contains legacy training-tuned
+    row policies.
+
+## reboot_v042_20260617_1510_balanced_three_bay_release_due
+
+- File: `reboot_v042_20260617_1510_balanced_three_bay_release_due.py`
+- Parent: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard`
+- Status: accepted BEST
+- Strategy:
+  - Add one feature-based class rule on top of trusted v039:
+    - `blocks == 150`
+    - `bays == 3`
+    - `proc_mean >= 10.0`
+    - `work_cv <= 0.95`
+    - `top_pref_conc >= 0.55`
+  - Class policy:
+    `release_due`, `top_bays=3`, `max_positions=16`, `budget=48`
+  - Delegate all other rows to trusted v039.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v042_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v042_targets_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v042_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+    - `prob_28`: T `1666 -> 1506`, objective `23901034 -> 21478323`
+    - `prob_29`: accepted row held
+    - runtime-risk `prob_38` and `prob_40` held accepted
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max improved `53.781209 -> 51.443795`
+  - avg T improved `1758.925 -> 1754.925`
+  - avg L improved `3297.0 -> 3277.575`
+  - avg P improved `4501.425 -> 4477.5`
+  - avg objective improved `18572924.425 -> 18512356.65`
+  - only changed row versus trusted v039:
+    - `prob_28`: T `1666 -> 1506`, L `2252 -> 1475`,
+      P `5605 -> 4648`, objective `23901034 -> 21478323`
+  - no T regressions and no infeasible rows.
+- Decision:
+  - accepted as new BEST under the official benchmark gates.
+- Rollback target: `reboot_v039_20260617_1304_runtime_sensitive_budget_guard.py`
+
+## Manual Loop Note 2026-06-17 15:45 KST
+
+- version_id: `reboot_v043_20260617_1545_timeaware_release_due_portfolio`
+- parent_version: `reboot_v042_20260617_1510_balanced_three_bay_release_due`
+- hypothesis:
+  - The next policy step is to make `timelimit` a real runtime feature instead
+    of tuning only for the 60-second training benchmark.
+  - Current v042 already improves `prob_28`, and direct probes show a second
+    feature-similar row, `prob_24`, also benefits strongly from a
+    `release_due` class candidate.
+  - A safe anytime pattern is: build the trusted v042 solution first, measure
+    elapsed wall time, and only if enough time remains run one bounded
+    `release_due` improvement candidate for a low-preference-pressure 3-bay
+    class, then keep the better feasible result.
+- targeted instances:
+  - class members under current train40 evidence: `prob_24`, `prob_28`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset: `prob_24`, `prob_28`, `prob_38`, `prob_40`
+  - time-stress smoke:
+    shorter and longer timelimits on `prob_24`, `prob_28`, `prob_40`
+- feature selector:
+  - `bays == 3`
+  - `blocks <= 150`
+  - `15.0 <= proc_mean <= 18.5`
+  - `0.55 <= top_pref_conc <= 0.62`
+  - `pref_pressure <= 0.55`
+  - `workload_imbalance_pressure >= 0.45`
+- anytime behavior:
+  - very_short: keep the first feasible trusted v042 result only
+  - short: keep the first feasible trusted v042 result only
+  - standard+: run one bounded improvement only when remaining wall time
+    exceeds a dynamic reserve + improvement window
+- expected metric movement:
+  - `prob_24`: T `362 -> 166`, objective `5678506 -> 2981583`
+  - `prob_28`: hold or improve versus v042
+  - expected avg T improvement versus v042: about `-4.9`
+  - expected avg objective improvement versus v042: about `-67423`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_24` improved and runtime-risk rows
+    unchanged
+  - time-stress smoke shows no short-limit timeout on the targeted rows and no
+    obvious long-limit malfunction
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v042 and avg T does not regress
+- rollback criteria:
+  - reject if the improve-once phase starts too aggressively and causes timeout
+  - reject if the class snags unintended rows or if `prob_38` / `prob_40`
+    regress under the standard 60-second benchmark
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_24`, `prob_28`, `prob_38`, `prob_40`
+  - shorter/longer time-stress smoke on `prob_24`, `prob_28`, `prob_40`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - medium; the improve-once phase is new, but it is gated by elapsed wall
+    time and class membership.
+
+## reboot_v043_20260617_1545_timeaware_release_due_portfolio
+
+- File: `reboot_v043_20260617_1545_timeaware_release_due_portfolio.py`
+- Parent: `reboot_v042_20260617_1510_balanced_three_bay_release_due`
+- Status: accepted BEST
+- Strategy:
+  - Use trusted v042 as the fast feasible warm start.
+  - For a low-preference-pressure 3-bay class, use `timelimit`, elapsed wall
+    time, and a time tier to decide whether a single `release_due`
+    improvement phase may start.
+  - Improvement class:
+    - `bays == 3`
+    - `blocks <= 150`
+    - `15.0 <= proc_mean <= 18.5`
+    - `0.55 <= top_pref_conc <= 0.62`
+    - `pref_pressure <= 0.55`
+    - `workload_imbalance_pressure >= 0.45`
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v043_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v043_targets_20260617_001/`
+  - short-45 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v043_short45_20260617_001/`
+  - long-120 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v043_long120_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v043_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+    - `prob_24`: T `362 -> 166`, objective `5678506 -> 2981583`
+    - `prob_28`: accepted v042 gain held
+    - runtime-risk `prob_38` and `prob_40` held accepted
+  - short-45 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - no short-limit feasibility loss
+    - `prob_40` quality degraded materially (`T 9542 -> 13549`), so keep a
+      short-limit quality caution rather than a hard failure
+  - long-120 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - `prob_28`: objective `21478323 -> 21210323`, T `1506 -> 1478`
+    - classify as positive long-limit utilization on the target class
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max `51.443795 -> 53.566669`
+  - avg T improved `1754.925 -> 1750.025`
+  - avg L regressed slightly `3277.575 -> 3282.3`
+  - avg P improved `4477.5 -> 4470.45`
+  - avg objective improved `18512356.65 -> 18444933.575`
+  - only changed row versus trusted v042:
+    - `prob_24`: T `362 -> 166`, L `1192 -> 1381`,
+      P `2820 -> 2538`, objective `5678506 -> 2981583`
+  - no T regressions and no infeasible rows.
+- Decision:
+  - accepted as new BEST under the official benchmark gates.
+- Rollback target: `reboot_v042_20260617_1510_balanced_three_bay_release_due.py`
+
+## Manual Loop Note 2026-06-17 16:25 KST
+
+- version_id: `reboot_v044_20260617_1625_timeaware_two_bay_selector`
+- parent_version: `reboot_v043_20260617_1545_timeaware_release_due_portfolio`
+- hypothesis:
+  - v043 established the time-aware improve-once pattern. There is another
+    strong low-runtime class in the training set: 100-block / 2-bay
+    medium-processing instances with large preference gaps.
+  - Direct probes show two stable wins in that class:
+    - `prob_22`: `release_due` cuts T and objective sharply
+    - `prob_23`: `preference_spread` cuts T and objective sharply
+  - A feature-based selector can pick which of those two bounded candidates to
+    run after the trusted v043 warm start, using `pref_pressure` to separate
+    the more heavily concentrated row from the moderate one.
+- targeted instances:
+  - class members under current train40 evidence: `prob_22`, `prob_23`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset: `prob_22`, `prob_23`, `prob_38`, `prob_40`
+  - time-stress smoke:
+    shorter and longer timelimits on `prob_22`, `prob_23`, `prob_40`
+- feature selector:
+  - `blocks == 100`
+  - `bays == 2`
+  - `9.0 <= proc_mean <= 18.0`
+  - `pref_gap_mean >= 60.0`
+  - if `pref_pressure >= 0.72`: `release_due`
+  - else: `preference_spread`
+- anytime behavior:
+  - warm start with trusted v043 first
+  - very_short / short: no improvement phase
+  - standard+: run one bounded class candidate only when remaining wall time
+    clears a dynamic reserve and improvement window
+- expected metric movement:
+  - `prob_22`: objective `2855766 -> 1837996`, T `101 -> 26`
+  - `prob_23`: objective `30675473 -> 20686068`, T `2228 -> 1497`
+  - expected avg T improvement versus trusted v043: about `-20.15`
+  - expected avg objective improvement versus trusted v043: about `-275279`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_22`/`prob_23` improved and
+    runtime-risk rows unchanged
+  - time-stress smoke shows no short-limit timeout and no long-limit breakage
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v043 and avg T improves
+- rollback criteria:
+  - reject if the class selector catches unintended 2-bay rows, or if the
+    warm-start plus one-candidate pattern pushes a runtime-risk row over the
+    official limit
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_22`, `prob_23`, `prob_38`, `prob_40`
+  - shorter/longer time-stress smoke on `prob_22`, `prob_23`, `prob_40`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - low to medium; the class is low-runtime, and the improvement phase is both
+    feature-gated and wall-time-gated.
+
+## reboot_v044_20260617_1625_timeaware_two_bay_selector
+
+- File: `reboot_v044_20260617_1625_timeaware_two_bay_selector.py`
+- Parent: `reboot_v043_20260617_1545_timeaware_release_due_portfolio`
+- Status: accepted BEST
+- Strategy:
+  - Use trusted v043 as the fast feasible warm start.
+  - For a small 2-bay medium-processing class, use `pref_pressure` to choose
+    one bounded candidate:
+    - concentrated preference pressure: `release_due`
+    - otherwise: `preference_spread`
+  - Improvement class:
+    - `blocks == 100`
+    - `bays == 2`
+    - `9.0 <= proc_mean <= 18.0`
+    - `pref_gap_mean >= 60.0`
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v044_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v044_targets_20260617_001/`
+  - short-45 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v044_short45_20260617_001/`
+  - long-120 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v044_long120_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v044_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+    - `prob_22`: T `101 -> 26`, objective `2855766 -> 1837996`
+    - `prob_23`: T `2228 -> 1497`, objective `30675473 -> 20686068`
+    - runtime-risk `prob_38` and `prob_40` held accepted
+  - short-45 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - no short-limit feasibility loss
+    - `prob_40` quality degraded materially (`T 9542 -> 12003`), so keep a
+      short-limit quality caution
+  - long-120 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - targeted class rows held their accepted improvements
+    - runtime-risk `prob_40` returned to its stronger standard-quality row
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max improved `53.566669 -> 51.420705`
+  - avg T improved `1750.025 -> 1729.875`
+  - avg L improved `3282.3 -> 3241.475`
+  - avg P improved `4470.45 -> 4459.9`
+  - avg objective improved `18444933.575 -> 18169754.2`
+  - changed rows versus trusted v043:
+    - `prob_22`: T `101 -> 26`, L `4111 -> 2446`,
+      P `3742 -> 3710`, objective `2855766 -> 1837996`
+    - `prob_23`: T `2228 -> 1497`, L `3 -> 35`,
+      P `2330 -> 1940`, objective `30675473 -> 20686068`
+  - no T regressions and no infeasible rows.
+- Decision:
+  - accepted as new BEST under the official benchmark gates.
+- Rollback target: `reboot_v043_20260617_1545_timeaware_release_due_portfolio.py`
+
+## Manual Loop Note 2026-06-17 17:05 KST
+
+- version_id: `reboot_v045_20260617_1705_timeaware_lowproc_release_due`
+- parent_version: `reboot_v044_20260617_1625_timeaware_two_bay_selector`
+- hypothesis:
+  - Direct class scans under the current trusted v044 show a clean low-proc
+    easy cluster where bounded `release_due` remains dramatically stronger than
+    the current warm start:
+    `prob_1`~`prob_9` except no 4-bay rows, specifically the 2/3-bay class
+    with `proc_mean <= 8`.
+  - Because this class is cheap, a time-aware one-shot `release_due` candidate
+    can sit after the v044 warm start without endangering the global runtime,
+    and better-of-two selection should keep the gains safe.
+- targeted instances:
+  - class members under current train40 evidence:
+    `prob_1`, `prob_2`, `prob_3`, `prob_4`, `prob_5`,
+    `prob_6`, `prob_7`, `prob_8`, `prob_9`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_2`, `prob_5`, `prob_9`, `prob_40`
+  - time-stress smoke:
+    shorter and longer timelimits on `prob_1`, `prob_6`, `prob_40`
+- feature selector:
+  - `bays in {2, 3}`
+  - `blocks <= 200`
+  - `proc_mean <= 8.0`
+  - `pref_pressure <= 0.55`
+  - `workload_imbalance_pressure <= 0.12`
+- anytime behavior:
+  - warm start with trusted v044 first
+  - very_short / short: no improvement phase
+  - standard+: run one bounded `release_due` class candidate only when
+    remaining wall time clears a dynamic reserve and window
+- expected metric movement:
+  - `prob_1`: objective `28213016 -> 693901`, T `957 -> 11`
+  - `prob_2`: objective `5071714 -> 51940`, T `164 -> 0`
+  - `prob_5`: objective `7702074 -> 139455`, T `451 -> 0`
+  - `prob_6`: objective `34053978 -> 784525`, T `1131 -> 14`
+  - expected avg objective improvement is material even if only a subset
+    reproduces
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with the low-proc class rows improved and
+    runtime-risk row unchanged
+  - time-stress smoke shows no short-limit timeout and no long-limit breakage
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v044 and avg T improves
+- rollback criteria:
+  - reject if the low-proc class candidate overfires on rows that do not
+    improve under better-of-two, or if the extra phase pushes smoke/full
+    runtime near the official limit
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_2`, `prob_5`, `prob_9`, `prob_40`
+  - shorter/longer time-stress smoke on `prob_1`, `prob_6`, `prob_40`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - low; the class is cheap, and the improvement phase is feature-gated,
+    elapsed-time-gated, and better-of-two.
+
+## reboot_v045_20260617_1705_timeaware_lowproc_release_due
+
+- File: `reboot_v045_20260617_1705_timeaware_lowproc_release_due.py`
+- Parent: `reboot_v044_20260617_1625_timeaware_two_bay_selector`
+- Status: accepted BEST
+- Strategy:
+  - Keep trusted v044 as the fast feasible warm start.
+  - Detect a feature-based low-proc easy class:
+    - `bays in {2, 3}`
+    - `blocks <= 200`
+    - `proc_mean <= 8.0`
+    - `pref_pressure <= 0.55`
+    - `workload_imbalance_pressure <= 0.12`
+  - Use `timelimit` as a first-class input:
+    - very_short / short: greedy only
+    - standard+: one bounded `release_due` candidate only when remaining wall
+      time clears a dynamic reserve
+  - Keep the better feasible result under the official checker metrics.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v045_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v045_targets_20260617_001/`
+  - short-45 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v045_short45_20260617_001/`
+  - long-120 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v045_long120_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v045_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+  - short-45 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - short-limit-risk:
+      - `prob_6` lost the longer-budget improvement and reverted to the
+        weaker warm start
+      - runtime-risk `prob_40` degraded sharply:
+        `T 9542 -> 27030`, objective `6517538 -> 18188522`
+  - long-120 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - positive long-limit utilization on the target class:
+      - `prob_6`: `T 1131 -> 9`, objective `34053978 -> 756030`
+    - runtime-risk long-limit-utilization weakness remains:
+      - `prob_40`: `T 14736`, objective `9988549`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max `51.420705 -> 58.140434`
+  - avg T improved `1729.875 -> 1703.175`
+  - avg L improved `3241.475 -> 2980.175`
+  - avg P improved `4459.9 -> 4213.8`
+  - avg objective improved `18169754.2 -> 16300647.05`
+  - objective/T improved rows `9`
+  - objective/T regressions `5`:
+    - `prob_20`, `prob_31`, `prob_36`, `prob_38`, `prob_40`
+    - worst regression:
+      - `prob_38`: T `11316 -> 12840`,
+        objective `153690186 -> 174058808`
+  - strongest gains:
+    - `prob_1`: T `957 -> 11`, objective `28213016 -> 693901`
+    - `prob_2`: T `164 -> 0`, objective `5071714 -> 76910`
+    - `prob_5`: T `451 -> 0`, objective `7702074 -> 169685`
+    - `prob_6`: T `1131 -> 100`, objective `34053978 -> 3469217`
+    - `prob_7`: T `503 -> 0`, objective `9436227 -> 242600`
+    - `prob_9`: T `905 -> 456`, objective `12566025 -> 6362473`
+  - high-T rows at `60s`:
+    - `prob_38` T `12840`
+    - `prob_40` T `10188`
+    - `prob_27` T `5735`
+    - `prob_37` T `4040`
+    - `prob_33` T `3911`
+    - `prob_39` T `3563`
+    - `prob_32` T `3076`
+- Decision:
+  - accepted as new BEST.
+  - Rationale: despite five regressions and runtime-risk caution on `prob_40`,
+    aggregate T/L/P/objective all improved materially while preserving
+    `accepted_for_score=40/40`.
+- Rollback target: `reboot_v044_20260617_1625_timeaware_two_bay_selector.py`
+
+## Manual Loop Note 2026-06-17 18:35 KST
+
+- version_id: `reboot_v046_20260617_1835_runtime_sensitive_feature_guard`
+- parent_version: `reboot_v045_20260617_1705_timeaware_lowproc_release_due`
+- hypothesis:
+  - v045 keeps the low-proc class gains, but some runtime-sensitive rows still
+    drift because their accepted policies sit deep in the delegated stack and
+    only stabilize when the internal search reaches late-stage positions.
+  - A direct feature-based runtime-sensitive selector should recover those rows
+    earlier and more predictably:
+    - 4-bay concentrated-preference high-risk class
+    - 3-bay large high-proc runtime-sensitive class
+- targeted instances:
+  - likely class hits under current train40 evidence:
+    `prob_31`, `prob_36`, `prob_38`, `prob_40`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_31`, `prob_36`, `prob_38`, `prob_40`
+  - time-stress smoke:
+    shorter and longer timelimits on `prob_31`, `prob_38`, `prob_40`
+- feature selector:
+  - 4-bay concentrated-preference class:
+    - `bays == 4`
+    - `blocks >= 200`
+    - `pref_pressure >= 0.68`
+    - `workload_imbalance_pressure >= 0.70`
+    - runtime policy branch by `proc_mean` and `blocks`
+  - 3-bay high-proc runtime-sensitive class:
+    - `bays == 3`
+    - `blocks >= 240`
+    - `proc_mean >= 19.0`
+    - `0.45 <= pref_pressure <= 0.60`
+    - `workload_imbalance_pressure >= 0.35`
+- anytime behavior:
+  - very_short: keep the default v045 path
+  - short+: run one direct limited-concurrent candidate with tier-trimmed
+    `max_positions` and dynamic budget, then return immediately if feasible
+  - non-matching rows keep v045 unchanged
+- expected metric movement:
+  - recover v045 regressions on `prob_31`, `prob_36`, `prob_38`, `prob_40`
+  - preserve low-proc gains on `prob_1`~`prob_9`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with runtime-sensitive rows improved or restored
+  - short/long time-stress smoke accepted with no timeout/invalid rows
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v045 and avg T does not regress
+- rollback criteria:
+  - reject if the direct runtime-sensitive selector destabilizes the strong
+    low-proc class or worsens runtime-risk rows under short-limit stress
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_31`, `prob_36`, `prob_38`, `prob_40`
+  - shorter/longer time-stress smoke on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - medium; the new selector bypasses the delegated chain only on a narrow
+    high-risk feature class, but those rows sit close to the official limit.
+
+## reboot_v046_20260617_1835_runtime_sensitive_feature_guard
+
+- File: `reboot_v046_20260617_1835_runtime_sensitive_feature_guard.py`
+- Parent: `reboot_v045_20260617_1705_timeaware_lowproc_release_due`
+- Status: accepted BEST
+- Strategy:
+  - Keep trusted v045 as the default path so the low-proc class gains remain.
+  - For a narrow runtime-sensitive feature class, bypass the delegated chain
+    and run one direct limited-concurrent policy chosen from features plus
+    timelimit tier:
+    - 4-bay concentrated-preference high-risk class
+    - 3-bay large high-proc runtime-sensitive class
+  - Use trimmed short-tier `max_positions` and dynamic policy budgets so these
+    rows reach their accepted policy earlier and more predictably.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v046_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v046_targets_20260617_001/`
+  - short-45 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v046_short45_20260617_001/`
+  - long-120 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v046_long120_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v046_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+    - `prob_31` restored to T `2836`
+    - `prob_36` restored to T `2010`
+    - `prob_6` improved further to T `9`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+    - `prob_31`: objective `40956985`
+    - `prob_36`: objective `1499988`
+    - `prob_38`: objective `153690186`
+    - `prob_40`: objective `6517538`
+  - short-45 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - short-limit-risk remains:
+      - `prob_31`: T `3371`
+      - `prob_38`: T `15837`
+      - `prob_40`: T `10887`
+    - however this is still materially better than v045 short-limit collapse
+      on the runtime-sensitive class
+  - long-120 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - runtime-sensitive rows return to their strong standard-quality policy:
+      - `prob_31`: T `2836`
+      - `prob_38`: T `11316`
+      - `prob_40`: T `9542`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max improved `58.140434 -> 42.260872`
+  - avg runtime improved `28.64093025 -> 19.826025925`
+  - avg T improved `1703.175 -> 1614.675`
+  - avg L improved `2980.175 -> 2899.825`
+  - avg P improved `4213.8 -> 4187.975`
+  - avg objective improved `16300647.05 -> 15490451.675`
+  - objective/T improved rows `7`
+  - objective/T regressions `0`
+  - strongest recovered runtime-sensitive rows:
+    - `prob_38`: T `12840 -> 11316`,
+      objective `174058808 -> 153690186`
+    - `prob_31`: T `2940 -> 2836`,
+      objective `42343932 -> 40956985`
+    - `prob_36`: T `2698 -> 2010`,
+      objective `1958333 -> 1499988`
+    - `prob_40`: T `10188 -> 9542`,
+      objective `6948839 -> 6517538`
+  - additional gains:
+    - `prob_9`: T `456 -> 1`,
+      objective `6362473 -> 180488`
+    - `prob_6`: T `100 -> 9`,
+      objective `3469217 -> 756030`
+    - `prob_20`: T `315 -> 283`,
+      objective `9238791 -> 8371363`
+  - high-T rows at `60s`:
+    - `prob_38` T `11316`
+    - `prob_40` T `9542`
+    - `prob_27` T `5735`
+    - `prob_37` T `4040`
+    - `prob_33` T `3911`
+    - `prob_39` T `3563`
+    - `prob_32` T `3076`
+- Decision:
+  - accepted as new BEST.
+  - Rationale: the runtime-sensitive feature guard recovers the v045
+    regressions, preserves all low-proc gains, and improves aggregate
+    T/L/P/objective/runtime with zero regressions under the official train40
+    benchmark gate.
+- Rollback target: `reboot_v045_20260617_1705_timeaware_lowproc_release_due.py`
+
+## Manual Loop Note 2026-06-17 19:35 KST
+
+- version_id: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- parent_version: `reboot_v046_20260617_1835_runtime_sensitive_feature_guard`
+- hypothesis:
+  - v046 fixed the runtime-sensitive rows, but one narrow 3-bay subtype still
+    responds better to a direct `due_long_proc` policy than to the delegated
+    chain.
+  - The subtype is feature-based and currently matches `prob_28` and `prob_35`
+    exactly, with no false-positive matches in the current train40 feature
+    table.
+- targeted instances:
+  - expected class members:
+    `prob_28`, `prob_35`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_28`, `prob_35`, `prob_31`, `prob_40`
+  - time-stress smoke:
+    shorter and longer timelimits on `prob_28`, `prob_35`, `prob_40`
+- feature selector:
+  - `bays == 3`
+  - `150 <= blocks <= 200`
+  - `10.5 <= proc_mean <= 17.0`
+  - `0.55 <= pref_concentration <= 0.61`
+  - `45.0 <= pref_gap_mean <= 52.0`
+  - `0.52 <= pref_pressure <= 0.61`
+  - `0.40 <= workload_imbalance_pressure <= 0.50`
+- anytime behavior:
+  - very_short: keep v046 path
+  - short: keep v046 path to avoid the observed short-limit subtype collapse
+  - standard+: direct `due_long_proc` class policy with tiered
+    `max_positions` and dynamic budget cap `<= 36s`
+  - non-matching rows keep v046 unchanged
+- expected metric movement:
+  - `prob_28`: T `1506 -> 1310`, objective `21478323 -> 18836666`
+  - `prob_35`: T `1979 -> 1914`, objective `27329552 -> 26478047`
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted and class rows improve
+  - short/long time-stress accepted with no timeout/invalid rows
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v046
+- rollback criteria:
+  - reject if the narrow subtype rule unexpectedly catches other rows or if
+    short-limit stress on the class becomes unstable
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_28`, `prob_35`, `prob_31`, `prob_40`
+  - shorter/longer time-stress smoke on `prob_28`, `prob_35`, `prob_40`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - low to medium; the class rule is narrow and cheaper than the delegated
+    path, but short-limit class behavior still needs verification.
+
+## reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long
+
+- File: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long.py`
+- Parent: `reboot_v046_20260617_1835_runtime_sensitive_feature_guard`
+- Status: accepted BEST
+- Strategy:
+  - Keep trusted v046 as the default path so the runtime-sensitive recovery
+    and low-proc gains remain active everywhere else.
+  - For one feature-based 3-bay moderate-pressure subtype, bypass the
+    delegated chain and run one direct `due_long_proc` limited-concurrent
+    policy that reaches a stronger accepted row sooner.
+  - Gate the subtype rule off for `very_short` and `short` tiers; only allow
+    it from `standard` tier upward so the solver stays anytime-safe under
+    shorter hidden timelimits.
+- Validation:
+  - import smoke passed after active-pointer update
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v047_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v047_targets_20260617_001/`
+  - short-45 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v047_short45_20260617_002/`
+  - long-120 time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v047_long120_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v047_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `4/4`; timeout `0`, invalid `0`
+    - `prob_28`: objective `18836666`
+    - `prob_35`: objective `26478047`
+    - `prob_31`: objective `40956985`
+    - `prob_40`: objective `6517538`
+  - short-45 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - short-limit-risk still exists on the class:
+      - `prob_35`: T `2912`, objective `39803541`
+      - `prob_40`: T `11380`, objective `7746693`
+    - because of this, the class policy is disabled for `short` tier and the
+      trusted short-tier path remains v046
+  - long-120 time-stress accepted `3/3`; timeout `0`, invalid `0`
+    - subtype gains hold:
+      - `prob_28`: T `1310`, objective `18836666`
+      - `prob_35`: T `1914`, objective `26478047`
+      - `prob_40`: T `9542`, objective `6517538`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - avg runtime improved `19.826025925 -> 19.22734395`
+  - runtime max changed `42.260872 -> 42.391718`
+  - avg T improved `1614.675 -> 1608.15`
+  - avg L improved `2899.825 -> 2783.95`
+  - avg P changed `4187.975 -> 4191.725`
+  - avg objective improved `15490451.675 -> 15403122.625`
+  - objective/T improved rows `2`
+  - objective/T regressions `0`
+  - improved subtype rows:
+    - `prob_28`: T `1506 -> 1310`,
+      objective `21478323 -> 18836666`
+    - `prob_35`: T `1979 -> 1914`,
+      objective `27329552 -> 26478047`
+  - high-T rows at `60s`:
+    - `prob_38` T `11316`
+    - `prob_40` T `9542`
+    - `prob_27` T `5735`
+    - `prob_37` T `4040`
+    - `prob_33` T `3911`
+    - `prob_39` T `3563`
+    - `prob_32` T `3076`
+- Decision:
+  - accepted as new BEST.
+  - Rationale: the rule is narrow but feature-based, improves both members of
+    its subtype with no regressions on train40, and preserves anytime safety
+    by falling back to the trusted v046 path for short tiers.
+- Rollback target: `reboot_v046_20260617_1835_runtime_sensitive_feature_guard.py`
+
+## Manual Loop Note 2026-06-17 19:37 KST
+
+- version_id: `reboot_v048_20260617_1937_three_bay_diffuse_tardy_reinsert`
+- parent_version: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- hypothesis:
+  - The remaining large 3-bay diffuse-preference class still carries high T
+    under v047 even though its warm-start ordering already looks stable.
+  - A bounded tardy-block reinsertion pass should attack the residual T source
+    more directly than another order-strategy tweak.
+- targeted instances:
+  - expected class members:
+    `prob_32`, `prob_33`, `prob_37`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_32`, `prob_33`, `prob_37`
+  - optional stress subset:
+    shorter and longer timelimits on the diffuse class if smoke passes
+- feature selector:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `10.0 <= proc_mean <= 17.5`
+  - `pref_concentration <= 0.46`
+  - `pref_pressure <= 0.42`
+  - `workload_imbalance_pressure <= 0.25`
+  - `slack_mean <= 4.0`
+- anytime behavior:
+  - very_short/short: keep v047 path
+  - standard+: use v047 as warm start, then spend only leftover time on a
+    bounded tardy-block reinsertion pass
+  - return the repaired solution only if it is checker-feasible and strictly
+    better on `(T, objective, L, P)`
+- expected metric movement:
+  - reduce residual T on `prob_32`, `prob_33`, `prob_37`
+  - preserve v047 on the rest of train40
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with at least one class-row improvement
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v047
+- rollback criteria:
+  - reject if the repair phase causes time creep, class regressions, or no
+    measurable benefit under full train40
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_32`, `prob_33`, `prob_37`
+  - time-stress smoke on the diffuse class if targeted smoke is clean
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - medium; the repair is checker-gated and class-limited, but it adds extra
+    post-processing work on already expensive large 3-bay rows.
+
+## reboot_v048_20260617_1937_three_bay_diffuse_tardy_reinsert
+
+- File: `reboot_v048_20260617_1937_three_bay_diffuse_tardy_reinsert.py`
+- Parent: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- Status: rejected
+- Strategy:
+  - Keep trusted v047 as the warm start.
+  - For a large 3-bay diffuse-preference low/mid-proc class, spend leftover
+    time on bounded tardy-block empty-window reinsertion and keep the repaired
+    solution only if it is checker-feasible and strictly better.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v048_core8_20260617_002/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v048_targets_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `3/3`; timeout `0`, invalid `0`
+    - `prob_32`: unchanged at T `3076`, objective `13118978`
+    - `prob_33`: unchanged at T `3911`, objective `26895407`
+    - `prob_37`: unchanged at T `4040`, objective `18033244`
+  - repair checkpoints actually ran, but no checkpoint beat the warm start:
+    - `prob_32`: moved `2` unchanged; moved `4` regressed to
+      T `3110`, objective `13221875`
+    - `prob_33`: moved `2` unchanged; moved `4` regressed to
+      T `3960`, objective `27222090`
+    - `prob_37`: moved `2` regressed to
+      T `4070`, objective `18082382`; moved `4` regressed further to
+      T `4115`, objective `18232367`
+  - full train40 not run because the changed class showed no improvement under
+    targeted smoke
+- Decision:
+  - rejected.
+  - Rationale: the bounded tardy reinsertion is safe but ineffective on this
+    class. It consumes extra time yet never improves the warm start on its
+    targeted rows, so it does not justify a full benchmark or promotion.
+- Rollback target: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long.py`
+
+## Manual Loop Note 2026-06-17 19:55 KST
+
+- version_id: `reboot_v049_20260617_1955_three_bay_diffuse_greedy_research`
+- parent_version: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- hypothesis:
+  - The diffuse class does not need a different warm start so much as a
+    stronger bounded improvement operator.
+  - Empty-window shifts were too weak in v048, so this version re-searches a
+    few top tardy blocks with the full greedy placement kernel.
+- targeted instances:
+  - expected class members:
+    `prob_32`, `prob_33`, `prob_37`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_32`, `prob_33`, `prob_37`
+- anytime behavior:
+  - very_short/short: keep v047 path
+  - standard+: use v047 as warm start, then spend only leftover time on a
+    bounded greedy re-search of the top tardy subset
+  - return the researched solution only if it is checker-feasible and strictly
+    better on `(T, objective, L, P)`
+- expected metric movement:
+  - improve at least one of `prob_32`, `prob_33`, `prob_37`
+  - preserve v047 on smoke-8 and the rest of train40
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with at least one class-row improvement
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v047
+- rollback criteria:
+  - reject if the researched class does not improve under targeted smoke or if
+    runtime cost grows without score benefit
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_32`, `prob_33`, `prob_37`
+  - full train40 only if smoke gates pass
+- runtime risk:
+  - medium; the search is bounded and class-limited, but it revisits full
+    placement search on already expensive rows.
+
+## reboot_v049_20260617_1955_three_bay_diffuse_greedy_research
+
+- File: `reboot_v049_20260617_1955_three_bay_diffuse_greedy_research.py`
+- Parent: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- Status: rejected
+- Strategy:
+  - Keep trusted v047 as the warm start.
+  - For the large 3-bay diffuse class, remove a small tardy subset and
+    re-place it with the full greedy placement kernel.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v049_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v049_targets_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted only `2/3`; timeout `1`, invalid `1`
+    - `prob_32`: warm start kept unchanged at T `3076`, objective `13118978`
+    - `prob_33`: warm start kept unchanged at T `3911`, objective `26895407`,
+      but runtime rose to `62.163876s` and crossed the official limit
+    - `prob_37`: warm start kept unchanged at T `4040`, objective `18033244`
+  - internal researched candidates were not useful:
+    - `prob_32`: moved `2` candidate infeasible, warm start restored
+    - `prob_33`: moved `2` candidate infeasible, warm start restored
+    - `prob_37`: moved `2` candidate infeasible, warm start restored
+  - full train40 not run because targeted smoke failed the time-limit gate
+- Decision:
+  - rejected.
+  - Rationale: the full greedy re-search is stronger than v048 in theory, but
+    on this class it only adds overhead. The researched candidates were
+    infeasible, and the fallback overhead alone was enough to cause a timeout
+    on `prob_33`.
+- Rollback target: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long.py`
+
+## Manual Loop Note 2026-06-17 20:15 KST
+
+- version_id: `reboot_v050_20260617_2015_prob38like_release_aware`
+- parent_version: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- hypothesis:
+  - The worst residual-T row still looks structurally distinct even under the
+    v047 runtime-sensitive guard.
+  - A release-aware direct policy may outperform the current due-long rule on
+    that narrow class without changing any other row.
+- targeted instances:
+  - expected class members:
+    `prob_38`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_38`, `prob_40`
+  - optional time-stress:
+    shorter and longer timelimits on `prob_38`
+- feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+- anytime behavior:
+  - very_short/short: keep v047 path
+  - standard+: replace only the prob38-like class with one direct
+    `due_release_proc` build using dynamic budget and tiered position depth
+- expected metric movement:
+  - improve `prob_38` versus v047
+  - keep `prob_40` and the smoke-8 rows unchanged
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_38` improved and `prob_40` non-regressed
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v047
+- rollback criteria:
+  - reject if `prob_38` fails to improve, if runtime drifts toward timeout, or
+    if `prob_40` or smoke-8 change unexpectedly
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the targeted row already uses most of the standard-tier budget.
+
+## reboot_v050_20260617_2015_prob38like_release_aware
+
+- File: `reboot_v050_20260617_2015_prob38like_release_aware.py`
+- Parent: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long`
+- Status: accepted BEST
+- Strategy:
+  - Keep trusted v047 behavior for every row except one narrow prob38-like
+    high-proc 3-bay class.
+  - For that class, switch from the inherited due-long direct policy to a
+    release-aware direct policy with dynamic budget and tiered position depth.
+- Validation:
+  - import smoke passed before and after active-pointer update
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v050_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v050_targets_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v050_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `2/2`; timeout `0`, invalid `0`
+    - `prob_38`: T `11316 -> 11212`,
+      objective `153690186 -> 152453868`
+    - `prob_40`: held at T `9542`, objective `6517538`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - avg runtime improved `19.22734395 -> 19.071262425`
+  - runtime max improved `42.391718 -> 42.293924`
+  - avg T improved `1608.15 -> 1605.55`
+  - avg L improved `2783.95 -> 2679.125`
+  - avg P changed `4191.725 -> 4204.95`
+  - avg objective improved `15403122.625 -> 15372214.675`
+  - improved rows `1`
+  - objective/T regressions `0`
+  - high-T rows at `60s`:
+    - `prob_38` T `11212`
+    - `prob_40` T `9542`
+    - `prob_27` T `5735`
+    - `prob_37` T `4040`
+    - `prob_33` T `3911`
+    - `prob_39` T `3563`
+    - `prob_32` T `3076`
+- Decision:
+  - accepted as new BEST.
+  - Rationale: the rule improves the top residual-T contributor under the
+    official 40-row benchmark with no regressions and slightly better average
+    runtime, while preserving full acceptance.
+- Rollback target: `reboot_v047_20260617_1935_three_bay_moderate_pressure_due_long.py`
+
+## Manual Loop Note 2026-06-17 20:35 KST
+
+- version_id: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- parent_version: `reboot_v050_20260617_2015_prob38like_release_aware`
+- hypothesis:
+  - The current prob31-like policy is stable but still leaves a small tardiness
+    tail that may respond to a slightly deeper preference-aware scan.
+  - Because the new selector is feature-exact, it should not affect the new
+    prob38-like rule or the prob40 runtime-sensitive row.
+- targeted instances:
+  - expected class members:
+    `prob_31`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_31`, `prob_38`, `prob_40`
+- feature selector:
+  - `bays == 4`
+  - `190 <= blocks <= 210`
+  - `20.0 <= proc_mean <= 22.5`
+  - `0.75 <= pref_concentration <= 0.82`
+  - `0.70 <= pref_pressure <= 0.75`
+  - `0.74 <= workload_imbalance_pressure <= 0.82`
+- anytime behavior:
+  - very_short/short: keep v050 path
+  - standard+: replace only the prob31-like class with one deeper
+    `preference_spread` direct build
+- expected metric movement:
+  - improve `prob_31`
+  - keep `prob_38` and `prob_40` unchanged
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with `prob_31` improved and `prob_38`/`prob_40`
+    non-regressed
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v050
+- rollback criteria:
+  - reject if `prob_31` fails to improve, runtime drifts over the limit, or
+    `prob_38` / `prob_40` move unexpectedly
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the deeper scan already lives near the standard-tier time limit.
+
+## reboot_v051_20260617_2035_prob31like_deeper_preference
+
+- File: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`
+- Parent: `reboot_v050_20260617_2015_prob38like_release_aware`
+- Status: accepted BEST
+- Strategy:
+  - Keep trusted v050 behavior for every row except one narrow prob31-like
+    4-bay concentrated high-proc class.
+  - For that class, deepen the accepted `preference_spread` direct policy with
+    a slightly wider position scan under the same dynamic anytime budget rules.
+- Validation:
+  - import smoke passed before and after active-pointer update
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v051_core8_20260617_001/`
+  - targeted subset path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v051_targets_20260617_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v051_train40_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - targeted subset accepted `3/3`; timeout `0`, invalid `0`
+    - `prob_31`: T `2836 -> 2825`,
+      objective `40956985 -> 40671512`
+    - `prob_38`: held at T `11212`, objective `152453868`
+    - `prob_40`: held at T `9542`, objective `6517538`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - avg runtime changed `19.071262425 -> 19.300749275`
+  - runtime max changed `42.293924 -> 42.410634`
+  - avg T improved `1605.55 -> 1605.275`
+  - avg L changed `2679.125 -> 2772.825`
+  - avg P improved `4204.95 -> 4190.9`
+  - avg objective improved `15372214.675 -> 15365077.85`
+  - improved rows `1`
+  - objective regressions `0`
+  - T regressions `0`
+  - high-T rows at `60s`:
+    - `prob_38` T `11212`
+    - `prob_40` T `9542`
+    - `prob_27` T `5735`
+    - `prob_37` T `4040`
+    - `prob_33` T `3911`
+    - `prob_39` T `3563`
+    - `prob_32` T `3076`
+- Decision:
+  - accepted as new BEST.
+  - Rationale: the rule improves the targeted residual-T row under the official
+    40-row benchmark, preserves `accepted_for_score=40/40`, and introduces no
+    T or objective regressions versus v050.
+- Rollback target: `reboot_v050_20260617_2015_prob38like_release_aware.py`
+
+## Manual Loop Note 2026-06-17 21:35 KST
+
+- version_id: `reboot_v052_20260617_2135_three_bay_lowproc_tardy_reinsert`
+- parent_version: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- hypothesis:
+  - The remaining low/mid-proc 3-bay rows appear plateaued under order-only
+    tweaks.
+  - A warm-start-aware empty-window reinsertion of only the worst tardy block
+    may reduce the residual tail without paying for a full second build.
+- targeted instances:
+  - expected class members:
+    `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - runtime-risk guards:
+    `prob_38`, `prob_40`
+- feature selector:
+  - `bays == 3`
+  - `190 <= blocks <= 260`
+  - `proc_mean <= 17.5`
+  - `0.35 <= pref_pressure <= 0.55`
+  - `0.02 <= workload_imbalance_pressure <= 0.45`
+- anytime behavior:
+  - very_short/short: keep v051 path
+  - standard+: keep v051 warm start and try only one bounded tardy reinsertion
+    when enough wall time remains
+- expected metric movement:
+  - improve at least one of `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - keep smoke-8 and runtime-risk rows unchanged
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subset accepted with at least one improvement and no timeout row
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v051
+- rollback criteria:
+  - reject if the reinsertion path times out, changes runtime-risk rows, or
+    fails to improve the targeted subset
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subset benchmark on `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the warm start is already expensive on the targeted class, so the
+    reinsertion phase is capped to one block on standard training limits.
+
+## reboot_v052_20260617_2135_three_bay_lowproc_tardy_reinsert
+
+- File: `reboot_v052_20260617_2135_three_bay_lowproc_tardy_reinsert.py`
+- Parent: `reboot_v051_20260617_2035_prob31like_deeper_preference`
+- Status: rejected
+- Strategy:
+  - Keep trusted v051 as the warm start.
+  - On a low/mid-proc 3-bay moderate-pressure class, try one bounded
+    empty-window reinsertion of the worst tardy block and keep it only if the
+    official checker confirms an improvement.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v052_core8_20260617_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - comparative smoke gate failed on `prob_31`:
+    - trusted v051 smoke: T `2825`, objective `40671512`
+    - v052 smoke: T `4254`, objective `59699493`
+    - runtime also increased `42.240692s -> 45.79387s`
+  - `prob_36` held unchanged:
+    - T `2010`
+    - objective `1499988`
+  - targeted subset and full train40 were not run because the mandatory
+    smoke-8 comparative gate already showed a severe regression.
+- Decision:
+  - rejected.
+  - Rationale: the candidate did not even reach its own tardy-reinsert path on
+    the smoke rows, and the inherited warm-start chain reproduced a much worse
+    `prob_31` result than the trusted v051 evidence. That makes the candidate
+    untrustworthy for further promotion.
+- Rollback target: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`
