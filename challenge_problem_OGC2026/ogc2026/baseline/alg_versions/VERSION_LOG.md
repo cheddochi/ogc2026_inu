@@ -8509,3 +8509,426 @@
     cleaner than a blind rejection because it preserves the recovered row and
     helps under `45s`, but without a `60s` target-row win it should not advance
     to full train40 or replace the current active wrapper.
+
+## reboot_v112_20260619_2245_prob31like_displaced_early_reinsert_on_v111
+
+- File:
+  `reboot_v112_20260619_2245_prob31like_displaced_early_reinsert_on_v111.py`
+- Parent:
+  `reboot_v111_20260619_2130_prob31like_stable_direct_cap_on_v109`
+- Status:
+  - pending
+- Hypothesis:
+  the prob31-like subtype is still leaving one small but real T tail after the
+  `v111` stable direct builder plus the accepted `v067/v074/v085` repair chain.
+  The current dense-family reinsertion stack only rechecks blocks at or after
+  their existing entry time, so it misses displaced tardy blocks that need an
+  earlier re-entry on a more preferred bay. A tiny post-`v111` displaced-block
+  reinsertion phase should target only those blocks with high preference
+  penalty, high tardiness, and large entry delay, then allow earlier-than-
+  current re-entry under a strict budget.
+- Feature selector:
+  - outer subtype:
+    reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - inner target shortlist:
+    tardy blocks from the current solution with
+    `pref_penalty >= 75`, `tardiness >= 30`, and `entry_delay >= 35`,
+    ranked by `(entry_delay, tardiness, pref_penalty)`
+- Timelimit policy:
+  - keep `v111` unchanged outside the prob31-like subtype
+  - run the new displaced-block phase only in `standard` or longer tiers and
+    only when enough wall-time remains after the existing `v111` chain
+- Identity-dependent logic:
+  - none; subtype detection and target selection use only `prob_info`,
+    current-solution assignments, and `timelimit`
+- Pre-implementation probe evidence:
+  - base current-source row from saved `v111` smoke solution:
+    `40328756 / T=2792`
+  - relaxed one-block reinsertion probe on the top tardy-10 list:
+    block `31` improved the row to `40115695 / T=2776`
+  - narrowed displaced shortlist probe:
+    target ids `[90, 31, 51]` with bounded search
+    (`max_positions=6`, `max_orients=3`) still recovered
+    `40115695 / T=2776` in about `1.53s`
+- Validation plan:
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted sibling guards:
+    `prob_31`, `prob_36`, `prob_40`
+  - time-stress:
+    `prob_31 @ 45s`
+  - full train40 only if all gates remain scoreable and the prob31-like row
+    strictly beats `v111`
+- Validation status:
+  - completed
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v112_tier9_20260619_001/`
+- Smoke result:
+  - accepted_for_score `8/9`
+  - timeout `1`
+  - invalid `0`
+  - headline row:
+    - `prob_31`: objective `40115695`, T `2776`, runtime `60.389299s`
+    - checker feasible `true`, but not scoreable because runtime exceeded the
+      official `60s` limit
+  - other representative rows remained scoreable, including:
+    - `prob_40`: objective `5910122`, T `8622`, runtime `55.098690s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `36.989812s`
+- Hidden-risk note:
+  - high
+  - the displaced-block phase does find a real T/objective win on the target
+    row, but the current form spends too much extra time on `prob_31` and
+    breaks the accepted_for_score contract at the smoke gate
+- decision:
+  - rejected
+  - rationale:
+    `v112` proves the earlier-entry displaced-block idea is directionally
+    correct, but the current implementation is too expensive to keep. Because
+    `prob_31` timed out in representative smoke, this version cannot advance
+    to targeted guards or full train40.
+
+## reboot_v113_20260619_2335_prob31like_displaced_early_reinsert_lite_on_v111
+
+- File:
+  `reboot_v113_20260619_2335_prob31like_displaced_early_reinsert_lite_on_v111.py`
+- Parent:
+  `reboot_v111_20260619_2130_prob31like_stable_direct_cap_on_v109`
+- Status:
+  - pending
+- Hypothesis:
+  `v112` showed that the prob31-like row can beat `v111` if we allow an
+  earlier-entry reinsertion on a tiny displaced-block shortlist, but it also
+  showed that the three-candidate portfolio is a little too expensive at the
+  official `60s` boundary. Restricting the same idea to an even smaller
+  shortlist and stopping as soon as the first strict improvement is found
+  should preserve the `40115695 / T=2776` signal while restoring smoke
+  scoreability.
+- Feature selector:
+  - outer subtype:
+    reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - inner target shortlist:
+    same displaced-block gate as `v112`:
+    `pref_penalty >= 75`, `tardiness >= 30`, `entry_delay >= 35`
+  - narrowed portfolio:
+    only the top `2` candidates in `standard`, then stop on the first strict
+    improvement
+- Timelimit policy:
+  - keep `v111` unchanged outside the prob31-like subtype
+  - keep the lite displaced-block phase only in `standard` or longer tiers and
+    under a tighter wall-time budget than `v112`
+- Identity-dependent logic:
+  - none; selector and stop rule use only `prob_info`, current assignments, and
+    elapsed wall time
+- Pre-implementation probe evidence:
+  - saved-solution probe on the `v111` prob31 row:
+    the top displaced shortlist `[90, 31, 51]` improved at candidate `31`
+  - a narrowed top-2 replay still includes `31` and should therefore preserve
+    the target-row win while skipping the third candidate that added cost only
+- Validation plan:
+  - quick target sanity:
+    `prob_31`
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted sibling guards:
+    `prob_31`, `prob_36`, `prob_40`
+  - time-stress:
+    `prob_31 @ 45s`
+  - full train40 only if all gates remain scoreable and the prob31-like row
+    still strictly beats `v111`
+- Validation status:
+  - completed
+- Target sanity path:
+  `reports/ogc2026_reboot_v001/target_reboot_v113_prob31_20260619_001/`
+- Target sanity result:
+  - accepted_for_score `0/1`
+  - timeout `1`
+  - invalid `0`
+  - `prob_31`: objective `40328756`, T `2792`, runtime `60.077600s`
+  - no displaced-block phase was reached in the log because the inherited
+    prob31-like `v111` chain already consumed essentially the full official
+    limit on this rerun
+- Hidden-risk note:
+  - high
+  - the lighter displaced-block idea is no longer the limiting factor; the
+    current-source prob31-like parent itself is now timing out on rerun
+- decision:
+  - rejected
+  - rationale:
+    `v113` cannot be scoreable because its `v111` parent path already lands on
+    the official runtime cliff for `prob_31`. The next cycle should therefore
+    pivot from deeper T-improvement to prob31-like runtime re-stabilization.
+
+## reboot_v114_20260619_2358_prob31like_direct_prefix2_stable_on_v109
+
+- File:
+  `reboot_v114_20260619_2358_prob31like_direct_prefix2_stable_on_v109.py`
+- Parent:
+  `reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108`
+- Status:
+  - pending
+- Hypothesis:
+  the current-source prob31-like runtime cliff is mostly caused by the
+  inherited multi-stage repair chain, especially the generic `v067` path that
+  spends time probing a one-block prefix before the useful two-block rebuild.
+  A subtype-specific direct plan that keeps the stable capped preference-spread
+  base from `v111`, then jumps immediately to the top-2 tardy prefix rebuild
+  and skips the later polish-only `v074/v085` phases, should recover the
+  `40349837 / T=2792` row far earlier and restore scoreability.
+- Feature selector:
+  - outer subtype:
+    reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - inner move:
+    current warm-start tardy shortlist from
+    `v064._tardy_block_ids(assignments, limit=2)` and one direct
+    `prefix_len=2` rebuild
+- Timelimit policy:
+  - keep `v109` unchanged outside the prob31-like subtype
+  - only activate the direct prefix-2 stabilization when `timelimit >= 55s`
+  - below that, fall back to the current shorter-limit parent path
+- Identity-dependent logic:
+  - none; selector and move use only `prob_info`, current assignments, and
+    `timelimit`
+- Pre-implementation probe evidence:
+  - current-source step timing on `prob_31`:
+    - stable capped base: about `41.36s`
+    - `v067` generic tardy research: about `14.61s`
+    - `v074` fast reinsert: about `0.81s`
+    - `v085` extended reinsert: about `1.53s`
+    - total chained runtime: about `58.30s`
+  - direct prefix-2 replay from the same capped base:
+    - tardy ids `[88, 188]`
+    - runtime about `8.12s`
+    - row `40956985 / T=2836 -> 40349837 / T=2792`
+    - total runtime about `43.43s`
+- Validation plan:
+  - quick target sanity:
+    `prob_31`
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted sibling guards:
+    `prob_31`, `prob_36`, `prob_40`
+  - time-stress:
+    `prob_31 @ 45s`
+  - full train40 only if all gates remain scoreable
+- Validation status:
+  - completed
+- Target sanity path:
+  `reports/ogc2026_reboot_v001/target_reboot_v114_prob31_20260619_001/`
+- Target sanity result:
+  - accepted_for_score `1/1`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31`: objective `40349837`, T `2792`, runtime `47.782863s`
+- Representative smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v114_tier9_20260619_001/`
+- Representative smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_31`: objective `40349837`, T `2792`, runtime `42.783250s`
+    - `prob_40`: objective `5910122`, T `8622`, runtime `43.627978s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `30.445228s`
+- Targeted sibling guard path:
+  `reports/ogc2026_reboot_v001/compare_v109_v114_prob31_prob36_prob40_20260619_001/`
+- Targeted sibling guard result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid `0`
+  - official-limit target row:
+    - `prob_31`:
+      - `v109`: objective `40328756`, T `2792`, runtime `49.836881s`
+      - `v114`: objective `40349837`, T `2792`, runtime `42.886445s`
+  - same-family sibling guards:
+    - `prob_36`: objective held exactly at `1499988`
+    - `prob_40`: objective held exactly at `5910122`
+- Official-limit repeatability path:
+  `reports/ogc2026_reboot_v001/compare_v109_v114_prob31_rerun_20260620_001/`
+- Official-limit repeatability result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31` rerun:
+    - `v109`: objective `40328756`, T `2792`, runtime `49.146342s`
+    - `v114`: objective `40349837`, T `2792`, runtime `42.552895s`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_v109_v114_prob31_short45_20260619_001/`
+- Time-stress result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31 @ 45s`:
+    - `v109`: objective `45309349`, runtime `36.744207s`
+    - `v114`: objective `40956985`, runtime `38.900659s`
+  - interpretation:
+    the runtime-stable prefix-2 branch gives up a small amount of official-limit
+    objective versus the current `v109` rerun, but it materially improves the
+    shorter-limit row while keeping the official-limit T exactly unchanged.
+- Full benchmark status:
+  - not run
+  - reason:
+    the official-limit target row is still a small objective regression versus
+    the current `v109` rerun, so the plateau/T-zero-first gate does not justify
+    a fresh full train40 run yet.
+- Hidden-risk note:
+  - manageable
+  - `v114` is consistently faster than the current `v109` reruns on the
+    prob31-like subtype and stays scoreable, but it does not create an
+    official-limit T breakthrough and slightly regresses objective on the
+    target row.
+- decision:
+  - candidate
+  - rationale:
+    keep `v114` as a runtime-stable prob31-like parent candidate. It is not an
+    accepted BEST candidate because the official-limit target row regresses a
+    little on objective, but it looks like a much better base for any next
+    T-moving prob31-like follow-up than the heavier `v111` chain.
+
+## reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114
+
+- File:
+  `reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114.py`
+- Parent:
+  `reboot_v114_20260619_2358_prob31like_direct_prefix2_stable_on_v109`
+- Status:
+  - pending
+- Hypothesis:
+  the `v114` prob31-like parent already restores a scoreable `T=2792` row with
+  enough runtime margin left that one more tightly bounded displaced-block
+  earlier-entry move can be added back safely. On the `v114` parent solution,
+  the best displaced candidate remains block `31`, and it improves the row to
+  `40137295 / T=2776` in well under one second. Replaying that exact idea on a
+  tiny displaced shortlist should deliver the first real prob31-like T
+  breakthrough on top of the new runtime-stable parent.
+- Feature selector:
+  - outer subtype:
+    reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - parent:
+    reuse `v114` unchanged
+  - inner displaced shortlist:
+    tardy blocks on the `v114` parent solution with
+    `pref_penalty >= 75`, `tardiness >= 25`, `entry_delay >= 30`,
+    ranked by `(entry_delay, tardiness, pref_penalty)`
+- Timelimit policy:
+  - keep `v114` unchanged outside the prob31-like subtype
+  - only run the displaced follow-up when `timelimit >= 55s` and enough
+    remaining wall time is still available after the `v114` parent
+- Identity-dependent logic:
+  - none; selector and shortlist use only `prob_info`, current assignments, and
+    `timelimit`
+- Pre-implementation probe evidence:
+  - parent `v114` on `prob_31`:
+    `40349837 / T 2792`
+  - displaced shortlist on top of the `v114` parent:
+    `[(90 ...), (31 ...), (66 ...), ...]`
+  - candidate `31` replay:
+    `40137295 / T 2776`
+    with about `0.38s` extra local-search cost
+- Validation plan:
+  - quick target sanity:
+    `prob_31`
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted sibling guards:
+    `prob_31`, `prob_36`, `prob_40`
+  - time-stress:
+    `prob_31 @ 45s`
+  - full train40 only if all gates remain scoreable and the official-limit
+    target row still beats `v114`
+- Validation status:
+  - completed
+- Target sanity path:
+  `reports/ogc2026_reboot_v001/target_reboot_v115_prob31_20260620_001/`
+- Target sanity result:
+  - accepted_for_score `1/1`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31`: objective `40137295`, T `2776`, runtime `50.343847s`
+- Representative smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v115_tier9_20260620_001/`
+- Representative smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_31`: objective `40137295`, T `2776`, runtime `44.21s`
+    - `prob_40`: objective `5910122`, T `8622`, runtime `45.08s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `30.81s`
+- Targeted sibling guard path:
+  `reports/ogc2026_reboot_v001/compare_v109_v115_prob31_prob36_prob40_20260620_001/`
+- Targeted sibling guard result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid `0`
+  - target row:
+    - `prob_31`:
+      - `v109`: objective `40328756`, T `2792`, runtime `49.71s`
+      - `v115`: objective `40137295`, T `2776`, runtime `44.91s`
+  - sibling guards:
+    - `prob_36`: objective held exactly at `1499988`
+    - `prob_40`: objective held exactly at `5910122`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_v109_v115_prob31_short45_20260620_001/`
+- Time-stress result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31 @ 45s`:
+    - `v109`: objective `67601421`, runtime `36.621772s`
+    - `v115`: objective `45309349`, runtime `36.787646s`
+  - interpretation:
+    the displaced follow-up keeps the shorter-limit row scoreable and preserves
+    the same current-source 45s behavior that the lighter `v114` parent had
+    already restored, while still leaving a strong official-limit target-row
+    gain in place.
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v115_train40_20260620_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - runtime max `58.029289s`
+  - avg T `1545.1`
+  - avg L `2616.85`
+  - avg P `4189.15`
+  - avg objective `15106365.725`
+- Per-instance comparison summary:
+  - versus current-source `v109`:
+    - changed rows: `1`
+    - improvements: `1`
+    - regressions: `0`
+    - improved row:
+      - `prob_31`: objective `40328756 -> 40137295`,
+        T `2792 -> 2776`,
+        L `2483 -> 2207`,
+        P `12146 -> 12231`,
+        runtime `49.71s -> 44.91s`
+  - versus historical trusted `v096`:
+    - changed rows: `4`
+    - improvements:
+      - `prob_40`: objective `6333528 -> 5910122`, T `9268 -> 8622`
+      - `prob_3`: objective `213297 -> 188500`, T `1 -> 0`
+    - regressions:
+      - `prob_37`: objective `17454197 -> 17949088`, T `3961 -> 4040`
+      - `prob_31`: objective `39781302 -> 40137295`, T `2751 -> 2776`
+- Hidden-risk note:
+  - manageable
+  - `v115` is the first current-source branch after the v096 drift cycle that
+    both keeps `40/40` scoreability and creates a real official-limit T
+    improvement on the prob31-like subtype. The remaining score gap to the
+    historical trusted `v096` checkpoint is now concentrated mainly in the
+    still-unrecovered `prob_37` and residual `prob_31` rows.
+- decision:
+  - candidate
+- rationale:
+  - `v115` becomes the leading current-source recovery candidate. It is clean,
+    scoreable, and strictly improves the full-train40 averages versus `v109`
+    by moving only the intended prob31-like row. It is not promoted to trusted
+    accepted BEST because the historical trusted `v096` checkpoint still has
+    the better avg objective (`15096298.7` vs `15106365.725`), so
+    `baseline_hh.py` must remain a recovery surface only until that historical
+    objective gap is closed by a current-source `40/40` line.

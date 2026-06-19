@@ -1,0 +1,2 @@
+instance,blocks,bays,objective,T,L,P,runtime_sec,checker_feasible,timed_out,valid_under_time_limit,accepted_for_score,error_message,algorithm_version,report_path,solution_file
+prob_31.json,200,4,40137295.0,2776.0,1753,11684.0,50.343847,true,false,true,true,,reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114,reports\ogc2026_reboot_v001\target_reboot_v115_prob31_20260620_001\report.html,reports\ogc2026_reboot_v001\target_reboot_v115_prob31_20260620_001\solutions\v115__reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114\prob_31.solution.json

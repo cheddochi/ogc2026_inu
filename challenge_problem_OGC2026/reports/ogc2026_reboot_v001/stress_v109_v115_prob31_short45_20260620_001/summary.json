@@ -1,0 +1,37 @@
+{
+  "run_id": "stress_v109_v115_prob31_short45_20260620_001",
+  "timestamp": "2026-06-19T23:03:59",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 112910770.0,
+    "objective_avg": 56455385.0,
+    "obj1_sum": 8005.0,
+    "obj1_avg": 4002.5,
+    "obj1_max": 4842.0,
+    "obj2_avg": 3803.0,
+    "obj3_avg": 11530.5,
+    "runtime_sum": 73.409418,
+    "runtime_avg": 36.704709,
+    "runtime_max": 36.787646
+  },
+  "algorithms": [
+    {
+      "name": "v109",
+      "version": "reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108.py"
+    },
+    {
+      "name": "v115",
+      "version": "reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json"
+  ]
+}
