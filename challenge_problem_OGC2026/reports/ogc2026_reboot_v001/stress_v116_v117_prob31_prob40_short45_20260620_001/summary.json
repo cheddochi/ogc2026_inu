@@ -1,0 +1,38 @@
+{
+  "run_id": "stress_v116_v117_prob31_prob40_short45_20260620_001",
+  "timestamp": "2026-06-20T00:33:51",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 94154348.0,
+    "objective_avg": 23538587.0,
+    "obj1_sum": 23548.0,
+    "obj1_avg": 5887.0,
+    "obj1_max": 9228.0,
+    "obj2_avg": 3136.75,
+    "obj3_avg": 11805.25,
+    "runtime_sum": 165.600524,
+    "runtime_avg": 41.400131,
+    "runtime_max": 43.740142
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v116",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v116_20260619_2339_prob37like_early_chain_on_v115.py"
+    },
+    {
+      "name": "hh",
+      "version": "reboot_v117",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_40.json"
+  ]
+}

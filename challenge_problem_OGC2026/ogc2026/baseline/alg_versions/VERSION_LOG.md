@@ -8932,3 +8932,296 @@
     the better avg objective (`15096298.7` vs `15106365.725`), so
     `baseline_hh.py` must remain a recovery surface only until that historical
     objective gap is closed by a current-source `40/40` line.
+
+## reboot_v116_20260619_2339_prob37like_early_chain_on_v115
+- File:
+  `reboot_v116_20260619_2339_prob37like_early_chain_on_v115.py`
+- Parent:
+  `reboot_v115_20260620_0032_prob31like_displaced_fast_on_v114`
+- Status:
+  - candidate
+- Hypothesis:
+  - The remaining historical-v096 objective gap is now concentrated mainly in
+    the prob37-like diffuse low-proc subtype. Current-source log replay showed
+    that the useful T breakthrough on that subtype happened early in the old
+    chain: `v060` direct `release_due` followed by the cheap `v065`
+    single-block diffuse re-search. The later inherited phases were what
+    starved the branch, not the early move itself.
+  - Replacing the prob37-like path inside the current-scoreable `v115` parent
+    with only that early chain should keep the runtime stable while restoring a
+    lower-T/lower-objective row on the targeted subtype.
+- Feature / subtype / timelimit selector:
+  - reuse `v100._matches_prob37like_runtime_class(prob_info)`
+  - require `timelimit >= 55s`
+  - run only on `standard/long/very_long`
+- Identity-dependent logic:
+  - none; selector is feature-based only
+- Smoke-8 path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v116_tier9_20260619_001/`
+- Smoke-8 result:
+  - accepted_for_score `8/8`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_31`: objective `40137295`, T `2776`, runtime `53.20s`
+    - `prob_36`: objective `1499988`, T `0`, runtime `50.92s`
+    - `prob_11`: objective `17206722`, T `2311`, runtime `10.57s`
+- Targeted sibling guard path:
+  `reports/ogc2026_reboot_v001/compare_v115_v116_prob33_prob35_prob37_prob39_20260619_001/`
+- Targeted sibling guard result:
+  - accepted_for_score `8/8`
+  - timeout `0`
+  - invalid `0`
+  - changed target row:
+    - `prob_37`:
+      - `v115`: objective `17949088`, T `4040`, L `1192`, P `7465`,
+        runtime `45.32s`
+      - `v116`: objective `17644653`, T `3961`, L `3660`, P `7380`,
+        runtime `49.71s`
+  - unchanged guards:
+    - `prob_33`: objective held exactly at `26172225`
+    - `prob_35`: objective held exactly at `22037108`
+    - `prob_39`: objective held exactly at `48160369`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_v115_v116_prob37_prob39_short45_20260619_001/`
+- Time-stress result:
+  - accepted_for_score `4/4`
+  - timeout `0`
+  - invalid `0`
+  - `45s` guard behavior:
+    - `prob_37`: `v115` and `v116` both held at objective `17949088`
+    - `prob_39`: `v115` and `v116` both held at objective `48598605`
+  - interpretation:
+    the `timelimit >= 55s` gate cleanly disables the new branch on shorter
+    limits, so the runtime-stable recovery does not perturb the short-limit
+    behavior.
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v116_train40_20260619_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - runtime max `59.313323s`
+  - avg T `1543.125`
+  - avg L `2678.55`
+  - avg P `4187.025`
+  - avg objective `15098754.85`
+- Per-instance comparison summary:
+  - versus current-source `v115`:
+    - changed rows: `1`
+    - improvements: `1`
+    - regressions: `0`
+    - improved row:
+      - `prob_37`: objective `17949088 -> 17644653`,
+        T `4040 -> 3961`,
+        L `1192 -> 3660`,
+        P `7465 -> 7380`,
+        runtime `37.95s -> 48.88s`
+    - average deltas:
+      - avg objective `-7610.875`
+      - avg T `-1.975`
+      - avg L `+61.7`
+      - avg P `-2.125`
+  - versus historical trusted `v096`:
+    - changed rows: `4`
+    - improvements:
+      - `prob_40`: objective `6333528 -> 5910122`, T `9268 -> 8622`
+      - `prob_3`: objective `213297 -> 188500`, T `1 -> 0`
+    - regressions:
+      - `prob_31`: objective `39781302 -> 40137295`, T `2751 -> 2776`
+      - `prob_37`: objective `17454197 -> 17644653`, T `3961 -> 3961`
+    - average deltas:
+      - avg objective `+2456.15`
+      - avg T `-15.55`
+      - avg L `-40.225`
+      - avg P `+26.45`
+- Hidden-risk note:
+  - manageable
+  - The runtime ceiling stayed below the official limit and the new branch
+    changed only the intended prob37-like row on the full train40 run. The
+    remaining historical-best gap is now much narrower, but it still exists on
+    the paired `prob_31`/`prob_37` rows.
+- decision:
+  - candidate
+- rationale:
+  - `v116` is now the leading current-source recovery candidate. It preserved
+    the full `40/40` scoreable contract, improved avg objective and avg T
+    versus `v115`, and recovered most of the prob37-like loss with a clean
+    feature-based branch. It is not promoted to trusted accepted BEST because
+    the historical trusted `v096` evidence still has the better avg objective
+    (`15096298.7` vs `15098754.85`), even though `v116` is now much closer and
+    already beats `v096` on avg T and avg L.
+
+## reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116
+- File:
+  `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116.py`
+- Parent:
+  `reboot_v116_20260619_2339_prob37like_early_chain_on_v115`
+- Status:
+  - accepted
+- Hypothesis:
+  - After `v116`, the remaining historical-v096 gap is concentrated mainly in
+    the prob31-like subtype. Historical `v096` prob31 logs show that the real
+    T breakthrough was not the later polish chain; it was the
+    high-proc concentrated-gap single move (`v070`) applied after the
+    prob31-like warm start had already been improved.
+  - Replaying only that concentrated-gap single on top of the current
+    runtime-stable `v115` prob31-like parent should recover a real T drop
+    again without restoring the old runtime cliff.
+- Feature / subtype / timelimit selector:
+  - outer subtype:
+    reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - inner move:
+    reuse `v070._target_block_ids()` on the current prob31-like parent
+    assignments
+  - require `timelimit >= 55s`
+  - run only on `standard/long/very_long`
+- Identity-dependent logic:
+  - none; selector and target choice remain feature-based and assignment-based
+- Tier-representative smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v117_tier9_20260620_001/`
+- Tier-representative smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - tier representatives:
+    - `prob_1`: objective `693901`, T `11`, runtime `13.85s`
+    - `prob_6`: objective `756030`, T `9`, runtime `33.16s`
+    - `prob_11`: objective `17206722`, T `739`, runtime `10.29s`
+    - `prob_13`: objective `17775043`, T `923`, runtime `9.65s`
+    - `prob_19`: objective `4715273`, T `389`, runtime `10.69s`
+    - `prob_25`: objective `1499211`, T `2159`, runtime `20.01s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `30.79s`
+    - `prob_31`: objective `39589844`, T `2735`, runtime `54.75s`
+    - `prob_38`: objective `151254848`, T `11120`, runtime `44.35s`
+- Targeted sibling guard path:
+  `reports/ogc2026_reboot_v001/compare_v116_v117_prob31_prob36_prob37_prob38_prob40_20260620_001/`
+- Targeted sibling guard result:
+  - accepted_for_score `10/10`
+  - timeout `0`
+  - invalid `0`
+  - changed target row:
+    - `prob_31`:
+      - `v116`: objective `40137295`, T `2776`, L `1753`, P `11684`,
+        runtime `42.90s`
+      - `v117`: objective `39589844`, T `2735`, L `1843`, P `11680`,
+        runtime `51.39s`
+  - unchanged guards:
+    - `prob_36`: objective held exactly at `1499988`
+    - `prob_37`: objective held exactly at `17644653`
+    - `prob_38`: objective held exactly at `151254848`
+    - `prob_40`: objective held exactly at `5910122`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_v116_v117_prob31_prob40_short45_20260620_001/`
+- Time-stress result:
+  - accepted_for_score `4/4`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31 @ 45s`:
+    - `v116`: objective `40956985`, runtime `39.20s`
+    - `v117`: objective `40956985`, runtime `39.01s`
+  - interpretation:
+    the new prob31-like branch stays cleanly disabled below the `55s` gate, so
+    the shorter-limit behavior remains scoreable and stable.
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v117_train40_20260620_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - runtime max `57.930979s`
+  - avg T `1542.1`
+  - avg L `2680.8`
+  - avg P `4186.925`
+  - avg objective `15085068.575`
+- Per-instance comparison summary:
+  - versus current-source `v116`:
+    - changed rows: `1`
+    - improvements: `1`
+    - regressions: `0`
+    - improved row:
+      - `prob_31`: objective `40137295 -> 39589844`,
+        T `2776 -> 2735`,
+        L `1753 -> 1843`,
+        P `11684 -> 11680`,
+        runtime `43.76s -> 50.45s`
+    - average deltas:
+      - avg objective `-13686.275`
+      - avg T `-1.025`
+      - avg L `+2.25`
+      - avg P `-0.1`
+  - versus historical trusted `v096`:
+    - changed rows: `4`
+    - improvements:
+      - `prob_40`: objective `6333528 -> 5910122`, T `9268 -> 8622`
+      - `prob_31`: objective `39781302 -> 39589844`, T `2751 -> 2735`
+      - `prob_3`: objective `213297 -> 188500`, T `1 -> 0`
+    - regressions:
+      - `prob_37`: objective `17454197 -> 17644653`, T `3961 -> 3961`
+    - average deltas:
+      - avg objective `-11230.125`
+      - avg T `-16.575`
+      - avg L `-37.975`
+      - avg P `+26.35`
+- Hidden-risk note:
+  - manageable
+  - Only the intended prob31-like row changed versus `v116`, and all sibling
+    and adjacent high-T guards held exactly. The sole remaining regression
+    versus historical `v096` is the unchanged `prob_37` objective, which is
+    more than offset by the stronger `prob_31` and `prob_40` gains.
+- decision:
+  - accepted
+- rationale:
+  - `v117` is the first current-source line that re-establishes a trusted
+    accepted BEST beyond the historical `v096` checkpoint. It keeps
+    `accepted_for_score=40/40`, `timeout=0`, and `invalid=0`, improves avg
+    objective and avg T versus both `v116` and historical `v096`, lowers the
+    prob31-like T tail to `2735`, and keeps the runtime ceiling below the
+    historical accepted maximum.
+
+## checkpoint_20260620_v117_publish_revalidation
+- scope:
+  - publish-checkpoint audit before starting the next candidate cycle
+- active line under audit:
+  - `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+- source-hash check:
+  - current file hash for
+    `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116.py`
+    still matches the saved accepted full-run manifest:
+    `ff1ed8f92c974b589085efdf8ae965a748ac136a3a1b45409430648bb9c34052`
+  - current file hash for `baseline_hh.py` also matches the fresh publish
+    revalidation manifest:
+    `0a3d12380483cc6512d3910167b1f62b954bd140767b05aeacf8d8738274856e`
+- fresh publish revalidation path:
+  `reports/ogc2026_reboot_v001/verify_active_v117_publish_20260620_001/`
+- fresh publish revalidation result:
+  - accepted_for_score `1/3`
+  - checker_feasible `3/3`
+  - timed_out `2`
+  - invalid `0`
+  - rows:
+    - `prob_31`: objective `39589844`, T `2735`, runtime `61.996197s`,
+      checker-feasible but timeout
+    - `prob_37`: objective `17644653`, T `3961`, runtime `60.427098s`,
+      checker-feasible but timeout
+    - `prob_40`: objective `5910122`, T `8622`, runtime `52.389308s`,
+      accepted_for_score `true`
+- finding:
+  - The current tracked source can still reproduce the row-level objective
+    values from the accepted v117 evidence, but the active wrapper is no
+    longer safely scoreable on at least two publish-guard rows at the 60s
+    limit. This is a runtime reproducibility cliff, not a simple source-hash
+    drift inside the v117 version file.
+- publish judgment:
+  - do not republish `v117` as a trusted accepted BEST today
+  - publish a recovery/failure checkpoint instead, with the historical v117
+    accepted evidence and the new failed revalidation evidence side by side
+- historical-best note:
+  - strongest historical accepted full-train evidence on this branch remains:
+    `reports/ogc2026_reboot_v001/full_reboot_v117_train40_20260620_001/`
+  - team-shared historical benchmark markdown reference remains:
+    `reports/ogc2026_reboot_v001/full_reboot_v096_train40_20260619_001/benchmark_report.md`
+- next recovery target:
+  - re-establish a publish-safe active line that keeps
+    `accepted_for_score=40/40` and removes the current `prob_31`/`prob_37`
+    runtime cliff before any new BEST promotion claim

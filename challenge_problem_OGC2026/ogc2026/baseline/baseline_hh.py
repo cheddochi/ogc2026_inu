@@ -1,20 +1,21 @@
 """HH active submission wrapper.
 
-Historical accepted checkpoint:
-    reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094
+Current active working line:
+    reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116
 
-Current-source note:
-    The wrapper still points at v096 because it is the latest historically
-    accepted train40 checkpoint, but current-source rechecks have reproduced
-    runtime drift on prob31-like and prob37-like rows. Treat this wrapper as a
-    recovery target until ACTIVE_VERSION.md and VERSION_LOG.md re-establish a
-    source-consistent trusted BEST.
+Publish-trust note:
+    Historical full-train evidence for v117 remains strong, but the fresh
+    publish revalidation at
+    reports/ogc2026_reboot_v001/verify_active_v117_publish_20260620_001/
+    timed out on prob_31 and prob_37 under the active wrapper.
+    Treat this file as the current recovery surface, not a freshly
+    re-confirmed trusted accepted BEST for publish.
 """
 
-from alg_versions import reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094 as active
+from alg_versions import reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116 as active
 
 
-ACTIVE_VERSION = "reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094"
+ACTIVE_VERSION = "reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

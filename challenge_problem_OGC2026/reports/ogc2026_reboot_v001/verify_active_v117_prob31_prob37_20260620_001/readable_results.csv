@@ -1,0 +1,3 @@
+instance,blocks,bays,objective,T,L,P,runtime_sec,checker_feasible,timed_out,valid_under_time_limit,accepted_for_score,error_message,algorithm_version,report_path,solution_file
+prob_31.json,200,4,39589844.0,2735.0,1843,11680.0,50.756315,true,false,true,true,,active,reports\ogc2026_reboot_v001\verify_active_v117_prob31_prob37_20260620_001\report.html,reports\ogc2026_reboot_v001\verify_active_v117_prob31_prob37_20260620_001\solutions\hh__active\prob_31.solution.json
+prob_37.json,250,3,17644653.0,3961.0,3660,7380.0,48.561527,true,false,true,true,,active,reports\ogc2026_reboot_v001\verify_active_v117_prob31_prob37_20260620_001\report.html,reports\ogc2026_reboot_v001\verify_active_v117_prob31_prob37_20260620_001\solutions\hh__active\prob_37.solution.json
