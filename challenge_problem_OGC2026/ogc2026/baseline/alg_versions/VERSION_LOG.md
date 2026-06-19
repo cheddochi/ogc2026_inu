@@ -7245,3 +7245,221 @@
   - active wrapper state:
     - still points to v096 as the explicit recovery surface
     - must not be described as a currently revalidated trusted BEST
+
+## reboot_v100_20260619_1355_prob37like_flattened_iterative_reinsert_on_v099
+
+- File:
+  `reboot_v100_20260619_1355_prob37like_flattened_iterative_reinsert_on_v099.py`
+- Parent:
+  `reboot_v099_20260619_1845_prob31like_runtime_flatten_on_v096`
+- Status:
+  - pending
+- Hypothesis:
+  current-source reruns show that the inherited prob37-like path no longer
+  reaches the later v073/v084/v090/v096 repair phases because the delegated
+  v060 warm start now consumes nearly the full 60s budget. Replacing only the
+  prob37-like subtype with a scoreable direct v057-family warm start, then
+  using a tiny iterative bounded single-reinsert portfolio on the remaining
+  wall-clock budget, should restore scoreability there while preserving the
+  prob31-like runtime fix already introduced in v099.
+- Feature selector:
+  - `bays == 3`
+  - diffuse-moderate selector true
+  - mid-proc slack-band selector true
+  - xlarge low-proc selector true
+  - feature-based only; no instance-name branching
+- Probe note before implementation:
+  - current-source `v065` is no longer a safe flattened base on this subtype:
+    a direct `prob_37` probe expanded to about `94.7s` and is therefore not a
+    viable recovery warm start anymore
+  - current-source `v057` remains scoreable on `prob_37` and leaves headroom:
+    repeated bounded single reinserts improved
+    `18033244 -> 17995072 -> 17958792 -> 17949088` within about `51.7s`
+- Validation plan:
+  - required smoke-9:
+    `prob_1`, `prob_5`, `prob_9`, `prob_13`, `prob_17`, `prob_21`,
+    `prob_26`, `prob_31`, `prob_36`
+  - targeted subtype smoke:
+    `prob_33`, `prob_37`, `prob_39`
+  - full train40 only if both smoke gates stay fully scoreable
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v100_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative runtime-risk row remained scoreable:
+    - `prob_31`: objective `40956985`, runtime `52.500376s`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v100_prob37like_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `3/3`
+  - timeout `0`
+  - invalid `0`
+  - target row recovered from current-source timeout:
+    - `prob_37`: objective `17958792`, T `4040`, runtime `50.664843s`
+  - near siblings stayed scoreable:
+    - `prob_33`: objective `26172225`, runtime `53.835677s`
+    - `prob_39`: objective `48598605`, runtime `59.274198s`
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v100_train40_20260619_001/`
+- Full benchmark outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - runtime max `59.061387s`
+  - avg comparison versus historical trusted v096:
+    - avg objective `15096298.7 -> 17349103.375` (`+2252804.675`)
+    - avg T `1558.675 -> 1740.125` (`+181.45`)
+    - avg L `2718.775 -> 2758.325` (`+39.55`)
+    - avg P `4160.575 -> 4158.0` (`-2.575`)
+- Per-instance comparison highlights versus historical trusted v096:
+  - recovered current-source runtime-cliff rows:
+    - `prob_31`: scoreable again at `53.69s`, but objective still regressed
+      by `+1175683`
+    - `prob_37`: scoreable again at `50.66s`, but objective still regressed
+      by `+504595`
+  - inherited worst regression remained dominant:
+    - `prob_38`: objective `151254848 -> 238794505` (`+87539657`),
+      T `11120 -> 17701`
+  - additional meaningful regressions:
+    - `prob_39`: objective `48160369 -> 48598605` (`+438236`)
+    - `prob_36`: objective `1499988 -> 1800047` (`+300059`)
+    - `prob_32`: objective `12781706 -> 12935663` (`+153957`)
+- High-T rows at this run:
+  - `prob_27` T `5637`
+  - `prob_32` T `3021`
+  - `prob_33` T `3805`
+  - `prob_37` T `4040`
+  - `prob_38` T `17701`
+  - `prob_39` T `3553`
+  - `prob_40` T `9268`
+- Hidden-risk note:
+  - yes
+  - The prob31-like and prob37-like current-source runtime cliffs were both
+    repaired enough to restore a 40/40 scoreable run, but the full rerun still
+    sits far behind the historical trusted frontier because large inherited
+    current-source score drift remains on `prob_38` and several neighboring
+    high-T rows.
+- decision:
+  - rejected
+  - rationale:
+    v100 succeeds as a recovery proof that the current source tree can be
+    driven back to `accepted_for_score=40/40` without timeouts, but it is not a
+    promotion candidate because avg objective and avg T worsen materially
+    versus the historical trusted v096 frontier, with the dominant prob38-like
+    regression still unresolved.
+
+## reboot_v101_20260619_1425_prob38like_feature_budget_restore_on_v100
+
+- File:
+  `reboot_v101_20260619_1425_prob38like_feature_budget_restore_on_v100.py`
+- Parent:
+  `reboot_v100_20260619_1355_prob37like_flattened_iterative_reinsert_on_v099`
+- Status:
+  - rejected
+- Hypothesis:
+  after the v100 recovery, the dominant remaining score loss comes from the
+  prob38-like family. Current-source single-row probes show that the modern
+  v050/v080/v083 path has drifted badly on that subtype, but the older v015
+  direct `due_long_proc` budget-guard policy still reproduces the stable
+  `153690186 / T=11316` row under the current source tree. Reintroducing only
+  that feature-based policy on top of v100 should keep the recovered 40/40
+  scoreable contract while sharply reducing the largest residual regression.
+- Feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+- Probe note before implementation:
+  - current-source single-row `prob_38` probes:
+    - `v100`: objective `251902039`, T `18675`
+    - `v083`: objective `234305172`, T `17340`
+    - `v075`: objective `239478376`, T `17728`
+    - `v057`: objective `265021265`, T `19645`
+    - legacy `v015`/`v016`/`v039` direct policy:
+      objective `153690186`, T `11316`, runtime about `54s`
+- Validation plan:
+  - required smoke-9:
+    `prob_1`, `prob_5`, `prob_9`, `prob_13`, `prob_17`, `prob_21`,
+    `prob_26`, `prob_31`, `prob_36`
+  - targeted subtype smoke:
+    `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if both smoke gates stay fully scoreable
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v101_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative runtime-risk rows stayed scoreable:
+    - `prob_31`: objective `40956985`, runtime `53.207988s`
+    - `prob_36`: objective `1767730`, runtime `52.460618s`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v101_prob38like_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `3/3`
+  - timeout `0`
+  - invalid `0`
+  - dominant subtype row recovered sharply:
+    - `prob_38`: objective `153690186`, T `11316`, runtime `52.800141s`
+  - near family rows stayed scoreable:
+    - `prob_31`: objective `40956985`, runtime `53.207988s`
+    - `prob_40`: objective `6333528`, runtime `43.740218s`
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v101_train40_20260619_001/`
+- Full benchmark outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - runtime max `59.738994s`
+  - avg comparison versus rejected recovery parent v100:
+    - avg objective `17349103.375 -> 15291654.45` (`-2057448.925`)
+    - avg T `1740.125 -> 1584.475` (`-155.65`)
+    - avg L `2758.325 -> 2781.575` (`+23.25`)
+    - avg P `4158.0 -> 4171.9` (`+13.9`)
+  - avg comparison versus historical trusted v096:
+    - avg objective `15096298.7 -> 15291654.45` (`+195355.75`)
+    - avg T `1558.675 -> 1584.475` (`+25.8`)
+    - avg L `2718.775 -> 2781.575` (`+62.8`)
+    - avg P `4160.575 -> 4171.9` (`+11.325`)
+- Per-instance comparison highlights:
+  - strongest recovery versus v100:
+    - `prob_38`: objective `238794505 -> 153690186` (`-85104319`),
+      T `17701 -> 11316`
+    - `prob_36`: objective `1800047 -> 1767730` (`-32317`)
+  - remaining regressions versus historical trusted v096:
+    - `prob_9`: objective `180488 -> 3019167` (`+2838679`),
+      T `1 -> 209`
+    - `prob_38`: objective `151254848 -> 153690186` (`+2435338`),
+      T `11120 -> 11316`
+    - `prob_31`: objective `39781302 -> 40956985` (`+1175683`)
+    - `prob_37`: objective `17454197 -> 17958792` (`+504595`)
+    - `prob_39`: objective `48160369 -> 48598605` (`+438236`)
+- High-T rows at this run:
+  - `prob_27` T `5637`
+  - `prob_32` T `3021`
+  - `prob_33` T `3805`
+  - `prob_37` T `4040`
+  - `prob_38` T `11316`
+  - `prob_39` T `3553`
+  - `prob_40` T `9268`
+- Hidden-risk note:
+  - yes
+  - v101 successfully restores the prob38-like current-source family to a
+    scoreable and much stronger row, and it pulls the whole train40 average
+    back close to the historical frontier. However, the current-source
+    recovery is still not strong enough to re-establish a trusted BEST because
+    several neighboring rows remain worse than the historical v096 evidence,
+    with the largest new regression now concentrated on `prob_9`.
+- decision:
+  - rejected
+  - rationale:
+    v101 is a useful recovery candidate because it preserves the restored
+    `40/40` scoreable contract and cuts most of the v100 loss, but it still
+    worsens avg objective, avg T, avg L, and avg P versus the historical
+    trusted v096 checkpoint. It should not be promoted as BEST or published as
+    the active trusted solver.

@@ -1,0 +1,32 @@
+{
+  "run_id": "probe_v096_prob37_20260619_001",
+  "timestamp": "2026-06-19T12:42:12",
+  "summary": {
+    "total": 1,
+    "feasible": 0,
+    "accepted_for_score": 0,
+    "checker_feasible": 1,
+    "timed_out": 1,
+    "failed": 1,
+    "objective_sum": null,
+    "objective_avg": null,
+    "obj1_sum": null,
+    "obj1_avg": null,
+    "obj1_max": null,
+    "obj2_avg": null,
+    "obj3_avg": null,
+    "runtime_sum": 71.37773,
+    "runtime_avg": 71.37773,
+    "runtime_max": 71.37773
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_37.json"
+  ]
+}
