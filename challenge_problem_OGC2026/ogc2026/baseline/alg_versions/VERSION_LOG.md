@@ -3469,6 +3469,236 @@
     accepted comparative threshold and runs too close to the official limit to
     promote safely.
 
+## Manual Loop Note 2026-06-18 00:06 KST
+
+- version_id: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- parent_version: `reboot_v050_20260617_2015_prob38like_release_aware`
+- hypothesis:
+  - The current-source top contributor is still the high-proc large 3-bay
+    prob38-like class.
+  - v050 already proves one release-aware direct policy is feasible there, but
+    it may be leaving score on the table by not comparing a second shallow
+    large-job-biased order.
+  - A bounded two-policy portfolio on only that feature-based class should keep
+    the smoke-8 rows unchanged while giving the top-T contributor one more
+    meaningful improvement chance.
+- targeted instances:
+  - mandatory smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subset:
+    `prob_38`
+  - full-benchmark watch rows:
+    `prob_38`, `prob_40`, `prob_31`, `prob_35`, `prob_36`
+- candidate type:
+  - feature-based top-contributor portfolio
+- expected metric movement:
+  - improve `prob_38` T/objective versus current-source active v050
+  - keep smoke-8 unchanged
+  - improve current-source avg T/objective by reducing the largest residual row
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted `prob_38` row accepted with improved or equal T/objective
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus `full_active_v050_revalidate_20260617_001`
+- rollback criteria:
+  - reject if smoke changes any non-target row, if `prob_38` fails to improve,
+    or if the extra direct policy pushes runtime too close to the limit
+
+## reboot_v057_20260618_0006_prob38like_dual_policy_portfolio
+
+- File: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio.py`
+- Parent: `reboot_v050_20260617_2015_prob38like_release_aware`
+- Status: accepted BEST
+- Strategy:
+  - Preserve v050 behavior on every non-target row.
+  - On the high-proc large 3-bay prob38-like class, keep the existing
+    release-aware direct policy as candidate A and compare one additional
+    shallow `due_long_proc` candidate B when safe time remains.
+  - Keep the best officially feasible result by `(T, objective, L, P)`.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v057_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - smoke rows stayed at the strong current-source baseline values:
+    - `prob_31`: T `2836`, objective `40956985`
+    - `prob_36`: T `2010`, objective `1499988`
+  - targeted changed-class path:
+    `reports/ogc2026_reboot_v001/target_reboot_v057_prob38_20260618_001/`
+  - targeted `prob_38` improved materially:
+    - current-source active v050 full baseline:
+      T `41939`, objective `562020241`
+    - v057 targeted run:
+      T `16203`, objective `219038501`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v057_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - runtime max improved `57.853508s -> 50.672232s`
+  - avg metrics improved versus current-source active v050 revalidation:
+    - avg T `3631.85 -> 1605.55`
+    - avg L `3205.7 -> 2679.125`
+    - avg P `4290.9 -> 4204.95`
+    - avg objective `35310706.5 -> 15372214.675`
+  - per-instance T regressions: `0`
+  - per-instance objective regressions: `0`
+  - largest improvement:
+    - `prob_38`: T `41939 -> 11212`,
+      objective `562020241 -> 152453868`
+- Decision:
+  - accepted BEST.
+  - Rationale: the feature-based top-contributor portfolio preserved the smoke
+    gate, materially reduced the largest residual-T row, improved every
+    headline full-train40 metric, and introduced no per-instance T/objective
+    regressions against the current-source active baseline.
+
+## Manual Loop Note 2026-06-18 19:15 KST
+
+- version_id: `reboot_v058_20260618_1915_dense_fourbay_preference_restore`
+- parent_version: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- hypothesis:
+  - The refreshed v057 taxonomy shows that the remaining 4-bay long-heavy
+    concentrated high-pressure family is split into a denser row and a looser
+    runtime-sensitive row.
+  - The denser packing subtype should restore the previously accepted deeper
+    preference-spread scan from v051, while the looser subtype should keep
+    v057's runtime-sensitive logic.
+- targeted subtype:
+  - feature class:
+    `bays == 4`, `180 <= blocks <= 220`, `20.0 <= proc_mean <= 22.5`,
+    `0.74 <= pref_concentration <= 0.83`, `0.69 <= pref_pressure <= 0.76`,
+    `0.72 <= workload_imbalance_pressure <= 0.83`, `packing_pressure >= 0.20`
+  - intended family description:
+    dense 4-bay long-processing preference-heavy runtime-sensitive rows
+- targeted rows for validation only:
+  - expected dense subtype hit: `prob_31`
+  - contrast row that should stay on v057 path: `prob_40`
+- expected metric movement:
+  - improve the dense 4-bay subtype objective without regressing the looser
+    4-bay runtime-sensitive row
+  - preserve smoke-8 acceptance and v057's prob38-like gain
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_31` while keeping `prob_40`
+    non-regressed
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v057
+- rollback criteria:
+  - reject if smoke fails, `prob_40` regresses, runtime rises over the
+    official limit, or full avg objective does not improve
+- planned commands:
+  - import smoke on the new version file
+  - smoke-8 benchmark via batchrunner
+  - targeted subtype smoke on `prob_31`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - low to medium; the restored deeper preference scan is reused only on the
+    denser subtype and remains under the standard 60s official limit in prior
+    accepted evidence.
+
+## reboot_v058_20260618_1915_dense_fourbay_preference_restore
+
+- File: `reboot_v058_20260618_1915_dense_fourbay_preference_restore.py`
+- Parent: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- Status: rejected
+- Strategy:
+  - Keep trusted v057 as the default path.
+  - Restore the previously accepted deeper preference-spread policy only on a
+    dense 4-bay long-heavy high-pressure subtype selected from `prob_info`
+    features plus `timelimit`.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v058_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - smoke comparative result:
+    - `prob_31` improved:
+      T `2836 -> 2825`, objective `40956985 -> 40671512`
+    - every other smoke row stayed unchanged versus trusted v057
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v058_dense4bay_20260618_001/`
+  - targeted subtype result:
+    - `prob_31` kept the improvement
+    - `prob_40` stayed unchanged versus trusted v057
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v058_train40_20260618_001/`
+  - full train40 stayed scoreable:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid `0`
+    - runtime max `52.043663s`
+  - but trusted-v057 comparison failed:
+    - avg objective `15372214.675 -> 15478965.75` worse
+    - avg T `1605.55 -> 1613.725` worse
+    - avg L `2679.125 -> 2781.1` worse
+    - avg P `4204.95 -> 4194.925` better
+  - per-instance delta summary:
+    - improvement rows: `1`
+      - `prob_31`: T `2836 -> 2825`,
+        objective `40956985 -> 40671512`
+    - regression rows: `1`
+      - `prob_38`: T `11212 -> 11550`,
+        objective `152453868 -> 157009384`
+- Hidden-risk flag:
+  - yes
+  - The candidate was meant to touch a dense 4-bay subtype only, but the full
+    run regressed the separate prob38-like top-contributor row strongly enough
+    to erase the prob31 gain. Even though the explicit selector does not match
+    that row, the run-to-run interaction is not hidden-safe.
+- Decision:
+  - rejected
+  - Rationale: scoreable gates all passed, but the candidate worsened the
+    trusted full-train40 objective and T averages because a high-T prob38-like
+    row regressed more than the dense 4-bay subtype improved.
+
+## Manual Loop Note 2026-06-18 19:32 KST
+
+- version_id: `reboot_v059_20260618_1932_runtime_highproc_policy_restore`
+- parent_version: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- hypothesis:
+  - The runtime-risk high-proc family is not one policy class.
+  - Dense 4-bay packed rows prefer the deeper accepted preference-spread
+    policy from v051, while large 3-bay moderate-pressure rows prefer the
+    accepted release-aware policy from v050.
+  - Restoring both historically best subpolicies inside one common
+    high-proc family should improve avg objective versus v057 while avoiding
+    the prob38 regression that killed v058.
+- targeted subtype:
+  - common family:
+    `proc_mean >= 20`, `blocks >= 180`, `bays in {3,4}`
+  - subpolicy A:
+    dense 4-bay packed concentrated rows
+  - subpolicy B:
+    large 3-bay moderate-pressure high-proc rows
+- validation focus rows:
+  - expected subpolicy A hit: `prob_31`
+  - expected subpolicy B hit: `prob_38`
+  - contrast row that should stay on v057 path: `prob_40`
+- expected metric movement:
+  - keep prob38-like row stable relative to trusted v057
+  - recover the prob31 improvement
+  - improve avg objective versus trusted v057
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves or preserves `prob_31`, `prob_38`, `prob_40`
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v057
+- rollback criteria:
+  - reject if smoke fails, prob38-like rows regress again, or full avg
+    objective does not improve
+- planned commands:
+  - import smoke on the new version file
+  - smoke-8 benchmark via batchrunner
+  - targeted subtype smoke on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the candidate reuses accepted direct policies only inside one
+    high-proc family, but the combined family still includes the current
+    top-contributor rows.
+
 ## Manual Loop Note 2026-06-17 21:35 KST
 
 - version_id: `reboot_v052_20260617_2135_three_bay_lowproc_tardy_reinsert`
@@ -3642,3 +3872,3376 @@
     prob31-like direct build is not trustworthy enough to layer more search on
     top of it.
 - Rollback target: `reboot_v051_20260617_2035_prob31like_deeper_preference.py`
+
+## Manual Loop Note 2026-06-18 19:32 KST
+
+- version_id: `reboot_v059_20260618_1932_runtime_highproc_policy_restore`
+- parent_version: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- hypothesis:
+  - Keep trusted v057 as the default path, but restore historically stronger
+    accepted subpolicies inside one shared runtime-risk high-proc family.
+  - Use the v051 deeper-preference policy on dense 4-bay concentrated packed
+    rows, use the v050 release-aware policy on large 3-bay moderate-pressure
+    rows, and keep v057 everywhere else.
+- targeted subtype:
+  - runtime-risk high-proc family:
+    - `proc_mean >= 20.0`
+    - `blocks >= 180`
+    - `bays in {3, 4}`
+  - dense 4-bay concentrated packed subpolicy:
+    - `180 <= blocks <= 220`
+    - `0.74 <= pref_concentration <= 0.83`
+    - `0.69 <= pref_pressure <= 0.76`
+    - `0.72 <= workload_imbalance_pressure <= 0.83`
+    - `packing_pressure >= 0.20`
+  - large 3-bay moderate-pressure subpolicy:
+    - `blocks >= 240`
+    - `0.54 <= pref_concentration <= 0.60`
+    - `0.50 <= pref_pressure <= 0.54`
+    - `0.35 <= workload_imbalance_pressure <= 0.45`
+    - `0.13 <= packing_pressure <= 0.17`
+- targeted validation rows:
+  - dense 4-bay check:
+    `prob_31`
+  - release-aware 3-bay check:
+    `prob_38`
+  - guardrail row that should stay on v057:
+    `prob_40`
+- expected metric movement:
+  - improve the dense 4-bay high-proc subtype without disturbing the top
+    `prob_38` contributor or the v057-only guardrail row
+- acceptance criteria:
+  - import smoke passes
+  - mandatory smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - no same-subtype regression on the key dense 4-bay smoke row
+  - targeted subtype smoke confirms `prob_31` improvement while keeping
+    `prob_38` and `prob_40` stable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v057
+- rollback criteria:
+  - reject if the dense 4-bay restored policy regresses the key smoke row or
+    if the inherited direct policy proves unstable inside the portfolio chain
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subtype smoke on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the restored direct policies are already near the standard-tier
+    time budget on the heaviest rows.
+
+## reboot_v059_20260618_1932_runtime_highproc_policy_restore
+
+- File: `reboot_v059_20260618_1932_runtime_highproc_policy_restore.py`
+- Parent: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- Status: rejected
+- Strategy:
+  - Keep trusted v057 as the warm-start-safe default.
+  - Restore the v051 deeper-preference policy for dense 4-bay concentrated
+    packed rows.
+  - Restore the v050 release-aware policy for large 3-bay moderate-pressure
+    rows.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v059_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - comparative smoke gate failed on the key dense 4-bay row:
+    - trusted v057 smoke `prob_31`:
+      T `2836`, objective `40956985`, runtime `42.287912s`
+    - v059 smoke `prob_31`:
+      T `3010`, objective `43158451`, runtime `45.480971s`
+  - all other mandatory smoke rows held their T/objective values
+  - selector inspection confirmed the dense 4-bay row was correctly routed to
+    the intended v051 subpolicy and the `prob_38`/`prob_40` guardrails routed
+    to the intended v050/v057 paths
+  - follow-up direct v051 top-level verification on `prob_31` also produced a
+    worse row (`T 3321`, objective `47253759`), which shows the inherited
+    accepted subpolicy is not stable enough to restore at the whole-algorithm
+    level
+  - targeted subtype smoke and full train40 were not run because the mandatory
+    smoke-8 comparative gate already showed a material regression on the key
+    target row
+- Decision:
+  - rejected
+  - Rationale: the candidate preserved global feasibility, but its only real
+    change was supposed to improve the dense 4-bay runtime-risk subtype and it
+    instead made the anchor smoke row worse. The restored v051 path appears
+    unstable when used as a full-policy delegate, so it is not safe to promote.
+- Rollback target: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio.py`
+
+## Manual Loop Note 2026-06-18 20:31 KST
+
+- version_id: `reboot_v060_20260618_2031_threebay_gap_release_due`
+- parent_version: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- hypothesis:
+  - The current trusted v057 is already historically best on almost every
+    training row except one unstable dense 4-bay case and one small
+    objective-only miss on a 3-bay large/xlarge low-proc subtype.
+  - A feature-based direct `release_due` policy on the packed 3-bay low-proc
+    moderate-gap subtype should improve objective on that subtype while
+    leaving the runtime-sensitive high-proc v057 paths untouched.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `10.5 <= proc_mean <= 12.0`
+  - `packing_pressure >= 0.13`
+  - `46.0 <= pref_gap_mean <= 51.0`
+- targeted validation rows:
+  - expected positive rows:
+    `prob_35`, `prob_37`
+  - exclusion guard rows:
+    `prob_32`, `prob_39`
+- expected metric movement:
+  - improve objective on the packed 3-bay low-proc moderate-gap subtype
+  - preserve smoke-8 rows unchanged
+  - improve avg objective versus trusted v057 with no timeout/invalid rows
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subtype smoke shows objective improvement on at least one target
+    row without waking the exclusion guard rows
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v057
+- rollback criteria:
+  - reject if the changed subtype leaks onto the guard rows, regresses smoke-8,
+    or fails to improve avg objective on full train40
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subtype benchmark on `prob_32`, `prob_35`, `prob_37`, `prob_39`
+  - full train40 only if gates pass
+- runtime risk:
+  - low to medium; the subtype is not the top runtime-risk family and the
+    direct policy already fits well inside the 60s training budget.
+
+## reboot_v060_20260618_2031_threebay_gap_release_due
+
+- File: `reboot_v060_20260618_2031_threebay_gap_release_due.py`
+- Parent: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio`
+- Status: accepted BEST
+- Strategy:
+  - Preserve every existing v057 path, including the accepted prob38-like dual
+    policy portfolio and the current 4-bay runtime-sensitive chain.
+  - On a packed 3-bay large/xlarge low-proc moderate-gap subtype, run a direct
+    deeper `release_due` scan.
+- Validation:
+  - import smoke passed
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v060_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - smoke-8 comparative result versus v057:
+    - every smoke row held identical T/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v060_threebay_gap_20260618_001/`
+  - targeted subtype accepted `4/4`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus v057:
+    - `prob_32` unchanged
+    - `prob_35` improved:
+      - objective `26478047 -> 22047898`
+      - T `1914 -> 1591`
+    - `prob_37` improved on objective with small T tradeoff:
+      - objective `18033244 -> 18007304`
+      - T `4040 -> 4052`
+    - `prob_39` unchanged
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v060_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v057:
+    - avg objective `15372214.675 -> 15260812.45`
+    - avg T `1605.55 -> 1597.775`
+    - avg L `2679.125 -> 2767.325`
+    - avg P `4204.95 -> 4180.275`
+    - runtime max `50.672232s -> 51.042656s`
+    - objective improvements: `2` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale: the candidate kept the full scoreable contract, improved avg
+    objective and avg T, and did so with only two row-level changes, both
+    favorable in objective and none regressing objective anywhere else.
+- Rollback target: `reboot_v057_20260618_0006_prob38like_dual_policy_portfolio.py`
+
+## Manual Loop Note 2026-06-18 21:01 KST
+
+- version_id: `reboot_v061_20260618_2101_fourbay_xlarge_due_release_deepen`
+- parent_version: `reboot_v060_20260618_2031_threebay_gap_release_due`
+- hypothesis:
+  - The current trusted v060 still leaves one top residual-T / high-objective
+    long-heavy 4-bay xlarge high-pressure low-packing subtype on the shallower
+    direct `due_release_proc` policy.
+  - A bounded deeper direct `due_release_proc` probe, compared against the
+    current v060 warm start and kept only if officially better, should improve
+    that subtype without disturbing the accepted prob38-like or 3-bay subtype
+    fixes.
+- targeted subtype:
+  - `bays == 4`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `pref_concentration >= 0.72`
+  - `pref_pressure >= 0.68`
+  - `workload_imbalance_pressure >= 0.70`
+  - `packing_pressure <= 0.17`
+- targeted validation rows:
+  - expected improved row:
+    `prob_40`
+  - guard rows:
+    `prob_31`, `prob_38`
+- expected metric movement:
+  - reduce T and objective on the xlarge 4-bay long-heavy high-pressure
+    low-packing subtype
+  - keep smoke-8 rows unchanged
+  - improve avg objective versus trusted v060
+- acceptance criteria:
+  - import smoke passes
+  - smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_40` while leaving `prob_31` and
+    `prob_38` stable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v060
+- rollback criteria:
+  - reject if the deeper due-release probe leaks onto the guard rows, regresses
+    smoke-8, or fails to improve avg objective on full train40
+- planned commands:
+  - import smoke
+  - mandatory smoke-8 benchmark
+  - targeted subtype benchmark on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the subtype is already near the 60s budget, so the deeper probe
+    must respect tiered caps and a hard reserve.
+
+## reboot_v061_20260618_2101_fourbay_xlarge_due_release_deepen
+
+- File: `reboot_v061_20260618_2101_fourbay_xlarge_due_release_deepen.py`
+- Parent: `reboot_v060_20260618_2031_threebay_gap_release_due`
+- Status: rejected
+- Strategy:
+  - Preserve every existing v060 path unchanged outside the target subtype.
+  - On the target subtype, compare the current v060 warm start against one
+    deeper direct `due_release_proc` candidate and keep the better officially
+    feasible result.
+- Validation:
+  - import smoke passed
+  - selector hit exactly one training row:
+    - `prob_40`
+  - mandatory smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v061_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - smoke-8 comparative result versus v060:
+    - every smoke row held identical T/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v061_fourbay_xlarge_20260618_001/`
+  - targeted subtype accepted `3/3`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus v060:
+    - `prob_31` unchanged on T/L/P/objective, runtime increased
+    - `prob_38` unchanged on T/L/P/objective
+    - `prob_40` unchanged on T/L/P/objective, runtime increased
+  - because the target row did not improve, full train40 was not run
+- Decision:
+  - rejected
+  - Rationale: the deeper bounded probe did not produce any measurable score
+    gain on its target subtype and only added runtime overhead, so there is no
+    reason to spend a full benchmark on it.
+- Rollback target: `reboot_v060_20260618_2031_threebay_gap_release_due.py`
+
+## Manual Loop Note 2026-06-18 14:55 KST
+
+- version_id: `reboot_v062_20260618_1455_prob38like_edge_release_portfolio`
+- parent_version: `reboot_v060_20260618_2031_threebay_gap_release_due`
+- hypothesis:
+  - The current trusted v060 is already on the accepted frontier for nearly
+    every training row, so the remaining plausible score movement sits in the
+    prob38-like large 3-bay long-processing subtype.
+  - That subtype is still driven by direct-policy ordering plus limited
+    concurrent placement. A wall-hugging / bottom-left edge bias on the
+    `release_due` arm may reduce fragmentation and improve T/objective without
+    perturbing the rest of the accepted portfolio.
+- targeted subtype:
+  - v050 prob38-like class
+  - feature-based only:
+    - `bays == 3`
+    - `blocks >= 240`
+    - `proc_mean >= 20.0`
+    - `0.54 <= pref_concentration <= 0.60`
+    - `50.0 <= pref_gap_mean <= 53.5`
+    - `0.50 <= pref_pressure <= 0.54`
+    - `0.35 <= workload_imbalance_pressure <= 0.45`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_31`, `prob_32`, `prob_39`, `prob_40`
+- expected metric movement:
+  - reduce T/objective on the prob38-like subtype
+  - keep the representative smoke gate scoreable and mostly unchanged
+  - improve avg objective versus trusted v060
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke gate accepted `9/9`, timeout `0`, invalid `0`
+    on:
+    `prob_1`, `prob_5`, `prob_9`, `prob_13`, `prob_17`,
+    `prob_21`, `prob_26`, `prob_31`, `prob_36`
+  - targeted subtype smoke improves `prob_38` and does not materially regress
+    the guard rows
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v060
+- rollback criteria:
+  - reject if representative smoke regresses, if the edge-biased arm harms the
+    guard rows, or if full avg objective does not improve
+- planned commands:
+  - import smoke
+  - representative smoke gate benchmark
+  - targeted subtype benchmark on `prob_31`, `prob_32`, `prob_38`, `prob_39`,
+    `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the target subtype already uses most of the 60s budget, so the
+    edge-biased arm must stay bounded and leave time for the shallow backup
+    arm.
+
+## reboot_v062_20260618_1455_prob38like_edge_release_portfolio
+
+- File:
+  `reboot_v062_20260618_1455_prob38like_edge_release_portfolio.py`
+- Parent:
+  `reboot_v060_20260618_2031_threebay_gap_release_due`
+- Status:
+  rejected
+- Strategy:
+  - Preserve v060 on every non-target row.
+  - On the prob38-like subtype, compare an edge-anchored `release_due` arm
+    against the current shallow `due_long_proc` backup and keep the better
+    feasible result.
+- Validation:
+  - import smoke passed
+  - direct target probe on `prob_38` stayed scoreable but regressed the target:
+    - v060:
+      - objective `152453868`
+      - T `11212`
+      - L `4336`
+      - P `9852`
+    - v062 direct probe:
+      - objective `162881571`
+      - T `12013`
+      - L `4621`
+      - P `9010`
+  - representative smoke-9 was not run:
+    target regression was already large enough that the candidate had no
+    plausible promotion path
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v062_prob38like_20260618_001/`
+  - targeted subtype accepted `5/5`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus trusted v060:
+    - `prob_31` unchanged on T/L/P/objective; runtime increased
+    - `prob_32` unchanged on T/L/P/objective; runtime increased
+    - `prob_38` regressed:
+      - objective `152453868 -> 161290750`
+      - T `11212 -> 11894`
+      - L `4336 -> 4624`
+      - P `9852 -> 8996`
+    - `prob_39` unchanged on T/L/P/objective; runtime increased
+    - `prob_40` unchanged on T/L/P/objective; runtime increased
+  - full train40 was not run
+- Decision:
+  - rejected
+  - Rationale:
+    the new edge-biased arm stayed scoreable but made the target subtype worse
+    on both T and objective while adding runtime overhead on unchanged guard
+    rows, so there is no reason to spend a full 40 run on it.
+- Rollback target:
+  `reboot_v060_20260618_2031_threebay_gap_release_due.py`
+
+## Manual Loop Note 2026-06-18 16:05 KST
+
+- version_id: `reboot_v063_20260618_1605_prob40like_direct_first_due_release`
+- parent_version: `reboot_v060_20260618_2031_threebay_gap_release_due`
+- hypothesis:
+  - The rejected v061 showed that the four-bay xlarge high-workload subtype did
+    not benefit from a deeper due-release probe when it was attempted only
+    after the full v060 warm start.
+  - Direct probes now show that the same subtype can improve if the bounded
+    `due_release_proc` candidate runs first with enough budget.
+  - Therefore the coherent change is not a new ordering, but a time-aware
+    direct-first activation rule for a narrow prob40-like subtype.
+- targeted subtype:
+  - `bays == 4`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `workload_mean >= 160.0`
+  - `pref_concentration >= 0.72`
+  - `pref_pressure >= 0.68`
+  - `workload_imbalance_pressure >= 0.70`
+  - plus time guard: only activate when the dynamic direct budget is at least
+    `45s`
+- targeted validation rows:
+  - expected improved row:
+    `prob_40`
+  - guard rows:
+    `prob_31`, `prob_38`
+- expected metric movement:
+  - improve T/objective on the prob40-like subtype
+  - keep the representative smoke gate unchanged
+  - improve full-train40 avg objective versus v060
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke gate accepted `9/9`, timeout `0`, invalid `0`
+    on:
+    `prob_1`, `prob_5`, `prob_9`, `prob_13`, `prob_17`,
+    `prob_21`, `prob_26`, `prob_31`, `prob_36`
+  - targeted subtype smoke improves `prob_40` while keeping guard rows stable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v060
+- rollback criteria:
+  - reject if smoke regresses, if `prob_40` does not improve under the
+    direct-first rule, or if full avg objective does not improve
+- planned commands:
+  - import smoke
+  - representative smoke gate benchmark
+  - targeted subtype benchmark on `prob_31`, `prob_38`, `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the direct-first candidate is safe only when the subtype has
+    enough wall-clock budget, so the activation rule must stay strict.
+
+## reboot_v063_20260618_1605_prob40like_direct_first_due_release
+
+- File:
+  `reboot_v063_20260618_1605_prob40like_direct_first_due_release.py`
+- Parent:
+  `reboot_v060_20260618_2031_threebay_gap_release_due`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v060 unchanged outside the target subtype.
+  - On a narrow 4-bay xlarge high-workload preference-heavy subtype, run one
+    direct-first bounded `due_release_proc` candidate only when the dynamic
+    search budget is at least `45s`.
+  - On shorter limits, keep the inherited v060 path unchanged.
+- Validation:
+  - import smoke passed
+  - representative smoke-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v063_core9_20260618_001/`
+  - smoke-9 accepted `9/9`; timeout `0`, invalid `0`
+  - smoke-9 comparative result versus v060:
+    - every smoke row held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v063_prob40like_20260618_001/`
+  - targeted subtype accepted `3/3`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus v060:
+    - `prob_31` unchanged
+    - `prob_38` unchanged
+    - `prob_40` improved:
+      - objective `6517538 -> 6448384`
+      - T `9542 -> 9446`
+      - L `3875 -> 5682`
+      - P `11473 -> 10940`
+  - time-stress probe on `prob_40`:
+    - `timelimit=55`: direct-first gate stayed off; inherited v060 path kept
+      `objective=6517538`, `T=9542`
+    - `timelimit=70`: direct-first gate stayed on and reproduced the improved
+      `objective=6448384`, `T=9446`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v063_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v060:
+    - avg objective `15260812.45 -> 15259083.6`
+    - avg T `1597.775 -> 1595.375`
+    - avg L `2767.325 -> 2812.5`
+    - avg P `4180.275 -> 4166.95`
+    - runtime max `51.042656s -> 51.188479s`
+    - objective improvements: `1` row
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate preserved the full scoreable contract, passed the updated
+    representative smoke gate, improved its target subtype, and reduced both
+    avg objective and avg T on the full 40 without any objective regression on
+    other rows.
+- Rollback target:
+  `reboot_v060_20260618_2031_threebay_gap_release_due.py`
+
+## Manual Loop Note 2026-06-18 17:15 KST
+
+- version_id: `reboot_v064_20260618_1715_threebay_diffuse_moderate_greedy_research`
+- parent_version: `reboot_v063_20260618_1605_prob40like_direct_first_due_release`
+- hypothesis:
+  - On the remaining 3-bay mid-proc diffuse-moderate-pressure subtype, order
+    changes appear plateaued.
+  - Empty-window reinsertion does not help there, but direct probes show that
+    re-searching only the top tardy 1-3 blocks with the full greedy placement
+    kernel can reduce T/objective on that subtype while staying feasible.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.39 <= pref_concentration <= 0.46`
+  - `0.39 <= pref_pressure <= 0.42`
+  - `0.10 <= workload_imbalance_pressure <= 0.23`
+  - `slack_mean <= 4.0`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_33`, `prob_37`
+  - guard rows:
+    `prob_32`, `prob_39`, `prob_40`
+- expected metric movement:
+  - reduce T/objective on the diffuse-moderate 3-bay subtype
+  - keep representative smoke rows unchanged
+  - improve full-train40 avg objective versus v063
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke gate accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one of `prob_33` / `prob_37`
+    without hurting guard rows materially
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v063
+- rollback criteria:
+  - reject if the subtype search burns runtime without improving score, or if
+    smoke/guard rows regress
+- planned commands:
+  - import smoke
+  - representative smoke gate benchmark
+  - targeted subtype benchmark on `prob_32`, `prob_33`, `prob_37`, `prob_39`,
+    `prob_40`
+  - full train40 only if gates pass
+- runtime risk:
+  - medium; the warm start already consumes 20-35s on the class, so the
+    greedy re-search must stay tightly capped.
+
+## reboot_v064_20260618_1715_threebay_diffuse_moderate_greedy_research
+
+- File:
+  `reboot_v064_20260618_1715_threebay_diffuse_moderate_greedy_research.py`
+- Parent:
+  `reboot_v063_20260618_1605_prob40like_direct_first_due_release`
+- Status:
+  rejected
+- Strategy:
+  - Preserve v063 outside the target subtype.
+  - On the diffuse-moderate 3-bay subtype, re-search the top tardy 1-3 blocks
+    with the full greedy kernel under a tight time budget.
+- Validation:
+  - import smoke passed
+  - representative smoke-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v064_core9_20260618_001/`
+  - smoke-9 accepted `9/9`; timeout `0`, invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v064_diffuse_midproc_20260618_001/`
+  - targeted subtype accepted `4/5`; timeout `1`, invalid `0`
+  - targeted subtype comparative result:
+    - `prob_32` unchanged
+    - `prob_33` improved on score but timed out (`66.66s`)
+    - `prob_37` improved and stayed scoreable
+    - `prob_39` unchanged
+    - `prob_40` unchanged
+  - because `prob_33` exceeded the official limit, the candidate is not
+    scoreable and full train40 was not run
+- Decision:
+  - rejected
+  - Rationale:
+    the subtype idea has signal, but the 1-3 block search width is too large
+    under the 60s standard tier and produces a timeout on `prob_33`.
+- Rollback target:
+  `reboot_v063_20260618_1605_prob40like_direct_first_due_release.py`
+
+## Manual Loop Note 2026-06-18 17:35 KST
+
+- version_id: `reboot_v065_20260618_1735_threebay_diffuse_single_research`
+- parent_version: `reboot_v063_20260618_1605_prob40like_direct_first_due_release`
+- hypothesis:
+  - The rejected v064 showed that the subtype signal is real, but the runtime
+    failure came from exploring more than one tardy block under the standard
+    tier.
+  - Restricting the phase to a single-block greedy re-search should preserve
+    the gains on `prob_33` and `prob_37` while restoring scoreable runtime.
+- targeted subtype:
+  - same feature class as v064
+  - activation width change only:
+    standard tier re-searches exactly one tardy block
+- targeted validation rows:
+  - expected improved rows:
+    `prob_33`, `prob_37`
+  - guard rows:
+    `prob_32`, `prob_39`, `prob_40`
+- expected metric movement:
+  - retain the subtype improvements from v064
+  - remove the `prob_33` timeout
+  - improve full-train40 avg objective versus v063
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke gate accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke stays scoreable and improves at least one target row
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v063
+- rollback criteria:
+  - reject if the single-block width loses the score signal or still risks
+    timeout on the target rows
+
+## reboot_v065_20260618_1735_threebay_diffuse_single_research
+
+- File:
+  `reboot_v065_20260618_1735_threebay_diffuse_single_research.py`
+- Parent:
+  `reboot_v063_20260618_1605_prob40like_direct_first_due_release`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v063 unchanged outside the target subtype.
+  - On a narrow 3-bay diffuse-moderate-pressure mid-proc class, re-search only
+    the single worst tardy block with the full greedy kernel under a strict
+    budget.
+- Validation:
+  - import smoke passed
+  - representative smoke-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v065_core9_20260618_001/`
+  - smoke-9 accepted `9/9`; timeout `0`, invalid `0`
+  - smoke-9 comparative result versus v063:
+    - every smoke row held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v065_diffuse_midproc_20260618_001/`
+  - targeted subtype accepted `5/5`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus v063:
+    - `prob_32` unchanged
+    - `prob_33` improved:
+      - objective `26895407 -> 26515388`
+      - T `3911 -> 3854`
+    - `prob_37` improved:
+      - objective `18007304 -> 17644653`
+      - T `4052 -> 3961`
+      - L `3797 -> 3660`
+      - P `7478 -> 7380`
+    - `prob_39` unchanged
+    - `prob_40` unchanged
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v065_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v063:
+    - avg objective `15259083.6 -> 15240516.85`
+    - avg T `1595.375 -> 1591.675`
+    - avg L `2812.5 -> 2809.075`
+    - avg P `4166.95 -> 4164.5`
+    - runtime max `51.188479s -> 51.49024s`
+    - objective improvements: `2` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate preserved the full scoreable contract, improved both targeted
+    subtype rows, and reduced avg objective, avg T, avg L, and avg P on the
+    full 40 without any objective regression elsewhere.
+- Rollback target:
+  `reboot_v063_20260618_1605_prob40like_direct_first_due_release.py`
+
+## reboot_v066_20260618_1755_twobay_small_highproc_due_long
+
+- File:
+  `reboot_v066_20260618_1755_twobay_small_highproc_due_long.py`
+- Parent:
+  `reboot_v065_20260618_1735_threebay_diffuse_single_research`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v065 unchanged outside the target subtype.
+  - On a small 2-bay high-proc moderate-pressure class, run a direct-first
+    `due_long_proc` candidate with `top_bays=2`, `max_positions=24`, and a
+    guarded budget cap, then fall back to v065 if the candidate does not win.
+- Targeted subtype:
+  - `bays == 2`
+  - `blocks <= 110`
+  - `proc_mean >= 20.0`
+  - `pref_concentration <= 0.63`
+  - `pref_pressure <= 0.61`
+  - `slack_mean >= 5.0`
+- Validation:
+  - import smoke passed
+  - representative smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v066_core8_20260618_001/`
+  - smoke-8 accepted `8/8`; timeout `0`, invalid `0`
+  - smoke-8 comparative result versus trusted v065:
+    - every smoke row held identical T/L/P/objective values
+  - targeted probe path:
+    `reports/ogc2026_reboot_v001/target_reboot_v066_twobay_probe_20260618_001/`
+  - targeted family path:
+    `reports/ogc2026_reboot_v001/target_reboot_v066_twobay_family_20260618_001/`
+  - targeted family comparative result versus trusted v065:
+    - `prob_23` unchanged
+    - `prob_25` improved:
+      - objective `1948687 -> 1512671`
+      - T `2851 -> 2176`
+      - L `2630 -> 519`
+      - P `2222 -> 3038`
+    - `prob_27` unchanged
+    - `prob_30` unchanged
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v066_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v065:
+    - avg objective `15240516.85 -> 15229616.45`
+    - avg T `1591.675 -> 1574.8`
+    - avg L `2809.075 -> 2756.3`
+    - avg P `4164.5 -> 4184.9`
+    - runtime max `51.49024s -> 51.714463s`
+    - objective improvements: `1` row
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate stayed feature-based, kept the full scoreable contract,
+    improved the intended small 2-bay subtype without leaking onto its guard
+    rows, and reduced full-train40 avg objective with zero objective
+    regressions elsewhere. The P increase was confined to the winning
+    `prob_25` trade and was outweighed by the T/L/objective gain.
+- Rollback target:
+  `reboot_v065_20260618_1735_threebay_diffuse_single_research.py`
+
+## reboot_v067_20260618_1532_fourbay_highproc_tardy_research
+
+- File:
+  `reboot_v067_20260618_1532_fourbay_highproc_tardy_research.py`
+- Parent:
+  `reboot_v066_20260618_1755_twobay_small_highproc_due_long`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v066 unchanged outside the target subtype.
+  - Build the trusted v066 warm start first.
+  - On a 4-bay high-proc dense-preference class, re-search only the top tardy
+    1-2 blocks under a strict remaining-time guard.
+- Targeted subtype:
+  - `bays == 4`
+  - `blocks >= 200`
+  - `proc_mean >= 20.0`
+  - `pref_concentration >= 0.75`
+  - `pref_pressure >= 0.69`
+  - `slack_mean >= 4.8`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v067_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v066:
+    - every smoke row held identical T/L/P/objective values except
+      `prob_31`, which improved:
+      - objective `40956985 -> 40349837`
+      - T `2836 -> 2792`
+      - L `1826 -> 1580`
+      - P `11757 -> 11683`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v067_fourbay_probe_20260618_001/`
+  - targeted subtype comparative result versus trusted v066:
+    - `prob_31` improved:
+      - objective `40956985 -> 40349837`
+      - T `2836 -> 2792`
+      - L `1826 -> 1580`
+      - P `11757 -> 11683`
+    - `prob_40` improved:
+      - objective `6448384 -> 6362146`
+      - T `9446 -> 9314`
+      - L `5682 -> 6201`
+      - P `10940 -> 11039`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v067_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v066:
+    - avg objective `15229616.45 -> 15212281.8`
+    - avg T `1574.8 -> 1570.4`
+    - avg L `2756.3 -> 2763.125`
+    - avg P `4184.9 -> 4185.525`
+    - runtime max `51.714463s -> 53.287196s`
+    - objective improvements: `2` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate stayed scoreable on smoke and full train40, improved both
+    targeted subtype rows, and reduced avg objective plus avg T without any
+    objective regression elsewhere. The mild L/P increase came entirely from
+    the better `prob_40` trade and remained acceptable under the improved
+    official objective.
+- Rollback target:
+  `reboot_v066_20260618_1755_twobay_small_highproc_due_long.py`
+
+## Manual Loop Note 2026-06-18 16:10 KST
+
+- version_id: `reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research`
+- parent_version: `reboot_v067_20260618_1532_fourbay_highproc_tardy_research`
+- hypothesis:
+  - A narrow 3-bay xlarge low-proc preference-dense tight-slack subtype still
+    carries residual T after the current warm start.
+  - On that subtype, re-searching only the single worst tardy block should
+    improve objective with safe runtime headroom, while the similar-but-smaller
+    or more diffuse rows should stay on v067 unchanged.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `10.8 <= proc_mean <= 11.3`
+  - `0.55 <= pref_concentration <= 0.60`
+  - `0.52 <= pref_pressure <= 0.55`
+  - `slack_mean <= 2.3`
+- targeted validation rows:
+  - expected improved row:
+    `prob_39`
+  - guard rows:
+    `prob_35`, `prob_37`, `prob_38`
+- expected metric movement:
+  - improve T/objective on the 3-bay xlarge low-proc preference-dense subtype
+  - keep representative core-9 smoke rows scoreable
+  - improve full-train40 avg objective versus v067
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_39` and keeps guard rows stable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v067
+- rollback criteria:
+  - reject if the 1-block re-search leaks onto similar 3-bay rows or if the
+    runtime headroom disappears on the full 40
+
+## reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research
+
+- File:
+  `reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research.py`
+- Parent:
+  `reboot_v067_20260618_1532_fourbay_highproc_tardy_research`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v067 unchanged outside the target subtype.
+  - Build the trusted v067 warm start first.
+  - On a narrow 3-bay xlarge low-proc dense-preference class, re-search only
+    the single worst tardy block under a strict remaining-time guard.
+- Targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `10.8 <= proc_mean <= 11.3`
+  - `0.55 <= pref_concentration <= 0.60`
+  - `0.52 <= pref_pressure <= 0.55`
+  - `slack_mean <= 2.3`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v068_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v067:
+    - every smoke row held identical T/L/P/objective values; only runtime
+      drift changed, so the targeted selector stayed isolated from the smoke
+      gate rows
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v068_threebay_dense_probe_20260618_001/`
+  - targeted subtype comparative result versus trusted v067:
+    - `prob_39` improved:
+      - objective `48743275 -> 48598605`
+      - T `3563 -> 3553`
+      - L `749 -> 314`
+      - P `8232 -> 8168`
+    - guard rows `prob_35`, `prob_37`, `prob_38` stayed unchanged in
+      T/L/P/objective and remained scoreable
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v068_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v067:
+    - avg objective `15212281.8 -> 15208665.05`
+    - avg T `1570.4 -> 1570.15`
+    - avg L `2763.125 -> 2752.25`
+    - avg P `4185.525 -> 4183.925`
+    - runtime max `53.287196s -> 51.729258s`
+    - objective improvements: `1` row
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate stayed feature-based, held the scoreable contract on smoke
+    and full train40, improved the intended 3-bay xlarge low-proc subtype
+    without leaking onto its guard rows, and reduced avg objective, avg T,
+    avg L, and avg P versus v067.
+- Rollback target:
+  `reboot_v067_20260618_1532_fourbay_highproc_tardy_research.py`
+
+## Manual Loop Note 2026-06-18 19:50 KST
+
+- version_id: `reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single.py`
+- parent_version: `reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research`
+- hypothesis:
+  - The remaining 3-bay medium-size diffuse-preference tight-slack subtype is
+    still blocked by which single tardy block gets re-searched, not by whether
+    single-block research exists at all.
+  - Replacing the old `worst tardy` choice with a `high preference-gap among
+    the top tardy shortlist` choice should improve that subtype while keeping
+    the rest of v068 unchanged.
+- targeted subtype:
+  - `bays == 3`
+  - `200 <= blocks < 240`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.34 <= pref_concentration <= 0.46`
+  - `0.35 <= pref_pressure <= 0.42`
+  - `slack_mean <= 4.0`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_32`, `prob_33`
+  - guard rows:
+    `prob_37`, `prob_39`
+- expected metric movement:
+  - improve T/objective on the 3-bay medium diffuse tight-slack subtype
+  - preserve representative core-9 smoke rows
+  - keep the xlarge dense subtype gains from v068 unchanged
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one of `prob_32` or `prob_33`
+    without objective regression on both together
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v068
+- rollback criteria:
+  - reject if the new block selector regresses the targeted subtype overall,
+    leaks onto guard rows, or breaks the full scoreable contract
+
+## reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single
+
+- File:
+  `reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single.py`
+- Parent:
+  `reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v068 unchanged outside the target subtype.
+  - Build the trusted v068 warm start first.
+  - On a 3-bay medium diffuse-preference tight-slack class, re-search one
+    selected tardy block using preference-gap-aware shortlist targeting rather
+    than raw worst-tardy targeting.
+- Targeted subtype:
+  - `bays == 3`
+  - `200 <= blocks < 240`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.34 <= pref_concentration <= 0.46`
+  - `0.35 <= pref_pressure <= 0.42`
+  - `slack_mean <= 4.0`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v069_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v068:
+    - every smoke row held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v069_medium_diffuse_probe_20260618_001/`
+  - targeted subtype comparative result versus trusted v068:
+    - `prob_32` improved:
+      - objective `13118978 -> 12935663`
+      - T `3076 -> 3021`
+      - L `2614 -> 2614`
+      - P `4756 -> 4756`
+    - `prob_33` improved:
+      - objective `26515388 -> 26173385`
+      - T `3854 -> 3805`
+      - L `1182 -> 1150`
+      - P `5393 -> 5293`
+    - guard rows `prob_37`, `prob_39` stayed unchanged in
+      T/L/P/objective and remained scoreable
+  - time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v069_prob33_short45_20260618_001/`
+  - short-limit stress result:
+    - on `prob_33` with `timelimit=45`, v069 matched v068 exactly and stayed
+      scoreable, confirming that the new phase safely drops out under shorter
+      budget
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v069_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v068:
+    - avg objective `15208665.05 -> 15195532.1`
+    - avg T `1570.15 -> 1567.55`
+    - avg L `2752.25 -> 2751.45`
+    - avg P `4183.925 -> 4181.425`
+    - runtime max `51.729258s -> 57.527918s`
+    - objective improvements: `2` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate stayed fully scoreable, improved both targeted subtype rows,
+    preserved its guard rows, and lowered avg objective plus avg T/L/P with no
+    objective regressions elsewhere. The runtime max increased but remained
+    under the official limit and the short-limit smoke showed the new phase
+    safely disabling itself when headroom shrinks.
+- Rollback target:
+  `reboot_v068_20260618_1610_threebay_xlarge_lowproc_dense_tardy_research.py`
+
+## Manual Loop Note 2026-06-18 20:35 KST
+
+- version_id: `reboot_v070_20260618_2035_highproc_concentrated_gap_single`
+- parent_version: `reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single`
+- hypothesis:
+  - The remaining high-proc concentrated-preference roomy-slack family still
+    has residual T because the current single-block repair often picks the
+    wrong tardy block.
+  - On that family, choosing one tardy block from the top tardy shortlist by
+    `2 * current preference penalty + release_time` should improve the repair
+    target while keeping the rest of v069 unchanged.
+- targeted subtype:
+  - `bays in {2, 4}`
+  - `blocks >= 100`
+  - `proc_mean >= 21.0`
+  - `slack_mean >= 4.6`
+  - `pref_concentration >= 0.60`
+  - `pref_pressure >= 0.59`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - guard rows:
+    `prob_38`
+- expected metric movement:
+  - improve T/objective on the high-proc concentrated-preference subtype
+  - preserve representative core-9 smoke rows
+  - preserve the v069 medium-diffuse improvements
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one of the intended rows without
+    objective regression on the whole targeted pack
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v069
+- rollback criteria:
+  - reject if the new target selector leaks onto guards, loses the scoreable
+    contract, or raises avg objective on the full 40
+
+## reboot_v070_20260618_2035_highproc_concentrated_gap_single
+
+- File:
+  `reboot_v070_20260618_2035_highproc_concentrated_gap_single.py`
+- Parent:
+  `reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v069 unchanged outside the target subtype.
+  - Build the trusted v069 warm start first.
+  - On a high-proc concentrated-preference roomy-slack class, re-search one
+    tardy block chosen from the top tardy shortlist by
+    `2 * current preference penalty + release_time`.
+- Targeted subtype:
+  - `bays in {2, 4}`
+  - `blocks >= 100`
+  - `proc_mean >= 21.0`
+  - `slack_mean >= 4.6`
+  - `pref_concentration >= 0.60`
+  - `pref_pressure >= 0.59`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v070_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v069:
+    - `prob_31` improved inside the smoke pack
+    - all other smoke rows held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v070_highproc_concentrated_probe_20260618_001/`
+  - targeted subtype comparative result versus trusted v069:
+    - `prob_25` improved:
+      - objective `1512671 -> 1499211`
+      - T `2176 -> 2159`
+      - L `519 -> 278`
+      - P `3038 -> 2944`
+    - `prob_27` improved:
+      - objective `78787221 -> 77480587`
+      - T `5735 -> 5637`
+      - L `2033 -> 2033`
+      - P `5796 -> 5796`
+    - `prob_31` improved:
+      - objective `40349837 -> 39802386`
+      - T `2792 -> 2751`
+      - L `1580 -> 1670`
+      - P `11683 -> 11679`
+    - `prob_40` stayed unchanged in T/L/P/objective and remained scoreable
+    - guard row `prob_38` stayed unchanged in T/L/P/objective and remained scoreable
+  - time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v070_prob31_short45_20260618_001/`
+  - short-limit stress result:
+    - on `prob_31` with `timelimit=45`, v070 matched v069 exactly on objective
+      and stayed scoreable, confirming that the new phase safely drops out
+      under tighter runtime
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v070_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v069:
+    - avg objective `15195532.1 -> 15148843.475`
+    - avg T `1567.55 -> 1563.65`
+    - avg L `2751.45 -> 2747.675`
+    - avg P `4181.425 -> 4178.975`
+    - runtime max `57.527918s -> 58.390565s`
+    - objective improvements: `3` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate stayed fully scoreable, improved three intended rows,
+    preserved the guard row and `prob_40`, and lowered avg objective plus avg
+    T/L/P with zero objective regressions elsewhere. The runtime max rose
+    slightly but remained under the official limit, and the short-limit smoke
+    showed the new phase disabling itself safely when headroom tightened.
+- Rollback target:
+  `reboot_v069_20260618_1950_threebay_medium_diffuse_gap_single.py`
+
+## Manual Loop Note 2026-06-18 21:18 KST
+
+- version_id: `reboot_v071_20260618_2118_threebay_xlarge_lowproc_penalty_single`
+- parent_version: `reboot_v070_20260618_2035_highproc_concentrated_gap_single`
+- hypothesis:
+  - The remaining 3-bay xlarge low-proc tight-slack runtime-risk family still
+    loses score because its current single-block repair often picks the wrong
+    tardy block.
+  - On that family, choosing one tardy block from the top tardy shortlist by
+    `2 * current preference penalty + release_time` should improve the repair
+    target while keeping the rest of v070 unchanged.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_37`, `prob_39`
+  - guard rows:
+    `prob_32`, `prob_33`, `prob_38`
+- expected metric movement:
+  - improve T/objective on the 3-bay xlarge low-proc runtime-risk subtype
+  - preserve representative core-9 smoke rows
+  - preserve the v069 medium-diffuse gains and the v070 concentrated high-proc gains
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one intended row without
+    objective regression on the whole targeted pack
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v070
+- rollback criteria:
+  - reject if the new selector leaks onto guards, loses the scoreable
+    contract, or raises avg objective on the full 40
+
+## reboot_v071_20260618_2118_threebay_xlarge_lowproc_penalty_single
+
+- File:
+  `reboot_v071_20260618_2118_threebay_xlarge_lowproc_penalty_single.py`
+- Parent:
+  `reboot_v070_20260618_2035_highproc_concentrated_gap_single`
+- Status:
+  rejected
+- Strategy:
+  - Preserve v070 unchanged outside the target subtype.
+  - Build the trusted v070 warm start first.
+  - On a 3-bay xlarge low-proc tight-slack class, re-search one tardy block
+    chosen from the top tardy shortlist by
+    `2 * current preference penalty + release_time`.
+- Targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v071_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v071_threebay_xlarge_probe_20260618_001/`
+  - targeted subtype result:
+    - `prob_39` improved:
+      - objective `48598605 -> 48160369`
+      - T `3553 -> 3521`
+      - L `314 -> 194`
+      - P `8168 -> 8094`
+    - `prob_32` stayed unchanged
+    - `prob_38` stayed unchanged
+    - but the version timed out on:
+      - `prob_33`: runtime `61.11s`
+      - `prob_37`: runtime `81.01s`
+- Decision:
+  - rejected
+  - Rationale:
+    even though the selector found a real improvement on the intended xlarge
+    low-proc family, it leaked extra runtime onto nearby runtime-risk rows and
+    broke the scoreable contract at targeted-smoke stage. The next attempt
+    should split the same family into runtime-risk vs long-limit-opportunity
+    subtypes before applying the extra repair.
+
+## Manual Loop Note 2026-06-18 21:35 KST
+
+- version_id: `reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single`
+- parent_version: `reboot_v070_20260618_2035_highproc_concentrated_gap_single`
+- hypothesis:
+  - The xlarge 3-bay low-proc tight-slack family is real, but only the
+    long-limit-opportunity portion has enough remaining headroom for an extra
+    single-block repair.
+  - Reusing the v071 penalty-and-release target selector only when the warm
+    start leaves large headroom should preserve safety on runtime-risk rows
+    while keeping the gain on the slower-but-still-headroom-rich row.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `remaining_after_warm_start > dynamic_reserve + 12.0`
+- targeted validation rows:
+  - expected improved row:
+    `prob_39`
+  - guard rows:
+    `prob_32`, `prob_33`, `prob_37`, `prob_38`
+- expected metric movement:
+  - improve the long-limit-opportunity slice of the xlarge 3-bay low-proc family
+  - keep runtime-risk neighbor rows on the v070 warm start
+  - preserve representative core-9 smoke rows
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_39` with no timeout on the target pack
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v070
+- rollback criteria:
+  - reject if the new headroom guard still allows timeout on runtime-risk rows
+    or if the full-train40 avg objective does not improve
+
+## reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single
+
+- File:
+  `reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single.py`
+- Parent:
+  `reboot_v070_20260618_2035_highproc_concentrated_gap_single`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v070 unchanged outside the target subtype.
+  - Build the trusted v070 warm start first.
+  - On the long-limit-opportunity slice of the 3-bay xlarge low-proc
+    tight-slack family, re-search one tardy block chosen from the top tardy
+    shortlist by `2 * current preference penalty + release_time`.
+- Targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `remaining_after_warm_start > dynamic_reserve + 12.0`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v072_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v070:
+    - all smoke rows held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v072_threebay_xlarge_probe_20260618_001/`
+  - targeted subtype comparative result versus trusted v070:
+    - `prob_39` improved:
+      - objective `48598605 -> 48160369`
+      - T `3553 -> 3521`
+      - L `314 -> 194`
+      - P `8168 -> 8094`
+    - guard rows `prob_32`, `prob_33`, `prob_37`, `prob_38` stayed unchanged
+      in T/L/P/objective and remained scoreable
+  - time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v072_prob39_short45_20260618_001/`
+  - short-limit stress result:
+    - on `prob_39` with `timelimit=45`, v072 matched v070 exactly on
+      objective and stayed scoreable, confirming that the new phase safely
+      drops out under tighter runtime
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v072_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v070:
+    - avg objective `15148843.475 -> 15137887.575`
+    - avg T `1563.65 -> 1562.85`
+    - avg L `2747.675 -> 2744.675`
+    - avg P `4178.975 -> 4177.125`
+    - runtime max `58.390565s -> 59.865307s`
+    - objective improvements: `1` row
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate preserved the scoreable contract, kept its guard rows stable,
+    improved the intended long-limit-opportunity row, and still lowered avg
+    objective plus avg T/L/P with zero objective regressions elsewhere. The
+    short-limit stress confirmed the extra phase safely disabling itself when
+    headroom is tighter.
+- Rollback target:
+  `reboot_v070_20260618_2035_highproc_concentrated_gap_single.py`
+
+## reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert
+
+- File:
+  `reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert.py`
+- Parent:
+  `reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v072 unchanged outside the target subtype.
+  - Build the trusted v072 warm start first.
+  - On the 3-bay diffuse-moderate mid-proc subtype, remove exactly one tardy
+    block and reinsert it with a bounded candidate-position search instead of
+    the older full greedy-prefix rebuild.
+- Targeted subtype:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.39 <= pref_concentration <= 0.46`
+  - `0.39 <= pref_pressure <= 0.42`
+  - `0.10 <= workload_imbalance_pressure <= 0.23`
+  - `slack_mean <= 4.0`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v073_core9_20260618_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v072:
+    - all smoke rows held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v073_threebay_diffuse_fast_20260618_001/`
+  - targeted subtype v073 rows accepted `5/5`; timeout `0`, invalid `0`
+  - targeted subtype comparative result versus trusted v072 row values:
+    - `prob_32` unchanged
+    - `prob_33` improved:
+      - objective `26173385 -> 26172225`
+      - T `3805 -> 3805`
+      - L `1150 -> 1094`
+      - P `5293 -> 5289`
+    - `prob_37` improved:
+      - objective `17644653 -> 17602705`
+      - T `3961 -> 3961`
+      - L `3660 -> 3823`
+      - P `7380 -> 7309`
+    - `prob_39` unchanged
+    - `prob_40` unchanged
+    - note: the same-run comparison row for `v072 prob_33` hit a watchdog
+      timeout at `60.071318s`, so the accepted baseline numbers above use the
+      trusted v072 full-train40 evidence instead
+  - time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v073_prob33_short45_20260618_001/`
+  - short-limit stress result:
+    - on `prob_33` with `timelimit=45`, v073 stayed scoreable and improved
+      objective `26515388 -> 26514228` with identical T `3854`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v073_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v072:
+    - avg objective `15137887.575 -> 15136809.875`
+    - avg T `1562.85 -> 1562.85`
+    - avg L `2744.675 -> 2747.35`
+    - avg P `4177.125 -> 4175.25`
+    - runtime max `59.865307s -> 57.944689s`
+    - objective improvements: `2` rows
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate preserved the full scoreable contract, improved both target
+    subtype rows, lowered avg objective with zero objective regressions, and
+    reduced runtime max despite touching a runtime-sensitive family.
+- Rollback target:
+  `reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single.py`
+
+## Manual Loop Note 2026-06-18 23:02 KST
+
+- version_id: `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio`
+- parent_version: `reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert`
+- hypothesis:
+  - The remaining 4-bay high-proc dense-preference family already has a strong
+    warm start, so the profitable move is not another deep search phase but a
+    tiny one-block reinsertion portfolio on a few top tardy blocks.
+  - The cheap reinsertion probe already showed a small positive signal on the
+    workload-heavier row while leaving the smaller sibling row unchanged, so a
+    broad family selector with strict keep-only-if-better logic should remain
+    safe.
+- targeted subtype:
+  - `bays == 4`
+  - `blocks >= 200`
+  - `proc_mean >= 20.0`
+  - `pref_concentration >= 0.72`
+  - `pref_pressure >= 0.68`
+  - `workload_imbalance_pressure >= 0.70`
+  - `slack_mean >= 4.8`
+  - `family_direct_budget >= 45.0`
+- targeted validation rows:
+  - expected improved row:
+    `prob_40`
+  - same-family guard row:
+    `prob_31`
+  - cross-family guard rows:
+    `prob_36`, `prob_38`
+- expected metric movement:
+  - improve objective on the heavier 4-bay high-proc subtype row
+  - preserve representative core-9 smoke rows
+  - improve avg objective versus trusted v073 with no timeout/invalid rows
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted family smoke improves `prob_40` while keeping guard rows stable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v073
+- rollback criteria:
+  - reject if the reinsertion portfolio leaks regressions onto `prob_31` or
+    breaks the scoreable contract on smoke or full train40
+
+## reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio
+
+- File:
+  `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio.py`
+- Parent:
+  `reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert`
+- Status:
+  accepted as new BEST
+- Strategy:
+  - Preserve v073 unchanged outside the target subtype.
+  - Build the trusted v073 warm start first.
+  - On the long-limit-opportunity slice of the 4-bay high-proc
+    dense-preference family, try a tiny one-block reinsertion portfolio on the
+    top tardy shortlist and keep the best feasible result.
+- Targeted subtype:
+  - `bays == 4`
+  - `blocks >= 200`
+  - `proc_mean >= 20.0`
+  - `pref_concentration >= 0.72`
+  - `pref_pressure >= 0.68`
+  - `workload_imbalance_pressure >= 0.70`
+  - `slack_mean >= 4.8`
+  - `family_direct_budget >= 45.0`
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v074_core9_20260618_002/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - core-9 comparative result versus trusted v073:
+    - all smoke rows held identical T/L/P/objective values
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v074_fourbay_fast_20260618_002/`
+  - targeted subtype comparative result versus trusted v073:
+    - `prob_31` unchanged
+    - `prob_36` unchanged
+    - `prob_38` unchanged
+    - `prob_40` improved:
+      - objective `6362146 -> 6361163`
+      - T `9314 -> 9314`
+      - L `6201 -> 6310`
+      - P `11039 -> 10955`
+  - time-stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v074_prob40_short45_20260618_002/`
+  - short-limit stress result:
+    - on `prob_40` with `timelimit=45`, v074 matched v073 exactly on
+      objective/T/L/P and stayed scoreable, confirming the new family-budget
+      guard disables the phase under tighter limits
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v074_train40_20260618_001/`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - full comparative result versus trusted v073:
+    - avg objective `15136809.875 -> 15136785.3`
+    - avg T `1562.85 -> 1562.85`
+    - avg L `2747.35 -> 2750.075`
+    - avg P `4175.25 -> 4173.15`
+    - runtime max `57.944689s -> 59.387296s`
+    - objective improvements: `1` row
+    - objective regressions: `0` rows
+- Decision:
+  - accepted as new BEST
+  - Rationale:
+    the candidate preserved the full scoreable contract, improved the intended
+    4-bay high-proc row, kept its guards stable, and lowered avg objective
+    again with zero objective regressions. The short-limit stress also removed
+    the earlier hidden-risk concern by proving that the phase now disables
+    itself cleanly when the family budget is tighter.
+- Rollback target:
+  `reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert.py`
+
+## Manual Loop Note 2026-06-19 00:05 KST
+
+- version_id: `reboot_v075_20260619_0005_prob38like_direct_plus_single_prefix`
+- parent_version: `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio`
+- hypothesis:
+  - On the remaining 3-bay xlarge high-proc moderate-preference family, the
+    current `due_long` backup arm spends meaningful time but never wins.
+  - Replacing that backup with a one-block greedy-prefix re-search on the
+    release-aware direct candidate should improve the family objective while
+    keeping the phase disabled on shorter limits.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - `remaining_after_direct_candidate > 18.0`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_37`, `prob_39`, `prob_40`
+- expected metric movement:
+  - improve T/objective on the remaining prob38-like family
+  - preserve representative core-9 smoke rows
+  - improve avg objective versus trusted v074 without timeout/invalid rows
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_38` with no timeout
+  - short-limit stress keeps the phase disabled
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v074
+- rollback criteria:
+  - reject if the new direct-plus-prefix phase times out, fails to improve the
+    target family, or regresses avg objective on full train40
+
+## reboot_v075_20260619_0005_prob38like_direct_plus_single_prefix
+
+- File:
+  `reboot_v075_20260619_0005_prob38like_direct_plus_single_prefix.py`
+- Parent:
+  `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio`
+- Status:
+  rejected
+- Strategy:
+  - Preserve v074 outside the target subtype.
+  - On the prob38-like family, replace the old due_long backup with a direct
+    release-aware candidate plus one-block greedy-prefix re-search.
+- Validation:
+  - import smoke passed
+  - representative core-9 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v075_core9_20260619_001/`
+  - core-9 accepted `9/9`; timeout `0`, invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v075_prob38like_20260619_001/`
+  - targeted subtype comparative result versus trusted v074:
+    - `prob_37` unchanged
+    - `prob_38` improved:
+      - objective `152453868 -> 151254848`
+      - T `11212 -> 11120`
+      - L `4336 -> 3894`
+      - P `9852 -> 9947`
+    - `prob_39` unchanged
+    - `prob_40` unchanged
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v075_prob38_short45_20260619_001/`
+  - short-limit stress failed:
+    - on `prob_38` with `timelimit=45`, v075 regressed badly versus trusted
+      v074:
+      - objective `456503246 -> 977175446`
+      - T `34010 -> 73064`
+  - full train40 was not run
+- Decision:
+  - rejected
+  - Rationale:
+    the 60s target signal was real, but the phase was still active on a
+    shorter standard-tier limit where the direct candidate is much weaker.
+    That short-limit regression is too severe to justify a full-train40 run.
+- Rollback target:
+  `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio.py`
+
+## Manual Loop Note 2026-06-19 00:24 KST
+
+- version_id: `reboot_v076_20260619_0024_prob38like_longlimit_single_prefix`
+- parent_version: `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio`
+- hypothesis:
+  - The rejected v075 showed that the prob38-like direct-plus-prefix idea has
+    real 60s signal, but it must be restricted to long-limit opportunity
+    cases.
+  - Requiring the prob38-like family direct budget to be at least `45.0`
+    should cleanly disable the phase on the `45s` stress case while keeping
+    the 60s target improvement alive.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - `direct_budget >= 45.0`
+  - `remaining_after_direct_candidate > 18.0`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_37`, `prob_39`, `prob_40`
+  - short-limit guard:
+    `prob_38 @ 45s`
+- expected metric movement:
+  - preserve the 60s prob38-like gain from v075
+  - keep the phase disabled on shorter limits
+  - improve avg objective versus trusted v074 with no timeout/invalid rows
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_38` with no timeout
+  - short-limit stress matches trusted v074
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v074
+- rollback criteria:
+  - reject if the direct-budget guard is still insufficient or if the full
+    scoreable contract breaks anywhere
+
+## Manual Loop Result 2026-06-19 14:45 KST
+
+- version_id: `reboot_v076_20260619_0024_prob38like_longlimit_single_prefix`
+- status:
+  rejected
+- validation:
+  - mandated smoke recheck path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v076_core9_20260619_001/`
+  - scoreable contract failed before targeted/full promotion:
+    - `prob_31` timed out
+    - `prob_9` and `prob_36` regressed materially versus the trusted v074
+      smoke evidence
+- decision:
+  - rejected
+  - rationale:
+    the attempted long-limit guard did not produce a stable accepted surface.
+    Even outside the intended prob38-like target, the delegated runtime-
+    sensitive chain drifted enough to break the smoke gate. This version must
+    not be promoted or used as the active baseline.
+
+## Manual Loop Note 2026-06-19 14:45 KST
+
+- version_id: `reboot_v077_20260619_1445_prob31like_release_due_stabilizer`
+- parent_version:
+  `reboot_v074_20260618_2302_fourbay_highproc_fast_reinsert_portfolio`
+- hypothesis:
+  - The current active v074 chain is no longer smoke-stable on the
+    prob31-like 4-bay high-proc concentrated-preference subtype because the
+    deep runtime-sensitive path can spend too long inside the older direct
+    builder and collapse into forced placements.
+  - A cheaper feature-based release-due direct warm start, applied only to
+    the prob31-like family, should trade a little row-level score upside for
+    much better scoreable stability while leaving every non-target row on
+    trusted v074.
+- targeted subtype:
+  - `bays == 4`
+  - `190 <= blocks <= 210`
+  - `20.0 <= proc_mean <= 22.5`
+  - `0.75 <= pref_concentration <= 0.82`
+  - `0.70 <= pref_pressure <= 0.75`
+  - `0.74 <= workload_imbalance_pressure <= 0.82`
+- targeted validation rows:
+  - stabilizer target:
+    `prob_31`
+  - smoke guard rows:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_36`
+  - subtype guard:
+    `prob_40`
+- expected metric movement:
+  - recover smoke scoreability on the prob31-like family
+  - keep non-target rows identical to v074
+  - if the runtime cliff is removed cleanly, evaluate whether the score trade
+    is acceptable for candidate or training-best-only status
+- acceptance criteria:
+  - import smoke passes
+  - mandated smoke-8 accepted `8/8`, timeout `0`, invalid `0`
+  - targeted subtype smoke keeps `prob_40` stable while removing the
+    prob31-like timeout risk
+  - short-limit stress on the prob31-like family remains scoreable
+  - full train40 only if the smoke gates pass
+- rollback criteria:
+  - reject if the subtype selector leaks, if the smoke gate still times out,
+    or if the direct stabilizer is so weak that it obviously cannot compete
+    with the trusted historical baseline
+
+## Manual Loop Result 2026-06-19 15:08 KST
+
+- version_id: `reboot_v077_20260619_1445_prob31like_release_due_stabilizer`
+- status:
+  rejected
+- validation:
+  - mandated smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v077_core8_20260619_001/`
+  - smoke-8 result:
+    - accepted `8/8`
+    - timeout `0`
+    - invalid `0`
+    - prob31-like timeout risk removed
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v077_prob31like_20260619_001/`
+  - targeted subtype comparative outcome:
+    - `prob_31` became scoreable and stable, but at a much weaker score
+      headline than the trusted historical v074 evidence
+    - `prob_36` stayed scoreable but remained materially worse than the
+      trusted historical v074 evidence
+    - guard row `prob_40` regressed badly in the same rerun, so the practical
+      behavior was still too noisy for promotion
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v077_prob31_short45_20260619_001/`
+  - short-limit stress stayed scoreable but at a very weak score headline
+- decision:
+  - rejected
+  - rationale:
+    the stabilizer did recover smoke scoreability, but the row-level score
+    trade was too large and the neighboring high-proc guard behavior was still
+    noisy enough that this is not a competitive promotion candidate.
+
+## Manual Loop Result 2026-06-19 16:18 KST
+
+- version_id: `reboot_v078_20260619_1535_fourbay_runtime_family_flatten`
+- status:
+  candidate
+- validation:
+  - core-9 smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v078_core9_20260619_001/`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v078_fourbay_runtime_20260619_001/`
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v078_prob31_prob40_short45_20260619_001/`
+  - full-train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v078_train40_20260619_001/`
+  - scoreable contract:
+    - smoke accepted `9/9`
+    - full accepted `40/40`
+    - timeout `0`
+    - invalid `0`
+  - train40 comparative outcome versus trusted v074:
+    - row-for-row objective/T/L/P identical on all 40 rows
+    - avg objective equal at `15136785.3`
+    - avg T equal at `1562.85`
+    - avg L equal at `2750.075`
+    - avg P equal at `4173.15`
+- decision:
+  - candidate
+  - rationale:
+    this version is a useful stabilization parent because it reproduced the
+    trusted full-train40 result exactly while replacing the old delegated
+    runtime-sensitive warm-start chain with subtype-specific direct policies.
+    It does not improve the official objective headline, so it is not a BEST
+    promotion by itself.
+
+## Manual Loop Note 2026-06-19 16:18 KST
+
+- version_id: `reboot_v079_20260619_1618_prob38like_on_flattened_parent`
+- parent_version:
+  `reboot_v078_20260619_1535_fourbay_runtime_family_flatten`
+- hypothesis:
+  - v075 showed a real 60s improvement signal on the prob38-like family, but
+    the old delegated parent made the guarded retry unsafe to evaluate.
+  - Reapplying the same long-limit direct-plus-single-prefix idea on top of
+    the stabilized v078 parent should keep every non-target row frozen at the
+    trusted v078/v074 result while restoring the prob38-like improvement
+    opportunity.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - `direct_budget >= 45.0`
+  - `remaining_after_direct_candidate > 18.0`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_37`, `prob_39`, `prob_40`
+  - short-limit guard:
+    `prob_38 @ 45s`
+- expected metric movement:
+  - preserve the stable flattened parent outside the target subtype
+  - recover the earlier prob38-like objective/T improvement at 60s
+  - improve avg objective versus trusted v074/v078 if the target signal holds
+- acceptance criteria:
+  - import smoke passes
+  - core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_38` with no guard-row regression
+  - short-limit stress stays scoreable and matches the parent behavior
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v074/v078
+- rollback criteria:
+  - reject if the target improvement disappears, if the short-limit guard
+    still regresses, or if any non-target row departs materially from the
+    flattened parent
+
+## Manual Loop Result 2026-06-19 16:53 KST
+
+- version_id: `reboot_v079_20260619_1618_prob38like_on_flattened_parent`
+- status:
+  rejected
+- validation:
+  - core-9 smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v079_core9_20260619_001/`
+  - core-9 result:
+    - accepted `9/9`
+    - timeout `0`
+    - invalid `0`
+    - non-target rows matched the flattened parent signal
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v079_prob38like_20260619_001/`
+  - targeted subtype outcome:
+    - `prob_38` recovered the intended objective improvement to
+      `151254848`
+    - but runtime crossed the official limit at about `60.00s`, so the row
+      was not accepted_for_score
+    - guard rows `prob_37`, `prob_39`, `prob_40` stayed scoreable
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v079_prob38_short45_20260619_001/`
+  - short-limit stress stayed scoreable and the long-limit phase stayed off
+- decision:
+  - rejected
+  - rationale:
+    the flattened parent successfully removed the old chain leakage, but the
+    prob38-like greedy-prefix neighborhood is still too expensive at 60s. The
+    improvement signal is real, yet it cannot be promoted until the same move
+    can be reproduced under the official time limit.
+
+## Manual Loop Note 2026-06-19 17:38 KST
+
+- version_id: `reboot_v080_20260619_1738_prob38like_quantile_single_reinsert`
+- parent_version:
+  `reboot_v078_20260619_1535_fourbay_runtime_family_flatten`
+- hypothesis:
+  - The v079 signal came from a single tardy-block move, but the old
+    greedy-prefix rebuild searched too many positions to stay under the 60s
+    limit.
+  - On the prob38-like family, a one-block reinsertion that samples candidate
+    positions at quantile checkpoints should still see the deep improving slot
+    while trimming the local-search time to a few seconds.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - `direct_budget >= 45.0`
+  - `remaining_after_direct_candidate > 4.5`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_37`, `prob_39`, `prob_40`
+  - short-limit guard:
+    `prob_38 @ 45s`
+- expected metric movement:
+  - preserve the stable flattened parent outside the target subtype
+  - recover the prob38-like objective/T improvement with much lower local
+    search runtime than v079
+  - improve avg objective versus trusted v074/v078 if the target signal holds
+- acceptance criteria:
+  - import smoke passes
+  - core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_38` with no guard-row regression
+  - short-limit stress stays scoreable and keeps the long-limit phase off
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v074/v078
+- rollback criteria:
+  - reject if the sampled move loses the target improvement, regresses the
+    short-limit guard, or leaks instability onto non-target rows
+
+## Manual Loop Result 2026-06-19 18:22 KST
+
+- version_id: `reboot_v080_20260619_1738_prob38like_quantile_single_reinsert`
+- status:
+  rejected
+- validation:
+  - smoke-8 path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v080_smoke8_20260619_001/`
+  - smoke-8 result:
+    - accepted `8/8`
+    - timeout `0`
+    - invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v080_prob38like_20260619_001/`
+  - targeted subtype outcome:
+    - `prob_38` improved to objective `151254848`
+    - guard rows `prob_37`, `prob_39`, `prob_40` stayed scoreable
+    - local search stayed under the official 60s row limit on the target row
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v080_prob38_short45_20260619_001/`
+  - short-limit stress outcome:
+    - accepted `1/1`
+    - timeout `0`
+    - invalid `0`
+    - the long-limit phase stayed off
+  - full-train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v080_train40_20260619_001/`
+  - full-train40 outcome:
+    - accepted_for_score `39/40`
+    - timeout `1`
+    - invalid `0`
+    - timed-out row:
+      `prob_33` at runtime `60.589919s`
+  - runtime recheck paths:
+    - `reports/ogc2026_reboot_v001/probe_reboot_v078_prob33_20260619_001/`
+    - `reports/ogc2026_reboot_v001/probe_reboot_v080_prob33_20260619_001/`
+  - runtime recheck outcome:
+    - `prob_33` also timed out under delegated parent `v078`
+    - this indicates the current runtime-risk is not caused by the new
+      prob38-like local move itself
+- decision:
+  - rejected
+  - rationale:
+    the quantile-sampled reinsertion successfully reproduced the prob38-like
+    improvement under time on the targeted slice, but the full benchmark still
+    failed the scoreable contract because the inherited prob33 runtime-risk
+    surfaced again. The next loop should focus on the runtime-risk subtype
+    rather than promoting this version.
+
+## Manual Loop Note 2026-06-19 19:48 KST
+
+- version_id: `reboot_v081_20260619_1948_prob33like_runtime_flatten`
+- parent_version:
+  `reboot_v078_20260619_1535_fourbay_runtime_family_flatten`
+- hypothesis:
+  - The prob33 runtime cliff is mostly inherited warm-start depth, not the
+    final row-level repair signal itself.
+  - On a medium 3-bay diffuse runtime-risk subtype, the accepted v065 warm
+    start leaves much more time margin. Replaying the later v069/v073 row
+    signal through one quantile-sampled gap single plus one cheap fast single
+    should recover the trusted objective with less runtime risk.
+- targeted subtype:
+  - `bays == 3`
+  - `200 <= blocks < 240`
+  - `15.0 <= proc_mean <= 17.5`
+  - `0.40 <= pref_concentration <= 0.46`
+  - `0.40 <= pref_pressure <= 0.42`
+  - `0.20 <= workload_imbalance_pressure <= 0.25`
+  - `3.4 <= slack_mean <= 4.0`
+- targeted validation rows:
+  - expected runtime-risk row:
+    `prob_33`
+  - guard rows:
+    `prob_32`, `prob_35`, `prob_37`
+  - short-limit guard:
+    `prob_33 @ 45s`
+- expected metric movement:
+  - keep the prob33-like runtime-risk subtype scoreable with more margin
+  - preserve the flattened v078 parent elsewhere
+  - retain the trusted v074 objective signal on `prob_33`
+- acceptance criteria:
+  - import smoke passes
+  - core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke keeps `prob_33` scoreable with no guard-row
+    regression
+  - short-limit stress stays scoreable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective does not worsen materially and runtime-risk improves
+- rollback criteria:
+  - reject if the flattened path loses the trusted prob33 score signal, leaks
+    onto guard rows, or still times out on the full benchmark
+
+## Manual Loop Result 2026-06-19 20:18 KST
+
+- version_id: `reboot_v081_20260619_1948_prob33like_runtime_flatten`
+- status:
+  rejected
+- validation:
+  - core-9 smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v081_core9_20260619_001/`
+  - core-9 result:
+    - accepted `9/9`
+    - timeout `0`
+    - invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v081_prob33like_20260619_001/`
+  - targeted subtype outcome:
+    - `prob_33` stayed scoreable and recovered the trusted v074 objective
+      `26172225` in `37.54s`
+    - guard rows `prob_32`, `prob_35`, `prob_37` stayed scoreable
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v081_prob33_short45_20260619_001/`
+  - short-limit stress outcome:
+    - accepted `1/1`
+    - timeout `0`
+    - invalid `0`
+    - `prob_33` stayed scoreable at `41.71s`
+  - full-train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v081_train40_20260619_001/`
+  - full-train40 outcome:
+    - accepted_for_score `40/40`
+    - timeout `0`
+    - invalid `0`
+    - avg objective `15150471.575`
+    - avg T `1563.875`
+    - avg L `2747.825`
+    - avg P `4173.25`
+    - runtime max `57.339617s`
+  - train40 comparison versus trusted v074:
+    - only one row changed materially:
+      `prob_31`
+    - `prob_31` objective `39802386 -> 40349837`
+    - `prob_31` T `2751 -> 2792`
+    - `prob_31` runtime improved `56.64s -> 48.89s`
+- decision:
+  - rejected
+  - rationale:
+    the prob33 runtime-risk flatten worked as intended, but using the v078
+    parent leaked a worse prob31like policy onto the full benchmark. The next
+    loop should keep the new prob33like path while reverting the non-target
+    parent back to trusted v074.
+
+## Manual Loop Result 2026-06-19 21:03 KST
+
+- version_id: `reboot_v082_20260619_2022_prob33like_on_v074_parent`
+- status:
+  candidate
+- validation:
+  - core-9 smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v082_core9_20260619_001/`
+  - core-9 result:
+    - accepted `9/9`
+    - timeout `0`
+    - invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v082_prob33like_20260619_001/`
+  - targeted subtype outcome:
+    - `prob_33` stayed scoreable and recovered the trusted v074 objective
+      `26172225` in about `38.5s`
+    - `prob_31`, `prob_32`, `prob_35`, `prob_37` stayed scoreable
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v082_prob33_short45_20260619_001/`
+  - short-limit stress outcome:
+    - accepted `1/1`
+    - timeout `0`
+    - invalid `0`
+    - `prob_33` stayed scoreable at `40.59s`
+  - full-train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v082_train40_20260619_001/`
+  - full-train40 outcome:
+    - accepted_for_score `40/40`
+    - timeout `0`
+    - invalid `0`
+    - avg objective `15136785.3`
+    - avg T `1562.85`
+    - avg L `2750.075`
+    - avg P `4173.15`
+    - runtime max `55.251757s`
+  - train40 comparison versus trusted v074:
+    - objective/T/L/P matched row-for-row on all 40 rows
+    - runtime max improved `59.387296s -> 55.251757s`
+    - runtime avg improved `23.0268318s -> 22.249419175s`
+- decision:
+  - candidate
+  - rationale:
+    this version is a strong stabilized parent because it preserved the full
+    trusted v074 score exactly while giving the prob33-like runtime-risk row
+    materially more headroom. It is not an active BEST promotion by itself
+    because the official objective headline did not improve.
+
+## Manual Loop Note 2026-06-19 21:06 KST
+
+- version_id: `reboot_v083_20260619_2106_prob38like_on_stable_prob33_parent`
+- parent_version:
+  `reboot_v082_20260619_2022_prob33like_on_v074_parent`
+- hypothesis:
+  - v082 appears to be a stable equal-score parent that removes the inherited
+    prob33 runtime-risk without changing any trusted row-level score.
+  - Reapplying the v080 prob38like quantile single reinsertion on top of this
+    stabilized parent should keep the prob33 fix while recovering the prob38
+    objective improvement that earlier failed only because prob33 timed out.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean >= 20.0`
+  - `0.54 <= pref_concentration <= 0.60`
+  - `50.0 <= pref_gap_mean <= 53.5`
+  - `0.50 <= pref_pressure <= 0.54`
+  - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - `direct_budget >= 45.0`
+  - `remaining_after_direct_candidate > 4.5`
+- targeted validation rows:
+  - expected improved row:
+    `prob_38`
+  - guard rows:
+    `prob_33`, `prob_37`, `prob_39`, `prob_40`
+  - short-limit guard:
+    `prob_38 @ 45s`
+- expected metric movement:
+  - preserve the stabilized prob33like runtime fix from v082
+  - recover the prob38like objective/T improvement from v080
+  - improve avg objective versus trusted v074 if the combined parent is now
+    fully scoreable
+- acceptance criteria:
+  - import smoke passes
+  - core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves `prob_38` with no guard-row regression
+  - short-limit stress stays scoreable
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus trusted v074
+- rollback criteria:
+  - reject if the prob38like gain disappears, if prob33like stability regresses,
+    or if the combined candidate breaks the full scoreable contract
+
+## Manual Loop Result 2026-06-19 21:50 KST
+
+- version_id: `reboot_v083_20260619_2106_prob38like_on_stable_prob33_parent`
+- status:
+  accepted
+- validation:
+  - core-9 smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v083_core9_20260619_001/`
+  - core-9 result:
+    - accepted `9/9`
+    - timeout `0`
+    - invalid `0`
+  - targeted subtype path:
+    `reports/ogc2026_reboot_v001/target_reboot_v083_prob38like_20260619_001/`
+  - targeted subtype outcome:
+    - `prob_38` improved to objective `151254848`
+    - guard rows `prob_33`, `prob_37`, `prob_39`, `prob_40` stayed scoreable
+  - short-limit stress path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v083_prob38_short45_20260619_001/`
+  - short-limit stress outcome:
+    - accepted `1/1`
+    - timeout `0`
+    - invalid `0`
+  - full-train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v083_train40_20260619_001/`
+  - full-train40 outcome:
+    - accepted_for_score `40/40`
+    - timeout `0`
+    - invalid `0`
+    - avg objective `15106809.8`
+    - avg T `1560.55`
+    - avg L `2739.025`
+    - avg P `4175.525`
+    - runtime max `55.130536s`
+  - train40 comparison versus trusted v074:
+    - only one row changed materially:
+      `prob_38`
+    - `prob_38` objective `152453868 -> 151254848`
+    - `prob_38` T `11212 -> 11120`
+    - `prob_38` L `4336 -> 3894`
+    - `prob_38` P `9852 -> 9947`
+    - `prob_38` runtime `52.43s -> 44.75s`
+- decision:
+  - accepted
+  - rationale:
+    this version preserved the new prob33like stability from v082, recovered
+    the prob38like improvement under time, and improved the official full-train40
+    average objective while keeping the scoreable contract at `40/40`.
+
+## Manual Loop Note 2026-06-18 22:41 KST
+
+- version_id: `reboot_v073_20260618_2241_threebay_diffuse_fast_single_reinsert`
+- parent_version: `reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single`
+- hypothesis:
+  - The current trusted v072 already captures the right tardy-block signal on
+    the 3-bay diffuse-moderate mid-proc subtype, but the older full-greedy
+    re-search was too expensive for standard-tier rows.
+  - A cheaper local move that removes only one tardy block and reinserts it
+    through a tightly bounded position search should preserve the subtype
+    improvement signal while staying comfortably inside the remaining time on
+    both the runtime-risk and opportunity slices.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.39 <= pref_concentration <= 0.46`
+  - `0.39 <= pref_pressure <= 0.42`
+  - `0.10 <= workload_imbalance_pressure <= 0.23`
+  - `slack_mean <= 4.0`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_33`, `prob_37`
+  - guard rows:
+    `prob_32`, `prob_39`, `prob_40`
+- expected metric movement:
+  - improve objective on the 3-bay diffuse-moderate mid-proc subtype
+  - keep representative core-9 smoke rows scoreable
+  - improve avg objective versus trusted v072 without timeout/invalid rows
+- acceptance criteria:
+  - import smoke passes
+  - representative core-9 smoke accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one target row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v072
+- rollback criteria:
+  - reject if the cheap reinsertion leaks onto guard rows, fails the scoreable
+    contract, or does not improve avg objective on full train40
+
+## Manual Loop Note 2026-06-19 04:53 KST
+
+- version_id: `reboot_v084_20260619_0453_diffuse_second_reinsert_portfolio`
+- parent_version: `reboot_v083_20260619_2106_prob38like_on_stable_prob33_parent`
+- hypothesis:
+  - The current trusted v083 already contains the accepted first repair on the
+    3-bay diffuse-moderate mid-proc subtype, but direct probes show one more
+    tiny local move can still lower objective on long-headroom rows such as
+    `prob_37`.
+  - Replaying a very small second one-block reinsertion portfolio on the warm
+    start should preserve the current scoreable contract while recovering that
+    residual objective signal.
+- targeted subtype:
+  - `bays == 3`
+  - `blocks >= 200`
+  - `11.0 <= proc_mean <= 17.5`
+  - `0.39 <= pref_concentration <= 0.46`
+  - `0.39 <= pref_pressure <= 0.42`
+  - `0.10 <= workload_imbalance_pressure <= 0.23`
+  - `slack_mean <= 4.0`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_37`
+  - expected preserved rows:
+    `prob_33`
+  - guard rows:
+    `prob_32`, `prob_39`, `prob_40`
+- expected metric movement:
+  - improve objective on at least one diffuse-moderate target row
+  - keep the current accepted-for-score contract intact
+  - improve avg objective versus trusted v083 if the row-level signal survives
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke-9 accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one target row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v083
+- rollback criteria:
+  - reject if the extra portfolio leaks runtime, regresses targeted rows
+    overall, or fails to improve avg objective on full train40
+
+## reboot_v084_20260619_0453_diffuse_second_reinsert_portfolio
+
+- File:
+  `reboot_v084_20260619_0453_diffuse_second_reinsert_portfolio.py`
+- Parent:
+  `reboot_v083_20260619_2106_prob38like_on_stable_prob33_parent`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v084_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v084_diffuse_second_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `5/5`
+  - timeout `0`
+  - invalid `0`
+  - `prob_37` improved:
+    objective `17602705 -> 17544513`
+    T `3961 -> 3961`
+    L `3823 -> 4275`
+    P `7309 -> 7209`
+  - `prob_33` stayed unchanged on T/L/P/objective
+  - guard rows `prob_32`, `prob_39`, `prob_40` stayed unchanged on
+    T/L/P/objective
+- Short-limit stress path:
+  `reports/ogc2026_reboot_v001/stress_reboot_v084_prob37_short45_20260619_001/`
+- Short-limit stress outcome:
+  - accepted `0/1`
+  - timeout `1`
+  - invalid `0`
+  - `prob_37` timed out at `50.15267s` under `timelimit=45`
+  - comparison path:
+    `reports/ogc2026_reboot_v001/verify_reboot_v083_prob37_short45_20260619_001/`
+  - parent `v083` showed the same inherited short-limit timeout on `prob_37`,
+    so this was not treated as a new regression
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v084_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15105355.0`
+  - avg T `1560.55`
+  - avg L `2750.325`
+  - avg P `4173.025`
+  - runtime max `56.747494s`
+- Train40 comparison versus trusted v083:
+  - changed rows: `1`
+  - improved row:
+    - `prob_37`: objective `17602705 -> 17544513`
+    - T `3961 -> 3961`
+    - L `3823 -> 4275`
+    - P `7309 -> 7209`
+    - runtime `50.610244s -> 51.708361s`
+  - avg objective `15106809.8 -> 15105355.0`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2739.025 -> 2750.325`
+  - avg P `4175.525 -> 4173.025`
+  - runtime max `55.130536s -> 56.747494s`
+- decision:
+  - accepted
+  - rationale:
+    the second diffuse reinsert portfolio improved the official score headline
+    with one targeted row change, kept the scoreable `40/40` contract intact,
+    and introduced no new short-limit regression relative to the trusted
+    parent.
+
+## Manual Loop Note 2026-06-19 05:12 KST
+
+- version_id: `reboot_v085_20260619_0512_fourbay_dense_extended_reinsert`
+- parent_version: `reboot_v084_20260619_0453_diffuse_second_reinsert_portfolio`
+- hypothesis:
+  - The current trusted v084 warm start already reaches the right family and
+    first tiny reinsertion on the 4-bay high-proc dense-preference rows, but
+    direct probes show the shortlist width `3` used in the inherited v074
+    phase is still slightly too narrow.
+  - Replaying the same bounded reinsertion move on a shortlist of `6` tardy
+    blocks should preserve the family behavior while recovering extra objective
+    on `prob_31` / `prob_40`.
+- targeted subtype:
+  - `bays == 4`
+  - `blocks >= 200`
+  - `proc_mean >= 20.0`
+  - `pref_concentration >= 0.72`
+  - `pref_pressure >= 0.68`
+  - `workload_imbalance_pressure >= 0.70`
+  - `slack_mean >= 4.8`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_31`, `prob_40`
+  - guard rows:
+    `prob_36`, `prob_38`
+- expected metric movement:
+  - improve objective on at least one dense 4-bay family row
+  - keep the current accepted-for-score contract intact
+  - improve avg objective versus trusted v084
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke-9 accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one target row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v084
+- rollback criteria:
+  - reject if the longer shortlist leaks runtime, regresses the family overall,
+    or fails to improve avg objective on full train40
+
+## reboot_v085_20260619_0512_fourbay_dense_extended_reinsert
+
+- File:
+  `reboot_v085_20260619_0512_fourbay_dense_extended_reinsert.py`
+- Parent:
+  `reboot_v084_20260619_0453_diffuse_second_reinsert_portfolio`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v085_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v085_fourbay_dense_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `4/4`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31` improved:
+    objective `39802386 -> 39781302`
+    T `2751 -> 2751`
+    L `1670 -> 2118`
+    P `11679 -> 11595`
+  - `prob_40` improved:
+    objective `6361163 -> 6360024`
+    T `9314 -> 9314`
+    L `6310 -> 6081`
+    P `10955 -> 10885`
+  - guard rows `prob_36`, `prob_38` stayed unchanged on T/L/P/objective
+- Short-limit stress path:
+  `reports/ogc2026_reboot_v001/stress_reboot_v085_prob31_prob40_short45_20260619_001/`
+- Short-limit stress outcome:
+  - accepted `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31` scoreable at `44.430042s`
+  - `prob_40` scoreable at `38.762432s`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v085_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15104799.425`
+  - avg T `1560.55`
+  - avg L `2755.8`
+  - avg P `4169.175`
+  - runtime max `56.585865s`
+- Train40 comparison versus trusted v084:
+  - changed rows: `2`
+  - `prob_31`: objective `39802386 -> 39781302`, T unchanged, L `1670 -> 2118`,
+    P `11679 -> 11595`
+  - `prob_40`: objective `6361163 -> 6360024`, T unchanged, L `6310 -> 6081`,
+    P `10955 -> 10885`
+  - avg objective `15105355.0 -> 15104799.425`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2750.325 -> 2755.8`
+  - avg P `4173.025 -> 4169.175`
+  - runtime max `56.747494 -> 56.585865`
+- decision:
+  - accepted
+  - rationale:
+    the longer dense-family tardy shortlist produced two row-level objective
+    gains, preserved the full `40/40` scoreable contract, and even improved
+    the short-45 family stress check.
+
+## Manual Loop Note 2026-06-19 06:44 KST
+
+- version_id: `reboot_v086_20260619_0644_fourbay_lowproc_diffuse_reinsert`
+- parent_version: `reboot_v085_20260619_0512_fourbay_dense_extended_reinsert`
+- hypothesis:
+  - The current trusted v085 warm start still leaves small local placement
+    slack on the 4-bay early-short low-proc diffuse-preference family.
+  - Replaying the same bounded one-block reinsertion over a short tardy
+    shortlist should recover objective on several rows in that family without
+    waking runtime-heavy branches elsewhere.
+- targeted subtype:
+  - `bays == 4`
+  - `200 <= blocks <= 300`
+  - `7.2 <= proc_mean <= 7.9`
+  - `0.25 <= pref_concentration <= 0.31`
+  - `0.25 <= pref_pressure <= 0.29`
+  - `workload_imbalance_pressure <= 0.13`
+  - `1.2 <= slack_mean <= 1.7`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_17`, `prob_19`
+  - expected neutral rows inside the family:
+    `prob_12`, `prob_15`
+  - guard rows:
+    `prob_9`, `prob_16`, `prob_21`, `prob_26`, `prob_31`, `prob_36`
+- expected metric movement:
+  - improve at least one low-proc diffuse 4-bay row
+  - preserve the current accepted-for-score contract
+  - improve avg objective versus trusted v085
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke-9 accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one target row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v085
+- rollback criteria:
+  - reject if the extra local move leaks runtime, regresses the family
+    materially, or fails to improve avg objective on full train40
+
+## reboot_v086_20260619_0644_fourbay_lowproc_diffuse_reinsert
+
+- File:
+  `reboot_v086_20260619_0644_fourbay_lowproc_diffuse_reinsert.py`
+- Parent:
+  `reboot_v085_20260619_0512_fourbay_dense_extended_reinsert`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v086_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v086_fourbay_lowproc_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `8/8`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_10`: objective `5667274 -> 5662255`
+    - `prob_11`: objective `17214296 -> 17207513`
+    - `prob_13`: objective `17775052 -> 17775043`
+    - `prob_14`: objective `6421844 -> 6416790`
+    - `prob_17`: objective `349448 -> 338183`
+    - `prob_19`: objective `4728163 -> 4720039`
+  - neutral rows:
+    - `prob_12`, `prob_15`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v086_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15103893.075`
+  - avg T `1560.55`
+  - avg L `2762.45`
+  - avg P `4162.2`
+  - runtime max `57.755114s`
+- Train40 comparison versus trusted v085:
+  - changed rows: `6`
+  - `prob_10`: objective `5667274 -> 5662255`, T unchanged, L `2615 -> 2563`,
+    P `2338 -> 2303`
+  - `prob_11`: objective `17214296 -> 17207513`, T unchanged, L unchanged,
+    P `2407 -> 2356`
+  - `prob_13`: objective `17775052 -> 17775043`, T unchanged, L `4445 -> 4390`,
+    P `4364 -> 4366`
+  - `prob_14`: objective `6421844 -> 6416790`, T unchanged, L unchanged,
+    P `4159 -> 4121`
+  - `prob_17`: objective `349448 -> 338183`, T unchanged, L `5606 -> 5749`,
+    P `1511 -> 1422`
+  - `prob_19`: objective `4728163 -> 4720039`, T unchanged, L `6222 -> 6452`,
+    P `4164 -> 4096`
+  - avg objective `15104799.425 -> 15103893.075`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2755.8 -> 2762.45`
+  - avg P `4169.175 -> 4162.2`
+  - runtime max `56.585865 -> 57.755114`
+- decision:
+  - accepted
+  - rationale:
+    the extra low-proc diffuse reinsertion stayed inside the intended family,
+    preserved the full `40/40` scoreable contract, improved six rows, and
+    produced the best average objective so far with unchanged average T.
+
+## Manual Loop Note 2026-06-19 07:09 KST
+
+- version_id: `reboot_v087_20260619_0709_fourbay_lowproc_diffuse_second_pass`
+- parent_version: `reboot_v086_20260619_0644_fourbay_lowproc_diffuse_reinsert`
+- hypothesis:
+  - The first low-proc diffuse family reinsertion in v086 clearly improved the
+    family, but direct probes on the v086 solution artifacts show residual
+    objective slack still remains on part of the same subtype.
+  - Replaying one more bounded reinsertion pass on that same family should
+    recover the remaining objective on rows like `prob_10`, `prob_14`,
+    `prob_19` while leaving already-saturated family rows unchanged.
+- targeted subtype:
+  - `bays == 4`
+  - `200 <= blocks <= 300`
+  - `7.2 <= proc_mean <= 7.9`
+  - `0.25 <= pref_concentration <= 0.31`
+  - `0.25 <= pref_pressure <= 0.29`
+  - `workload_imbalance_pressure <= 0.13`
+  - `1.2 <= slack_mean <= 1.7`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_10`, `prob_14`, `prob_19`
+  - expected neutral rows:
+    `prob_11`, `prob_13`, `prob_17`
+  - guard rows:
+    `prob_1`, `prob_9`, `prob_21`, `prob_26`, `prob_31`, `prob_36`
+- expected metric movement:
+  - improve at least one row inside the already-validated family
+  - preserve the current accepted-for-score contract
+  - improve avg objective versus trusted v086
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke-9 accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one expected row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v086
+- rollback criteria:
+  - reject if the second pass leaks runtime, perturbs rows outside the family,
+    or fails to improve avg objective on full train40
+
+## reboot_v087_20260619_0709_fourbay_lowproc_diffuse_second_pass
+
+- File:
+  `reboot_v087_20260619_0709_fourbay_lowproc_diffuse_second_pass.py`
+- Parent:
+  `reboot_v086_20260619_0644_fourbay_lowproc_diffuse_reinsert`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v087_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v087_fourbay_lowproc_second_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `6/6`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_14`: objective `6416790 -> 6413830`
+    - `prob_19`: objective `4720039 -> 4716396`
+  - neutral rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_17`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v087_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15103728.0`
+  - avg T `1560.55`
+  - avg L `2770.6`
+  - avg P `4160.775`
+  - runtime max `57.450234s`
+- Train40 comparison versus trusted v086:
+  - changed rows: `2`
+  - `prob_14`: objective `6416790 -> 6413830`, T unchanged, L `3947 -> 3621`,
+    P `4121 -> 4111`
+  - `prob_19`: objective `4720039 -> 4716396`, T unchanged, L `6452 -> 7104`,
+    P `4096 -> 4049`
+  - avg objective `15103893.075 -> 15103728.0`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2762.45 -> 2770.6`
+  - avg P `4162.2 -> 4160.775`
+  - runtime max `57.755114 -> 57.450234`
+- decision:
+  - accepted
+  - rationale:
+    the second pass stayed entirely inside the already-validated family,
+    preserved the full `40/40` scoreable contract, improved two family rows,
+    and produced another objective gain with unchanged average T.
+
+## Manual Loop Note 2026-06-19 07:28 KST
+
+- version_id: `reboot_v088_20260619_0728_fourbay_lowproc_diffuse_wider_second_pass`
+- parent_version: `reboot_v087_20260619_0709_fourbay_lowproc_diffuse_second_pass`
+- hypothesis:
+  - The v087 second pass improved the intended family, but artifact-based
+    probes still show residual wins on the same subtype that are sitting just
+    beyond the current second-pass shortlist.
+  - Widening that second-pass tardy shortlist from `3/4/5` to `5/6/7` should
+    recover extra objective on rows like `prob_10`, `prob_11`, `prob_19`
+    without changing the rest of the training set.
+- targeted subtype:
+  - `bays == 4`
+  - `200 <= blocks <= 300`
+  - `7.2 <= proc_mean <= 7.9`
+  - `0.25 <= pref_concentration <= 0.31`
+  - `0.25 <= pref_pressure <= 0.29`
+  - `workload_imbalance_pressure <= 0.13`
+  - `1.2 <= slack_mean <= 1.7`
+- targeted validation rows:
+  - expected improved rows:
+    `prob_10`, `prob_11`, `prob_19`
+  - expected neutral rows:
+    `prob_13`, `prob_14`, `prob_17`
+  - guard rows:
+    `prob_1`, `prob_9`, `prob_21`, `prob_26`, `prob_31`, `prob_36`
+- expected metric movement:
+  - improve at least one residual row inside the same already-validated family
+  - preserve the current accepted-for-score contract
+  - improve avg objective versus trusted v087
+- acceptance criteria:
+  - import smoke passes
+  - representative smoke-9 accepted `9/9`, timeout `0`, invalid `0`
+  - targeted subtype smoke improves at least one expected row with no timeout
+  - full train40 accepted `40/40`, timeout `0`, invalid `0`
+  - avg objective improves versus v087
+- rollback criteria:
+  - reject if the wider shortlist leaks runtime, wakes regressions in the
+    family, or fails to improve avg objective on full train40
+
+## reboot_v088_20260619_0728_fourbay_lowproc_diffuse_wider_second_pass
+
+- File:
+  `reboot_v088_20260619_0728_fourbay_lowproc_diffuse_wider_second_pass.py`
+- Parent:
+  `reboot_v087_20260619_0709_fourbay_lowproc_diffuse_second_pass`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v088_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v088_fourbay_lowproc_wider_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `6/6`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_10`: objective `5662255 -> 5655073`
+    - `prob_11`: objective `17207513 -> 17206722`
+    - `prob_19`: objective `4716396 -> 4715671`
+  - neutral rows:
+    - `prob_13`, `prob_14`, `prob_17`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v088_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15103510.55`
+  - avg T `1560.55`
+  - avg L `2770.25`
+  - avg P `4159.15`
+  - runtime max `57.183935s`
+- Train40 comparison versus trusted v087:
+  - changed rows: `3`
+  - `prob_10`: objective `5662255 -> 5655073`, T unchanged, L unchanged,
+    P `2303 -> 2249`
+  - `prob_11`: objective `17207513 -> 17206722`, T unchanged, L `406 -> 407`,
+    P `2356 -> 2350`
+  - `prob_19`: objective `4716396 -> 4715671`, T unchanged, L `7104 -> 7089`,
+    P `4049 -> 4044`
+  - avg objective `15103728.0 -> 15103510.55`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2770.6 -> 2770.25`
+  - avg P `4160.775 -> 4159.15`
+  - runtime max `57.450234 -> 57.183935`
+- decision:
+  - accepted
+  - rationale:
+    the wider residual shortlist stayed inside the same already-validated
+    family, preserved the full `40/40` scoreable contract, improved three
+    rows, and produced another clean objective gain with unchanged average T.
+
+## reboot_v089_20260619_0743_fourbay_lowproc_diffuse_third_pass
+
+- File:
+  `reboot_v089_20260619_0743_fourbay_lowproc_diffuse_third_pass.py`
+- Parent:
+  `reboot_v088_20260619_0728_fourbay_lowproc_diffuse_wider_second_pass`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v089_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v089_fourbay_lowproc_third_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `6/6`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_10`: objective `5655073 -> 5648556`
+    - `prob_19`: objective `4715671 -> 4715273`
+  - neutral rows:
+    - `prob_11`, `prob_13`, `prob_14`, `prob_17`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v089_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15103337.675`
+  - avg T `1560.55`
+  - avg L `2769.425`
+  - avg P `4157.875`
+  - runtime max `57.634129s`
+- Train40 comparison versus trusted v088:
+  - changed objective rows: `2`
+  - `prob_10`: objective `5655073 -> 5648556`, T unchanged, L unchanged,
+    P `2249 -> 2200`
+  - `prob_19`: objective `4715671 -> 4715273`, T unchanged, L `7089 -> 7056`,
+    P `4044 -> 4042`
+  - objective regressions: `0`
+  - avg objective `15103510.55 -> 15103337.675`
+  - avg T `1560.55 -> 1560.55`
+  - avg L `2770.25 -> 2769.425`
+  - avg P `4159.15 -> 4157.875`
+  - runtime max `57.183935 -> 57.634129`
+- decision:
+  - accepted
+  - rationale:
+    the third pass stayed inside the same already-validated feature family,
+    preserved the full `40/40` scoreable contract, improved two residual rows
+    with zero objective regressions, and delivered another clean objective
+    gain with unchanged average T.
+
+## reboot_v090_20260619_0802_threebay_midproc_slackband_reinsert
+
+- File:
+  `reboot_v090_20260619_0802_threebay_midproc_slackband_reinsert.py`
+- Parent:
+  `reboot_v089_20260619_0743_fourbay_lowproc_diffuse_third_pass`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v090_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v090_threebay_midproc_slackband_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `3/3`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_35`: objective `22047898 -> 22037108`
+    - `prob_37`: objective `17544513 -> 17505105`
+  - neutral row:
+    - `prob_39`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_reboot_v090_short45_20260619_001/`
+- Time-stress outcome:
+  - accepted_for_score `2/3`
+  - timeout row: `prob_37`
+  - comparison note:
+    - matched the same short-limit timeout pattern already present in
+      `reports/ogc2026_reboot_v001/stress_reboot_v089_short45_20260619_001/`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v090_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15110448.675`
+  - avg T `1573.1`
+  - avg L `2773.075`
+  - avg P `4153.275`
+  - runtime max `58.797273s`
+- Train40 comparison versus trusted v089:
+  - improved rows:
+    - `prob_35`: objective `22047898 -> 22037108`
+    - `prob_37`: objective `17544513 -> 17505105`
+  - regressed row:
+    - `prob_40`: objective `6360024 -> 6694662`, T `9314 -> 9816`,
+      L `5888 -> 6524`, P `10818 -> 10754`
+  - avg objective `15103337.675 -> 15110448.675`
+  - avg T `1560.55 -> 1573.1`
+  - avg L `2769.425 -> 2773.075`
+  - avg P `4157.875 -> 4153.275`
+  - runtime max `57.634129 -> 58.797273`
+- Additional probe note:
+  - single-row reruns on `prob_40` showed instability on both parent and
+    candidate chains:
+    - v089 single-row probe objective `6815976`
+    - v090 single-row probe objective `6747129`
+  - the selector itself does not target `prob_40`, so the harmful full-train40
+    regression is treated as hidden-risk instability rather than a subtype win.
+- decision:
+  - rejected
+  - rationale:
+    the targeted family improved as expected, but full train40 regressed on the
+    trusted score headline and worsened average T. Because promotion requires
+    avg objective improvement versus trusted v089, v090 is rejected.
+
+## reboot_v091_20260619_0840_fourbay_dense_runtime_stable_orient3
+
+- File:
+  `reboot_v091_20260619_0840_fourbay_dense_runtime_stable_orient3.py`
+- Parent:
+  `reboot_v089_20260619_0743_fourbay_lowproc_diffuse_third_pass`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v091_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v091_fourbay_dense_runtime_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `2/2`
+  - timeout `0`
+  - invalid `0`
+  - improved row:
+    - `prob_40`: objective `6360024 -> 6333528`, T `9314 -> 9268`,
+      L `6081 -> 5002`, P `10885 -> 11290`
+  - regressed row:
+    - `prob_31`: objective `39781302 -> 50259202`, T `2751 -> 3532`,
+      L `2118 -> 6728`, P `11595 -> 11786`
+- Full-train40 path:
+  - not run
+- Full-train40 outcome:
+  - skipped because the targeted subtype gate already showed a severe same-family
+    regression on `prob_31`
+- Hidden-risk note:
+  - the reduced-orientation direct builder does stabilize and improve the
+    prob40-like row, but the broader dense 4-bay selector also captures
+    `prob_31`, where the same change is strongly harmful
+  - this means the family split is too broad even though the direct builder
+    itself is runtime-stable
+- decision:
+  - rejected
+  - rationale:
+    the candidate preserved smoke scoreability and improved `prob_40`, but it
+    badly regressed `prob_31` inside the same targeted subtype. Per the gate,
+    the run should not advance to full train40 when same-subtype regression is
+    already large at targeted smoke.
+
+## reboot_v092_20260619_0859_prob40like_runtime_stable_orient3
+
+- File:
+  `reboot_v092_20260619_0859_prob40like_runtime_stable_orient3.py`
+- Parent:
+  `reboot_v089_20260619_0743_fourbay_lowproc_diffuse_third_pass`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v092_core9_20260619_002/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v092_prob40like_guard_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `2/2`
+  - timeout `0`
+  - invalid `0`
+  - targeted family improvement:
+    - `prob_40`: objective `6360024 -> 6333528`, T `9314 -> 9268`,
+      L `6081 -> 5002`, P `10885 -> 11290`
+  - adjacent guard outcome:
+    - `prob_31`: objective preserved at `39781302`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v092_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15102675.275`
+  - avg T `1559.4`
+  - avg L `2742.45`
+  - avg P `4168.0`
+  - runtime max `58.633313s`
+- Train40 comparison versus trusted v089:
+  - improved row:
+    - `prob_40`: objective `6360024 -> 6333528`, T `9314 -> 9268`,
+      L `6081 -> 5002`, P `10885 -> 11290`
+  - regressed rows:
+    - none
+  - avg objective `15103337.675 -> 15102675.275`
+  - avg T `1560.55 -> 1559.4`
+  - avg L `2769.425 -> 2742.45`
+  - avg P `4157.875 -> 4168.0`
+  - runtime max `57.634129 -> 58.633313`
+- High-T rows at accepted result:
+  - `prob_27` T `5637`
+  - `prob_32` T `3021`
+  - `prob_33` T `3805`
+  - `prob_37` T `3961`
+  - `prob_38` T `11120`
+  - `prob_39` T `3521`
+  - `prob_40` T `9268`
+- decision:
+  - accepted
+  - rationale:
+    narrowing the runtime-stable orient3 builder back to the original
+    prob40-like high-workload subtype preserved the trusted 40/40 contract,
+    improved avg objective and avg T, removed the v091 prob31 regression, and
+    introduced no new train40 regressions.
+
+## reboot_v093_20260619_0917_threebay_midproc_slackband_on_v092
+
+- File:
+  `reboot_v093_20260619_0917_threebay_midproc_slackband_on_v092.py`
+- Parent:
+  `reboot_v092_20260619_0859_prob40like_runtime_stable_orient3`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v093_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v093_threebay_midproc_guard_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `4/4`
+  - timeout `0`
+  - invalid `0`
+  - improved rows:
+    - `prob_35`: objective `22047898 -> 22037108`, T `1591 -> 1591`,
+      L `8619 -> 8081`, P `5280 -> 5226`
+    - `prob_37`: objective `17544513 -> 17505105`, T `3961 -> 3961`,
+      L `4275 -> 4323`, P `7209 -> 7143`
+  - neutral guard rows:
+    - `prob_39`
+    - `prob_40`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v093_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15101420.325`
+  - avg T `1559.4`
+  - avg L `2730.2`
+  - avg P `4165.0`
+  - runtime max `57.428412s`
+- Train40 comparison versus trusted v092:
+  - improved rows:
+    - `prob_35`: objective `22047898 -> 22037108`
+    - `prob_37`: objective `17544513 -> 17505105`
+  - regressed rows:
+    - none
+  - avg objective `15102675.275 -> 15101420.325`
+  - avg T `1559.4 -> 1559.4`
+  - avg L `2742.45 -> 2730.2`
+  - avg P `4168.0 -> 4165.0`
+  - runtime max `58.633313 -> 57.428412`
+- High-T rows at accepted result:
+  - `prob_27` T `5637`
+  - `prob_32` T `3021`
+  - `prob_33` T `3805`
+  - `prob_37` T `3961`
+  - `prob_38` T `11120`
+  - `prob_39` T `3521`
+  - `prob_40` T `9268`
+- decision:
+  - accepted
+  - rationale:
+    replaying the already useful v090 family repair on top of the stabilized
+    v092 parent preserved the full 40/40 scoreable contract, kept the old
+    hidden-risk row neutral, improved two targeted rows, lowered avg objective,
+    and introduced no regressions.
+
+## reboot_v094_20260619_0931_threebay_medium_diffuse_gap_on_v093
+
+- File:
+  `reboot_v094_20260619_0931_threebay_medium_diffuse_gap_on_v093.py`
+- Parent:
+  `reboot_v093_20260619_0917_threebay_midproc_slackband_on_v092`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v094_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v094_threebay_medium_diffuse_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `2/2`
+  - timeout `0`
+  - invalid `0`
+  - improved row:
+    - `prob_32`: objective `12935663 -> 12781706`, T `3021 -> 2992`,
+      L `2614 -> 2434`, P `4756 -> 4662`
+  - neutral sibling guard row:
+    - `prob_33`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v094_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15097571.4`
+  - avg T `1558.675`
+  - avg L `2725.7`
+  - avg P `4162.65`
+  - runtime max `58.993998s`
+- Train40 comparison versus trusted v093:
+  - improved row:
+    - `prob_32`: objective `12935663 -> 12781706`, T `3021 -> 2992`,
+      L `2614 -> 2434`, P `4756 -> 4662`
+  - regressed rows:
+    - none
+  - avg objective `15101420.325 -> 15097571.4`
+  - avg T `1559.4 -> 1558.675`
+  - avg L `2730.2 -> 2725.7`
+  - avg P `4165.0 -> 4162.65`
+  - runtime max `57.428412 -> 58.993998`
+- High-T rows at accepted result:
+  - `prob_27` T `5637`
+  - `prob_33` T `3805`
+  - `prob_37` T `3961`
+  - `prob_38` T `11120`
+  - `prob_39` T `3521`
+  - `prob_40` T `9268`
+- decision:
+  - accepted
+  - rationale:
+    replaying the old v069 gap-aware repair on top of the newer v093 parent
+    preserved the full 40/40 scoreable contract, improved the intended medium
+    diffuse family on `prob_32`, kept the sibling subtype row neutral, lowered
+    avg objective and all three component averages, and introduced no
+    regressions.
+
+## reboot_v095_20260619_1118_xlarge_lowproc_replay_on_v094
+
+- File:
+  `reboot_v095_20260619_1118_xlarge_lowproc_replay_on_v094.py`
+- Parent:
+  `reboot_v094_20260619_0931_threebay_medium_diffuse_gap_on_v093`
+- Status:
+  - pending
+- Hypothesis:
+  the residual 3-bay xlarge low-proc tight-slack family still benefits from
+  the old v072 penalty-and-release single-block repair, but the newer active
+  parent already supplies a stronger warm start. Replaying that family-specific
+  repair directly on top of v094 should improve the shared subtype
+  (`prob_37`/`prob_39`-like) without disturbing unrelated rows.
+- Feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `base obj1 >= 3000`
+- Probe note before implementation:
+  - on active v094 at `timelimit=60`, direct replay of the v072 helper over the
+    current warm start improved:
+    - `prob_37`: objective `17505105 -> 17200889`, T `3961 -> 3885`
+    - `prob_39`: objective `48160369 -> 47695915`, T `3521 -> 3487`
+  - next gate:
+    core-9 smoke first, then targeted subtype smoke on the matching family.
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v095_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v095_xlarge_lowproc_20260619_001/`
+- Targeted subtype outcome:
+  - accepted_for_score `0/2`
+  - timeout `2`
+  - invalid `0`
+  - checker-feasible but overtime:
+    - `prob_37`: objective `17200889`, runtime `79.084604s`
+    - `prob_39`: objective `47695915`, runtime `74.983791s`
+- decision:
+  - rejected
+  - rationale:
+    the xlarge low-proc replay signal was real, but the reused v072 helper did
+    not respect the remaining wall-clock budget tightly enough. It improved
+    both targeted rows while timing out on both, so the coherent hypothesis is
+    kept only as evidence that the target family is promising, not as a
+    scoreable candidate.
+
+## reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094
+
+- File:
+  `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094.py`
+- Parent:
+  `reboot_v094_20260619_0931_threebay_medium_diffuse_gap_on_v093`
+- Status:
+  - pending
+- Hypothesis:
+  the same xlarge 3-bay low-proc tight-slack family still has a useful
+  post-warm-start repair signal, but it must use the fast bounded reinsertion
+  kernel instead of the slow greedy-prefix helper. Use v072's subtype selector
+  and target-block choice, then run the cheap v073 bounded reinsertion over the
+  current v094 warm start.
+- Feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `base obj1 >= 3000`
+- Probe note before implementation:
+  - on active v094 at `timelimit=60`, using v072 target choice plus bounded
+    reinsertion gave:
+    - `prob_37`: objective `17505105 -> 17454197`, T unchanged `3961`
+    - `prob_39`: no change
+  - bounded reinsertion runtime stayed below `1s` on both rows, so this
+    variant looks compatible with the official limit.
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v096_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v096_xlarge_lowproc_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `2/2`
+  - timeout `0`
+  - invalid `0`
+  - improved row:
+    - `prob_37`: objective `17505105 -> 17454197`, T `3961 -> 3961`,
+      L `4323 -> 4046`, P `7143 -> 7060`
+  - neutral sibling guard row:
+    - `prob_39`
+- Full-train40 path:
+  `reports/ogc2026_reboot_v001/full_reboot_v096_train40_20260619_001/`
+- Full-train40 outcome:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15096298.7`
+  - avg T `1558.675`
+  - avg L `2718.775`
+  - avg P `4160.575`
+  - runtime max `58.475376s`
+- Train40 comparison versus trusted v094:
+  - improved row:
+    - `prob_37`: objective `17505105 -> 17454197`, T `3961 -> 3961`,
+      L `4323 -> 4046`, P `7143 -> 7060`
+  - regressed rows:
+    - none
+  - avg objective `15097571.4 -> 15096298.7`
+  - avg T `1558.675 -> 1558.675`
+  - avg L `2725.7 -> 2718.775`
+  - avg P `4162.65 -> 4160.575`
+  - runtime max `58.993998 -> 58.475376`
+- High-T rows at accepted result:
+  - `prob_27` T `5637`
+  - `prob_33` T `3805`
+  - `prob_37` T `3961`
+  - `prob_38` T `11120`
+  - `prob_39` T `3521`
+  - `prob_40` T `9268`
+- decision:
+  - accepted
+  - rationale:
+    replaying the xlarge low-proc family on top of v094 with a bounded local
+    move preserved the 40/40 scoreable contract, improved the intended subtype
+    on `prob_37`, kept the sibling row neutral, lowered avg objective and both
+    L/P averages, and introduced no regressions.
+
+## reboot_v097_20260619_1308_xlarge_lowproc_deeper_positions_on_v096
+
+- File:
+  `reboot_v097_20260619_1308_xlarge_lowproc_deeper_positions_on_v096.py`
+- Parent:
+  `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094`
+- Status:
+  - pending
+- Hypothesis:
+  the same xlarge 3-bay low-proc tight-slack family still has a small safe
+  local improvement signal, but the current bounded reinsertion is clipping the
+  candidate position list too early. Replaying the same target-block choice
+  with a deeper position scan should keep `prob_37` at least neutral while
+  unlocking a scoreable `prob_39` improvement.
+- Feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `base obj1 >= 3000`
+- Probe note before implementation:
+  - on active v096 warm start with the same target choice:
+    - `prob_37`: deeper search stayed at `17454197`
+    - `prob_39`: `max_positions=96`, `max_orients=4` improved
+      `48160369 -> 48149237` in `0.641s`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v097_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v097_xlarge_lowproc_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `1/2`
+  - timeout `1`
+  - invalid `0`
+  - improved but still scoreable sibling:
+    - `prob_37`: objective `17454197 -> 17411785`, T `3961 -> 3961`,
+      L `4046 -> 5143`, P `7060 -> 6982`
+  - timed-out target row:
+    - `prob_39`: objective `48160369 -> 48149237`, T `3521 -> 3521`,
+      L `194 -> 261`, P `8094 -> 8018`, runtime `58.667036 -> 60.131894s`
+- decision:
+  - rejected
+  - rationale:
+    the deeper position scan did unlock the intended `prob_39` improvement, but
+    only by pushing the targeted row just over the official 60-second limit.
+    Because the same hypothesis fails the targeted scoreability gate before any
+    full benchmark, it is kept as evidence for the minimum useful depth signal,
+    not promoted as a candidate.
+
+## reboot_v098_20260619_1418_xlarge_lowproc_mid_positions_on_v096
+
+- File:
+  `reboot_v098_20260619_1418_xlarge_lowproc_mid_positions_on_v096.py`
+- Parent:
+  `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094`
+- Status:
+  - pending
+- Hypothesis:
+  the v097 timeout came from scanning deeper than necessary on the same xlarge
+  3-bay low-proc tight-slack family. The `prob_39` improvement appeared already
+  at `max_positions=56`, so shrinking the standard-tier cap to that threshold
+  should keep the improvement while returning the row under the official limit.
+- Feature selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12.0`
+  - `slack_mean <= 2.3`
+  - `base obj1 >= 3000`
+- Probe note before implementation:
+  - on active v096 warm start with the same target choice:
+    - `prob_39`: the improved solution first appeared at `max_positions=56`
+      and stayed stable through wider scans
+    - the measured reinsertion micro-step at that threshold was about `0.514s`,
+      much lower than the full v097 timeout margin
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v098_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v098_xlarge_lowproc_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `1/2`
+  - timeout `1`
+  - invalid `0`
+  - improved sibling:
+    - `prob_37`: objective `17454197 -> 17411785`, T `3961 -> 3961`,
+      L `4046 -> 5143`, P `7060 -> 6982`
+  - timed-out and worse target row:
+    - `prob_39`: objective `48160369 -> 48598605`, T `3521 -> 3553`,
+      L `194 -> 314`, P `8094 -> 8168`, runtime `58.667036 -> 61.158953s`
+- decision:
+  - rejected
+  - rationale:
+    shrinking the position cap to the first apparent improvement threshold did
+    not stabilize the full algorithm path. The target row still timed out, and
+    the realized `prob_39` solution also regressed T, L, P, and objective
+    versus trusted v096, so this depth axis is not a safe promotion path.
+
+## reboot_v099_20260619_1845_prob31like_runtime_flatten_on_v096
+
+- File:
+  `reboot_v099_20260619_1845_prob31like_runtime_flatten_on_v096.py`
+- Parent:
+  `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094`
+- Status:
+  - pending
+- Hypothesis:
+  current-source reruns show that the inherited v094/v096 chain has drifted
+  into a runtime cliff on the 4-bay high-proc concentrated-preference
+  prob31like subtype. Replacing only that subtype with the already flattened
+  v078 direct path should recover scoreable runtime there while preserving the
+  stronger current v096 handling on other families such as prob37like and
+  prob40like rows.
+- Feature selector:
+  - `bays == 4`
+  - `190 <= blocks <= 210`
+  - `20.0 <= proc_mean <= 22.5`
+  - `0.75 <= pref_concentration <= 0.82`
+  - `0.70 <= pref_pressure <= 0.75`
+  - `0.74 <= workload_imbalance_pressure <= 0.82`
+- Validation plan:
+  - core-9 smoke
+  - targeted subtype smoke on `prob_31` with same-family guards
+    `prob_36`, `prob_40`
+  - full train40 only if the targeted gate is scoreable and the prob31like row
+    recovers under time
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v099_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/target_reboot_v099_prob31like_20260619_001/`
+- Targeted subtype outcome:
+  - accepted `3/4`
+  - timeout `1`
+  - invalid `0`
+  - recovered target row:
+    - `prob_31`: objective `46503155 -> 40956985`, T `3254 -> 2836`,
+      runtime `70.680680s -> 53.232775s`
+  - same-family guard rows stayed scoreable:
+    - `prob_36`: objective `1767730`, runtime `52.239661s`
+    - `prob_40`: objective `6333528`, runtime `43.891050s`
+  - non-target but inherited runtime-cliff row remained broken:
+    - `prob_37`: timeout, objective `17644653`, T `3961`,
+      runtime `71.357656s`
+- Hidden-risk note:
+  - yes
+  - The prob31-like runtime recovery worked as intended, but the current-source
+    active chain is also broken on the prob37-like 3-bay diffuse/mid-proc
+    family, and v099 intentionally left that inherited path untouched.
+  - Because the targeted recovery candidate still fails scoreability on a
+    nearby runtime-risk family row, it does not justify a full-train40 run or
+    any promotion claim.
+- decision:
+  - rejected
+  - rationale:
+    v099 successfully repaired the prob31-like current-source runtime cliff,
+    but it did not restore the overall active chain to a scoreable state
+    because prob37-like rows still time out under the inherited parent path.
+
+## Current-Source Trust Drift Note 2026-06-19 13:10 KST
+
+- scope:
+  - revalidate whether the current source tree still supports the historical
+    trust claim recorded for `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094`
+- current-source recheck evidence:
+  - `reports/ogc2026_reboot_v001/target_recheck_v096_fourbay_runtime_20260619_001/`
+    - `prob_31`: timeout, runtime `70.680680s`, objective `46503155`
+    - `prob_36`: accepted, runtime `52.655423s`, objective `1713312`
+    - `prob_40`: accepted, runtime `43.937350s`, objective `6333528`
+  - `reports/ogc2026_reboot_v001/target_recheck_v094_fourbay_runtime_20260619_001/`
+    - `prob_31`: timeout, runtime about `70.434289s`
+  - `reports/ogc2026_reboot_v001/probe_v096_prob37_20260619_001/`
+    - `prob_37`: timeout, runtime `71.377730s`, objective `17644653`
+  - `reports/ogc2026_reboot_v001/full_recheck_v083_train40_20260619_001/`
+    - accepted_for_score `39/40`
+    - only failing row: `prob_37`, timeout at `67.648573s`
+- source-hash finding:
+  - the historical v096 full manifest hash does not match the current file hash
+    for `reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094.py`
+  - therefore the historical accepted report remains valuable evidence, but it
+    is not sufficient to claim that the current source tree is still trusted
+- runtime-cliff diagnosis:
+  - current prob37 log:
+    `reports/ogc2026_reboot_v001/probe_v096_prob37_20260619_001/logs/hh__reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094/prob_37.log`
+  - key observation:
+    the inherited `v060` `release_due` direct builder now consumes about
+    `46.04s`, leaving no time for later `v073`/`v084`/`v093`/`v096` repair
+    phases that historically produced the accepted improvement chain
+- current publication status:
+  - historical best:
+    `reports/ogc2026_reboot_v001/full_reboot_v096_train40_20260619_001/`
+  - current-source trusted accepted BEST:
+    - none established yet
+  - active wrapper state:
+    - still points to v096 as the explicit recovery surface
+    - must not be described as a currently revalidated trusted BEST
