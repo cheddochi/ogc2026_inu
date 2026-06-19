@@ -7775,3 +7775,511 @@
     `prob_37` and `prob_39`. Even though the row-level objective signal is
     directionally good, this candidate is not safe enough to continue to full
     train40.
+
+## reboot_v105_20260619_1726_prob37like_fast_single_reinsert_on_v103
+
+- File:
+  `reboot_v105_20260619_1726_prob37like_fast_single_reinsert_on_v103.py`
+- Parent:
+  `reboot_v103_20260619_1608_dense_fourbay_extended_reinsert_on_v102`
+- Status:
+  - candidate
+- Hypothesis:
+  the rejected v104 family search was too broad: it mixed the prob37/prob38/prob39
+  runtime-risk rows and spent too much time scanning extra candidates. Fresh
+  current-source probing shows the prob37-like subtype still has a small,
+  scoreable improvement signal if we skip the generic iterative portfolio and
+  instead reinsert exactly one short-processing tardy block that is currently
+  paying a positive preference penalty. Replaying only that single cheap move on
+  the prob37-like diffuse low-pressure subtype should improve objective without
+  reopening the v104 timeout cliff.
+- Feature selector:
+  - start from `v100._matches_prob37like_runtime_class(prob_info)`
+  - operationally this means a 3-bay, xlarge, low-proc, diffuse, low-pressure,
+    tight-slack subtype rather than the broader v104 runtime family
+- Timelimit policy:
+  - keep `v103` warm start unchanged
+  - skip on `very_short` and `short`
+  - only run one bounded `v073._limited_single_reinsert` move when the prob37-like
+    subtype matches, the warm start is feasible, `obj1 > 3000`, and some wall-clock
+    time remains
+  - select the target block from the warm-start tardy shortlist by preferring
+    positive preference-penalty blocks with the shortest processing time
+- Identity-dependent logic:
+  - none; subtype and target-block selection are derived only from `prob_info`
+    features and warm-start assignment attributes
+- Targeted subtype smoke plan:
+  - `prob_37`
+- Required smoke gate before full:
+  - `prob_1`, `prob_5`, `prob_9`, `prob_13`, `prob_17`, `prob_21`,
+    `prob_26`, `prob_31`, `prob_36`
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v105_core9_20260619_001/`
+- Smoke result:
+  - accepted `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_9`: objective `220043`, T `3`, runtime `45.644875s`
+    - `prob_31`: objective `40935865`, T `2836`, runtime `56.747656s`
+    - `prob_36`: objective `1998881`, T `2827`, runtime `52.981451s`
+  - note:
+    the smoke row drift on `prob_9` was not introduced by v105 itself; a fresh
+    side-by-side compare showed the same current-source `prob_9` row under v103.
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/compare_v103_v105_prob9_prob37_20260619_001/`
+- Targeted subtype result:
+  - accepted `2/2` for both compared algorithms
+  - prob37-like row improved cleanly versus fresh current-source v103:
+    - `prob_37`: objective `17958792 -> 17949088` (`-9704`)
+    - T unchanged at `4040`
+    - runtime `52.104844s -> 52.614478s`
+  - guard row held exactly:
+    - `prob_9`: objective `220043 -> 220043`
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v105_train40_20260619_001/`
+- Full benchmark result:
+  - accepted_for_score `39/40`
+  - timeout `1`
+  - invalid `0`
+  - timeout row:
+    - `prob_31`: objective `41437279`, T `2918`, runtime `69.535005s`
+  - scoreable rows kept the intended prob37-like gain:
+    - `prob_37`: objective `17949088`, T `4040`, runtime `40.875797s`
+  - other notable current-source drift during the failed full run:
+    - `prob_39`: objective `48160369`, T `3521`, runtime `58.533225s`
+    - `prob_38`: objective `153690186`, T `11316`, runtime `39.488810s`
+- Hidden-risk note:
+  - yes
+  - the one-block prob37-like move itself is cheap and does improve the target
+    subtype, but the broader chain still has an unresolved prob31-like runtime
+    cliff. That current-source runtime instability breaks the scoreable contract
+    before the prob37-like gain can matter for promotion.
+- decision:
+  - rejected
+  - rationale:
+    full train40 failed the scoreable gate with `accepted_for_score=39/40` and
+    a prob31-like timeout at `69.535005s`. Even though the targeted subtype
+    improved as intended, the candidate cannot be promoted or used as the new
+    active BEST under the T-zero-first plateau mode.
+
+## reboot_v106_20260619_1802_prob31like_internal_cap_on_v103
+
+- File:
+  `reboot_v106_20260619_1802_prob31like_internal_cap_on_v103.py`
+- Parent:
+  `reboot_v103_20260619_1608_dense_fourbay_extended_reinsert_on_v102`
+- Status:
+  - candidate
+- Hypothesis:
+  the current plateau blocker is the prob31-like runtime cliff, not a lack of
+  row-level score signal. Fresh current-source probing shows that the v103 chain
+  on the prob31-like subtype keeps the same best row-level objective when its
+  internal timelimit is capped from `60` to about `58`, while runtime falls from
+  the upper-50s into a much safer high-40s band. Replaying the exact v103 chain
+  but only with a feature-based internal cap on the prob31-like subtype should
+  stabilize the scoreable contract without reopening unrelated families.
+- Feature selector:
+  - `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - operationally: 4-bay, around 200 blocks, high-proc, concentrated
+    preference, high imbalance, dense runtime-sensitive subtype
+- Timelimit policy:
+  - keep v103 unchanged outside the prob31-like subtype
+  - on the prob31-like subtype in `standard` or longer time tiers, call the
+    inherited v103 chain with an internal cap of `58.0s`
+  - on short tiers, keep the raw incoming timelimit
+- Identity-dependent logic:
+  - none; the selector uses only prob_info-derived features
+- Tier smoke plan:
+  - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`
+- Targeted subtype smoke plan:
+  - `prob_31`, `prob_40`
+- Validation status:
+  - completed
+- Tier smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v106_tier9_20260619_001/`
+- Tier smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_31`: objective `40328756`, T `2792`, runtime `49.032671s`
+    - `prob_38`: objective `153690186`, T `11316`, runtime `39.594965s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `30.783270s`
+- Targeted subtype path:
+  `reports/ogc2026_reboot_v001/compare_v103_v106_prob31_prob40_20260619_001/`
+- Targeted subtype result:
+  - accepted `2/2` for both compared algorithms
+  - prob31-like row gained runtime margin but lost row-level score versus fresh
+    current-source v103:
+    - `prob_31`: objective `39781302 -> 40328756` (`+547454`)
+    - T `2751 -> 2792`
+    - runtime `56.203018s -> 48.894334s`
+  - guard row held exactly:
+    - `prob_40`: objective `6333528 -> 6333528`
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v106_train40_20260619_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg T/obj1 `1566.55`
+  - avg L/obj2 `2750.0`
+  - avg P/obj3 `4156.25`
+  - avg objective `15182620.85`
+  - runtime max `58.279814s`
+  - scoreable current-source recovery:
+    - `prob_31`: objective `40328756`, T `2792`, runtime `48.820807s`
+    - `prob_37`: objective `17949088`, T `4040`, runtime `37.967693s`
+    - `prob_39`: objective `48160369`, T `3521`, runtime `58.279814s`
+- Historical trusted BEST comparison (`v096`):
+  - avg objective worsened `15096298.7 -> 15182620.85` (`+86322.15`)
+  - avg T worsened `1558.675 -> 1566.55` (`+7.875`)
+  - avg L worsened `2718.775 -> 2750.0` (`+31.225`)
+  - avg P improved `4160.575 -> 4156.25` (`-4.325`)
+  - row-level objective improvement count `1`
+  - row-level objective regression count `3`
+  - worst regressions:
+    - `prob_38`: `151254848 -> 153690186` (`+2435338`)
+    - `prob_31`: `39781302 -> 40328756` (`+547454`)
+    - `prob_37`: `17454197 -> 17949088` (`+494891`)
+- Hidden-risk note:
+  - yes
+  - the internal cap does repair the immediate prob31-like timeout cliff and
+    re-establishes a current-source `40/40` scoreable run, but it does so by
+    spending objective on exactly the same high-T tail we are trying to shrink.
+    The largest regressions stay concentrated in the dense runtime-sensitive
+    family (`prob_31`, `prob_37`, `prob_38`), so this is recovery evidence,
+    not a promotion-ready T-zero improvement.
+- decision:
+  - rejected
+  - rationale:
+    this candidate successfully restores a current-source `accepted_for_score=40/40`
+    contract, but it does not beat the historical trusted accepted BEST. The
+    avg objective and avg T both worsen versus v096, with concentrated
+    regressions on the prob31/prob37/prob38 high-T family. Keep it as recovery
+    evidence only; do not promote it to `baseline_hh.py`.
+
+## reboot_v107_20260619_1841_prob38like_quantile_on_v106
+
+- File:
+  `reboot_v107_20260619_1841_prob38like_quantile_on_v106.py`
+- Parent:
+  `reboot_v106_20260619_1802_prob31like_internal_cap_on_v103`
+- Status:
+  - candidate
+- Hypothesis:
+  the v106 recovery candidate already restored a current-source `40/40`
+  scoreable contract, and its remaining largest objective/T regression versus
+  the historical trusted BEST is the prob38like pressure row. Earlier accepted
+  and targeted evidence showed that the prob38like quantile single-reinsert
+  move can recover about `-2.44M` objective and `-196` T on that row when it
+  is kept feature-based and time-aware. Reusing that exact prob38like move on
+  top of the v106 recovery parent should preserve the current-source runtime
+  repair while pulling down the largest remaining 3-bay high-pressure tail.
+- Feature selector:
+  - keep v106 unchanged outside the target subtype
+  - target subtype:
+    - `bays == 3`
+    - `blocks >= 240`
+    - `proc_mean >= 20.0`
+    - `0.54 <= pref_concentration <= 0.60`
+    - `50.0 <= pref_gap_mean <= 53.5`
+    - `0.50 <= pref_pressure <= 0.54`
+    - `0.35 <= workload_imbalance_pressure <= 0.45`
+  - selector implementation reused from
+    `reboot_v050_20260617_2015_prob38like_release_aware`
+- Timelimit policy:
+  - short tiers: keep the parent path untouched
+  - standard or longer tiers: on the prob38like subtype only, run the
+    `v080._class_solution(...)` quantile single-reinsert path
+  - all non-target rows stay on `v106`
+- Identity-dependent logic:
+  - none; selector uses only prob_info-derived features and timelimit tier
+- Tier smoke plan:
+  - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`
+- Targeted subtype smoke plan:
+  - compare `v106` vs `v107` on `prob_31`, `prob_37`, `prob_38`, `prob_39`,
+    `prob_40`
+- Acceptance target:
+  - keep current-source `accepted_for_score=40/40`
+  - improve `prob_38` objective/T without reopening the prob31like runtime
+    cliff
+  - improve total T / avg T / avg objective versus `v106`
+- Validation status:
+  - completed
+- Tier smoke paths:
+  - first run:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v107_tier9_20260619_001/`
+  - rerun:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v107_tier9_20260619_002/`
+- Tier smoke result:
+  - first run was noisy and non-authoritative:
+    - `prob_31`: objective `40935865`, T `2836`
+    - `prob_38`: objective `170633608`, T `12576`
+  - rerun reproduced the intended current-source signal cleanly:
+    - accepted_for_score `9/9`
+    - timeout `0`
+    - invalid `0`
+    - `prob_31`: objective `40328756`, T `2792`, runtime `49.488198s`
+    - `prob_38`: objective `151254848`, T `11120`, runtime `44.782286s`
+- Targeted subtype paths:
+  - compare current-source parent on target rows:
+    `reports/ogc2026_reboot_v001/compare_v106_v107_prob31_prob38_20260619_001/`
+  - expanded guard compare:
+    `reports/ogc2026_reboot_v001/compare_v106_v107_prob31_prob37_prob38_prob39_prob40_20260619_001/`
+- Targeted subtype result:
+  - stable positive target signal at `60s`:
+    - `prob_38`: objective `153690186 -> 151254848`
+    - T `11316 -> 11120`
+    - `prob_31` stayed equal on the fresh two-row compare
+    - `prob_37` and `prob_40` stayed equal on the expanded guard compare
+    - `prob_39` stayed scoreable for `v107`; the same compare run saw `v106`
+      time out on `prob_39`
+- Time-stress paths:
+  - solo stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v107_prob38_short45_20260619_001/`
+  - parent compare:
+    `reports/ogc2026_reboot_v001/compare_v106_v107_prob38_short45_20260619_001/`
+- Time-stress result:
+  - scoreable at `45s`, but badly regressed versus parent:
+    - `v106`: objective `153690186`, T `11316`
+    - `v107`: objective `268911173`, T `19939`
+- Hidden-risk note:
+  - yes
+  - the prob38like move is real and reproducible at the standard `60s` train
+    limit, but it is not timelimit-robust. At `45s` the same class path
+    overfires and produces a catastrophic T/objective regression versus the
+    current-source recovery parent. Under the time-aware policy rules this is a
+    decisive short-limit-risk failure.
+- decision:
+  - rejected
+  - rationale:
+    the candidate has genuine `60s` target value, but it fails the required
+    timelimit-aware guard. Do not run full train40 or promote it. The next
+    hypothesis should keep the same prob38like move only behind a much stricter
+    long-limit / remaining-budget gate, or replace the direct candidate with a
+    safer current-source policy for shorter standard tiers.
+
+## reboot_v108_20260619_1857_prob38like_longlimit_gate_on_v106
+
+- File:
+  `reboot_v108_20260619_1857_prob38like_longlimit_gate_on_v106.py`
+- Parent:
+  `reboot_v106_20260619_1802_prob31like_internal_cap_on_v103`
+- Status:
+  - candidate
+- Hypothesis:
+  fresh current-source probes show that the prob38like move has three regimes:
+  at `50s` it is clearly worse than `v106`, at `55s` it is already better, and
+  at `60s` the full quantile reinsertion recovers the best known row-level
+  signal. The failure mode is therefore not the move itself but activating it
+  when the direct budget is too small. Gating the same prob38like path behind a
+  stricter long-limit budget threshold should keep the `55s/60s` benefit while
+  reverting to the stable `v106` parent for shorter standard tiers.
+- Feature selector:
+  - keep `v106` unchanged outside the prob38like subtype
+  - prob38like subtype selector reused from
+    `reboot_v050_20260617_2015_prob38like_release_aware`
+- Timelimit policy:
+  - on the prob38like subtype only:
+    - if `v050._policy_budget(timelimit, tier) >= 41.5`, allow the
+      `v107`/`v080` prob38like path
+    - otherwise fall back to `v106`
+  - all non-target rows stay on `v106`
+- Identity-dependent logic:
+  - none
+- Validation plan:
+  - tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`
+  - short-limit guards:
+    `prob_38 @ 45s`, `prob_38 @ 50s`, `prob_38 @ 55s`
+  - full train40 only if smoke plus short-limit guards hold
+- Validation status:
+  - completed
+- Tier smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v108_tier9_20260619_001/`
+- Tier smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - target family behaved as intended:
+    - `prob_31`: objective `40328756`, T `2792`, runtime `49.330843s`
+    - `prob_38`: objective `151254848`, T `11120`, runtime `44.178857s`
+- Time-stress probes:
+  - direct guard sweep on `prob_38`:
+    - `45s`: `v108 == v106` at objective `153690186`, T `11316`
+    - `50s`: `v108 == v106` at objective `153690186`, T `11316`
+    - `55s`: `v108` improves to objective `152453868`, T `11212`
+    - `60s`: `v108` improves to objective `151254848`, T `11120`
+  - interpretation:
+    the stricter `direct_budget >= 41.5` gate successfully removes the
+    short-limit regression that rejected `v107`.
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v108_train40_20260619_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15121737.4`
+  - avg T/obj1 `1561.65`
+  - avg L/obj2 `2634.125`
+  - avg P/obj3 `4171.85`
+  - runtime max `59.605045s`
+- Current-source recovery comparison versus `v106`:
+  - row-level changes:
+    - only `prob_38` changed materially
+    - `prob_38`: objective `153690186 -> 151254848` (`-2435338`)
+    - `prob_38`: T `11316 -> 11120` (`-196`)
+  - aggregate:
+    - avg objective `15182620.85 -> 15121737.4` (`-60883.45`)
+    - avg T `1566.55 -> 1561.65` (`-4.9`)
+    - avg L `2750.0 -> 2634.125` (`-115.875`)
+    - avg P `4156.25 -> 4171.85` (`+15.6`)
+- Historical trusted BEST comparison versus `v096`:
+  - still worse overall:
+    - avg objective `15096298.7 -> 15121737.4` (`+25438.7`)
+    - avg T `1558.675 -> 1561.65` (`+2.975`)
+  - remaining material regressions:
+    - `prob_31`: objective `39781302 -> 40328756`, T `2751 -> 2792`
+    - `prob_37`: objective `17454197 -> 17949088`, T `3961 -> 4040`
+  - improvements relative to `v096` remain limited:
+    - `prob_3`: objective `213297 -> 188500`
+- Runtime-risk note:
+  - yes, but improved evidence
+  - `prob_39` finished the full run at `59.605045s`, which is still cliff-like.
+    However, three fresh direct reruns on the same current-source chain all
+    stayed feasible and consistent around `58.4s` to `59.0s` with identical
+    objective `48160369` and T `3521`.
+- decision:
+  - candidate
+  - rationale:
+    this is the best current-source recovery candidate so far: it preserves the
+    restored `40/40` scoreable contract from `v106`, fixes the short-limit
+    regression that rejected `v107`, and cleanly improves the largest prob38like
+    tail. It is not yet an accepted replacement for the historical trusted BEST
+    because `prob_31` and `prob_37` still leave avg objective and avg T slightly
+    worse than `v096`.
+
+## reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108
+
+- File:
+  `reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108.py`
+- Parent:
+  `reboot_v108_20260619_1857_prob38like_longlimit_gate_on_v106`
+- Status:
+  - candidate
+- Hypothesis:
+  after the prob38like recovery in `v108`, the biggest remaining T tail that
+  still has a large current-source row-level opportunity is the prob40like
+  high-workload family. Fresh direct probes show that the old deeper-position
+  policy from `v017` still beats `v108` cleanly at `45s`, `50s`, and `60s`
+  on the prob40like row, with large T and objective gains and no instability in
+  repeated single-row reruns. Re-applying that deeper direct policy only on the
+  prob40like feature class, while keeping every other row on `v108`, should
+  lower the high-T tail substantially without reopening the prob31/prob38
+  recovery work.
+- Feature selector:
+  - reuse `v063._matches_prob40like_class(v063._selector_features(prob_info))`
+  - operationally: 4-bay, xlarge, high-proc, high-workload, concentrated,
+    dense high-pressure subtype
+- Timelimit policy:
+  - skip on `very_short` and `short`
+  - on the target subtype only, run the deeper direct
+    `due_release_proc/top_bays=4/max_positions=14/max_orients=4` policy
+  - otherwise keep `v108`
+- Identity-dependent logic:
+  - none
+- Validation plan:
+  - targeted guards:
+    `prob_31`, `prob_39`, `prob_40`
+  - time-stress:
+    `prob_40 @ 45s`, `prob_40 @ 50s`
+  - tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`
+  - full train40 only if all scoreable gates hold
+- Validation status:
+  - completed
+- Targeted guard path:
+  `reports/ogc2026_reboot_v001/compare_v108_v109_prob31_prob39_prob40_20260619_001/`
+- Targeted guard result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid `0`
+  - non-target guards stayed stable:
+    - `prob_31`: unchanged at objective `40328756`, T `2792`
+    - `prob_39`: unchanged at objective `48160369`, T `3521`
+  - target row improved:
+    - `prob_40`: objective `6333528 -> 5910122` (`-423406`)
+    - `prob_40`: T `9268 -> 8622` (`-646`)
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/compare_v108_v109_prob40_short45_20260619_001/`
+- Time-stress result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_40 @ 45s` still improves cleanly:
+    - objective `6743716 -> 5910122` (`-638408`)
+    - T `9882 -> 8917` (`-965`)
+  - interpretation:
+    the deeper prob40like branch does not need an extra long-limit gate; it
+    stays helpful even under the short-45 guard that had been risky for other
+    family-specific branches.
+- Tier smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v109_tier9_20260619_001/`
+- Tier smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - key guard rows remained scoreable:
+    - `prob_31`: objective `40328756`, T `2792`, runtime `49.563233s`
+    - `prob_38`: objective `151254848`, T `11120`, runtime `47.760477s`
+- Full benchmark path:
+  `reports/ogc2026_reboot_v001/full_reboot_v109_train40_20260619_001/`
+- Full benchmark result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid `0`
+  - avg objective `15111152.25`
+  - avg T/obj1 `1545.5`
+  - avg L/obj2 `2623.75`
+  - avg P/obj3 `4187.025`
+  - runtime max `58.032762s`
+- Current-source recovery comparison versus `v108`:
+  - only the prob40like tail changed materially:
+    - `prob_40`: objective `6333528 -> 5910122` (`-423406`)
+    - `prob_40`: T `9268 -> 8622` (`-646`)
+  - aggregate:
+    - avg objective `15121737.4 -> 15111152.25` (`-10585.15`)
+    - avg T `1561.65 -> 1545.5` (`-16.15`)
+    - avg L `2634.125 -> 2623.75` (`-10.375`)
+    - avg P `4171.85 -> 4187.025` (`+15.175`)
+- Historical trusted BEST comparison versus `v096`:
+  - T is now better, but objective is still not:
+    - avg objective `15096298.7 -> 15111152.25` (`+14853.55`)
+    - avg T `1558.675 -> 1545.5` (`-13.175`)
+  - material remaining regressions:
+    - `prob_31`: objective `39781302 -> 40328756`, T `2751 -> 2792`
+    - `prob_37`: objective `17454197 -> 17949088`, T `3961 -> 4040`
+  - material improvements versus `v096`:
+    - `prob_40`: objective `6333528 -> 5910122`, T `9268 -> 8622`
+    - `prob_3`: objective `213297 -> 188500`
+- Hidden-risk note:
+  - managed but still present
+  - runtime risk is lower than in the historical active chain because the full
+    run maxed at `58.032762s`, but the candidate still depends on current-source
+    recovery layers that have not yet erased the prob31/prob37 regressions
+    relative to the historical v096 benchmark.
+- decision:
+  - candidate
+  - rationale:
+    `v109` is the strongest current-source recovery candidate so far. It keeps
+    the restored `40/40` scoreable contract, cleanly improves the remaining
+    prob40like high-T tail, and now beats the historical v096 benchmark on avg
+    T. It is still not an accepted replacement for the trusted historical BEST
+    because avg objective remains slightly worse, with the gap concentrated in
+    the prob31/prob37 family.

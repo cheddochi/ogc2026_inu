@@ -1,0 +1,37 @@
+{
+  "run_id": "compare_v108_v109_prob40_short45_20260619_001",
+  "timestamp": "2026-06-19T20:10:57",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 12653838.0,
+    "objective_avg": 6326919.0,
+    "obj1_sum": 18504.0,
+    "obj1_avg": 9252.0,
+    "obj1_max": 9882.0,
+    "obj2_avg": 3910.5,
+    "obj3_avg": 11686.5,
+    "runtime_sum": 83.795778,
+    "runtime_avg": 41.897889,
+    "runtime_max": 43.27061
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "v108",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v108_20260619_1857_prob38like_longlimit_gate_on_v106.py"
+    },
+    {
+      "name": "hh",
+      "version": "v109",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_40.json"
+  ]
+}
