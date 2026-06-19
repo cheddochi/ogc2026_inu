@@ -8283,3 +8283,229 @@
     T. It is still not an accepted replacement for the trusted historical BEST
     because avg objective remains slightly worse, with the gap concentrated in
     the prob31/prob37 family.
+
+## reboot_v110_20260619_2115_prob37like_fast_single_on_v109
+
+- File:
+  `reboot_v110_20260619_2115_prob37like_fast_single_on_v109.py`
+- Parent:
+  `reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108`
+- Status:
+  - pending
+- Hypothesis:
+  after the recovery checkpoint, the historical-v096 objective gap is now
+  concentrated almost entirely in `prob_31` and `prob_37`, while the prob38like
+  and prob40like tails are already repaired on the current-source line. Fresh
+  same-turn rechecks show that the broader `v098` replay is too expensive on the
+  3-bay xlarge low-proc family: it times out on `prob_37` and drifts on
+  `prob_39` under both `45s` and `60s` targeted compares. The next safe move is
+  therefore not to reopen the whole family, but to isolate only the diffuse
+  low-pressure prob37-like subtype and replay the much cheaper one-block fast
+  single reinsertion that previously improved that subtype in `v105`. Running
+  that deterministic move on top of the stable `v109` warm start should recover
+  some prob37-like objective without touching the prob39-like runtime-risk
+  sibling or the prob31-like chain.
+- Feature selector:
+  - start from the existing feature-based prob37-like runtime class:
+    `v100._matches_prob37like_runtime_class(prob_info)`
+  - operationally this means:
+    - 3-bay
+    - xlarge block count tier
+    - low-proc
+    - diffuse / low-pressure preference structure
+    - tight-slack subtype
+  - explicitly do not activate on the more concentrated prob39-like sibling
+- Timelimit policy:
+  - keep `v109` unchanged outside the prob37-like subtype
+  - skip on `very_short` and `short`
+  - build the `v109` warm start first
+  - only if the warm start is feasible, `obj1 > 3000`, and some wall-clock headroom
+    remains, run one bounded `v073._limited_single_reinsert` move using the
+    short-processing positive-penalty target rule from `v105`
+  - keep only strictly better officially feasible results
+- Identity-dependent logic:
+  - none
+- Validation plan:
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_37`
+  - targeted sibling guards:
+    `prob_38`, `prob_39`
+  - time-stress:
+    `prob_37 @ 45s`, `prob_39 @ 45s`
+  - full train40 only if all gates remain scoreable
+- Probe note before implementation:
+  - same-turn short-45 compare:
+    `reports/ogc2026_reboot_v001/compare_v109_v098_prob37_prob39_short45_20260619_001/`
+    showed the broader xlarge-lowproc replay is too risky:
+    - `v109 prob_37`: runtime `45.217551s`, not scoreable
+    - `v098 prob_37`: subprocess timeout `67.528688s`
+    - `v109 prob_39`: accepted, objective `48743275`
+    - `v098 prob_39`: runtime `45.442129s`, not scoreable
+  - same-turn long-60 compare:
+    `reports/ogc2026_reboot_v001/compare_v109_v098_prob37_prob39_long60_20260619_001/`
+    confirmed that the broad replay still times out on the target row:
+    - `v109 prob_37`: accepted, objective `17949088`, T `4040`
+    - `v098 prob_37`: objective `17644653`, T `3961`, but runtime `63.290928s`
+    - `v109 prob_39`: accepted, objective `48598605`
+    - `v098 prob_39`: accepted, objective `48587025`
+  - interpretation:
+    the family still contains some improvement signal, but only a much narrower
+    and cheaper prob37-like move is compatible with the current scoreable
+    envelope.
+- Validation status:
+  - targeted gate failed
+- Targeted guard path:
+  `reports/ogc2026_reboot_v001/compare_v109_v110_prob37_prob38_prob39_long60_20260619_001/`
+- Targeted guard result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid `0`
+  - target row did not improve:
+    - `prob_37`: objective unchanged at `17949088`
+    - T unchanged at `4040`
+    - runtime `45.725233s -> 46.412510s`
+  - non-target runtime-risk sibling held exactly:
+    - `prob_39`: objective unchanged at `48598605`
+    - T unchanged at `3553`
+  - off-target family drift worsened:
+    - `prob_38`: objective `166615156 -> 186785357` (`+20170201`)
+    - T `12268 -> 13779` (`+1511`)
+- Direct warm-start probe after guard:
+  - same-turn inline probe on top of the `v109` warm start:
+    - `v100._try_iterative_reinsert_portfolio(...)` on `prob_37`
+    - base result: objective `17949088`, T `4040`
+    - candidate result: unchanged at objective `17949088`, T `4040`
+  - interpretation:
+    once the current-source chain already reaches the `v109` warm start, the
+    older prob37-like local-move stack no longer exposes a same-T improvement
+    path.
+- Time-stress status:
+  - skipped
+  - reason:
+    the long-60 targeted gate already failed to show any prob37-like gain, so
+    there is no reason to spend more benchmark budget on a short-45 follow-up.
+- Full benchmark status:
+  - not run
+  - reason:
+    target row failed to improve and an off-target sibling family regressed
+    materially during the targeted guard run.
+- Hidden-risk note:
+  - yes
+  - this hypothesis is cheap and scoreable, but it does not move the T-first
+    frontier. The targeted subtype stayed flat, while the surrounding high-T
+    tail showed additional current-source drift during the same compare.
+- decision:
+  - rejected
+  - rationale:
+    `v110` does not deliver a T breakthrough on the intended prob37-like
+    subtype and therefore fails the plateau/T-zero-first gate. Because the
+    target row stayed flat and the adjacent high-T family drifted worse during
+    the guard compare, there is no case for a full-train40 run.
+
+## reboot_v111_20260619_2130_prob31like_stable_direct_cap_on_v109
+
+- File:
+  `reboot_v111_20260619_2130_prob31like_stable_direct_cap_on_v109.py`
+- Parent:
+  `reboot_v109_20260619_1940_prob40like_deeper_positions_on_v108`
+- Status:
+  - pending
+- Hypothesis:
+  current-source rechecks show that the unresolved `prob31` drift is not a
+  broad family-score problem but a timing-sensitive warm-start instability
+  inside the prob31-like direct builder. The same downstream
+  `v067 -> v074 -> v085` repair chain still reaches the historical
+  `40328756 / T=2792` row when the preference-spread direct phase is forced to
+  finish a little earlier. Replacing only the prob31-like subtype in `v109`
+  with the same chain under a tighter feature-based direct cap should stabilize
+  that row without touching the already revalidated prob40-like gain.
+- Feature selector:
+  - reuse `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - operationally: 4-bay, around 200 blocks, high-proc, concentrated
+    preference, high imbalance, dense runtime-sensitive subtype
+- Timelimit policy:
+  - keep `v109` unchanged outside the prob31-like subtype
+  - on the prob31-like subtype in `standard` or longer tiers, cap the direct
+    preference-spread builder lower than the current `v078` branch so the
+    accepted `v067/v074/v085` repairs consistently receive slack
+- Identity-dependent logic:
+  - none; selector and cap use only `prob_info` features and `timelimit`
+- Pre-implementation probe evidence:
+  - official rechecks:
+    - `reports/ogc2026_reboot_v001/recheck_v109_prob31_20260619_002/`
+      reproduced the worse current-source row
+      `objective=40935865`, `T=2836`
+    - `reports/ogc2026_reboot_v001/recheck_v109_prob40_20260619_001/`
+      preserved the prob40-like gain
+      `objective=5910122`, `T=8622`
+  - same-turn inline prob31 chain probe:
+    a direct cap in the mid-40s kept the base direct result unchanged at
+    `40956985 / T=2836`, but the inherited
+    `v067 -> v074 -> v085` repairs then consistently recovered
+    `40328756 / T=2792`
+- Validation plan:
+  - representative smoke-9:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted sibling guards:
+    `prob_31`, `prob_36`, `prob_40`
+  - time-stress:
+    `prob_31 @ 45s`
+  - full train40 only if all gates remain scoreable
+- Validation status:
+  - completed
+- Smoke path:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v111_tier9_20260619_001/`
+- Smoke result:
+  - accepted_for_score `9/9`
+  - timeout `0`
+  - invalid `0`
+  - representative rows:
+    - `prob_31`: objective `40328756`, T `2792`, runtime `48.885522s`
+    - `prob_40`: objective `5910122`, T `8622`, runtime `43.930954s`
+    - `prob_27`: objective `77480587`, T `5637`, runtime `30.295104s`
+- Targeted sibling guard path:
+  `reports/ogc2026_reboot_v001/compare_v109_v111_prob31_prob36_prob40_20260619_001/`
+- Targeted sibling guard result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid `0`
+  - official-limit target row:
+    - `prob_31`: objective held exactly at `40328756`
+    - T held exactly at `2792`
+    - runtime `48.481034s -> 48.096001s`
+  - same-family sibling guards:
+    - `prob_36`: objective held exactly at `1499988`
+    - `prob_40`: objective held exactly at `5910122`
+- Time-stress path:
+  `reports/ogc2026_reboot_v001/stress_v109_v111_prob31_short45_20260619_001/`
+- Time-stress result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid `0`
+  - `prob_31 @ 45s`:
+    - `v109`: objective `40956985`, T `2836`, runtime `35.788568s`
+    - `v111`: objective `40935865`, T `2836`, runtime `39.848945s`
+  - interpretation:
+    the lower direct cap does mildly improve the short-limit current-source row,
+    but it does not create a new official-limit win over the already-good
+    `v109` rerun.
+- Full benchmark status:
+  - not run
+  - reason:
+    the official-limit targeted guard only held the improved `prob_31` row
+    rather than beating `v109`, so the plateau/T-zero-first gate does not yet
+    justify a fresh full train40 run.
+- Hidden-risk note:
+  - manageable
+  - the subtype-specific cap is scoreable on smoke, holds its siblings exactly,
+    and shows a small short-limit stability benefit, but it has not produced a
+    new official-limit row improvement.
+- decision:
+  - candidate
+  - rationale:
+    keep `v111` as a stability-side branch for the prob31-like subtype. It is
+    cleaner than a blind rejection because it preserves the recovered row and
+    helps under `45s`, but without a `60s` target-row win it should not advance
+    to full train40 or replace the current active wrapper.
