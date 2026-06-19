@@ -9232,7 +9232,7 @@
 - Parent:
   `reboot_v116_20260619_2339_prob37like_early_chain_on_v115`
 - Status:
-  - candidate
+  - rejected
 - Hypothesis:
   - The fresh publish revalidation and direct prob31 probes show that the
     `v117` improvement itself is good, but the final `v070` concentrated-gap
@@ -9263,6 +9263,8 @@
     `reports/ogc2026_reboot_v001/smoke_reboot_v118_tier9_20260620_001/`
   - full train40 path:
     `reports/ogc2026_reboot_v001/full_reboot_v118_train40_20260620_001/`
+  - wrapper-surface guard revalidation path:
+    `reports/ogc2026_reboot_v001/verify_v118_wrapper_surface_20260620_001/`
   - targeted compare accepted `6/6`; timeout `0`, invalid `0`
     - `prob_31`: objective/T/L/P unchanged versus `v117`
       (`39589844 / 2735 / 1843 / 11680`)
@@ -9282,6 +9284,12 @@
     - avg L `2680.8`
     - avg P `4186.925`
     - runtime max `58.311883`
+  - wrapper-surface guard revalidation accepted `2/3`; timeout `1`, invalid `0`
+    - `prob_31`: objective/T regressed to the `v115` keep-result
+      `39589844 / 2735 -> 40137295 / 2776`
+      because the harder margin skipped the final concentrated-gap replay
+    - `prob_37`: checker-feasible but timeout at `60.343678s`
+    - `prob_40`: accepted and unchanged on objective/T/L/P
 - Per-instance comparison summary:
   - versus current-source historical accepted `v117`:
     - changed rows: `0` on objective/T/L/P across all train40 rows
@@ -9311,20 +9319,17 @@
   - `prob_33`: `3805`
   - `prob_39`: `3521`
 - Hidden-risk note:
-  - manageable but not yet cleared for BEST promotion
-  - The score profile exactly matches historical accepted `v117`, and the
-    direct prob31-like reruns are friendlier on runtime, but the fresh publish
-    failure was observed on the active wrapper surface. `v118` has not yet been
-    promoted through `baseline_hh.py` + trusted active evidence, so it is not
-    honest to publish it as a new trusted accepted BEST today.
+  - not manageable for promotion
+  - The hypothesis succeeded only on direct version-file execution. Under a
+    wrapper surface that mirrors the public submission chain, the added margin
+    consumes the prob31-like gain and still leaves the prob37-like timeout
+    cliff. That means the recovery target was not actually met.
 - Decision:
-  - candidate
+  - rejected
 - Rationale:
-  - `v118` is a reliability-oriented candidate, not a score-improvement
-    candidate. It preserves the historical `v117` train40 score exactly,
-    materially improves the direct prob31-like runtime on repeated reruns, and
-    keeps full-train40 scoreability at `40/40`. However, because the active
-    wrapper publish cliff was the original failure mode and `v118` has not yet
-    been re-established as the trusted active surface with dedicated wrapper
-    evidence, it remains a candidate / recovery option rather than a promoted
-    BEST.
+  - `v118` was a coherent runtime-recovery hypothesis and it kept the direct
+    train40 score line intact, but it fails the decisive wrapper-surface guard.
+    The prob31-like row falls back to the weaker `v115` result and the
+    prob37-like row still times out, so it does not re-establish a publish-safe
+    active line. Keep the evidence for diagnosis, but do not promote or reuse
+    it as the next active recovery surface.

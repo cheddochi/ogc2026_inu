@@ -63,6 +63,12 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
   - `v117` still has the strongest historical accepted full-train evidence on
     this branch, but it is not safe to republish today as a trusted active
     BEST until the runtime cliff is repaired.
+  - latest recovery attempt
+    `reboot_v118_20260620_0835_prob31like_gap_hard_margin_on_v116`
+    preserved direct train40 score but failed wrapper-surface guard
+    revalidation at
+    `reports/ogc2026_reboot_v001/verify_v118_wrapper_surface_20260620_001/`,
+    so the active surface remains unchanged.
   - `v096` remains the last team-shared historical benchmark report reference:
     `reports/ogc2026_reboot_v001/full_reboot_v096_train40_20260619_001/benchmark_report.md`
 - Rollback target:
