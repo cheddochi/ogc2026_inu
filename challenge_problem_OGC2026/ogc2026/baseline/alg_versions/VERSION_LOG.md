@@ -9504,3 +9504,191 @@
     warm start and bought no T/objective improvement at the cost of roughly
     five extra seconds on the targeted rows. The next T-breakthrough attempt
     should stay on warm-start-preserving local moves, not fresh direct rebuilds.
+
+## reboot_v121_20260620_0239_twobay_concentrated_quantile_reinsert_on_v117
+- File:
+  `reboot_v121_20260620_0239_twobay_concentrated_quantile_reinsert_on_v117.py`
+- Parent:
+  `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+- Status:
+  - rejected
+- Experiment note:
+  - trusted baseline reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+    - historical accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v117_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1542.1`, `avg objective=15085068.575`
+    - fresh publish revalidation block remains:
+      `reports/ogc2026_reboot_v001/verify_active_v117_publish_20260620_001/`
+      with wrapper runtime cliff on `prob_31` / `prob_37`
+  - residual high-T backlog from the trusted full result:
+    - `prob_25`: `T=2159`
+    - `prob_26`: `2345`
+    - `prob_27`: `5637`
+    - `prob_31`: `2735`
+    - `prob_38`: `11120`
+    - `prob_40`: `8622`
+  - subtype split for this version:
+    - target only the two-bay concentrated high-proc tail family, not the
+      three-bay tail family and not the four-bay runtime-risk family
+    - current feature band for the target subtype:
+      - `bays == 2`
+      - `blocks >= 100`
+      - `proc_mean >= 20`
+      - `slack_mean >= 4.5`
+      - `pref_concentration >= 0.60`
+      - `pref_pressure >= 0.59`
+      - `pref_gap_mean >= 60`
+    - current train rows matching that selector:
+      `prob_25`, `prob_27`
+  - live current-source probe on top of the real `v117` warm start showed
+    genuine single-move improvement signal:
+    - `prob_25`: deep quantile single reinsert improved
+      `T 2159 -> 2141`, objective `1499211 -> 1489168`
+    - `prob_27`: deep quantile single reinsert improved
+      `5637 -> 5614`, objective `77480587 -> 77173928`
+- Hypothesis:
+  - The remaining two-bay concentrated high-proc tail is limited by a single
+    poorly placed tardy block, but the earlier shallow prefix/direct rebuild
+    hypotheses were too destructive. Reusing the `v117` warm start and trying a
+    deeper quantile-sampled one-block reinsertion across a short tardy shortlist
+    should capture the observed T improvement signal while keeping runtime
+    bounded.
+- Feature / subtype / timelimit selector:
+  - `bays == 2`
+  - `blocks >= 100`
+  - `proc_mean >= 20`
+  - `slack_mean >= 4.5`
+  - `pref_concentration >= 0.60`
+  - `pref_pressure >= 0.59`
+  - `pref_gap_mean >= 60`
+  - warm-start feasible
+  - warm-start `T >= 2000`
+  - tier not in `very_short/short`
+  - remaining wall time after building the warm start must clear a guarded
+    reserve
+- Planned behavior:
+  - keep `v117` unchanged outside the target subtype
+  - on the target subtype, build `v117` first and then evaluate only bounded
+    single-block quantile reinsertion candidates from a short tardy shortlist
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke before any full 40:
+    - `prob_4`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_39`
+  - targeted subtype smoke:
+    - `prob_25`, `prob_27`
+  - only if scoreable and same-family T improves without runtime-risk spillover
+    should this go to full train40
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v121_tier9_20260620_001/`
+  - representative smoke accepted `9/9`; timeout `0`, invalid `0`
+  - target-row runtime remained safe:
+    - `prob_25`: `23.82s`
+    - `prob_27`: `33.17s`
+    - `prob_31`: `51.55s`
+    - `prob_39`: `58.18s`
+  - target-row T/objective movement:
+    - none; `prob_25` and `prob_27` stayed at the `v117` warm-start result
+  - root cause from runtime logs:
+    - the implementation shortlist drifted away from the live probe signal
+    - `prob_25` attempted only blocks `56` and `41`, while the live current-
+      source probe improvement came from block `91`
+    - `prob_27` attempted `64` and `113`, while the live current-source probe
+      improvement came from block `77`
+- Decision:
+  - rejected
+- Rationale:
+  - `v121` preserved scoreability, but it did not truly exercise the observed
+    improvement signal because its weighted shortlist missed the actual
+    improving tardy blocks. Treat it as a shortlist-selection miss, not as a
+    rejection of the underlying two-bay deep single-reinsert hypothesis.
+
+## reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117
+- File:
+  `reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117.py`
+- Parent:
+  `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+- Status:
+  - accepted
+- Experiment note:
+  - `v121` validated the runtime safety of the two-bay deep single-reinsert
+    path, but its weighted shortlist failed to hit the live-probe improving
+    blocks.
+  - live current-source probe details on the real `v117` warm start:
+    - `prob_25`: top tardy shortlist `[91, 56, 40, 7]`, block `91` improved
+      `T 2159 -> 2141`, objective `1499211 -> 1489168`
+    - `prob_27`: top tardy shortlist `[65, 64, 55, 77]`, block `77` improved
+      `5637 -> 5614`, objective `77480587 -> 77173928`
+  - target subtype remains unchanged:
+    - `bays == 2`
+    - `blocks >= 100`
+    - `proc_mean >= 20`
+    - `slack_mean >= 4.5`
+    - `pref_concentration >= 0.60`
+    - `pref_pressure >= 0.59`
+    - `pref_gap_mean >= 60`
+    - matching current train rows:
+      `prob_25`, `prob_27`
+- Hypothesis:
+  - The observed improvement signal is real, but the correct control variable
+    is the top-tardy shortlist itself, not an entry-delay-weighted shortlist.
+    Replaying the same bounded deep quantile reinsertion over the pure top-
+    tardy shortlist should recover the live-probe T improvement while keeping
+    the runtime safety already demonstrated by `v121`.
+- Feature / subtype / timelimit selector:
+  - same subtype gate as `v121`
+  - warm-start feasible
+  - warm-start `T >= 2000`
+  - tier not in `very_short/short`
+  - remaining wall time after building the warm start must clear a guarded
+    reserve
+- Planned behavior:
+  - keep `v117` unchanged outside the target subtype
+  - on the target subtype, build `v117` first and evaluate only bounded
+    quantile single-block candidates from the top tardy shortlist
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke before any full 40:
+    - `prob_4`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_39`
+  - targeted subtype smoke:
+    - `prob_25`, `prob_27`
+  - only if scoreable and target-row T improves without same-tier regression
+    should this go to full train40
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v122_tier9_20260620_001/`
+  - targeted subtype smoke path:
+    `reports/ogc2026_reboot_v001/target_reboot_v122_twobay_tail_20260620_001/`
+  - full path:
+    `reports/ogc2026_reboot_v001/full_reboot_v122_train40_20260620_001/`
+  - wrapper-surface revalidation path:
+    `reports/ogc2026_reboot_v001/verify_v122_wrapper_surface_20260620_001/`
+  - active publish revalidation path:
+    `reports/ogc2026_reboot_v001/verify_active_v122_publish_20260620_001/`
+  - representative smoke accepted `9/9`; timeout `0`, invalid `0`
+  - targeted subtype smoke accepted `2/2`; timeout `0`, invalid `0`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+  - active publish revalidation accepted `3/3`; timeout `0`, invalid `0`
+  - full-train headline deltas versus trusted `v117`:
+    - objective `15085068.575 -> 15084817.5`
+    - avg T `1542.1 -> 1541.65`
+    - avg L `2680.8 -> 2679.875`
+    - avg P `4186.925 -> 4189.425`
+    - runtime max `57.930979 -> 57.913446`
+  - per-instance movement versus `v117`:
+    - improvement:
+      - `prob_25`: objective `1499211 -> 1489168`, T `2159 -> 2141`
+    - no T regressions on the remaining 39 rows
+- Decision:
+  - accepted
+- Rationale:
+  - `v122` keeps the full scoreability contract, improves total T/avg T and the
+    official objective, and clears both wrapper-surface and actual active-path
+    revalidation on the previously blocked runtime-risk rows.

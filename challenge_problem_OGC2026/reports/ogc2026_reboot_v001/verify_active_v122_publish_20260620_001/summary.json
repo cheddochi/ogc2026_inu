@@ -1,0 +1,34 @@
+{
+  "run_id": "verify_active_v122_publish_20260620_001",
+  "timestamp": "2026-06-20T03:13:44",
+  "summary": {
+    "total": 3,
+    "feasible": 3,
+    "accepted_for_score": 3,
+    "checker_feasible": 3,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 63144619.0,
+    "objective_avg": 21048206.333333332,
+    "obj1_sum": 15318.0,
+    "obj1_avg": 5106.0,
+    "obj1_max": 8622.0,
+    "obj2_avg": 3363.3333333333335,
+    "obj3_avg": 10319.0,
+    "runtime_sum": 145.609746,
+    "runtime_avg": 48.536582,
+    "runtime_max": 50.782691
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "active",
+      "path": "ogc2026\\baseline\\myalgorithm.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_37.json",
+    "train\\prob_40.json"
+  ]
+}

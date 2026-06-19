@@ -1,21 +1,21 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116
+    reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117
 
 Publish-trust note:
-    Historical full-train evidence for v117 remains strong, but the fresh
-    publish revalidation at
-    reports/ogc2026_reboot_v001/verify_active_v117_publish_20260620_001/
-    timed out on prob_31 and prob_37 under the active wrapper.
-    Treat this file as the current recovery surface, not a freshly
-    re-confirmed trusted accepted BEST for publish.
+    v122 now has accepted full-train evidence at
+    reports/ogc2026_reboot_v001/full_reboot_v122_train40_20260620_001/
+    and fresh active publish revalidation at
+    reports/ogc2026_reboot_v001/verify_active_v122_publish_20260620_001/
+    with accepted_for_score 3/3 on prob_31, prob_37, and prob_40.
+    Treat this file as the current trusted accepted BEST surface.
 """
 
-from alg_versions import reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116 as active
+from alg_versions import reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117 as active
 
 
-ACTIVE_VERSION = "reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116"
+ACTIVE_VERSION = "reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
