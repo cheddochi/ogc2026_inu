@@ -1,16 +1,20 @@
 """HH active submission wrapper.
 
-Current trusted BEST:
-    reboot_v050_20260617_2015_prob38like_release_aware
+Historical accepted checkpoint:
+    reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094
 
-The wrapper points at the latest accepted best evidenced in VERSION_LOG.md and
-the trusted full-train40 reports.
+Current-source note:
+    The wrapper still points at v096 because it is the latest historically
+    accepted train40 checkpoint, but current-source rechecks have reproduced
+    runtime drift on prob31-like and prob37-like rows. Treat this wrapper as a
+    recovery target until ACTIVE_VERSION.md and VERSION_LOG.md re-establish a
+    source-consistent trusted BEST.
 """
 
-from alg_versions import reboot_v050_20260617_2015_prob38like_release_aware as active
+from alg_versions import reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094 as active
 
 
-ACTIVE_VERSION = "reboot_v050_20260617_2015_prob38like_release_aware"
+ACTIVE_VERSION = "reboot_v096_20260619_1228_xlarge_lowproc_fast_reinsert_on_v094"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

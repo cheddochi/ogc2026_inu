@@ -1,0 +1,34 @@
+{
+  "run_id": "target_reboot_v104_threebay_runtime_20260619_001",
+  "timestamp": "2026-06-19T16:54:24",
+  "summary": {
+    "total": 3,
+    "feasible": 1,
+    "accepted_for_score": 1,
+    "checker_feasible": 3,
+    "timed_out": 2,
+    "failed": 2,
+    "objective_sum": 153689678.0,
+    "objective_avg": 153689678.0,
+    "obj1_sum": 11316.0,
+    "obj1_avg": 11316.0,
+    "obj1_max": 11316.0,
+    "obj2_avg": 8425.0,
+    "obj3_avg": 9322.0,
+    "runtime_sum": 179.79162200000002,
+    "runtime_avg": 59.93054066666667,
+    "runtime_max": 60.431145
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "v104",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v104_20260619_1715_threebay_runtime_iterative_reinsert_on_v103.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_37.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json"
+  ]
+}
