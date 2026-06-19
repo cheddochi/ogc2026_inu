@@ -6,8 +6,8 @@ Current active working line:
 Publish-trust note:
     v123 now has accepted full-train evidence at
     reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/
-    and fresh wrapper/active-path revalidation at
-    reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_001/.
+    and refreshed wrapper/active-path revalidation at
+    reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_002/.
     Treat this file as the current trusted accepted BEST surface.
 """
 

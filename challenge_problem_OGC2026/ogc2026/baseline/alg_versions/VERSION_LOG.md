@@ -9953,3 +9953,455 @@
     because the non-target runtime-risk row `prob_39` drifts to a weaker
     accepted solution. In the current plateau/T-first mode this is useful
     evidence, but it is not strong enough to replace trusted `v123` as BEST.
+
+## reboot_v125_20260620_0000_fourbay_inline_quantile_on_v123
+- File:
+  `reboot_v125_20260620_0000_fourbay_inline_quantile_on_v123.py`
+- Parent:
+  `reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+- Status:
+  - candidate
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1540.65`, `avg objective=15071175.65`
+    - active publish revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_001/`
+      with accepted wrapper/active scoreability on `prob_31`, `prob_37`,
+      `prob_39`, `prob_40`
+  - refreshed current-source high-T backlog from trusted `v123`:
+    - `prob_38`: `T=11120`, `bays=3`, `blocks=250`
+    - `prob_40`: `T=8622`, `bays=4`, `blocks=250`
+    - `prob_27`: `T=5637`, `bays=2`, `blocks=150`
+    - `prob_37`: `T=3961`, `bays=3`, `blocks=250`
+    - `prob_33`: `T=3805`, `bays=3`, `blocks=200`
+    - `prob_39`: `T=3521`, `bays=3`, `blocks=250`, runtime-risk
+    - `prob_31`: `T=2735`, `bays=4`, `blocks=200`
+  - refreshed subtype table on trusted `v123`:
+    - `threebay_highproc_tail` total T `18540`
+    - `fourbay_highpref_tail` total T `13367`
+    - `threebay_lowproc_runtime` total T `12066`
+    - `twobay_concentrated_highproc` total T `7778`
+  - carry-over evidence from rejected `v124`:
+    - targeted `prob_40` local-move signal is real:
+      objective `5910122 -> 5830082`, T `8622 -> 8502`
+    - same wrapper-style candidate also caused non-target runtime-risk drift on
+      `prob_39`:
+      objective `48160369 -> 48598605`, T `3521 -> 3553`
+  - root-cause working theory:
+    - `v124` preserved the right feature selector, but it wrapped
+      `v123.algorithm(...)` as an external warm-start layer. The resulting
+      non-target `prob_39` drift suggests that the best way to preserve the
+      current trusted line is to keep the exact `v123` code path in the new
+      version body, then add the four-bay move inline rather than as a parent
+      wrapper around `v123`.
+- Hypothesis:
+  - The `prob_40`-like improvement signal is still worth pursuing, but the
+    integration point was wrong. If the four-bay top-tardy quantile single
+    reinsert is embedded directly into the `v123` source body, non-target rows
+    should stay on the current trusted `v123` path while the `prob_40`-like
+    family keeps the previously observed T reduction chance.
+- Feature / subtype / timelimit selector:
+  - keep existing `v123` selector unchanged for `threebay_highproc_tail`
+  - add a second selector for the `fourbay_highproc high-preference tail`:
+    - `bays == 4`
+    - `blocks >= 200`
+    - `proc_mean >= 20`
+    - `pref_concentration >= 0.75`
+    - `pref_gap_mean >= 58`
+    - `0.20 <= tight_slack_ratio <= 0.35`
+    - warm-start feasible
+    - warm-start `T >= 2500`
+    - tier not in `very_short/short`
+    - remaining wall time must clear a guarded reserve
+- Planned behavior:
+  - preserve the exact `v123` body as the default line
+  - keep the accepted three-bay high-proc prefix repair unchanged
+  - add the four-bay quantile single-reinsert inline after the trusted base
+    path is built, not by wrapping `v123.algorithm(...)` from outside
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke before any full 40:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_23`, `prob_27`, `prob_32`, `prob_33`, `prob_40`
+  - targeted subtype smoke:
+    - `prob_31`, `prob_40`
+  - runtime-risk recheck:
+    - `prob_39`
+  - only if scoreable and `prob_39` stays at least as strong as trusted `v123`
+    should this go to full train40
+- Validation result:
+  - representative smoke passed:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v125_tier10_20260620_001/`
+    - `accepted_for_score=10/10`
+    - `timeout=0`, `invalid=0`, `runtime_max=53.224765s`
+    - `prob_40` stayed scoreable inside the representative tier set
+  - targeted/runtime-risk compare passed:
+    `reports/ogc2026_reboot_v001/target_reboot_v125_fourbay_inline_20260620_001/`
+    - `prob_31`: unchanged versus same-run `v123`
+      (`39589844`, `T=2735`)
+    - `prob_36`: unchanged versus same-run `v123`
+      (`1499988`, `T=2010`)
+    - `prob_39`: unchanged versus same-run `v123`
+      (`48598605`, `T=3553`)
+    - `prob_40`: improved versus same-run `v123`
+      (`5910122 -> 5830082`, `T 8622 -> 8502`)
+  - historical runtime-risk note:
+    - the stronger trusted `v123` `prob_39` evidence remains
+      `48160369`, `T=3521` from
+      `reports/ogc2026_reboot_v001/verify_v123_prob39_rerun_20260620_001/`
+      and `_003/`
+    - but `reports/ogc2026_reboot_v001/verify_v123_prob39_rerun_20260620_002/`
+      also recorded a timeout cliff on the same row
+    - because the `v125` compare only matched the weaker same-run `v123`
+      `prob_39` line and did not re-establish the stronger trusted runtime-risk
+      behavior, the promotion gate for full-train escalation is not yet cleared
+- Full 40:
+  - path:
+    `reports/ogc2026_reboot_v001/full_reboot_v125_train40_20260620_002/`
+  - accepted `40/40`; timeout `0`, invalid `0`
+  - headline deltas versus trusted `v123`:
+    - total T `61626 -> 61538`
+    - avg T `1540.65 -> 1538.45`
+    - avg objective `15071175.65 -> 15080130.55`
+    - avg L `2674.325 -> 2677.325`
+    - avg P `4187.625 -> 4189.475`
+    - runtime max `59.416431s -> 54.885372s`
+  - changed rows versus trusted `v123`:
+    - `prob_39`: objective `48160369 -> 48598605`,
+      T `3521 -> 3553`, L `194 -> 314`, P `8094 -> 8168`
+    - `prob_40`: objective `5910122 -> 5830082`,
+      T `8622 -> 8502`
+- Decision:
+  - rejected
+- Rationale:
+  - inline integration fixed the specific `v124` failure mode where the
+    four-bay move visibly degraded same-run `prob_39`, and it preserved a real
+    `prob_40` improvement signal.
+  - but the full train40 rerun still converts that signal into an average
+    objective regression because the non-target runtime-risk row `prob_39`
+    worsens more than `prob_40` improves. Under the plateau/T-zero-first branch
+    rules, that keeps `v125` from becoming the next trusted BEST.
+
+## reboot_v126_20260620_0715_threebay_diffuse_lowproc_prefix_on_v123
+- File:
+  `reboot_v126_20260620_0715_threebay_diffuse_lowproc_prefix_on_v123.py`
+- Parent:
+  `reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+- Status:
+  - candidate
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `total T=61626`, `avg T=1540.65`, `avg objective=15071175.65`
+  - refreshed current-source high-T backlog from trusted `v123`:
+    - `prob_38`: `T=11120`, `3-bay xlarge high-proc concentrated`
+    - `prob_40`: `T=8622`, `4-bay xlarge high-proc concentrated`
+    - `prob_27`: `T=5637`, `2-bay mid high-proc concentrated`
+    - `prob_37`: `T=3961`, `3-bay xlarge low-proc diffuse`
+    - `prob_33`: `T=3805`, `3-bay large mid-proc diffuse`
+    - `prob_39`: `T=3521`, `3-bay xlarge low-proc concentrated runtime-risk`
+    - `prob_32`: `T=2992`, `3-bay large low-proc diffuse`
+  - refreshed subtype table on trusted `v123`:
+    - `threebay_highproc_tail` total T `18540`
+    - `fourbay_highpref_tail` total T `13367`
+    - `threebay_lowproc_runtime` total T `12066`
+    - `twobay_concentrated_highproc` total T `7778`
+  - family choice for this cycle:
+    - do not reopen the `fourbay_highpref_tail` candidate again before `v125`
+      is resolved further
+    - do not reopen the whole `threebay_lowproc_runtime` family because the
+      concentrated runtime-risk branch around `prob_39` still shows a limit
+      cliff
+    - instead, isolate the diffuse low-proc branch that currently includes the
+      stronger multi-row residual signal:
+      - `prob_32`: `proc_mean=11.46`, `tight_ratio=0.555`,
+        `pref_concentration=0.345`, `pref_gap_mean=45.2`
+      - `prob_37`: `proc_mean=11.51`, `tight_ratio=0.592`,
+        `pref_concentration=0.400`, `pref_gap_mean=46.7`
+      - guarded-out neighbor `prob_39`: `pref_concentration=0.572`,
+        `pref_gap_mean=55.3`
+  - why this is structurally different:
+    - earlier diffuse-family attempts were mostly order-only or single-block
+      reinsertion probes
+    - this version instead tests whether a very short multi-block tardy-prefix
+      rebuild can unlock T movement on the diffuse low-proc family without
+      re-opening the concentrated runtime-risk branch
+- Hypothesis:
+  - On the `3-bay / blocks>=200 / low-proc / diffuse / tight-slack` subtype,
+    the residual T is caused by a small interacting tardy set rather than by a
+    single misplaced block. A bounded 2-3 block tardy-prefix rebuild on top of
+    the trusted `v123` warm start should have a better chance of lowering T on
+    `prob_32`- / `prob_37`-like rows than the older single-reinsert probes,
+    while the stricter diffuse selector keeps `prob_39` and other concentrated
+    runtime-risk rows on the trusted path.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v123` high-proc prefix-repair selector unchanged
+  - add a second selector for the diffuse low-proc tail:
+    - `bays == 3`
+    - `blocks >= 200`
+    - `proc_mean <= 12.0`
+    - `tight_slack_ratio >= 0.50`
+    - `pref_concentration <= 0.45`
+    - `pref_gap_mean <= 50.0`
+    - warm-start feasible
+    - warm-start `T >= 2500`
+    - tier not in `very_short/short`
+    - only when remaining wall time clears a tighter runtime reserve than the
+      high-proc prefix phase
+- Planned behavior:
+  - preserve the exact `v123` warm-start path outside the target subtype
+  - keep the accepted three-bay high-proc prefix repair unchanged
+  - on the new diffuse low-proc subtype only, rebuild at most the top 2-3
+    tardy assignments with checker validation after each checkpoint
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_32`, `prob_37`
+  - targeted subtype / neighbor check:
+    - `prob_32`, `prob_37`, `prob_39`
+  - only if scoreable and the diffuse rows improve without `prob_39`
+    degradation should this go to full train40
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v126_tier9_20260620_001/`
+  - representative smoke accepted `9/9`; timeout `0`, invalid `0`
+  - targeted subtype / neighbor compare path:
+    `reports/ogc2026_reboot_v001/target_reboot_v126_diffuse_lowproc_20260620_001/`
+  - targeted compare accepted `8/8`; timeout `0`, invalid `0`
+  - same-run comparative result versus trusted `v123`:
+    - `prob_32`: unchanged
+      - objective `12781706`
+      - T `2992`
+    - `prob_33`: unchanged
+      - objective `26172225`
+      - T `3805`
+    - `prob_37`: unchanged
+      - objective `17644653`
+      - T `3961`
+    - `prob_39`: unchanged
+      - objective `48598605`
+      - T `3553`
+  - runtime note:
+    - smoke and targeted runs stayed scoreable with no new runtime cliff
+    - but they also showed no measurable target-family movement
+- Full 40:
+  - not run
+- Decision:
+  - rejected
+- Rationale:
+  - the guarded diffuse low-proc prefix phase was runtime-safe, but it produced
+    no T/objective movement on either intended diffuse row and no neighbor-row
+    change at all. Under the plateau/T-zero-first gate, a no-signal candidate
+    is still rejected because it does not make the requested end state more
+    true.
+
+## reboot_v127_20260620_0815_twobay_concentrated_prefix_on_v123
+- File:
+  `reboot_v127_20260620_0815_twobay_concentrated_prefix_on_v123.py`
+- Parent:
+  `reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+- Status:
+  - candidate
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `total T=61626`, `avg T=1540.65`, `avg objective=15071175.65`
+  - refreshed current-source subtype table on trusted `v123`:
+    - `threebay_highproc_tail` total T `18540`
+    - `fourbay_highpref_tail` total T `13367`
+    - `threebay_lowproc_runtime` total T `12066`
+    - `twobay_concentrated_highproc` total T `7778`
+  - target family choice:
+    - use the remaining two-row concentrated high-proc 2-bay family rather
+      than reopening the runtime-risk 3-bay low-proc families
+    - current feature band:
+      - `bays == 2`
+      - `blocks >= 100`
+      - `proc_mean >= 20`
+      - `slack_mean >= 4.5`
+      - `pref_concentration >= 0.60`
+      - `pref_gap_mean >= 60`
+    - current matching train rows on trusted `v123`:
+      - `prob_25`: `T=2141`
+      - `prob_27`: `T=5637`
+  - carry-over evidence from accepted `v122`:
+    - the live top-tardy probe signal was real on this family
+    - `v122` converted only part of it into the accepted line:
+      - `prob_25`: improved `2159 -> 2141`
+      - `prob_27`: remained flat at `5637`
+  - why this is structurally different:
+    - `v122` already validated the bounded single-block reinsert path on this
+      family
+    - this version tests whether the remaining `prob_27`-like residual is an
+      interacting tardy-set problem that needs a very short 2-3 block prefix
+      rebuild instead of another single-block move
+- Hypothesis:
+  - On the concentrated 2-bay high-proc tail, the trusted `v122`/`v123`
+    warm start already fixes the easy single-block opportunity. The remaining
+    residual, especially on `prob_27`-like rows, may require rebuilding a very
+    short top-tardy prefix of 2-3 blocks together. Doing that only on the
+    narrow two-bay family should preserve runtime safety while offering a new
+    path to lower total T.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v123` three-bay high-proc prefix selector unchanged
+  - add a second selector for the concentrated 2-bay high-proc tail:
+    - `bays == 2`
+    - `blocks >= 100`
+    - `proc_mean >= 20`
+    - `slack_mean >= 4.5`
+    - `pref_concentration >= 0.60`
+    - `pref_gap_mean >= 60`
+    - warm-start feasible
+    - warm-start `T >= 2000`
+    - tier not in `very_short/short`
+    - remaining wall time must clear a guarded reserve
+- Planned behavior:
+  - preserve the exact `v123` warm-start path outside the target subtype
+  - keep the accepted three-bay high-proc prefix repair unchanged
+  - on the new 2-bay concentrated high-proc subtype only, rebuild at most the
+    top 2-3 tardy assignments with checker validation after each checkpoint
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_39`
+  - targeted subtype check:
+    - `prob_25`, `prob_27`
+  - only if scoreable and same-family T improves without runtime-risk spillover
+    should this go to full train40
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v127_tier9_20260620_001/`
+  - representative smoke result:
+    - `accepted_for_score=8/9`
+    - `timeout=1`, `invalid=0`
+    - runtime max `63.133952s`
+  - decisive failure:
+    - `prob_27` timed out at `63.133952s`
+    - checker still returned the old objective `77480587`, so the candidate
+      spent extra time without recovering any accepted score gain before
+      crossing the official limit
+  - guard rows that did stay scoreable:
+    - `prob_25`: accepted at `35.04s`
+    - `prob_31`: accepted at `53.91s`
+    - `prob_39`: accepted at `48.55s`
+- Full 40:
+  - not run
+- Decision:
+  - rejected
+- Rationale:
+  - the new 2-bay multi-block prefix phase violated the scoreability contract
+    on its own target family before it produced any accepted gain. Under the
+    plateau/T-zero-first gate, a target-family timeout is an immediate reject.
+
+## reboot_v128_20260620_0935_twobay_heavytail_pairprefix_on_v123
+- File:
+  `reboot_v128_20260620_0935_twobay_heavytail_pairprefix_on_v123.py`
+- Parent:
+  `reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+- Status:
+  - rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `total T=61626`, `avg T=1540.65`, `avg objective=15071175.65`
+  - refreshed target-family context:
+    - the accepted `v122` single-block quantile repair already improved the
+      smaller two-bay row:
+      - `prob_25`: `T 2159 -> 2141`
+    - the larger heavy-tail row remained untouched:
+      - `prob_27`: `T=5637`, objective `77480587`
+  - immediate prior failure to avoid repeating:
+    - `v127` showed that a generic 2-3 block prefix rebuild over the whole
+      two-bay concentrated high-proc family is too expensive:
+      - `prob_27` timed out at `63.133952s`
+  - family split for this cycle:
+    - keep the smaller `prob_25`-like row on the trusted `v123` / `v122`
+      single-block path
+    - isolate only the heavier residual row class:
+      - `bays == 2`
+      - `blocks >= 150`
+      - `proc_mean >= 20`
+      - `slack_mean >= 4.5`
+      - `pref_concentration >= 0.65`
+      - `pref_gap_mean >= 60`
+      - warm-start `T >= 5000`
+- Hypothesis:
+  - The residual larger two-bay heavy-tail row is not a general family problem;
+    it is a heavier subclass that likely needs a paired top-tardy rebuild, but
+    the search must stay narrower than `v127`. Rebuilding exactly two tardy
+    blocks with a much tighter budget and only on the heavy-tail subclass can
+    preserve scoreability while probing for the missing `prob_27` T drop.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v123` three-bay high-proc prefix selector unchanged
+  - preserve the accepted `v122` single-block two-bay tail behavior unchanged
+  - add a third selector for the heavier 2-bay high-proc tail:
+    - `bays == 2`
+    - `blocks >= 150`
+    - `proc_mean >= 20`
+    - `slack_mean >= 4.5`
+    - `pref_concentration >= 0.65`
+    - `pref_gap_mean >= 60`
+    - warm-start feasible
+    - warm-start `T >= 5000`
+    - tier not in `very_short/short`
+    - remaining wall time must clear a stricter reserve than `v127`
+- Planned behavior:
+  - preserve the exact `v123` warm-start path outside the target subtype
+  - on the new heavy-tail subtype only, rebuild exactly the top 2 tardy
+    assignments with checker validation once
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_39`
+  - targeted subtype check:
+    - only if the smoke remains fully scoreable and the `prob_27` family moves
+- Smoke:
+  - run:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v128_tier9_20260620_001/`
+  - result:
+    - `accepted_for_score=8/9`
+    - `timed_out=1`
+    - `checker_feasible=9/9`
+    - `runtime_max=61.972116s`
+  - key failure:
+    - `prob_27`: checker-feasible but timeout at `61.972116s`, so not
+      scoreable
+- Targeted subtype smoke:
+  - not run
+- Full 40:
+  - not run
+- Decision:
+  - rejected
+- Rationale:
+  - even after narrowing the selector to the heavier 2-bay subclass and
+    reducing the paired-prefix budget to a single 2-block checkpoint, the
+    target row still crossed the official runtime limit. Because the candidate
+    failed scoreability on its own target family during smoke, it cannot be
+    promoted and should not block the active trusted `v123` line.
+    - `prob_25`, `prob_27`
+  - only if scoreable and the heavy-tail row improves without timeout or
+    runtime-risk spillover should this proceed further

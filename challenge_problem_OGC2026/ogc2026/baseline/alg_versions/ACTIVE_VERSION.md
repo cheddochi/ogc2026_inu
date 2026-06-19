@@ -21,7 +21,7 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
   - runtime-risk subset revalidation:
     `reports/ogc2026_reboot_v001/verify_v123_runtime_subset_20260620_001/`
   - wrapper + active publish revalidation:
-    `reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_001/`
+    `reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_002/`
   - full:
     `reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/`
 - Current accepted train40 result:
