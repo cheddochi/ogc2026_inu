@@ -1,0 +1,41 @@
+{
+  "run_id": "smoke_reboot_v124_tier10_20260620_001",
+  "timestamp": "2026-06-20T05:49:18",
+  "summary": {
+    "total": 10,
+    "feasible": 10,
+    "accepted_for_score": 10,
+    "checker_feasible": 10,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 184097637.0,
+    "objective_avg": 18409763.7,
+    "obj1_sum": 24504.0,
+    "obj1_avg": 2450.4,
+    "obj1_max": 8502.0,
+    "obj2_avg": 2571.6,
+    "obj3_avg": 4532.2,
+    "runtime_sum": 267.985921,
+    "runtime_avg": 26.7985921,
+    "runtime_max": 51.033216
+  },
+  "algorithms": [
+    {
+      "name": "v124",
+      "version": "reboot_v124",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v124_20260620_1125_fourbay_highproc_toptardy_quantile_on_v123.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_19.json",
+    "train\\prob_23.json",
+    "train\\prob_27.json",
+    "train\\prob_32.json",
+    "train\\prob_33.json",
+    "train\\prob_40.json"
+  ]
+}

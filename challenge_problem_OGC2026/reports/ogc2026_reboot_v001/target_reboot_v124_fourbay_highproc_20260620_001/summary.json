@@ -1,0 +1,38 @@
+{
+  "run_id": "target_reboot_v124_fourbay_highproc_20260620_001",
+  "timestamp": "2026-06-20T05:53:58",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 90919892.0,
+    "objective_avg": 22729973.0,
+    "obj1_sum": 22594.0,
+    "obj1_avg": 5648.5,
+    "obj1_max": 8622.0,
+    "obj2_avg": 3215.0,
+    "obj3_avg": 11788.5,
+    "runtime_sum": 201.97454199999999,
+    "runtime_avg": 50.493635499999996,
+    "runtime_max": 54.027322
+  },
+  "algorithms": [
+    {
+      "name": "v123",
+      "version": "reboot_v123",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122.py"
+    },
+    {
+      "name": "v124",
+      "version": "reboot_v124",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v124_20260620_1125_fourbay_highproc_toptardy_quantile_on_v123.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_40.json"
+  ]
+}

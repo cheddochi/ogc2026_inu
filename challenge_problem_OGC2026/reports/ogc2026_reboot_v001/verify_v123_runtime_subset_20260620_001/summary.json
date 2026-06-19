@@ -1,0 +1,41 @@
+{
+  "run_id": "verify_v123_runtime_subset_20260620_001",
+  "timestamp": "2026-06-20T05:00:39",
+  "summary": {
+    "total": 10,
+    "feasible": 10,
+    "accepted_for_score": 10,
+    "checker_feasible": 10,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 286572064.0,
+    "objective_avg": 28657206.4,
+    "obj1_sum": 42328.0,
+    "obj1_avg": 4232.8,
+    "obj1_max": 8622.0,
+    "obj2_avg": 2590.2,
+    "obj3_avg": 9094.4,
+    "runtime_sum": 450.329316,
+    "runtime_avg": 45.0329316,
+    "runtime_max": 59.91273
+  },
+  "algorithms": [
+    {
+      "name": "v122",
+      "version": "reboot_v122",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v122_20260620_0245_twobay_toptardy_quantile_reinsert_on_v117.py"
+    },
+    {
+      "name": "v123",
+      "version": "reboot_v123",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_26.json",
+    "train\\prob_31.json",
+    "train\\prob_37.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
