@@ -9333,3 +9333,174 @@
     prob37-like row still times out, so it does not re-establish a publish-safe
     active line. Keep the evidence for diagnosis, but do not promote or reuse
     it as the next active recovery surface.
+
+## reboot_v119_20260620_0635_highproc_pressure_shallow_portfolio_on_v117
+- File:
+  `reboot_v119_20260620_0635_highproc_pressure_shallow_portfolio_on_v117.py`
+- Parent:
+  `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+- Status:
+  - rejected
+- Experiment note:
+  - trusted baseline reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+    - historical accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v117_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1542.1`, `avg objective=15085068.575`
+    - fresh publish revalidation block:
+      `reports/ogc2026_reboot_v001/verify_active_v117_publish_20260620_001/`
+      with runtime cliff on `prob_31` / `prob_37`
+  - current subtype table refresh from trusted v117 full result plus train JSON
+    features:
+    - residual high-proc pressure family:
+      `prob_25`, `prob_26`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+      -> high `proc_mean`, high preference pressure/gap, low tight-slack ratio,
+      still carrying the largest remaining T tail
+    - low-proc 3-bay diffuse runtime-risk family:
+      `prob_37`
+    - low-proc 3-bay dense long-limit family:
+      `prob_39`
+  - chosen target for this version:
+    - the broader high-proc pressure family, not the low-proc runtime-risk
+      family and not a prob38-only branch
+- Hypothesis:
+  - After the `v117` recovery, the biggest remaining T tail is concentrated in
+    a broader feature-based high-proc pressure family. A very shallow
+    remaining-time-aware direct-order portfolio on top of the trusted `v117`
+    warm start may reduce T on one or more of those rows without reopening the
+    `prob_31` / `prob_37` wrapper-runtime cliff.
+- Feature / subtype / timelimit selector:
+  - feature base reused from
+    `reboot_v053_20260617_2142_highproc_pressure_portfolio`
+  - eligible only when:
+    - `2 <= bays <= 4`
+    - `blocks >= 100`
+    - `proc_mean >= 16`
+    - `tight_slack_ratio <= 0.12`
+    - `pref_concentration >= 0.55`
+    - `pref_gap_mean >= 50`
+    - warm-start feasible
+    - warm-start `T >= 2000`
+    - tier not in `very_short/short`
+    - remaining wall time after the `v117` warm start clears a stricter safe
+      margin
+- Planned behavior:
+  - keep `v117` unchanged outside the target family
+  - inside the target family only, build the `v117` warm start first, then try
+    one very shallow direct-order alternative at standard limits and at most
+    two on longer limits
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke before full 40:
+    - `prob_4`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_38`
+  - targeted family smoke:
+    - `prob_25`, `prob_26`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+  - if scoreable and same-family regression is controlled, then full train40
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v119_tier9_20260620_001/`
+  - targeted family smoke path:
+    `reports/ogc2026_reboot_v001/target_reboot_v119_highproc_pressure_20260620_001/`
+  - representative smoke accepted `9/9`; timeout `0`, invalid `0`
+  - targeted family smoke accepted `6/6`; timeout `0`, invalid `0`
+  - per-row deltas versus trusted `v117` on both validations:
+    - objective/T/L/P changes: none
+    - runtime only drifted slightly row-by-row
+  - root cause:
+    - the candidate never actually fired on the intended rows
+    - current-source feature extraction shows the proposed parent selector from
+      `v053` rejects every intended target row because the inherited
+      `tight_slack_ratio <= 0.12` gate is far below the real current values
+      (`0.225 .. 0.367`) for `prob_25`, `prob_26`, `prob_27`, `prob_31`,
+      `prob_38`, and `prob_40`
+- Decision:
+  - rejected
+- Rationale:
+  - `v119` preserves scoreability, but it is effectively a no-op on the
+    current workspace state. The selector does not match the intended family,
+    so the hypothesis was not truly tested and there is no T or objective
+    movement to justify escalation to full train40.
+
+## reboot_v120_20260620_0705_highproc_tail_shallow_portfolio_on_v117
+- File:
+  `reboot_v120_20260620_0705_highproc_tail_shallow_portfolio_on_v117.py`
+- Parent:
+  `reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116`
+- Status:
+  - rejected
+- Experiment note:
+  - `v119` confirmed that the broad-family direct-order hypothesis is still
+    worth testing, but its reused selector from `v053` is stale for the
+    current source and training feature range.
+  - current target-family feature refresh:
+    - `prob_25`: `tight_slack_ratio=0.25`, `pref_concentration=0.61`,
+      `pref_gap_mean=62.16`, `proc_mean=21.58`
+    - `prob_26`: `0.367`, `0.773`, `62.873`, `16.92`
+    - `prob_27`: `0.32`, `0.667`, `68.107`, `21.267`
+    - `prob_31`: `0.225`, `0.795`, `60.615`, `21.495`
+    - `prob_38`: `0.328`, `0.568`, `52.332`, `21.348`
+    - `prob_40`: `0.312`, `0.76`, `59.1`, `21.688`
+- Hypothesis:
+  - The residual T tail still clusters in a broader high-proc preference-tail
+    family, but the current-source family occupies a much looser slack band
+    than the old `v053` class. Updating only the selector to the observed
+    current feature band should let the same shallow direct-order portfolio
+    fire on the intended rows without changing the portfolio logic itself.
+- Feature / subtype / timelimit selector:
+  - `2 <= bays <= 4`
+  - `blocks >= 100`
+  - `proc_mean >= 16`
+  - `pref_concentration >= 0.55`
+  - `pref_gap_mean >= 50`
+  - `pref_pressure >= 0.50`
+  - `0.20 <= tight_slack_ratio <= 0.40`
+  - warm-start feasible
+  - warm-start `T >= 2000`
+  - tier not in `very_short/short`
+  - remaining wall time must clear the same safe margin used in `v119`
+- Planned behavior:
+  - keep `v117` unchanged outside the target family
+  - inside the target family only, run the exact same shallow direct-order
+    portfolio logic from `v119`
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation:
+  - representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v120_tier9_20260620_001/`
+  - completion check on omitted family rows:
+    `reports/ogc2026_reboot_v001/target_reboot_v120_prob26_prob40_20260620_001/`
+  - representative smoke accepted `9/9`; timeout `0`, invalid `0`
+  - family completion check accepted `2/2`; timeout `0`, invalid `0`
+  - per-row deltas versus trusted `v117`:
+    - objective/T/L/P changes: none on all checked rows
+    - runtime overhead:
+      - `prob_25`: `+4.462s`
+      - `prob_26`: `+5.443s`
+      - `prob_27`: `+4.934s`
+      - `prob_38`: `+5.863s`
+      - `prob_40`: `+5.831s`
+  - candidate row diagnostics:
+    - `prob_25`: shallow `due_long_proc` candidate worsened
+      `T 2159 -> 8033`
+    - `prob_27`: shallow `due_long_proc` candidate worsened
+      `5637 -> 19363`
+    - `prob_38`: shallow `due_release_proc` candidate worsened
+      `11120 -> 124423`
+    - `prob_26`: shallow `preference_spread` candidate worsened
+      `2345 -> 14735`
+    - `prob_40`: shallow `preference_spread` candidate worsened
+      `8622 -> 106467`
+    - `prob_31`: correctly skipped by the remaining-time guard
+- Decision:
+  - rejected
+- Rationale:
+  - `v120` did fire on the intended family, so the corrected selector worked,
+    but the hypothesis itself failed. Across the checked high-proc family rows,
+    shallow direct-order rebuilds were catastrophically weaker than the `v117`
+    warm start and bought no T/objective improvement at the cost of roughly
+    five extra seconds on the targeted rows. The next T-breakthrough attempt
+    should stay on warm-start-preserving local moves, not fresh direct rebuilds.
