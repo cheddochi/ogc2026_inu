@@ -1,0 +1,40 @@
+{
+  "run_id": "smoke_reboot_v118_tier9_20260620_001",
+  "timestamp": "2026-06-20T01:27:17",
+  "summary": {
+    "total": 9,
+    "feasible": 9,
+    "accepted_for_score": 9,
+    "checker_feasible": 9,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 310971459.0,
+    "objective_avg": 34552384.333333336,
+    "obj1_sum": 23722.0,
+    "obj1_avg": 2635.777777777778,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2620.1111111111113,
+    "obj3_avg": 5122.777777777777,
+    "runtime_sum": 220.400017,
+    "runtime_avg": 24.488890777777776,
+    "runtime_max": 52.478651
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "v118_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v118_20260620_0835_prob31like_gap_hard_margin_on_v116.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_19.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_31.json",
+    "train\\prob_38.json"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "run_id": "compare_v117_v118_prob31_rerun_20260620_001",
+  "timestamp": "2026-06-20T01:25:11",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 79179688.0,
+    "objective_avg": 39589844.0,
+    "obj1_sum": 5470.0,
+    "obj1_avg": 2735.0,
+    "obj1_max": 2735.0,
+    "obj2_avg": 1843.0,
+    "obj3_avg": 11680.0,
+    "runtime_sum": 104.91958199999999,
+    "runtime_avg": 52.459790999999996,
+    "runtime_max": 54.017938
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "v117_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v117_20260620_0033_prob31like_concentrated_gap_on_v116.py"
+    },
+    {
+      "name": "hh",
+      "version": "v118_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v118_20260620_0835_prob31like_gap_hard_margin_on_v116.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json"
+  ]
+}

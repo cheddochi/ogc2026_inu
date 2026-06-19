@@ -9225,3 +9225,106 @@
   - re-establish a publish-safe active line that keeps
     `accepted_for_score=40/40` and removes the current `prob_31`/`prob_37`
     runtime cliff before any new BEST promotion claim
+
+## reboot_v118_20260620_0835_prob31like_gap_hard_margin_on_v116
+- File:
+  `reboot_v118_20260620_0835_prob31like_gap_hard_margin_on_v116.py`
+- Parent:
+  `reboot_v116_20260619_2339_prob37like_early_chain_on_v115`
+- Status:
+  - candidate
+- Hypothesis:
+  - The fresh publish revalidation and direct prob31 probes show that the
+    `v117` improvement itself is good, but the final `v070` concentrated-gap
+    replay is too willing to spend the last 7-10 seconds after the prob31-like
+    `v115` warm start. Keeping the `v115` improvement path intact while
+    requiring a materially larger post-`v115` runtime margin before the
+    concentrated-gap replay should preserve the score gain on fast reruns and
+    fall back to the still-strong `v115` row on slow reruns.
+- Feature / subtype / timelimit selector:
+  - same prob31-like subtype selector as `v117` via
+    `v078._matches_prob31like_class(v078._selector_features(prob_info))`
+  - same standard/long/very_long tier gating
+  - same `timelimit >= 55s` outer gate
+  - changed inner rule only:
+    run the final `v070` replay only when the post-`v115` remaining budget
+    clears a harder margin
+- Expected effect:
+  - recover publish-safety on the prob31-like runtime-risk row
+  - preserve the feature-based prob37-like sibling handling from `v116`
+  - keep `accepted_for_score=40/40` on current-source validation if the harder
+    margin removes the noisy overrun cases
+- Validation:
+  - targeted compare path:
+    `reports/ogc2026_reboot_v001/compare_v117_v118_prob31_prob37_prob40_20260620_001/`
+  - targeted rerun path:
+    `reports/ogc2026_reboot_v001/compare_v117_v118_prob31_rerun_20260620_001/`
+  - tier-representative smoke path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v118_tier9_20260620_001/`
+  - full train40 path:
+    `reports/ogc2026_reboot_v001/full_reboot_v118_train40_20260620_001/`
+  - targeted compare accepted `6/6`; timeout `0`, invalid `0`
+    - `prob_31`: objective/T/L/P unchanged versus `v117`
+      (`39589844 / 2735 / 1843 / 11680`)
+      while runtime improved `52.80s -> 50.45s`
+    - `prob_37`: objective/T/L/P unchanged; runtime `49.69s -> 50.59s`
+    - `prob_40`: objective/T/L/P unchanged; runtime `43.86s -> 54.64s`
+  - targeted prob31 rerun accepted `2/2`; timeout `0`, invalid `0`
+    - `prob_31`: objective/T/L/P unchanged
+      with runtime `54.02s -> 50.90s`
+  - tier-representative smoke accepted `9/9`; timeout `0`, invalid `0`
+    - includes runtime-risk / high-T guards:
+      `prob_27`, `prob_31`, `prob_38`
+    - `prob_31` runtime `52.48s`
+  - full train40 accepted `40/40`; timeout `0`, invalid `0`
+    - avg objective `15085068.575`
+    - avg T `1542.1`
+    - avg L `2680.8`
+    - avg P `4186.925`
+    - runtime max `58.311883`
+- Per-instance comparison summary:
+  - versus current-source historical accepted `v117`:
+    - changed rows: `0` on objective/T/L/P across all train40 rows
+    - runtime profile:
+      - direct targeted reruns show lower `prob_31` runtime
+      - full-train40 runtime max is slightly higher
+        `57.930979 -> 58.311883`, still under the 60s limit
+  - versus current-source `v116`:
+    - changed rows: `1`
+    - improvements: `1`
+    - regressions: `0`
+    - improved row:
+      - `prob_31`: objective `40137295 -> 39589844`,
+        T `2776 -> 2735`,
+        L `1753 -> 1843`,
+        P `11684 -> 11680`
+    - average deltas:
+      - avg objective `-13686.275`
+      - avg T `-1.025`
+      - avg L `+2.25`
+      - avg P `-0.1`
+- High-T rows (`T >= 3000`) on full train40:
+  - `prob_38`: `11120`
+  - `prob_40`: `8622`
+  - `prob_27`: `5637`
+  - `prob_37`: `3961`
+  - `prob_33`: `3805`
+  - `prob_39`: `3521`
+- Hidden-risk note:
+  - manageable but not yet cleared for BEST promotion
+  - The score profile exactly matches historical accepted `v117`, and the
+    direct prob31-like reruns are friendlier on runtime, but the fresh publish
+    failure was observed on the active wrapper surface. `v118` has not yet been
+    promoted through `baseline_hh.py` + trusted active evidence, so it is not
+    honest to publish it as a new trusted accepted BEST today.
+- Decision:
+  - candidate
+- Rationale:
+  - `v118` is a reliability-oriented candidate, not a score-improvement
+    candidate. It preserves the historical `v117` train40 score exactly,
+    materially improves the direct prob31-like runtime on repeated reruns, and
+    keeps full-train40 scoreability at `40/40`. However, because the active
+    wrapper publish cliff was the original failure mode and `v118` has not yet
+    been re-established as the trusted active surface with dedicated wrapper
+    evidence, it remains a candidate / recovery option rather than a promoted
+    BEST.
