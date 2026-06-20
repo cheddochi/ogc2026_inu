@@ -187,3 +187,15 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
       surface, even at the tier-representative smoke layer
     - next work should treat `prob_27` and `prob_33` as a joint runtime
       stabilization problem before any renewed BEST claim
+- Latest joint-guard note (`2026-06-21`, v161 smoke):
+  - joint runtime guards on top of trusted `v142`:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v161_tier9_20260621_001/`
+  - targeted runtime families did recover:
+    - `prob_27`: TIMEOUT under direct `v142` row -> PASS under `v161`
+    - `prob_33`: TIMEOUT under direct `v142` row -> PASS under `v161`
+  - but non-target `prob_40` still timed out under `v161`, even though that
+    row should have delegated to the inherited `v142` path
+  - interpretation:
+    - the current blocker is no longer just feature-family runtime risk
+    - same-process drift / inherited mutable state is now a first-class hidden
+      risk on the current tree

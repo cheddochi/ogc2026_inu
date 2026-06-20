@@ -14028,3 +14028,109 @@
     - `prob33-like 3-bay moderate-highproc`
   - only after that parent surface is scoreable again should the prob40-like
     T-gain slice be replayed for promotion
+
+## reboot_v161_20260621_joint_runtime_guards_on_v142
+- File:
+  `reboot_v161_20260621_joint_runtime_guards_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - current trusted historical BEST remains `v142`
+  - latest recovery evidence still says the next blocker is a joint runtime
+    stabilization problem on:
+    - `prob27-like 2-bay high-proc heavy-tail`
+    - `prob33-like 3-bay moderate-highproc`
+  - refreshed current-state family table from train JSON plus trusted/current
+    full results:
+    - `prob27-like` exact selector hit:
+      - `prob_27`
+      - trusted `v142`: `T=5541`, runtime `46.20s`
+      - current recovery `v152`: `T=5637`, runtime `54.00s`
+    - `prob33-like` exact selector hit:
+      - `prob_33`
+      - trusted `v142`: `T=3805`, runtime `45.75s`
+      - current recovery `v152`: `T=3854`, runtime `59.53s`
+  - supporting current-tree evidence:
+    - `v146` kept `prob27-like` scoreable with a small T gain on the canonical
+      wrapper recheck:
+      - `prob_27: 5541 -> 5451`
+    - `v159` proved the explicit prob33-like direct guard restores runtime
+      margin on the current tree, even though its T is not yet a promotion win
+- Hypothesis:
+  - the current tree does not need another broad parent rewrite first
+  - instead, keeping trusted `v142` as the default surface and replacing only
+    the two reopened runtime-risk families with explicit guards should recover
+    scoreable margin while preserving the trusted non-target tail rows,
+    especially `prob_40`
+- Feature / subtype / timelimit selector:
+  - preserve `v142` unchanged outside the two target families
+  - `prob27-like` guard only when all are true:
+    - bays `== 2`
+    - blocks `>= 140`
+    - proc_mean `>= 20.0`
+    - slack_mean `>= 4.5`
+    - pref_concentration `>= 0.65`
+    - pref_pressure `>= 0.62`
+    - pref_gap_mean `>= 65.0`
+  - `prob33-like` guard only when all are true:
+    - bays `== 3`
+    - blocks in `[180, 220]`
+    - proc_mean in `[15.0, 18.5]`
+    - slack_mean in `[3.0, 4.4]`
+    - pref_concentration in `[0.38, 0.48]`
+    - pref_gap_mean `<= 52.0`
+    - workload_imbalance_pressure in `[0.15, 0.28]`
+  - both guards skipped for `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v142` by default
+  - on `prob27-like` slice only:
+    - reuse the `v146` efficiency shortlist guard
+  - on `prob33-like` slice only:
+    - reuse the `v159` direct release_due guard plus thin-gap repair
+  - keep the rest of the trusted `v142` surface unchanged, including the
+    historical `prob40` behavior
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+  - targeted family smoke:
+    `prob_25`, `prob_27`, `prob_32`, `prob_33`, `prob_37`, `prob_40`
+  - full train40 only if smoke is fully scoreable and the non-target `prob40`
+    row does not regress materially versus trusted `v142`
+- Validation result:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v161_tier9_20260621_001/`
+    - `v142` itself drifted badly on the current tree:
+      - `prob_27`: TIMEOUT `77480587 / T=5637 / 65.84s`
+      - `prob_33`: TIMEOUT `41926242 / T=6176 / 62.98s`
+      - `prob_40`: PASS `18230025 / T=27087 / 58.11s`
+    - the new joint guards fixed the two targeted runtime rows:
+      - `prob_27`: PASS `77480587 / T=5637 / 58.92s`
+      - `prob_33`: PASS `33726859 / T=4907 / 45.94s`
+    - but the smoke still failed because non-target `prob_40` timed out:
+      - `prob_40`: TIMEOUT `16476222 / T=24454 / 60.81s`
+  - same-process hidden-risk note:
+    - `v161 prob_40` should have delegated to the same `v142` path as the
+      direct `v142 prob_40` row in the same smoke
+    - the two rows still diverged materially, which points to inherited
+      mutable-state / same-process drift rather than a simple selector miss
+- Decision:
+  rejected
+- Reason:
+  - smoke gate failed:
+    - accepted_for_score was not `9/9`
+    - non-target `prob_40` timed out
+  - the targeted runtime-family idea is still useful, but it is not sufficient
+    while the inherited `v142` path remains unstable inside the same process
+- Publish note:
+  `reports/ogc2026_reboot_v001/validation_note_20260621_v161.md`
+- Next strategy:
+  - stop assuming the inherited `v142` chain is process-stable on non-target
+    rows just because the historical standalone evidence was trusted
+  - make the next hypothesis a state-stability one:
+    - isolate/reset mutable inherited state between rows, or
+    - replace the drifting non-target delegated warm-start path with a stable
+      direct builder on the affected tail rows before any new promotion claim
