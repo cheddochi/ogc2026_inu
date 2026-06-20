@@ -13360,3 +13360,99 @@
   - treat `v152` as the scoreable recovery parent
   - pivot to a single-family `prob38-like` high-T-tail hypothesis instead of
     continuing the failed `prob33-like` replay line
+
+## reboot_v154_20260621_prob38like_restore_direct_v142_on_v152
+- File:
+  `reboot_v154_20260621_prob38like_restore_direct_v142_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - trusted BEST remains historical `v142`, while `v152` is only the newest
+    scoreable current-tree recovery parent
+  - current full40 comparison shows the largest residual T regression on the
+    recovery parent is the `prob38-like` family:
+    - trusted `v142` `prob_38`: `151254848 / T=11120`
+    - recovery parent `v152` `prob_38`: `346034606 / T=25718`
+  - earlier direct-file evidence on the same workspace showed that the direct
+    `v142` file path still reproduced the strong `prob38-like` row on the
+    canonical 60s surface:
+    `reports/ogc2026_reboot_v001/target_reboot_v145_prob38like_20260621_001/`
+    - direct `v142` `prob_38`: `151254848 / T=11120`, runtime `47.73s`
+  - the failed `v144/v145` prob38-like experiments suggest the local repair
+    kernels were the problem, not the direct `v142` family path itself
+- Hypothesis:
+  - On the narrow `prob38-like` feature slice, the recovery parent lost a
+    previously scoreable strong direct path. Restoring that slice to the direct
+    `v142` algorithm while keeping `v152` everywhere else can cut the largest
+    remaining T tail without reopening the broader runtime backlog.
+- Feature / subtype / timelimit selector:
+  - preserve `v152` unchanged outside the target slice
+  - activate only when all are true:
+    - `v050._matches_prob38like_class(features)`
+    - tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on the prob38-like family only:
+    - call the direct `v142` algorithm path
+    - keep it when officially feasible
+    - otherwise fall back to `v152`
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_33`, `prob_37`,
+    `prob_38`, `prob_40`
+  - targeted subtype smoke:
+    `prob_38`
+  - optional full train40 only if smoke stays fully scoreable and the target
+    row returns toward the trusted `v142` surface without reopening the runtime
+    backlog
+- Validation:
+  - representative block-tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v154_tier12_20260621_001/`
+    - accepted_for_score `12/12`, timeout `0`, invalid `0`
+    - the candidate stayed fully scoreable on the representative set
+    - but the intended target family did not restore the trusted historical
+      row:
+      - `prob_38`: `311325271 / T=23125`
+    - and high-T side effects remained large:
+      - `prob_31`: `56629945 / T=4003`
+      - `prob_40`: `15211040 / T=22564`
+  - targeted compare against the recovery parent:
+    `reports/ogc2026_reboot_v001/target_reboot_v154_prob38like_20260621_001/`
+    - accepted_for_score `5/6`, timeout `1`, invalid `0`
+    - the intended target row did improve against the current recovery parent:
+      - `prob_38`: `494843363 / T=36895` (`v152`)
+        -> `369284609 / T=27467` (`v154`)
+    - one nearby non-target runtime-risk row also improved:
+      - `prob_31`: `98768388 / T=7170` (`v152`)
+        -> `50064807 / T=3510` (`v154`)
+    - but the tier-mate high-T tail reopened a scoreable failure:
+      - `prob_40`: `10590602 / T=15638 / 58.63s` (`v152`)
+        -> `11368359 / T=16805 / 60.50s` (`v154`, TIMEOUT)
+  - log interpretation:
+    - the prob38-like override did execute, but the current direct `v142` path
+      itself no longer reproduces the old trusted `11120` row on this source
+      tree; it now lands on a weaker `v050 -> v080` chain result
+    - meanwhile the inherited prob40-like base path is already living near the
+      60s cliff, so small runtime variance is enough to turn a non-target row
+      into a timeout
+- Decision:
+  rejected
+- Reason:
+  - this version proved that a narrow prob38-like restore can still improve the
+    current recovery parent on the target row
+  - however, plateau/T-zero-first promotion still requires stable scoreability,
+    and the targeted comparison reopened a non-target timeout on `prob_40`
+  - the deeper lesson is that the current tree no longer reproduces the old
+    trusted direct `v142` prob38-like surface, so simply delegating to `v142`
+    is not a reliable restoration path anymore
+- Next strategy:
+  - stop treating the current direct `v142` path as a trustworthy restore
+    oracle on the prob38-like family
+  - pivot the next coherent hypothesis toward the
+    `medium/4bay/lowproc/concentrated/runtime-risk/tight/high-T` prob40-like
+    family, where the inherited base path is now visibly running on a
+    56-58s cliff before any tail-specific move can even start

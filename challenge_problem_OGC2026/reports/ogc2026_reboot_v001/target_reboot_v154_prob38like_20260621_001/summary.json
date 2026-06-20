@@ -1,0 +1,39 @@
+{
+  "run_id": "target_reboot_v154_prob38like_20260621_001",
+  "timestamp": "2026-06-21T01:59:55",
+  "summary": {
+    "total": 6,
+    "feasible": 5,
+    "accepted_for_score": 5,
+    "checker_feasible": 6,
+    "timed_out": 1,
+    "failed": 1,
+    "objective_sum": 1023551769.0,
+    "objective_avg": 204710353.8,
+    "obj1_sum": 90680.0,
+    "obj1_avg": 18136.0,
+    "obj1_max": 36895.0,
+    "obj2_avg": 7004.6,
+    "obj3_avg": 11123.6,
+    "runtime_sum": 307.427804,
+    "runtime_avg": 51.23796733333333,
+    "runtime_max": 60.503079
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "v152",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151.py"
+    },
+    {
+      "name": "hh",
+      "version": "v154",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v154_20260621_prob38like_restore_direct_v142_on_v152.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}
