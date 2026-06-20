@@ -113,6 +113,15 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
       - do not publish the active wrapper as a re-trusted BEST yet
       - the next repair should stabilize the reopened runtime-risk family
         before any further `prob33-like` local tuning
+  - latest scoreable recovery candidate:
+    `reports/ogc2026_reboot_v001/full_reboot_v152_train40_20260621_001/`
+    - accepted_for_score `40/40`
+    - timeout `0`, invalid `0`
+    - it closed the reopened current-tree runtime backlog on
+      `prob_31`, `prob_32`, `prob_33`, `prob_37`
+    - but it remains far worse than the trusted historical `v142` full40
+      benchmark on avg objective and avg T, so it is a recovery parent only,
+      not the trusted active BEST
 - Historical note:
   - `v123` remains the historical score-improving step over `v122`.
   - `v132` remains the last plateau-stable recovery line and rollback target.
@@ -142,3 +151,9 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
   - inherited legacy fallback layers below some historical branches still
     contain older name-based branches; removing that legacy identity
     dependence remains future cleanup work.
+- Recovery checkpoint note (`2026-06-21`):
+  - `v151` and `v153` are now closed as rejected family experiments.
+  - `v152` is the newest scoreable current-tree recovery parent
+    (`accepted_for_score=40/40`), but not a trusted BEST promotion candidate.
+  - publish the current state as recovery evidence only unless a fresh
+    canonical wrapper revalidation reproduces trusted `v142` behavior again.

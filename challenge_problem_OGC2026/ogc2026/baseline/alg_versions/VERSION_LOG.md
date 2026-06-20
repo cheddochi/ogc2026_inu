@@ -13012,3 +13012,351 @@
   - use the current subtype analysis and direct current-tree evidence to choose
     one runtime-risk family and stabilize its warm-start path before trying any
     further T-breakthrough move on top of it
+
+## reboot_v151_20260620_prob31like_direct_stabilizer_on_v142
+- File:
+  `reboot_v151_20260620_prob31like_direct_stabilizer_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - the current-tree full40 reopen after `v150` is no longer best explained by
+    the local `prob33-like` move width; the stronger signal is that the
+    reopened runtime-risk family includes one isolated
+    `small/4bay/lowproc/concentrated/runtime-risk/tight` subtype row
+    (`prob_31`) alongside a separate diffuse 3-bay family
+  - historical attempts (`v111`, `v114`, `v117`) on the prob31-like family
+    stacked additional repair phases on top of a direct warm start, but the
+    current tree keeps reopening runtime cliffs on that branch
+  - direct current-tree probes showed that one capped preference-spread direct
+    builder with `top_bays=4` and `max_positions=12` stays feasible around the
+    low-40s seconds on the canonical 60s budget, while the inherited chain can
+    drift into timeout territory
+- Hypothesis:
+  - On the isolated prob31-like feature class, bypassing the inherited deep
+    repair chain and returning one capped direct preference-spread warm start
+    should stabilize runtime under the official limit and reduce the chance
+    that the reopened full40 family times out before any further T-breakthrough
+    tuning.
+- Feature / subtype / timelimit selector:
+  - reuse `v078._matches_prob31like_class(features)`
+  - target subtype:
+    `small/4bay/lowproc/concentrated/runtime-risk/tight`
+  - skip on `very_short/short`
+  - use `timelimit` as a real feature via the standard time tier and direct
+    budget cap
+- Planned behavior:
+  - preserve `v142` unchanged outside the prob31-like feature class
+  - on the prob31-like class only:
+    - bypass the inherited `v111 -> v114 -> v115 -> v117` style repair chain
+    - build one direct limited-concurrent warm start with
+      `order_strategy="preference_spread"`, `top_bays=4`, `max_positions=12`
+    - keep the direct candidate when it is officially feasible; otherwise fall
+      back to `v142`
+  - do not touch the current diffuse 3-bay runtime-risk family in this version
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`
+  - targeted subtype smoke:
+    `prob_31`
+  - optional short-limit stress:
+    `prob_31` at `45s`
+  - full train40 only if the representative smoke remains fully scoreable and
+    the target row stays runtime-stable without reopening other tiers
+- Validation:
+  - representative block-tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v151_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - the target row stayed comfortably under the official limit on this
+      sequence:
+      - `prob_31`: `49464822 / T=3465`, runtime `43.04s`
+    - but the broader tail was still weak versus historical trusted `v142`
+      full40 evidence:
+      - `prob_25`: `1489168 / T=2141`
+      - `prob_27`: `77480587 / T=5637`
+      - `prob_38`: `346034606 / T=25718`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v151_prob31like_20260620_001/`
+    - accepted_for_score `1/1`
+    - `prob_31`: `50953901 / T=3578`, runtime `43.81s`
+    - interpretation:
+      - the direct stabilizer did keep the isolated prob31-like row
+        scoreable with healthy runtime margin, but it also showed meaningful
+        row-quality variance relative to both the representative smoke and the
+        historical trusted row
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v151_prob31_short45_20260620_001/`
+    - accepted_for_score `1/1`
+    - `prob_31`: `160613589 / T=11808`, runtime `36.57s`
+    - interpretation:
+      - the version stayed scoreable under the shorter limit by correctly
+        falling back away from the direct branch, but this does not change the
+        main 60s family judgment
+  - full train40:
+    `reports/ogc2026_reboot_v001/full_reboot_v151_train40_20260620_001/`
+    - accepted_for_score `37/40`
+    - timeout `3`, invalid `0`
+    - reopened timeout rows:
+      - `prob_32` at `69.31s`
+      - `prob_33` at `62.88s`
+      - `prob_37` at `90.02s`
+    - the local target row became scoreable again, but not strong enough to
+      offset the remaining family failures:
+      - `prob_31`: `54081413 / T=3815`
+    - large tail regressions remained:
+      - `prob_38`: `403577150 / T=30038`
+      - `prob_40`: `14097605 / T=20891`
+- Decision:
+  rejected
+- Reason:
+  - this version did what it was supposed to do locally: it replaced the
+    prob31-like timeout cliff with a stable direct warm start and recovered a
+    scoreable `prob_31` row
+  - however, the full40 gate still failed at `37/40`, and the remaining
+    diffuse 3-bay lowproc runtime-risk family (`prob_32`, `prob_33`,
+    `prob_37`) stayed unresolved
+  - because plateau mode is T-zero-first and accepted_for_score-first, a
+    version that only stabilizes one isolated family while the broader runtime
+    backlog remains open cannot be promoted
+- Next strategy:
+  - keep the active wrapper on the historical `v142` rollback line
+  - pivot the next coherent hypothesis away from the isolated prob31-like
+    family and toward the remaining diffuse 3-bay lowproc runtime-risk slice
+  - in particular, treat `prob_32`, `prob_33`, and `prob_37` as the next
+    shared feature family to stabilize before trying any new T-breakthrough on
+    top of it
+
+## reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151
+- File:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151.py`
+- Parent:
+  `reboot_v151_20260620_prob31like_direct_stabilizer_on_v142`
+- Status:
+  rejected
+- Experiment note:
+  - `v151` proved that the isolated prob31-like timeout cliff can be flattened
+    by bypassing the inherited repair chain and returning one direct capped warm
+    start
+  - the remaining full40 blockers are now the diffuse 3-bay runtime-risk rows
+    `prob_32`, `prob_33`, and `prob_37`
+  - direct current-tree probes on that family showed a shared pattern:
+    bounded direct 3-bay warm starts stay scoreable in about 25-35 seconds,
+    while the inherited delegated paths can drift into timeout
+- Hypothesis:
+  - The reopened runtime backlog can be stabilized by extending the same direct
+    family-flattening idea from `v151` to the remaining diffuse 3-bay
+    runtime-risk slice, using one capped direct warm-start policy per coarse
+    proc band and no additional late repair chain.
+- Feature / subtype / timelimit selector:
+  - preserve the existing prob31-like selector from `v151`
+  - add a shared diffuse 3-bay runtime-risk selector for rows with:
+    - `bays == 3`
+    - `blocks >= 200`
+    - diffuse preferences (`pref_concentration <= 0.45`)
+    - moderate preference gap (`pref_gap_mean <= 50`)
+    - low-to-mid proc (`10.5 <= proc_mean <= 17.5`)
+    - skip on `very_short/short`
+  - use `timelimit` as a real feature via the standard time tier and capped
+    direct-builder budgets
+- Planned behavior:
+  - preserve `v151` unchanged outside the reopened runtime-backlog families
+  - keep the prob31-like direct stabilizer unchanged
+  - on the diffuse 3-bay runtime-risk slice only:
+    - bypass the inherited local repair chain
+    - use one capped direct limited-concurrent warm start
+    - select the direct ordering by coarse proc band:
+      - mid-proc band -> `release_due`, `top_bays=3`, `max_positions=14`
+      - lower-proc band -> `release_due`, `top_bays=3`, `max_positions=14`
+    - keep the direct candidate only when it is officially feasible
+  - do not add any new late single-gap or iterative repair in this version
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_32`, `prob_37`, `prob_38`
+  - targeted subtype smoke:
+    `prob_32`, `prob_33`, `prob_37`
+  - optional short-limit stress:
+    `prob_32`, `prob_37` at `45s`
+  - full train40 only if the representative smoke remains fully scoreable and
+    the reopened runtime-risk rows stay comfortably under the 60s limit
+- Validation:
+  - representative block-tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v152_tier11_20260621_001/`
+    - accepted_for_score `11/11`, timeout `0`, invalid `0`
+    - the reopened runtime backlog rows all stayed scoreable:
+      - `prob_31`: `49464822 / T=3465`, runtime `43.44s`
+      - `prob_32`: `13118978 / T=3076`, runtime `34.78s`
+      - `prob_37`: `21777210 / T=5234`, runtime `42.82s`
+    - the large tail remained weaker than trusted `v142`, especially:
+      - `prob_38`: `382903971 / T=28497`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v152_diffuse_runtime_20260621_001/`
+    - accepted_for_score `3/3`, timeout `0`, invalid `0`
+    - target-family rows:
+      - `prob_32`: `13118978 / T=3076`, runtime `36.03s`
+      - `prob_33`: `26500068 / T=3854`, runtime `59.05s`
+      - `prob_37`: `21777210 / T=5234`, runtime `42.64s`
+    - interpretation:
+      - the family was restored to scoreable status on the 60s contract, but
+        `prob_33` remained very close to the limit
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v152_diffuse_runtime_short45_20260621_001/`
+    - accepted_for_score `2/3`, timeout `1`, invalid `0`
+    - `prob_33` timed out at `48.13s`
+    - interpretation:
+      - the flattened family is still short-limit-risky, especially on the
+        moderate-proc member
+  - full train40:
+    `reports/ogc2026_reboot_v001/full_reboot_v152_train40_20260621_001/`
+    - accepted_for_score `40/40`
+    - timeout `0`, invalid `0`
+    - avg objective `21022753.4`
+    - avg T `2259.65`
+    - avg L `2928.15`
+    - avg P `4233.875`
+    - runtime max `59.53s`
+    - the current-tree reopened timeout backlog was closed:
+      - `prob_31`: `63963213 / T=4554`, runtime `43.90s`
+      - `prob_32`: `13118978 / T=3076`, runtime `35.53s`
+      - `prob_33`: `26500068 / T=3854`, runtime `59.53s`
+      - `prob_37`: `23949614 / T=5798`, runtime `42.91s`
+    - but the score remained far worse than the trusted historical `v142`
+      benchmark:
+      - avg objective `15035076.025 -> 21022753.4`
+      - avg T `1532.125 -> 2259.65`
+      - large row regressions remained on the high-T tail:
+        - `prob_31`: `39589844 / T=2735 -> 63963213 / T=4554`
+        - `prob_37`: `17644653 / T=3961 -> 23949614 / T=5798`
+        - `prob_38`: `151254848 / T=11120 -> 346034606 / T=25718`
+        - `prob_40`: `5780789 / T=8429 -> 9850012 / T=14530`
+- Decision:
+  rejected
+- Reason:
+  - `v152` is an important recovery artifact because it restores a fully
+    scoreable current-tree train40 surface and closes the reopened runtime
+    timeout backlog
+  - however, plateau/T-zero-first promotion still requires improvement against
+    the trusted accepted BEST, and this version is materially worse on both
+    avg objective and avg T
+  - the family flatten solved reliability first, but it did so by sacrificing
+    too much row quality on the high-T tail, so it cannot be promoted as the
+    trusted active BEST
+- Next strategy:
+  - treat `v152` as a scoreable recovery parent, not as the active BEST
+  - keep the active wrapper on historical `v142`
+  - use the newly recovered `40/40` surface to test the next coherent
+    T-breakthrough hypothesis on top of only one family at a time
+  - the strongest next target is the moderate-proc diffuse runtime-risk member
+    (`prob33-like`) because the family is now scoreable but still sitting near
+    the time limit and well above the historical `T=3805` row
+
+## reboot_v153_20260621_prob33like_thin_gap_on_v152
+- File:
+  `reboot_v153_20260621_prob33like_thin_gap_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - `v152` restored a `40/40` scoreable current-tree surface, which means the
+    broad runtime backlog is no longer the immediate blocker
+  - the strongest remaining family-level opportunity is now the
+    moderate-proc diffuse runtime-risk member (`prob33-like`), where `v152`
+    remains close to the time limit and still sits above the historical
+    `T=3805` row
+  - historical `v150` showed that a very thin prob33-like gap-single plus
+    fast-single replay can recover the `T=3805` row locally, but it lived on a
+    parent surface that still reopened unrelated runtime failures
+- Hypothesis:
+  - Replaying the same thin prob33-like gap-single repair on top of the new
+    `v152` recovery parent should preserve `40/40` scoreability while lowering
+    the moderate-proc diffuse runtime-risk row from the current `v152`
+    `T=3854` surface toward the historical `T=3805` row.
+- Feature / subtype / timelimit selector:
+  - reuse `v081._matches_prob33like_runtime_class(features)`
+  - target subtype:
+    moderate-proc diffuse 3-bay runtime-risk member
+  - skip on `very_short/short`
+  - use the same thin-gap budget and headroom guard from `v150`
+- Planned behavior:
+  - preserve `v152` unchanged outside the prob33-like subtype
+  - on the prob33-like subtype only:
+    - build the shallower `v065` warm start directly
+    - replay the thin `gap_single + fast_single` sequence from `v150`
+    - keep only strictly better officially feasible candidates
+  - do not touch the newly recovered prob31/prob32/prob37 backlog families
+    elsewhere in this version
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_32`, `prob_33`,
+    `prob_37`, `prob_38`
+  - targeted subtype smoke:
+    `prob_33`
+  - optional short-limit stress:
+    `prob_33` at `45s`
+  - full train40 only if the representative smoke remains scoreable and the
+    target row improves without reopening the restored runtime backlog
+- Validation:
+  - representative block-tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v153_tier12_20260621_001/`
+    - accepted_for_score `11/12`, timeout `1`, invalid `0`
+    - target row stayed scoreable but did not improve over the `v152`
+      recovered row:
+      - `prob_33`: `26672250 / T=3880`, runtime `59.19s`
+      - compared with `v152` target smoke:
+        `26500068 / T=3854`, runtime `59.05s`
+    - non-target runtime regression reopened immediately:
+      - `prob_27` timed out at `64.94s`
+  - targeted/full:
+    - not run
+    - the representative smoke already failed the scoreable gate
+- Decision:
+  rejected
+- Reason:
+  - this version failed both parts of the smoke gate that matter:
+    - it did not improve its intended `prob33-like` target row
+    - it reopened a non-target timeout on `prob_27`
+  - inspection of the smoke logs suggests that the eager import-heavy wrapper
+    and the extra local repair path consumed enough overhead to destabilize a
+    previously restored non-target runtime-risk row
+  - under the plateau/T-zero-first contract, that makes the candidate a clear
+    smoke-stage reject
+- Next strategy:
+  - abandon the current prob33-like thin-gap replay on top of `v152`
+  - pivot to a structurally different single-family T-breakthrough hypothesis,
+    most likely the largest remaining high-T tail (`prob38-like`) on top of the
+    `v152` recovery parent
+
+## Recovery checkpoint 2026-06-21 (`v142` rollback / `v152` recovery / `v153` reject)
+- Publish intent:
+  - publish a recovery/failure checkpoint, not a trusted accepted-BEST claim
+- Reason:
+  - the active wrapper surface still points at historical rollback line `v142`,
+    but `ACTIVE_VERSION.md` and current recovery rechecks show the present
+    source tree is not freshly re-trusted on the canonical wrapper surface
+  - `v152` is the newest `accepted_for_score=40/40` recovery artifact on the
+    current tree, but it is materially worse than trusted historical `v142` on
+    avg objective and avg T
+  - `v153` failed at representative smoke and therefore cannot be carried
+    forward as candidate evidence
+- Historical-best evidence to keep explicit:
+  - trusted historical accepted BEST remains:
+    `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+  - trusted historical full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+  - trusted historical publish-subset rechecks:
+    `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_001/`
+    `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_002/`
+- Current-tree recovery evidence to publish:
+  - `v152` full40 recovery:
+    `reports/ogc2026_reboot_v001/full_reboot_v152_train40_20260621_001/`
+  - `v153` smoke-stage rejection:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v153_tier12_20260621_001/`
+- Next strategy after checkpoint:
+  - keep the active wrapper on historical `v142`
+  - treat `v152` as the scoreable recovery parent
+  - pivot to a single-family `prob38-like` high-T-tail hypothesis instead of
+    continuing the failed `prob33-like` replay line
