@@ -1,18 +1,20 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132
+    reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135
 
 Publish-trust note:
-    v135 keeps the trusted v132 recovery line as its warm start and lowers only
-    the prob40-like headroom gate. It is intended to preserve v132 stability
-    while making the accepted prob40 improvement repeat more reliably.
+    v136 keeps the trusted v135 line intact outside the targeted two-bay
+    concentrated high-proc tail subtype and deepens only the bounded top-tardy
+    single-reinsert search on that family. It is intended to preserve v135
+    stability while converting the live prob25/prob27 tail signal into a
+    scoreable train40 improvement.
 """
 
-from alg_versions import reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132 as active
+from alg_versions import reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135 as active
 
 
-ACTIVE_VERSION = "reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132"
+ACTIVE_VERSION = "reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

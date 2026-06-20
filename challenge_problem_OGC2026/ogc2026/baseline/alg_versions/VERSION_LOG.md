@@ -11120,3 +11120,532 @@
   - keep `v135` active
   - move back to plateau/T-zero-first backlog beyond `prob_40`, especially the
     remaining high-T tail on `prob_38`, `prob_27`, `prob_37`, `prob_33`, and `prob_39`
+
+## reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135
+- File:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135.py`
+- Parent:
+  `reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132`
+- Status:
+  accepted
+- Experiment note:
+  - trusted starting line reconfirmed from the current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v135_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1538.825`, `avg objective=15069943.325`
+    - direct active-surface revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v135_publish_20260620_001/`
+      with `accepted_for_score=12/12`
+  - refreshed high-T backlog on trusted `v135`:
+    - `prob_38`: `T=11120`
+    - `prob_40`: `T=8549`
+    - `prob_27`: `T=5637`
+    - `prob_37`: `T=3961`
+    - `prob_33`: `T=3805`
+    - `prob_39`: `T=3521`
+  - selected target subtype for the next T-first cycle:
+    - `twobay_concentrated_highproc_tail`
+    - current train40 matches:
+      `prob_25`, `prob_27`
+  - current-source live probes on the real `v135` warm start show that the
+    subtype still has real one-block T signal, but the older `v122` budget is
+    too shallow on the heavier parent:
+    - `prob_25` current warm start:
+      `1489168 / T=2141`
+      - deeper shortlist probe found block `35`:
+        `1454484 / T=2089`
+    - `prob_27` current warm start:
+      `77480587 / T=5637`
+      - deeper shortlist probe found block `77`:
+        `77173928 / T=5614`
+      - deeper shortlist probe found block `8`:
+        `76200619 / T=5541`
+    - the previous `v122` replay attempted too few targets under the current
+      heavier warm start and stopped before reaching those improving blocks
+- Hypothesis:
+  - The two-bay concentrated high-proc family is not at a real local plateau
+    on top of trusted `v135`; it is only under-searched.
+  - Reusing the same pure top-tardy quantile single-reinsert idea, but with a
+    slightly deeper shortlist and a modestly larger research budget tuned for
+    the current `v135` warm start, should reduce T on the `prob_25` /
+    `prob_27` family while preserving accepted_for_score `40/40`.
+- Feature / subtype / timelimit selector:
+  - reuse the `reboot_v121` two-bay concentrated high-proc tail selector:
+    - `bays == 2`
+    - `blocks >= 100`
+    - `proc_mean >= 20`
+    - `slack_mean >= 4.5`
+    - `pref_concentration >= 0.60`
+    - `pref_pressure >= 0.59`
+    - `pref_gap_mean >= 60`
+  - warm-start feasible
+  - warm-start `T >= 2000`
+  - tier not in `very_short/short`
+  - only spend improvement budget when remaining wall time clears a stricter
+    reserve on top of the `v135` warm start
+- Planned behavior:
+  - keep `v135` unchanged outside the target subtype
+  - on the target subtype, build the trusted `v135` warm start first
+  - evaluate a deeper pure top-tardy shortlist with bounded quantile-sampled
+    single-block reinsertion
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - representative tier smoke before any full 40:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype smoke:
+    - `prob_25`, `prob_27`, `prob_39`
+  - short-limit stress:
+    - `prob_25`, `prob_27` at shorter limit
+  - only if scoreable and same-family T improves without non-target regression
+    should this go to broader validation
+- Smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v136_tier9_20260620_001/`
+  - accepted `9/9`; timeout `0`, invalid `0`
+  - improved target-family rows:
+    - `prob_25`: objective `1489168 -> 1454484`, `T 2141 -> 2089`
+    - `prob_27`: objective `77480587 -> 76200619`, `T 5637 -> 5541`
+  - representative non-target rows stayed scoreable
+- Targeted smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/target_reboot_v136_twobay_tail_20260620_001/`
+  - accepted `3/3`; timeout `0`, invalid `0`
+  - kept:
+    - `prob_39`: unchanged strong row
+  - improved:
+    - `prob_25`: objective `1489168 -> 1454484`, `T 2141 -> 2089`
+    - `prob_27`: objective `77480587 -> 76200619`, `T 5637 -> 5541`
+- Time-stress smoke:
+  - candidate path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v136_twobay_short45_20260620_001/`
+  - comparison path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v135_twobay_short45_20260620_001/`
+  - accepted `2/2`; timeout `0`, invalid `0`
+  - shorter-limit behavior remained scoreable
+  - same-limit comparison versus trusted `v135`:
+    - `prob_25`: objective `1948687 -> 1906284`, `T 2851 -> 2790`
+    - `prob_27`: unchanged at objective `78787221`, `T=5735`
+  - runtime rose on the improved target rows, but stayed well under the
+    shorter limit
+- Full 40:
+  - path:
+    `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+  - accepted `40/40`; timeout `0`, invalid `0`
+  - headline deltas versus trusted `v135`:
+    - avg objective `15069943.325 -> 15037077.025`
+    - avg T `1538.825 -> 1535.125`
+    - avg L `2683.325 -> 2683.325`
+    - avg P `4185.775 -> 4185.775`
+    - runtime max `58.418181 -> 56.571143`
+  - row-level changes:
+    - `prob_25`: objective `1489168 -> 1454484`, `T 2141 -> 2089`
+    - `prob_27`: objective `77480587 -> 76200619`, `T 5637 -> 5541`
+    - no regression rows on the rest of train40
+- Active-surface revalidation:
+  - path:
+    `reports/ogc2026_reboot_v001/verify_active_v136_surface_20260620_001/`
+  - accepted `6/6`; timeout `0`, invalid `0`
+  - direct `baseline_hh.py` reproduced the accepted target-family gains:
+    - `prob_25`: objective `1454484`, `T=2089`
+    - `prob_27`: objective `76200619`, `T=5541`
+  - representative carryover high-T rows stayed scoreable:
+    - `prob_39`: objective `48160369`, `T=3521`
+    - `prob_40`: objective `5860829`, `T=8549`
+- Publish-checkpoint revalidation:
+  - path:
+    `reports/ogc2026_reboot_v001/verify_active_v136_publish_20260620_002/`
+  - accepted `6/6`; timeout `0`, invalid `0`
+  - current active wrapper reproduced the same canonical subset rows:
+    - `prob_25`: objective `1454484`, `T=2089`
+    - `prob_27`: objective `76200619`, `T=5541`
+    - `prob_39`: objective `48160369`, `T=3521`
+    - `prob_40`: objective `5860829`, `T=8549`
+- Decision:
+  - accepted
+- Rationale:
+  - this is a clean T-first improvement over trusted `v135`:
+    scoreability stayed perfect, the full train40 official objective improved,
+    avg T improved, there were no regression rows, and the change stayed
+    tightly localized to the intended two-bay concentrated high-proc tail
+    subtype.
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - keep `v136` active
+  - continue the plateau/T-zero-first backlog on the remaining high-T tail,
+    especially `prob_38`, `prob_40`, `prob_37`, `prob_33`, and `prob_39`
+
+## reboot_v137_20260620_1335_fourbay_concentrated_quantile_on_v136
+- File:
+  `reboot_v137_20260620_1335_fourbay_concentrated_quantile_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  training-best-only
+- Experiment note:
+  - trusted starting line reconfirmed from the current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+    - direct active-surface revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v136_surface_20260620_001/`
+      with `accepted_for_score=6/6`
+  - refreshed high-T backlog on trusted `v136`:
+    - `prob_38`: `T=11120`
+    - `prob_40`: `T=8549`
+    - `prob_27`: `T=5541`
+    - `prob_37`: `T=3961`
+    - `prob_33`: `T=3805`
+    - `prob_39`: `T=3521`
+  - selected target subtype for the next T-first cycle:
+    - `fourbay_concentrated_highproc_runtime_tail`
+    - current train40 matches:
+      `prob_31`, `prob_40`
+  - subtype rationale from the current feature table:
+    - `bays=4`, `blocks>=200`, `proc_mean>=20`
+    - strong preference concentration / high preference gap
+    - runtime-risk and high feasible-placement pressure
+    - the family is broad enough to include both a medium-size row
+      (`prob_31`) and the xlarge head row (`prob_40`)
+  - current-source live probe on top of the real `v136` warm start:
+    - `prob_31`:
+      - base stayed `39589844 / T=2735`
+      - bounded four-bay top-tardy quantile reinsertion did not improve it
+    - `prob_40`:
+      - base `5860829 / T=8549`
+      - same bounded reinsertion improved to
+        `5780789 / T=8429`
+      - total elapsed with the real warm start remained within the official
+        `60s` limit:
+        about `54.96s`
+  - implication:
+    - the current live signal is still real on the four-bay concentrated
+      high-proc tail
+    - the move looks effectively selective already: it no-ops on `prob_31`
+      while improving `prob_40`
+- Hypothesis:
+  - The accepted `v136` warm start still leaves a bounded one-block T-improving
+    quantile reinsertion signal on the four-bay concentrated high-proc tail.
+    Replaying that move only on this feature-based family should lower the
+    `prob_40` high-T head again while staying a no-op on `prob_31` and
+    preserving train40 scoreability.
+- Feature / subtype / timelimit selector:
+  - `bays == 4`
+  - `blocks >= 200`
+  - `proc_mean >= 20`
+  - high concentration / high preference gap / non-short tier
+  - warm-start feasible
+  - warm-start `T >= 2500`
+  - only spend the extra research when the post-warm-start remaining wall time
+    clears the dynamic reserve plus a fixed guard
+- Planned behavior:
+  - keep `v136` unchanged outside the target subtype
+  - on the target subtype, build the trusted `v136` warm start first
+  - replay bounded top-tardy quantile single-reinsert on that warm start
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - representative tier smoke before any full 40:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted subtype smoke:
+    - `prob_31`, `prob_38`, `prob_39`, `prob_40`
+  - short-limit stress:
+    - `prob_31`, `prob_40` at shorter limit
+  - only if scoreable and the target-family T improves without same-tier
+    runtime cliff should this go to broader validation
+- Smoke:
+  - initial path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v137_tier9_20260620_001/`
+  - rerun path used for promotion gate:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v137_tier9_20260620_002/`
+  - accepted `9/9`; timeout `0`, invalid `0`
+  - rerun target-family result:
+    - `prob_31`: unchanged at `39589844 / T=2735`
+    - `prob_40`: improved to `5780789 / T=8429`
+  - rerun representative non-target rows stayed stable:
+    - `prob_25`: unchanged at `1454484 / T=2089`
+    - `prob_27`: unchanged at `76200619 / T=5541`
+  - note:
+    - the first representative smoke showed a transient weaker `prob_27` row
+    - direct repeat probes and the rerun smoke both reproduced the stable
+      accepted `v136` row on `prob_27`, so the candidate was not discarded on
+      that one noisy surface sample alone
+- Targeted smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/target_reboot_v137_fourbay_tail_20260620_001/`
+  - accepted `5/5`; timeout `0`, invalid `0`
+  - kept:
+    - `prob_27`: unchanged at `76200619 / T=5541`
+    - `prob_31`: unchanged at `39589844 / T=2735`
+    - `prob_38`: unchanged at `151254848 / T=11120`
+    - `prob_39`: unchanged at `48160369 / T=3521`
+  - improved:
+    - `prob_40`: objective `5860829 -> 5780789`,
+      `T 8549 -> 8429`
+- Time-stress smoke:
+  - candidate path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v137_fourbay_short45_20260620_001/`
+  - comparison path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v136_fourbay_short45_20260620_001/`
+  - accepted `2/2`; timeout `0`, invalid `0`
+  - shorter-limit fallback remained scoreable
+  - same-limit comparison versus trusted `v136`:
+    - `prob_31`: objective `58364354 -> 54151122`,
+      `T 17932 -> 17793`
+    - `prob_40`: objective `12129566 -> 12036675`,
+      `T 4136 -> 3816`
+- Full 40:
+  - path:
+    `reports/ogc2026_reboot_v001/full_reboot_v137_train40_20260620_001/`
+  - accepted `40/40`; timeout `0`, invalid `0`
+  - headline deltas versus trusted `v136`:
+    - avg objective `15037077.025 -> 15035076.025`
+    - avg T `1535.125 -> 1532.125`
+    - avg L `2683.325 -> 2683.325`
+    - avg P `4185.775 -> 4185.775`
+    - runtime max `56.571143 -> 57.809269`
+  - row-level changes:
+    - only `prob_40` changed
+    - objective `5860829 -> 5780789`
+    - `T 8549 -> 8429`
+    - `L/P` unchanged
+- Decision:
+  - training-best-only
+- Rationale:
+  - the direct version file improved the training40 headline versus trusted
+    `v136` and kept train40 scoreability perfect
+  - but the canonical direct `baseline_hh.py` wrapper surface did not
+    reproduce the `prob_40` gain during revalidation:
+    - direct file full40 / targeted evidence:
+      `prob_40 = 5780789 / T=8429`
+    - active-surface revalidation:
+      `prob_40 = 5860829 / T=8549`
+  - because the canonical active surface is the only trusted score-claim
+    surface, this line cannot replace active `v136` yet
+- Active-surface revalidation:
+  - path:
+    `reports/ogc2026_reboot_v001/verify_active_v137_surface_20260620_001/`
+  - accepted `6/6`; timeout `0`, invalid `0`
+  - reproduced:
+    - `prob_27`: objective `76200619`, `T=5541`
+    - `prob_31`: objective `39589844`, `T=2735`
+    - `prob_39`: objective `48160369`, `T=3521`
+  - did not reproduce the direct accepted `prob_40` gain:
+    - wrapper surface returned objective `5860829`, `T=8549`
+    - direct-file accepted evidence was objective `5780789`, `T=8429`
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - keep `v136` active
+  - investigate a recovery/stabilization hypothesis for the direct-surface
+    `prob_40` gain, or pivot to the remaining large 3-bay high-T backlog
+
+## reboot_v138_20260620_1435_fourbay_guard_stabilized_on_v136
+- File:
+  `reboot_v138_20260620_1435_fourbay_guard_stabilized_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from the current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+    - direct active-surface revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v136_surface_20260620_001/`
+      with `accepted_for_score=6/6`
+  - v137 direct-file evidence showed a real four-bay tail gain:
+    - train40:
+      `reports/ogc2026_reboot_v001/full_reboot_v137_train40_20260620_001/`
+      improved only `prob_40`:
+      objective `5860829 -> 5780789`, `T 8549 -> 8429`
+  - v137 wrapper-surface revalidation showed the gain was not yet trusted:
+    - path:
+      `reports/ogc2026_reboot_v001/verify_active_v137_surface_20260620_001/`
+    - `prob_40` stayed at the `v136` row:
+      `5860829 / T=8549`
+  - root-cause log comparison is now concrete:
+    - direct full / target logs for `prob_40` entered the four-bay quantile
+      replay and selected the better block `106`
+    - wrapper-surface log skipped that replay on a narrow headroom cliff:
+      `remaining=10.64s`, `reserve=4.80s`, guard=`reserve + 6.0`
+  - current-source feature and runtime evidence:
+    - `prob_40` and `prob_31` both match the same
+      `fourbay_concentrated_highproc_runtime_tail` family
+    - `prob_31` current full60 remaining headroom stayed much smaller:
+      about `5.60s`, so it still naturally skips the replay
+  - stabilization implication:
+    - a small standard-tier guard relaxation should let `prob_40` clear the
+      replay on the canonical surface without opening the same path on
+      `prob_31`
+- Hypothesis:
+  - The four-bay concentrated high-proc replay is not intrinsically unstable;
+    it is just clipped by an over-tight standard-tier headroom guard on the
+    canonical wrapper surface.
+  - Lowering only that fixed extra guard slightly should stabilize the direct
+    `prob_40` improvement while leaving `prob_31` on the same family as a
+    no-op because its remaining headroom is still far smaller.
+- Feature / subtype / timelimit selector:
+  - keep the exact `v137` target family:
+    - `bays == 4`
+    - `blocks >= 200`
+    - `proc_mean >= 20`
+    - high concentration / high preference gap / non-short tier
+  - warm-start feasible
+  - warm-start `T >= 2500`
+  - same bounded top-tardy quantile reinsertion as `v137`
+  - only change the extra fixed standard-tier headroom guard
+- Planned behavior:
+  - keep `v136` unchanged outside the target subtype
+  - reuse the same `v137` four-bay concentrated quantile replay
+  - reduce only the standard-tier extra guard so the replay survives small
+    runtime jitter on `prob_40`
+  - keep all result selection rules unchanged
+- Validation plan:
+  - targeted proof first:
+    - `prob_31`, `prob_40`
+    - plus direct wrapper-surface style revalidation focused on `prob_40`
+  - representative tier smoke before any full 40:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - short-limit stress:
+    - `prob_31`, `prob_40` at `45s`
+  - only if the canonical surface reproduces the `prob_40` gain without
+    regression should this go to broader validation
+- Targeted proof:
+  - direct path:
+    `reports/ogc2026_reboot_v001/target_reboot_v138_direct_20260620_001/`
+  - wrapper-like path:
+    `reports/ogc2026_reboot_v001/target_reboot_v138_wrapper_20260620_001/`
+  - accepted `2/2` on both runs, but both showed the same deeper failure mode:
+    - `prob_31`: unchanged at `39589844 / T=2735`
+    - `prob_40`: regressed all the way back to
+      `5910122 / T=8622`
+  - root-cause log finding:
+    - the loosened outer four-bay guard was not the active blocker
+    - the inherited inner `v135` prob40-like guard still skipped first:
+      `remaining≈10.6s`, `reserve=4.8s`, guard=`reserve + 6.0`
+    - so the candidate never even reached the accepted `v135` warm start
+- Decision:
+  - rejected
+- Rationale:
+  - the candidate addressed the wrong headroom cliff layer
+  - it did not preserve the trusted `v136` prob40 row, so it cannot advance
+    beyond targeted proof
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - stabilize the whole four-bay tail stack together:
+    first the inner `v135` prob40-like guard, then the outer four-bay replay
+
+## reboot_v139_20260620_1515_fourbay_stack_guard_stabilized_on_v136
+- File:
+  `reboot_v139_20260620_1515_fourbay_stack_guard_stabilized_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from the current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - accepted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+  - `v137` showed that the direct-file four-bay stack can improve `prob_40`,
+    but the canonical surface hit a headroom cliff
+  - `v138` showed that relaxing only the outer four-bay guard is insufficient,
+    because the inherited inner `v135` prob40-like gate can still skip first
+  - current-source manual stack probe on the real code path now isolates a
+    stable two-layer fix:
+    - keep `prob_31` unchanged:
+      remaining after the `v132` warm start was about `6.84s`
+    - on `prob_40`, applying:
+      - inner prob40-like guard about `5.5s`
+      - outer four-bay replay guard about `5.25s`
+      produced:
+      `5780789 / T=8429`
+      in about `54.72s` total
+- Hypothesis:
+  - The useful `prob_40` gain belongs to a two-layer four-bay tail stack, and
+    the current non-reproducibility comes from tiny runtime jitter across both
+    nested headroom gates.
+  - Relaxing both fixed standard-tier guards slightly, while leaving the family
+    selectors and all local-move logic unchanged, should stabilize the direct
+    `prob_40` gain on the canonical surface without opening the same path on
+    `prob_31`.
+- Feature / subtype / timelimit selector:
+  - exact same four-bay family as the v135/v137 stack:
+    - inner `prob40-like` slice:
+      `bays == 4`, `blocks >= 240`, `proc_mean >= 20`,
+      high concentration / gap / workload
+    - outer `fourbay_concentrated_highproc_runtime_tail` slice:
+      `bays == 4`, `blocks >= 200`, `proc_mean >= 20`,
+      high concentration / high preference gap / non-short tier
+  - warm-start feasible
+  - same local moves as `v135` + `v137`
+  - only change the fixed standard-tier extra guards
+- Planned behavior:
+  - keep `v136` unchanged outside the target four-bay tail stack
+  - rebuild the inner prob40-like stabilization directly on top of `v132`
+    with a slightly looser standard-tier guard
+  - if that succeeds and enough headroom remains, replay the same outer
+    four-bay quantile reinsertion with its own slightly looser standard-tier
+    guard
+  - keep all result selection rules unchanged
+- Validation plan:
+  - targeted proof first:
+    - `prob_31`, `prob_40`
+    - direct file and wrapper-like revalidation
+  - representative tier smoke before any full 40:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - short-limit stress:
+    - `prob_31`, `prob_40` at `45s`
+  - only if the canonical wrapper-like surface reproduces the `prob_40` gain
+    should this go to broader validation
+- Targeted proof:
+  - direct path:
+    `reports/ogc2026_reboot_v001/target_reboot_v139_direct_20260620_001/`
+  - wrapper-like path:
+    `reports/ogc2026_reboot_v001/target_reboot_v139_wrapper_20260620_001/`
+  - accepted `2/2` on both runs
+  - outcome:
+    - `prob_31`: unchanged at `39589844 / T=2735`
+    - `prob_40` direct path: only recovered to the trusted `v136` row
+      `5860829 / T=8549`
+    - `prob_40` wrapper-like path: still fell back to
+      `5910122 / T=8622`
+  - implication:
+    - loosening both fixed guards was still not enough to stabilize the whole
+      four-bay stack on the wrapper-like surface
+    - the remaining cliff is likely deeper than a simple fixed-threshold tweak
+- Decision:
+  - rejected
+- Rationale:
+  - plateau/T-zero-first mode does not justify more retries of the same
+    four-bay stack when the canonical wrapper-like surface still cannot
+    reproduce even the accepted `v136` prob40-like row reliably
+  - the current-source signal is too jitter-sensitive to promote into broader
+    validation in this shape
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - stop digging the current four-bay headroom stack for now
+  - pivot to a structurally different large 3-bay high-T family, most likely
+    the remaining `prob_37 / prob_39` or `prob_38 / prob_33` backlog, using a
+    new feature-based hypothesis instead of another guard tweak

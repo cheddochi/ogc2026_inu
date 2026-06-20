@@ -1,0 +1,33 @@
+{
+  "run_id": "stress_reboot_v136_twobay_short45_20260620_001",
+  "timestamp": "2026-06-20T12:46:34",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 80693505.0,
+    "objective_avg": 40346752.5,
+    "obj1_sum": 8525.0,
+    "obj1_avg": 4262.5,
+    "obj1_max": 5735.0,
+    "obj2_avg": 2393.5,
+    "obj3_avg": 3963.0,
+    "runtime_sum": 42.567914,
+    "runtime_avg": 21.283957,
+    "runtime_max": 27.608588
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v136_20260620_2335",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_25.json",
+    "train\\prob_27.json"
+  ]
+}

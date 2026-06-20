@@ -1,0 +1,34 @@
+{
+  "run_id": "target_reboot_v136_twobay_tail_20260620_001",
+  "timestamp": "2026-06-20T12:42:26",
+  "summary": {
+    "total": 3,
+    "feasible": 3,
+    "accepted_for_score": 3,
+    "checker_feasible": 3,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 125815472.0,
+    "objective_avg": 41938490.666666664,
+    "obj1_sum": 11151.0,
+    "obj1_avg": 3717.0,
+    "obj1_max": 5541.0,
+    "obj2_avg": 822.6666666666666,
+    "obj3_avg": 5644.666666666667,
+    "runtime_sum": 135.838149,
+    "runtime_avg": 45.279382999999996,
+    "runtime_max": 57.516669
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v136_20260620_2335",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_39.json"
+  ]
+}

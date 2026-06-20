@@ -1,0 +1,37 @@
+{
+  "run_id": "verify_active_v136_publish_20260620_002",
+  "timestamp": "2026-06-20T14:37:05",
+  "summary": {
+    "total": 6,
+    "feasible": 6,
+    "accepted_for_score": 6,
+    "checker_feasible": 6,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 149576924.0,
+    "objective_avg": 24929487.333333332,
+    "obj1_sum": 20450.0,
+    "obj1_avg": 3408.3333333333335,
+    "obj1_max": 8549.0,
+    "obj2_avg": 1587.0,
+    "obj3_avg": 5486.166666666667,
+    "runtime_sum": 209.146186,
+    "runtime_avg": 34.85769766666667,
+    "runtime_max": 57.154894
+  },
+  "algorithms": [
+    {
+      "name": "wrapper",
+      "version": "baseline_hh_active_v136_publish",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_11.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
