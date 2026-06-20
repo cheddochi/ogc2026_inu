@@ -157,3 +157,22 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     (`accepted_for_score=40/40`), but not a trusted BEST promotion candidate.
   - publish the current state as recovery evidence only unless a fresh
     canonical wrapper revalidation reproduces trusted `v142` behavior again.
+- Latest recovery checkpoint note (`2026-06-21`, prob40-family narrow-builder audit):
+  - `v158` closed as rejected for promotion:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v158.md`
+  - `v158` did prove a strong current-tree prob40-family improvement:
+    - targeted compare:
+      `prob_40: 13048125 / T=19319 -> 7117822 / T=10439`
+  - but its canonical full40 run failed scoreability:
+    `reports/ogc2026_reboot_v001/full_reboot_v158_train40_20260621_001/`
+    - `accepted_for_score=39/40`
+    - `prob_33` timed out at `61.069551s`
+  - the same drift also reopened under the parent `v152` on a focused recheck:
+    `reports/ogc2026_reboot_v001/verify_reboot_v158_prob31_prob33_prob40_20260621_001/`
+    - `v152 prob_33`: timeout at `62.243792s`
+  - interpretation:
+    - the current tree is still in runtime-reliability recovery mode
+    - keep the wrapper on historical `v142` rollback semantics
+    - do not publish the active surface as a newly trusted BEST
+    - the next repair target is the prob33-like runtime cliff, while preserving
+      the prob40-family signal isolated by `v158`

@@ -13456,3 +13456,399 @@
     `medium/4bay/lowproc/concentrated/runtime-risk/tight/high-T` prob40-like
     family, where the inherited base path is now visibly running on a
     56-58s cliff before any tail-specific move can even start
+
+## reboot_v155_20260621_prob40like_directfirst_on_v152
+- File:
+  `reboot_v155_20260621_prob40like_directfirst_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - trusted historical BEST remains `v142`, but current-tree diagnostics show
+    the old `v135 -> v136 -> v142` prob40 family is no longer a reliable
+    restore path on the current source tree
+  - direct current-tree comparison:
+    `reports/ogc2026_reboot_v001/diag_reboot_prob40_family_20260621_001/`
+    - `v135`, `v136`, `v142` all reopened `prob_31` timeout on the current tree
+    - `v152` stayed scoreable on `prob_31/prob_39/prob_40`, so it remains the
+      safest recovery parent
+    - but the inherited prob40-like chain is already spending almost the full
+      60s before its tail move can start:
+      - `v142 prob_40`: `10274392 / T=15162 / 58.46s`
+      - `v152 prob_40`: `12321056 / T=18234 / 58.81s`
+  - current interpretation:
+    - the prob40-like issue is now primarily a warm-start runtime-cliff problem
+      rather than a missing local-repair kernel
+    - the next candidate should bypass the inherited chain entirely on the
+      narrow prob40-like family instead of trying to replay `v142` after the
+      budget is already gone
+- Hypothesis:
+  - preserve `v152` unchanged outside the narrow prob40-like 4-bay family
+  - on that family only, run one bounded direct-first
+    `due_release_proc` limited-concurrent candidate inspired by the historical
+    `v063` line
+  - if the direct candidate is officially feasible, use it; otherwise fall
+    back to `v152`
+- Feature / subtype / timelimit selector:
+  - activate only when all are true:
+    - bays `== 4`
+    - blocks `>= 240`
+    - proc_mean `>= 20.0`
+    - tight_slack_ratio in `[0.28, 0.34]`
+    - pref_concentration `>= 0.74`
+    - pref_gap_mean `>= 58.0`
+    - workload_mean `>= 160.0`
+    - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on the target subtype only:
+    - bypass the inherited `v135/v136/v142` warm-start chain
+    - build one direct candidate with bounded budget and fixed search width
+    - keep it only when officially feasible
+- Validation plan:
+  - smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subtype smoke:
+    `prob_31`, `prob_39`, `prob_40`
+  - full train40 only if both smoke gates stay fully scoreable
+- Validation:
+  - smoke-8:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v155_smoke8_20260621_001/`
+    - accepted_for_score `8/8`, timeout `0`, invalid `0`
+    - runtime max `53.81s`
+    - the candidate stayed scoreable on the fixed smoke set
+  - targeted subtype compare:
+    `reports/ogc2026_reboot_v001/target_reboot_v155_prob40family_20260621_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - current-tree recovery parent baseline:
+      - `v152 prob_31`: `59562145 / T=4260 / 43.88s`
+      - `v152 prob_39`: `54813783 / T=4033 / 56.52s`
+      - `v152 prob_40`: `16476222 / T=24055 / 59.11s`
+    - candidate result:
+      - `v155 prob_31`: `98768388 / T=7170 / 43.89s`
+      - `v155 prob_39`: `48743275 / T=3563 / 52.49s`
+      - `v155 prob_40`: `23417641 / T=34866 / 45.98s`
+    - interpretation:
+      - the direct-first path did improve the neighboring `prob39` row
+      - but it materially worsened both the runtime-risk neighbor `prob31`
+        and the intended target `prob40`
+      - the current-tree prob40-like issue is therefore not solved by a raw
+        direct-first `due_release_proc` replacement alone
+- Decision:
+  rejected
+- Reason:
+  - scoreability stayed intact on smoke and target compare, but the official
+    objective and T both worsened on the intended target family
+  - the worst regression is on the exact target row:
+    - `prob_40`: `16476222 / T=24055` (`v152`)
+      -> `23417641 / T=34866` (`v155`)
+  - the candidate also reopened a large non-target regression on the same
+    targeted compare:
+    - `prob_31`: `59562145 / T=4260` (`v152`)
+      -> `98768388 / T=7170` (`v155`)
+  - since the target gate failed clearly, do not run full train40
+- Next strategy:
+  - keep `v152` as the current recovery parent
+  - pivot away from pure direct-first replacement on the prob40-like family
+  - next try should stay feature-based but compare multiple bounded warm-start
+    orderings or a lighter post-build repair on top of the recovery-safe parent
+
+## reboot_v156_20260621_prob40like_v142_slice_on_v152
+- File:
+  `reboot_v156_20260621_prob40like_v142_slice_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - `v155` showed that a raw direct-first replacement is too destructive on the
+    current-tree prob40-like family
+  - however, the earlier current-tree direct compare still showed a useful
+    narrow signal on the same family:
+    `reports/ogc2026_reboot_v001/diag_reboot_prob40_family_20260621_001/`
+    - `v142 prob_40`: `10274392 / T=15162 / 58.46s`
+    - `v152 prob_40`: `12321056 / T=18234 / 58.81s`
+  - the global `v142` line cannot be restored wholesale because it reopens
+    `prob_31` timeout on the current tree
+  - but the prob40-like selector is narrow enough that we can test the direct
+    `v142` path only on that slice while keeping `v152` elsewhere
+- Hypothesis:
+  - preserve `v152` unchanged outside the narrow prob40-like family
+  - on that family only, delegate directly to the current-tree `v142`
+    algorithm path
+  - if the delegated result is not officially feasible, fall back to `v152`
+- Feature / subtype / timelimit selector:
+  - activate only when all are true:
+    - bays `== 4`
+    - blocks `>= 240`
+    - proc_mean `>= 20.0`
+    - tight_slack_ratio in `[0.28, 0.34]`
+    - pref_concentration `>= 0.74`
+    - pref_gap_mean `>= 58.0`
+    - workload_mean `>= 160.0`
+    - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on the target subtype only:
+    - call direct `v142.algorithm(prob_info, timelimit)`
+    - keep it only when officially feasible
+    - otherwise fall back to `v152`
+- Validation plan:
+  - smoke-8:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`, `prob_26`,
+    `prob_31`, `prob_36`
+  - targeted subtype smoke:
+    `prob_31`, `prob_39`, `prob_40`
+  - full train40 only if both smoke gates stay fully scoreable and `prob_40`
+    stays better than the recovery parent without reopening non-target risk
+- Validation:
+  - smoke-8:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v156_smoke8_20260621_001/`
+    - accepted_for_score `8/8`, timeout `0`, invalid `0`
+    - runtime max `52.90s`
+  - targeted subtype compare:
+    `reports/ogc2026_reboot_v001/target_reboot_v156_prob40family_20260621_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - current-tree recovery parent baseline:
+      - `v152 prob_31`: `53363711 / T=3758 / 43.76s`
+      - `v152 prob_39`: `48743275 / T=3563 / 56.62s`
+      - `v152 prob_40`: `11209127 / T=16561 / 58.58s`
+    - candidate result:
+      - `v156 prob_31`: `52798129 / T=3718 / 43.76s`
+      - `v156 prob_39`: `48743275 / T=3563 / 54.00s`
+      - `v156 prob_40`: `11209127 / T=16561 / 58.83s`
+  - log interpretation:
+    - the delegated `v142` path no longer gives a distinct prob40-like row on
+      the current tree
+    - `prob_40` log shows the same internal base path and the same skipped
+      headroom guards:
+      - `v017 ... T=16561 objective=11209127`
+      - `v135 skip_prob40like_guard`
+      - `v142 skip_prob40like_broad_move`
+    - so this candidate is effectively a no-op on the intended target slice
+- Decision:
+  rejected
+- Reason:
+  - while scoreability stayed intact and `prob_31` improved slightly, the
+    intended target row did not improve at all against the recovery parent
+  - the delegated `v142` slice reproduced exactly the same `prob_40` row as
+    `v152`, which means the current-tree headroom cliff is still blocking the
+    actual tail move
+  - because the candidate is effectively a no-op on the target family, there is
+    no reason to spend a full40 run on it
+- Next strategy:
+  - keep `v152` as the recovery parent
+  - pivot from swapping whole prob40-like branches to attacking the current
+    internal headroom bottleneck directly
+  - the next coherent hypothesis should focus on the current `v017`/`v135`
+    prob40-like build path itself:
+    - reduce its base runtime
+    - or make a lighter bounded postpass that can still execute with about
+      2-3s remaining
+
+## reboot_v157_20260621_prob40like_ultralite_quantile_on_v152
+- File:
+  `reboot_v157_20260621_prob40like_ultralite_quantile_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - `v155` proved that replacing the whole prob40-like branch with a
+    direct-first build is too destructive
+  - `v156` proved that simply delegating to direct `v142` is now a no-op on
+    the current tree because the inherited `v135/v142` headroom guards still
+    skip the actual tail move
+  - direct probe on the current `v152` base for `prob_40` shows a remaining
+    micro-signal in the leftover headroom:
+    - current base row in probe:
+      `16748554 / T=24863 / runtime 58.17s`
+    - one-block ultra-light quantile reinsert:
+      `16437732 / T=24397`
+      and
+      `16421823 / T=24375`
+    - both improvements came from a <=2.0s bounded postpass without changing
+      the family warm start itself
+- Hypothesis:
+  - preserve `v152` unchanged outside the narrow prob40-like family
+  - on that family only, keep the current `v152` base warm start, then spend
+    at most about 1 second of the residual headroom on one top-tardy
+    quantile-sampled single-block reinsert
+  - keep the postpass only when it is officially feasible and strictly better
+    than the base result
+- Feature / subtype / timelimit selector:
+  - activate only when all are true:
+    - bays `== 4`
+    - blocks `>= 240`
+    - proc_mean `>= 20.0`
+    - tight_slack_ratio in `[0.28, 0.34]`
+    - pref_concentration `>= 0.74`
+    - pref_gap_mean `>= 58.0`
+    - workload_mean `>= 160.0`
+    - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on the target subtype only:
+    - build the normal `v152` base solution first
+    - if the base is feasible, scoreable-looking, and still leaves tiny
+      residual headroom, run one-block ultra-light quantile reinsert on the
+      worst tardy block
+    - keep the candidate only when the official result key improves
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted subtype compare:
+    `prob_31`, `prob_39`, `prob_40`
+  - full train40 only if the target gate shows a real `prob_40` gain without
+    reopening scoreability risk on nearby runtime rows
+- Validation:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v157_tier9_20260621_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - runtime max `59.73s`
+    - the candidate stayed scoreable on the tier-representative smoke set
+  - targeted subtype compare:
+    `reports/ogc2026_reboot_v001/target_reboot_v157_prob40family_20260621_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - current-tree recovery parent baseline:
+      - `v152 prob_31`: `54081413 / T=3815 / 43.92s`
+      - `v152 prob_39`: `48743275 / T=3563 / 53.54s`
+      - `v152 prob_40`: `10829190 / T=15996 / 58.38s`
+    - candidate result:
+      - `v157 prob_31`: `57596649 / T=4077 / 44.06s`
+      - `v157 prob_39`: `48743275 / T=3563 / 55.75s`
+      - `v157 prob_40`: `11337978 / T=16760 / 60.00s`
+  - log interpretation:
+    - the ultra-light postpass did improve its own local base on the v157
+      `prob_40` run:
+      - base inside log: `11575365 / T=17115`
+      - postpass: `11337978 / T=16760`
+    - however, that local gain was not strong enough to beat the sibling
+      `v152` run in the same targeted compare, where the parent produced the
+      stronger row `10829190 / T=15996`
+    - this suggests the tiny postpass signal is real but too weak and too
+      variance-sensitive to serve as a reliable T-breakthrough on the current
+      tree
+- Decision:
+  rejected
+- Reason:
+  - the version preserved scoreability, but it still lost to the recovery
+    parent on the intended target row and also regressed the nearby runtime-risk
+    row
+  - the key regressions versus `v152` were:
+    - `prob_31`: `54081413 / T=3815` -> `57596649 / T=4077`
+    - `prob_40`: `10829190 / T=15996` -> `11337978 / T=16760`
+  - because the target compare did not beat the parent, full40 is not justified
+- Next strategy:
+  - keep `v152` as the recovery parent
+  - stop spending effort on micro postpasses over the current prob40-like base
+  - the next structural hypothesis should move one level deeper:
+    - either reduce the current `v017` base runtime/variance directly
+    - or replace that internal base with a new feature-based builder that can
+      match its T without living on the 58-60s cliff
+
+## reboot_v158_20260621_prob40like_narrow_builder_on_v152
+- File:
+  `reboot_v158_20260621_prob40like_narrow_builder_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - `v155` and `v156` showed that swapping whole prob40-like branches does not
+    solve the current-tree issue
+  - `v157` showed a tiny leftover-headroom repair signal, but it was too weak
+    to beat the parent consistently
+  - direct current-tree builder probe on `prob_40` isolated a much stronger and
+    more stable signal one level deeper in the base builder itself:
+    - current widened base-style probe (`top_bays=4`, `max_positions=14`,
+      `budget=58`) drifted between:
+      - `14715033 / T=21826`
+      - `13048125 / T=19319`
+    - narrowed direct builder (`top_bays=4`, `max_positions=12`, `budget=58`)
+      stabilized around:
+      - `11111342 / T=16428`
+    - narrower direct builder (`top_bays=4`, `max_positions=10`, `budget=58`)
+      improved further:
+      - `7654501 / T=11244`
+      - `7826770 / T=11500`
+    - strongest and fastest current-tree probe was the historical-style narrow
+      builder:
+      - `top_bays=3`, `max_positions=10`, `budget=55`
+      - `7117822 / T=10439` in `44-47s`
+- Hypothesis:
+  - the current prob40-like regression is being created by an over-broad
+    internal builder, not by a missing late move
+  - replacing only that narrow family with a stable direct builder using
+    `top_bays=3`, `max_positions=10`, `budget=55` should cut T/objective while
+    also pulling runtime away from the 58-60s cliff
+- Feature / subtype / timelimit selector:
+  - activate only when all are true:
+    - bays `== 4`
+    - blocks `>= 240`
+    - proc_mean `>= 20.0`
+    - tight_slack_ratio in `[0.28, 0.34]`
+    - pref_concentration `>= 0.74`
+    - pref_gap_mean `>= 58.0`
+    - workload_mean `>= 160.0`
+    - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on the target subtype only:
+    - bypass the inherited widened prob40 builder
+    - run one narrow direct `due_release_proc` builder with
+      `top_bays=3`, `max_positions=10`, bounded around `55s`
+    - keep it when officially feasible; otherwise fall back to `v152`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted subtype compare:
+    `prob_31`, `prob_39`, `prob_40`
+  - full train40 only if the target gate shows a real `prob_40` gain and no
+    nearby scoreability/runtime regressions
+- Validation result:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v158_tier9_20260621_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+  - targeted subtype compare:
+    `reports/ogc2026_reboot_v001/target_reboot_v158_prob40family_20260621_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - row deltas vs `v152`:
+      - `prob_31`: `51965561 / T=3656 -> 53363711 / T=3757`
+      - `prob_39`: unchanged at `48743275 / T=3563`
+      - `prob_40`: `13048125 / T=19319 -> 7117822 / T=10439`
+  - canonical full40:
+    `reports/ogc2026_reboot_v001/full_reboot_v158_train40_20260621_001/`
+    - accepted_for_score `39/40`, timeout `1`, invalid `0`
+    - failing row:
+      - `prob_33`: `26500068 / T=3854 / L=1150 / P=5293 / runtime=61.069551s`
+  - parent drift recheck:
+    `reports/ogc2026_reboot_v001/verify_reboot_v158_prob31_prob33_prob40_20260621_001/`
+    - `v152` also timed out on `prob_33` at `62.243792s`
+    - interpretation:
+      - `v158` did not create the reopened prob33-like timeout
+      - but it still cannot be promoted while the canonical full40 surface is
+        not scoreable
+- Decision:
+  rejected
+- Recovery / publish note:
+  - publish this cycle as a recovery checkpoint, not as a BEST promotion
+  - historical accepted BEST evidence remains `v142`
+  - current-tree runtime recovery remains unfinished because:
+    - restored `v142` is not freshly reproducible on the current tree
+    - `v152` has reopened a prob33-like runtime cliff on the latest verify
+      surface
+  - publish note:
+    `reports/ogc2026_reboot_v001/recovery_checkpoint_20260621_current_tree_publish.md`
+- Next strategy:
+  - preserve the prob40-family signal isolated by `v158`
+  - flatten or replace the prob33-like runtime-risk chain on the current-tree
+    parent before attempting any new promotion
