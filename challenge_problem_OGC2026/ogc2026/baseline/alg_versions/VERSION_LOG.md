@@ -10854,7 +10854,7 @@
 - Parent:
   `reboot_v132_20260620_1545_threebay_xlarge_lowproc_relaxed_v072_on_v123`
 - Status:
-  candidate
+  accepted
 - Hypothesis:
   - the rejected `v130` logic is still structurally sound because its selector
     matches only `prob_40`
@@ -11020,3 +11020,103 @@
     `prob_40` family against the full-train headroom cliff by shrinking the
     budget/shortlist or relaxing the guard just enough for the move to still
     trigger within the official limit
+
+## reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132
+- File:
+  `reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132.py`
+- Parent:
+  `reboot_v132_20260620_1545_threebay_xlarge_lowproc_relaxed_v072_on_v123`
+- Status:
+  candidate
+- Hypothesis:
+  - the accepted `v133` `prob_40` gain failed publish revalidation because the
+    narrow guard `remaining <= reserve + 8.0` is a little too conservative
+    under ordinary runtime noise on the direct `baseline_hh.py` surface
+  - the prob40-like move already proved scoreable on the same 60s tier, and
+    the broader `v124` four-bay search used a smaller `reserve + 6.0` guard
+    without timeout
+  - reusing the same narrow selector and same local move on top of stable
+    `v132`, but lowering only the headroom gate from `reserve + 8.0` to
+    `reserve + 6.0`, should restore the `prob_40` T drop more reliably while
+    keeping accepted_for_score `40/40`
+- Feature/subtype selector:
+  - reuse the `reboot_v130` prob40-like narrow-tail selector
+  - selector currently matches only `prob_40` on train40
+- Timelimit behavior:
+  - unchanged from `v133` outside the narrower headroom threshold
+  - still skip on `very_short` / `short`, infeasible warm starts, or low-T base rows
+- Representative tier smoke set:
+  - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+- Targeted smoke:
+  - `prob_31`, `prob_39`, `prob_40`
+- Time-stress smoke:
+  - `prob_39`, `prob_40` at shorter limit
+- Validation plan:
+  - representative tier smoke first
+  - targeted subtype smoke second
+  - short-limit stress third
+  - full train40 only if the first three gates remain scoreable and preserve
+    the stronger `prob_39` row
+- Representative tier smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v135_tier9_20260620_001/`
+  - accepted `9/9`; timeout `0`, invalid `0`
+  - representative rows stayed scoreable
+  - hypothesis-target row improved immediately:
+    - `prob_40`: objective `5910122 -> 5860829`,
+      `T 8622 -> 8549`, `L 4587 -> 4947`, `P 11897 -> 11823`
+- Targeted smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/target_reboot_v135_prob40_headroom_20260620_001/`
+  - accepted `3/3`; timeout `0`, invalid `0`
+  - kept:
+    - `prob_31`: unchanged
+    - `prob_39`: unchanged strong row
+  - improved:
+    - `prob_40`: objective `5910122 -> 5860829`,
+      `T 8622 -> 8549`, `L 4587 -> 4947`, `P 11897 -> 11823`
+- Time-stress smoke:
+  - path:
+    `reports/ogc2026_reboot_v001/stress_reboot_v135_prob40_short45_20260620_001/`
+  - accepted `2/2`; timeout `0`, invalid `0`
+  - shorter-limit fallback remained scoreable
+  - expected short-limit degradation stayed bounded to fallback behavior:
+    - `prob_39`: objective `51006456`
+    - `prob_40`: objective `12129566`
+- Full 40:
+  - path:
+    `reports/ogc2026_reboot_v001/full_reboot_v135_train40_20260620_001/`
+  - accepted `40/40`; timeout `0`, invalid `0`
+  - headline deltas versus trusted `v132`:
+    - avg objective `15071175.65 -> 15069943.325`
+    - avg T `1540.65 -> 1538.825`
+    - avg L `2674.325 -> 2683.325`
+    - avg P `4187.625 -> 4185.775`
+    - runtime max `56.951463 -> 58.418181`
+  - row-level changes:
+    - only `prob_40` changed
+    - no regression on `prob_39` or the rest of the train40 surface
+- Active-surface publish revalidation:
+  - path:
+    `reports/ogc2026_reboot_v001/verify_active_v135_publish_20260620_001/`
+  - accepted `12/12`; timeout `0`, invalid `0`
+  - direct `baseline_hh.py` reproduced the accepted `prob_40` improvement:
+    - objective `5860829`
+    - `T=8549`
+  - `prob_39` kept the stronger `v132` row:
+    - objective `48160369`
+    - `T=3521`
+- Decision:
+  - accepted
+- Rationale:
+  - this is the clean recovery we wanted after the `v133` publish cliff:
+    the same high-T `prob_40` gain is now reproduced on the direct active
+    wrapper surface, scoreability stayed perfect, and the official full-train
+    headline improved versus trusted `v132`.
+- Current trusted active BEST:
+  - `reboot_v135_20260620_2105_prob40like_headroom_relax_on_v132`
+- Next strategy:
+  - keep `v135` active
+  - move back to plateau/T-zero-first backlog beyond `prob_40`, especially the
+    remaining high-T tail on `prob_38`, `prob_27`, `prob_37`, `prob_33`, and `prob_39`
