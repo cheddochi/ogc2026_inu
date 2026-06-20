@@ -1,0 +1,38 @@
+{
+  "run_id": "stress_reboot_v142_prob40like_short45_20260620_001",
+  "timestamp": "2026-06-20T15:58:53",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 140329280.0,
+    "objective_avg": 35082320.0,
+    "obj1_sum": 44241.0,
+    "obj1_avg": 11060.25,
+    "obj1_max": 18462.0,
+    "obj2_avg": 7097.5,
+    "obj3_avg": 12173.25,
+    "runtime_sum": 134.202775,
+    "runtime_avg": 33.55069375,
+    "runtime_max": 40.664698
+  },
+  "algorithms": [
+    {
+      "name": "v136",
+      "version": "reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135.py"
+    },
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_40.json"
+  ]
+}

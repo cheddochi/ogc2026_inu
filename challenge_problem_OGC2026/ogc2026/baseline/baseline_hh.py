@@ -1,20 +1,20 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135
+    reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136
 
 Publish-trust note:
-    v136 keeps the trusted v135 line intact outside the targeted two-bay
-    concentrated high-proc tail subtype and deepens only the bounded top-tardy
-    single-reinsert search on that family. It is intended to preserve v135
-    stability while converting the live prob25/prob27 tail signal into a
-    scoreable train40 improvement.
+    v142 keeps the trusted v136 line intact outside the narrow prob40-like
+    xlarge high-workload tail subtype and replays the stronger bounded four-bay
+    top-tardy quantile move only on that family. It is intended to preserve
+    the v136 scoreable train40 surface while converting the live prob40 signal
+    into a trusted full40 improvement.
 """
 
-from alg_versions import reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135 as active
+from alg_versions import reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136 as active
 
 
-ACTIVE_VERSION = "reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135"
+ACTIVE_VERSION = "reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

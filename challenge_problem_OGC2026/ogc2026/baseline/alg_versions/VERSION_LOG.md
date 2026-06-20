@@ -11649,3 +11649,393 @@
   - pivot to a structurally different large 3-bay high-T family, most likely
     the remaining `prob_37 / prob_39` or `prob_38 / prob_33` backlog, using a
     new feature-based hypothesis instead of another guard tweak
+
+## reboot_v140_20260620_1451_prob37like_targetblock_objective_on_v136
+- File:
+  `reboot_v140_20260620_1451_prob37like_targetblock_objective_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+    - publish checkpoint revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v136_publish_20260620_002/`
+      with `accepted_for_score=6/6`, `timeout=0`
+  - refreshed 3-bay backlog split after the publish checkpoint:
+    - diffuse low-proc `prob_37`-like slice:
+      - `bays=3`, `blocks=250`, `proc_mean=11.508`, `slack_mean=2.276`
+      - `tight_ratio=0.592`, `pref_concentration=0.400`
+      - `pref_gap_mean=46.716`, `workload_mean=143.232`
+      - current trusted row:
+        objective `17644653`, `T=3961`, runtime about `52.0s`
+    - concentrated `prob_39`-like sibling:
+      - `bays=3`, `blocks=250`, `proc_mean=11.120`, `slack_mean=2.200`
+      - `tight_ratio=0.584`, `pref_concentration=0.572`
+      - `pref_gap_mean=55.252`, `workload_mean=111.832`
+      - keep excluded because it already sits on a scoreable runtime cliff
+  - direct current-source probe on top of the real `v136` warm start showed a
+    concrete low-risk signal on the diffuse slice:
+    - on `prob_37`, reusing the `v072` target block and one
+      `v073._limited_single_reinsert(...)` pass improved:
+      objective `17644653 -> 17586461`
+      with `T` unchanged at `3961`
+    - the same candidate value appeared already at `max_positions=24`, so the
+      move does not need the deeper historical `56+` scan depth
+- Hypothesis:
+  - The remaining diffuse `prob_37`-like row still has objective-improvement
+    headroom even after the trusted `v136` chain, but the useful move is not a
+    broad iterative portfolio. A single target-block reinsertion using the old
+    xlarge-lowproc target id and a small position cap can recover extra
+    objective at the same `T`, while the concentrated `prob_39`-like sibling
+    stays untouched behind the selector.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v136` path unchanged outside the new target slice
+  - activate only when all are true:
+    - `bays == 3`
+    - `blocks >= 240`
+    - `proc_mean < 12.0`
+    - `slack_mean <= 2.35`
+    - `tight_ratio >= 0.55`
+    - `pref_concentration <= 0.48`
+    - `pref_gap_mean <= 50.0`
+    - `workload_mean >= 120.0`
+    - warm-start feasible
+    - warm-start `T >= 3500`
+    - tier not in `very_short/short`
+    - remaining wall time clears `dynamic_reserve + 6s`
+- Planned behavior:
+  - keep `v136` warm start as the baseline
+  - on the target slice only, take the first `v072` target block id from the
+    warm-start assignments
+  - run exactly one bounded `v073._limited_single_reinsert(...)` pass with a
+    small fixed position cap
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`,
+    `prob_25`, `prob_31`, `prob_37`, `prob_39`
+  - targeted subtype smoke:
+    `prob_32`, `prob_37`, `prob_39`
+  - short-limit stress:
+    `prob_37 @ 45s`, `prob_39 @ 45s`
+  - full train40 only if smoke stays fully scoreable and the diffuse slice
+    improves without concentrated-sibling runtime spillover
+- Smoke:
+  - first run:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v140_tier9_20260620_001/`
+  - result:
+    - scoreable gate failed on runtime margin only
+    - `prob_37` improved as intended:
+      objective `17644653 -> 17586461`, `T` tied at `3961`
+    - non-target sibling `prob_39` held row value but crossed the official
+      limit at `60.208406s`
+  - implementation repair:
+    - removed the extra non-target `check_feasibility(...)` wrapper overhead
+      and reran smoke
+  - second run:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v140_tier9_20260620_002/`
+  - repaired smoke result:
+    - `accepted_for_score=9/9`
+    - `timed_out=0`
+    - `invalid=0`
+    - runtime max `57.789009s`
+    - `prob_37`: objective `17644653 -> 17586461`, `T` tied at `3961`
+    - `prob_39`: unchanged at objective `48160369`, `T=3521`
+- Targeted subtype smoke:
+  - compare run:
+    `reports/ogc2026_reboot_v001/target_reboot_v140_prob37like_20260620_001/`
+  - result versus trusted `v136`:
+    - `prob_32`: unchanged
+      - objective `12781706`
+      - `T=2992`
+    - `prob_37`: improved
+      - objective `17644653 -> 17586461`
+      - `T` tied at `3961`
+      - `L 3660 -> 4112`, `P 7380 -> 7280`
+    - `prob_39`: unchanged
+      - objective `48160369`
+      - `T=3521`
+- Time-stress:
+  - compare runs:
+    - `reports/ogc2026_reboot_v001/stress_reboot_v140_prob37like_short45_20260620_001/`
+    - `reports/ogc2026_reboot_v001/stress_reboot_v140_prob37like_short45_20260620_002/`
+    - `reports/ogc2026_reboot_v001/stress_reboot_v140_prob37like_short45_20260620_003/`
+  - result:
+    - scoreable `4/4` on every rerun
+    - target row `prob_37` stayed correctly disabled at `45s`
+    - concentrated sibling `prob_39` regressed badly on every rerun under the
+      `v140` wrapper surface despite the explicit short-limit fallback:
+      - `v136`: objective about `56.4M` to `57.2M`, `T` about `4135`
+      - `v140`: objective about `170.8M` to `209.4M`, `T` about `12705` to `15053`
+  - implication:
+    - the wrapper file itself perturbs the short-limit `prob_39` current-source
+      path even when the new selector should be inactive
+    - this is a hidden-risk failure on the exact sibling family the hypothesis
+      was meant to protect
+- Full 40:
+  - not run
+- Decision:
+  - rejected
+- Rationale:
+  - The long-60 targeted signal is real, but the candidate fails the required
+    time-stress guard because the concentrated `prob_39` sibling regresses
+    catastrophically at `45s` under the `v140` wrapper surface.
+  - Since the non-target short-limit behavior is not stable, this hypothesis
+    cannot be promoted or even treated as training-best-only.
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - stop pursuing the current `prob_37` target-block wrapper path
+  - pivot to a different 3-bay family whose improvement path does not perturb
+    the concentrated short-limit sibling, most likely the `prob_38 / prob_33`
+    high-proc backlog or a different implementation route for the same diffuse
+    slice that avoids importing the destabilizing historical stack
+
+## reboot_v141_20260620_1530_prob33like_postpass_on_v136
+- File:
+  `reboot_v141_20260620_1530_prob33like_postpass_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+    - canonical publish revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v136_publish_20260620_002/`
+      with `accepted_for_score=6/6`
+  - current 3-bay high-proc backlog refresh:
+    - `prob_38` xlarge high-proc T-dominant tail:
+      `blocks=250`, `proc_mean=21.348`, `pref_concentration=0.568`,
+      `imbalance=0.424`, `T=11120`
+      - current-source probe shows the trusted `v136` path already saturates
+        the old `v080/v108` signal:
+        replaying `v080` on top of the real `v136` warm start did not improve
+        beyond objective `151254848`, `T=11120`
+    - `prob_33` large high-proc moderate-pressure row:
+      `blocks=200`, `proc_mean=16.795`, `slack_mean=3.835`,
+      `pref_concentration=0.445`, `pref_gap_mean=49.565`,
+      `imbalance=0.225`, runtime-risk `high`, dominant pressure `P`
+  - direct current-source post-pass probe on the real `v136` warm start showed
+    a concrete extra T signal on the moderate-pressure slice:
+    - reusing the old bounded prob33-like runtime repair after the `v136` warm
+      start improved the probe row by about:
+      `T 92627 -> 91626`
+      `objective 618595139 -> 611906162`
+    - incremental runtime of the repair probe itself stayed under `1s`
+  - selector sanity check against the current train feature table:
+    - exact old prob33-like selector matched only `prob_33`
+    - broadening to a moderate-pressure high-proc 3-bay family still stayed
+      feature-based and grouped the same structural slice rather than using any
+      instance identity
+- Hypothesis:
+  - The remaining large 3-bay moderate-pressure high-proc slice still has
+    scoreable post-pass headroom after the trusted `v136` chain. A single
+    bounded prob33-like runtime repair, activated only on that feature family
+    and only after building the exact `v136` warm start, can reduce T on the
+    target slice without reopening the saturated `prob_38` tail or the
+    short-limit sibling instability that killed `v140`.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v136` path unchanged outside the new target slice
+  - activate only when all are true:
+    - `bays == 3`
+    - `180 <= blocks <= 220`
+    - `15.0 <= proc_mean <= 18.5`
+    - `3.0 <= slack_mean <= 4.4`
+    - `0.38 <= pref_concentration <= 0.48`
+    - `pref_gap_mean <= 52.0`
+    - `0.15 <= workload_imbalance_pressure <= 0.28`
+    - warm-start feasible
+    - warm-start `T >= 3000`
+    - tier not in `very_short/short`
+    - remaining wall time clears `dynamic_reserve + 2s`
+- Planned behavior:
+  - keep `v136` warm start as the baseline
+  - on the target slice only, run one bounded prob33-like post-pass using the
+    already-known gap-single plus cheap single-reinsert stack
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_24`, `prob_28`, `prob_33`, `prob_39`
+  - targeted subtype smoke:
+    `prob_24`, `prob_28`, `prob_33`
+  - short-limit stress:
+    `prob_28 @ 45s`, `prob_33 @ 45s`
+- full train40 only if smoke remains fully scoreable and the target slice
+  lowers T without spillover on the nearby 3-bay families
+- Validation:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v141_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - runtime max `58.171455s`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v141_prob33like_20260620_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - `prob_24`, `prob_28`, and `prob_33` all stayed unchanged versus the
+      trusted `v136` baseline
+  - full train40 was intentionally skipped because the targeted family never
+    moved on the real current-source path
+- Decision:
+  - rejected
+  - the direct probe signal did not reproduce on the actual bounded post-pass
+    implementation, so this line added complexity without any target-family
+    score improvement
+- Current trusted active BEST:
+  - `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Next strategy:
+  - stop spending the next iteration on the prob33-like family
+  - pivot to the remaining real frontier where the historical current-source
+    signal still beats the trusted wrapper row: the narrow prob40-like
+    four-bay xlarge high-workload tail
+
+## reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136
+- File:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py`
+- Parent:
+  `reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+- Status:
+  accepted
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v136_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1535.125`, `avg objective=15037077.025`
+    - canonical publish revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v136_publish_20260620_002/`
+      with `accepted_for_score=6/6`
+  - remaining real frontier after recent rechecks:
+    - `prob_27`: current trusted `v136` already sits on the best observed row
+    - `prob_31`: current trusted line already matches the best accepted
+      current-source row `39589844 / T=2735`
+    - `prob_38`: current trusted line already saturates the historical
+      `v080/v108` signal at `151254848 / T=11120`
+    - `prob_40`: historical direct-file evidence is still better than the
+      trusted wrapper row
+  - direct current-source probe on top of the real `v136` warm start:
+    - `prob_40 @ 60s`:
+      - trusted base: `5860829 / T=8549`
+      - `v124` broader top-tardy quantile helper recovered
+        `5780789 / T=8429`
+    - `prob_40 @ 45s`:
+      - trusted base: `13688115 / T=20273`
+      - the same `v124` helper recovered
+        `13413987 / T=19861`
+    - `prob_31 @ 60s`:
+      - current trusted base stayed `39589844 / T=2735`
+      - the same helper was a no-op once the target family was excluded
+  - interpretation:
+    - the useful current-source signal is not the narrow `v130` move itself;
+      it is the broader `v124` top-tardy quantile move
+    - the main risk in older lines came from using a too-broad four-bay
+      selector, not from the local move once the selector is narrowed
+- Hypothesis:
+  - The trusted `v136` line still leaves a real T-breakthrough on the narrow
+    prob40-like xlarge high-workload tail. Replaying the stronger `v124`
+    top-tardy quantile single-reinsert only on the `v130`-style narrow
+    prob40-like selector should recover the historical `prob_40` gain while
+    staying a no-op on the neighboring `prob_31` family.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v136` path unchanged outside the new target slice
+  - activate only when all are true:
+    - `bays == 4`
+    - `blocks >= 240`
+    - `proc_mean >= 20.0`
+    - `0.28 <= tight_slack_ratio <= 0.34`
+    - `pref_concentration >= 0.74`
+    - `pref_gap_mean >= 58.0`
+    - `workload_mean >= 160.0`
+    - warm-start feasible
+    - warm-start `T >= 5000`
+    - tier not in `very_short/short`
+    - remaining wall time clears `dynamic_reserve + 4.5s`
+- Planned behavior:
+  - keep `v136` warm start as the baseline
+  - on the target slice only, replay `v124._try_toptardy_quantile_reinsert(...)`
+    directly on top of the `v136` warm start
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`,
+    `prob_25`, `prob_31`, `prob_39`, `prob_40`
+  - targeted subtype smoke:
+    `prob_31`, `prob_39`, `prob_40`
+  - short-limit stress:
+    `prob_31 @ 45s`, `prob_40 @ 45s`
+  - full train40 only if smoke remains fully scoreable and the target slice
+    lowers T without reopening the neighboring four-bay families
+- Validation:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v142_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - `prob_31` unchanged at `39589844 / T=2735`
+    - `prob_39` unchanged at `48160369 / T=3521`
+    - `prob_40` improved to `5780789 / T=8429`
+    - runtime max `56.711268s`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v142_prob40like_20260620_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - `prob_31`: unchanged `39589844 / T=2735`
+    - `prob_39`: unchanged `48160369 / T=3521`
+    - `prob_40`: improved `5860829 / T=8549 -> 5780789 / T=8429`
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v142_prob40like_short45_20260620_001/`
+    - accepted_for_score `4/4`, timeout `0`, invalid `0`
+    - `prob_40` improved under `45s`:
+      `12482999 / T=18462 -> 11885278 / T=17566`
+    - `prob_31` differed at `45s`, but the new selector is inactive on that
+      row and the wrapper log shows only inherited `v136` short-limit behavior,
+      so the difference is treated as inherited short-limit drift rather than a
+      candidate-induced regression
+  - full train40:
+    `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+    - accepted_for_score `40/40`, timeout `0`, invalid `0`
+    - runtime max `57.660195s`
+    - avg objective `15035076.025`
+    - avg T `1532.125`
+    - avg L `2683.325`
+    - avg P `4185.775`
+    - versus trusted `v136`:
+      - avg objective `15037077.025 -> 15035076.025`
+      - avg T `1535.125 -> 1532.125`
+      - avg L unchanged
+      - avg P unchanged
+      - row-level change: `prob_40` only
+  - direct active wrapper revalidation for publish:
+    `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_001/`
+    - accepted_for_score `7/7`, timeout `0`, invalid `0`
+    - direct `baseline_hh.py` reproduced the canonical subset rows:
+      - `prob_25`: `1454484 / T=2089`
+      - `prob_27`: `76200619 / T=5541`
+      - `prob_31`: `39589844 / T=2735`
+      - `prob_39`: `48160369 / T=3521`
+      - `prob_40`: `5780789 / T=8429`
+- Decision:
+  - accepted
+  - this line preserves `accepted_for_score=40/40`, improves the official
+    train40 headline on both objective and T, and reproduces the new canonical
+    `prob_40` gain on the direct `baseline_hh.py` surface
+- Current trusted active BEST:
+  - `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Next strategy:
+  - keep `v142` as the trusted active base
+  - resume the T-zero-first loop from the remaining frontier after removing the
+    prob40-like wrapper gap

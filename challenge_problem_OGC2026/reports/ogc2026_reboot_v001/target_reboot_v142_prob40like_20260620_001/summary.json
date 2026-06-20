@@ -1,0 +1,39 @@
+{
+  "run_id": "target_reboot_v142_prob40like_20260620_001",
+  "timestamp": "2026-06-20T15:53:15",
+  "summary": {
+    "total": 6,
+    "feasible": 6,
+    "accepted_for_score": 6,
+    "checker_feasible": 6,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 187142044.0,
+    "objective_avg": 31190340.666666668,
+    "obj1_sum": 29490.0,
+    "obj1_avg": 4915.0,
+    "obj1_max": 8549.0,
+    "obj2_avg": 2328.0,
+    "obj3_avg": 10532.333333333334,
+    "runtime_sum": 326.554973,
+    "runtime_avg": 54.425828833333334,
+    "runtime_max": 57.73539
+  },
+  "algorithms": [
+    {
+      "name": "v136",
+      "version": "reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v136_20260620_2335_twobay_deeper_toptardy_on_v135.py"
+    },
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
