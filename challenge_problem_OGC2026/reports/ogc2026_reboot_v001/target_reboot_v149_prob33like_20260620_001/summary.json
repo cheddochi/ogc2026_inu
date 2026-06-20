@@ -1,0 +1,34 @@
+{
+  "run_id": "target_reboot_v149_prob33like_20260620_001",
+  "timestamp": "2026-06-20T22:27:25",
+  "summary": {
+    "total": 3,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 3,
+    "timed_out": 1,
+    "failed": 1,
+    "objective_sum": 365309393.0,
+    "objective_avg": 182654696.5,
+    "obj1_sum": 29275.0,
+    "obj1_avg": 14637.5,
+    "obj1_max": 26199.0,
+    "obj2_avg": 6344.0,
+    "obj3_avg": 7143.0,
+    "runtime_sum": 162.769386,
+    "runtime_avg": 54.256462,
+    "runtime_max": 60.41721
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v149_20260620_2215",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v149_20260620_2215_prob33like_low_headroom_repair_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_32.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json"
+  ]
+}

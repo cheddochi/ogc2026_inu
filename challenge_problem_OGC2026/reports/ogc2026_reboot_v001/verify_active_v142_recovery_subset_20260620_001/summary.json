@@ -1,0 +1,35 @@
+{
+  "run_id": "verify_active_v142_recovery_subset_20260620_001",
+  "timestamp": "2026-06-20T22:30:50",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 440801395.0,
+    "objective_avg": 110200348.75,
+    "obj1_sum": 48713.0,
+    "obj1_avg": 12178.25,
+    "obj1_max": 24272.0,
+    "obj2_avg": 4035.25,
+    "obj3_avg": 8269.25,
+    "runtime_sum": 223.601923,
+    "runtime_avg": 55.90048075,
+    "runtime_max": 59.148314
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "active_recovery_20260620_001",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

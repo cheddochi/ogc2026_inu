@@ -85,6 +85,18 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - keep the active wrapper on the historical rollback line for now, but do
       not describe the current tree as re-trusted until a fresh canonical
       revalidation closes cleanly
+  - latest recovery subset check on the current wrapper surface:
+    `reports/ogc2026_reboot_v001/verify_active_v142_recovery_subset_20260620_001/`
+    - accepted `4/4`; timeout `0`, invalid `0`
+    - but the historically sensitive tail rows still did not reproduce their
+      trusted values:
+      - `prob_27`: `76200619 / T=5541 -> 77480587 / T=5637`
+      - `prob_33`: `26172225 / T=3805 -> 26500068 / T=3854`
+      - `prob_38`: `151254848 / T=11120 -> 326689940 / T=24272`
+      - `prob_40`: `5780789 / T=8429 -> 10130800 / T=10950`
+    - interpretation:
+      - the wrapper is still scoreable on this subset, but it is not currently
+        trustworthy as a reproduced accepted BEST surface
 - Historical note:
   - `v123` remains the historical score-improving step over `v122`.
   - `v132` remains the last plateau-stable recovery line and rollback target.

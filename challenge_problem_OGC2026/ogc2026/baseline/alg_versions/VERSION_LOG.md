@@ -12703,3 +12703,200 @@
   - first build a runtime-stable current-tree parent that keeps the current
     Family A rows scoreable at `60s`, then replay Family B recovery on top of
     that parent in a separate version
+
+## reboot_v148_20260620_2147_threebay_runtime_quantile_shortlist_on_v142
+- File:
+  `reboot_v148_20260620_2147_threebay_runtime_quantile_shortlist_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - current trusted active surface remains the historical `v142` rollback line;
+    do not stack the next candidate on the unstable `v146/v147` branch
+  - current trusted backlog was reclassified from
+    `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+    plus train JSON features:
+    `reports/ogc2026_reboot_v001/analysis_v142_subtypes_20260620_001/`
+  - repeated high-T family selected for the next hypothesis:
+    - family key:
+      `3-bay / 200+ blocks / lowproc / runtime-risk / tight slack`
+    - repeated members:
+      `prob_32`, `prob_33`, `prob_37`, `prob_39`
+    - nearby but intentionally excluded from this version:
+      `prob_38` is also `3-bay runtime-risk`, but its `proc_mean` is much
+      higher and it behaves like a different subtype
+  - historical scan over stored CSV evidence shows this repeated family has
+    barely moved on `T` across many versions, which makes it a real
+    T-breakthrough backlog rather than a polish-only target
+- Hypothesis:
+  - On the repeated `3-bay lowproc runtime-risk tight-slack subtype`, the
+    remaining tardiness is caused by a small number of stranded tardy blocks
+    that the parent warm start never relocates deeply enough.
+  - Keeping the exact `v142` warm start first, then trying bounded
+    quantile-sampled reinsertion on the top tardy 1-2 blocks across all bays
+    and orientations, should have a better chance of reducing `T` than the
+    older tiny greedy-prefix replay while staying within the 60s canonical
+    wrapper budget.
+- Feature / subtype / timelimit selector:
+  - enable the new branch only when all are true:
+    - `bays == 3`
+    - `blocks >= 200`
+    - `proc_mean <= 17.0`
+    - `tight_slack_ratio >= 0.28`
+    - `0.34 <= pref_concentration <= 0.60`
+    - `pref_gap_mean >= 45.0`
+    - current warm-start `T >= 2500`
+    - runtime tier not in `very_short/short`
+  - otherwise delegate to parent `v142`
+- Planned behavior:
+  - preserve parent `v142` unchanged outside the target subtype
+  - build exact `v142` warm start first
+  - on the target subtype only:
+    - take the top tardy 1-2 blocks from the parent assignment
+    - try bounded quantile-sampled reinsertion for each target block
+    - keep only strictly better officially feasible candidates
+  - do not include any `prob40`-family or `prob27`-family recovery in this
+    version
+- Validation plan:
+  - representative block-tier smoke from the current subtype analysis:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype smoke:
+    `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - full train40 only if the representative smoke remains scoreable and the
+    targeted subtype shows real `T` signal
+- Validation:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v148_tier9_20260620_001/`
+    - accepted_for_score `8/9`, timeout `1`, invalid `0`
+    - `prob_33` timed out at `61.51s`
+    - `prob_38` stayed scoreable but regressed sharply to
+      `332247385 / T=24681`
+  - smoke deltas versus trusted `v142` on the same representative rows:
+    - `prob_6`: `756030 / T=9 -> 811639 / T=11`
+    - `prob_25`: `1454484 / T=2089 -> 1489168 / T=2141`
+    - `prob_27`: `76200619 / T=5541 -> 77480587 / T=5637`
+    - `prob_33`: `26172225 / T=3805 -> 26500068 / T=3854`, timeout
+    - `prob_38`: `151254848 / T=11120 -> 332247385 / T=24681`
+  - targeted subtype smoke and full40:
+    - not run
+    - the representative smoke already failed the required scoreable gate
+- Decision:
+  rejected
+- Reason:
+  - the new three-bay runtime quantile branch never got a fair chance to prove
+    a T-breakthrough because the inherited current-tree parent path was already
+    consuming almost the entire 60s budget on `prob_33`
+  - under the plateau/T-zero-first contract, a candidate that times out on the
+    representative smoke is rejected even if the new branch is narrowly scoped
+  - the large `prob_38` regression confirms that the current-tree direct
+    `v142` parent is not stable enough to serve as a clean launch surface for a
+    new three-bay family experiment
+- Next strategy:
+  - before another three-bay T-breakthrough attempt, isolate why the current
+    direct `v142` parent now drifts badly on representative rows like
+    `prob_33` and `prob_38` despite matching historical source hashes
+  - build the next hypothesis around parent-surface runtime stabilization first,
+    then replay subtype-local T-breakthrough moves on top of that stable parent
+
+## reboot_v149_20260620_2215_prob33like_low_headroom_repair_on_v142
+- File:
+  `reboot_v149_20260620_2215_prob33like_low_headroom_repair_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - `v148` failed at the representative smoke gate, but the failure exposed a
+    more useful parent-surface clue than the attempted 3-bay family move:
+    - on `prob_33`, the current-tree chain reached `v065` at
+      `3854 / 26515388`, then skipped the existing `v081` feature-based repair
+      because its runtime guard was too conservative
+  - direct probes on the current source tree showed:
+    - `v081._try_prob33like_runtime_repair(...)` still recovers
+      `3854 -> 3805 / 26172225`
+    - it succeeds even with only about `1.0s` of declared remaining budget
+      when replayed from the `v065` warm start
+  - interpretation:
+    - the current regression is not that the `prob33-like` repair stopped
+      working
+    - the current regression is that the inherited chain now skips that repair
+      too early on the canonical wrapper surface
+- Hypothesis:
+  - On the existing `v081` `prob33-like runtime` feature class, replacing the
+    current deep `v142` path with the shallower `v065` warm start and then
+    replaying the already trusted `v081` repair under a low-headroom guard
+    should recover the `3805` row with materially more runtime margin.
+- Feature / subtype / timelimit selector:
+  - use the existing `v081._matches_prob33like_runtime_class(features)` as the
+    selector
+  - tier must not be `very_short/short`
+  - warm-start feasible and warm-start `T >= 3800`
+  - require only small positive repair headroom instead of the old
+    `reserve + 2.0s` gate
+- Planned behavior:
+  - preserve `v142` unchanged outside the `prob33-like` feature class
+  - on the `prob33-like` feature class only:
+    - build `v065` warm start directly
+    - if there is at least about `1s` headroom, replay the trusted
+      `v081._try_prob33like_runtime_repair(...)`
+    - keep only strictly better officially feasible candidates
+  - do not touch the current `prob27` / `prob40` families in this version
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype smoke:
+    `prob_33`
+  - full train40 only if the representative smoke remains fully scoreable and
+    the `prob_33` row regains time margin without reopening other tiers
+- Validation:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v149_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - `prob_33` recovered the historical good row:
+      `26172225 / T=3805`
+    - but the run still showed non-target tail drift versus the historical
+      trusted `v142` full40 evidence:
+      - `prob_25`: `1454484 / T=2089 -> 1489168 / T=2141`
+      - `prob_27`: `76200619 / T=5541 -> 77480587 / T=5637`
+      - `prob_38`: `151254848 / T=11120 -> 234305172 / T=17340`
+  - current-tree parent-surface comparison:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v142_compare_tier9b_20260620_001/`
+    - current direct `v142` on the same 9-row representative set was even less
+      stable:
+      - `prob_33` timed out at `61.56s`
+      - `prob_38` regressed to `342096028 / T=25434`
+    - interpretation:
+      - the representative drift seen under `v149` was not uniquely caused by
+        the new low-headroom branch; the inherited current-tree parent surface
+        itself is unstable on this sequence
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v149_prob33like_20260620_001/`
+    - accepted_for_score `2/3`, timeout `1`, invalid `0`
+    - `prob_33` timed out at `60.42s` even though the candidate reproduced the
+      good `26172225 / T=3805` row
+    - `prob_38` also regressed further to `352190415 / T=26199`
+  - full train40:
+    - not run
+    - the targeted subtype smoke already failed the required scoreable gate
+- Decision:
+  rejected
+- Reason:
+  - under the plateau and scoreable-first contract, a candidate that times out
+    on its targeted subtype smoke is rejected even if it can sometimes recover
+    the intended `prob_33` row
+  - the new low-headroom replay was not robust enough to keep `prob_33` under
+    the 60s official limit once the run sequence changed
+  - because non-target drift remained large on `prob_38`, promoting this
+    branch would blur the distinction between a real family-level fix and a
+    fragile runtime replay that only works on some execution orders
+- Next strategy:
+  - treat the current tree as being in recovery mode rather than candidate
+    promotion mode
+  - keep the active wrapper on the historical `v142` rollback line, but publish
+    only a recovery checkpoint until a fresh canonical wrapper validation
+    reproduces the trusted tail rows again
+  - for the next improvement loop, prefer parent-surface stabilization and
+    canonical wrapper revalidation before any new subtype-local T-zero repair

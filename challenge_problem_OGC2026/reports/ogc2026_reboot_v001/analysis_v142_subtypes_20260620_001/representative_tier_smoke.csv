@@ -1,0 +1,10 @@
+tier,instance,reason,T,L,P,runtime_sec,family_key,subtype
+tier_01_04,prob_1,current-high-T,11.0,1700.0,1810.0,12.645361,small/2bay/lowproc/runtime-safe,small/2bay/lowproc/moderate/runtime-safe/tight/low-T
+tier_05_08,prob_6,current-high-T,9.0,1980.0,3170.0,29.077613,small/3bay/lowproc/runtime-mid,small/3bay/lowproc/diffuse/runtime-mid/tight/low-T
+tier_09_12,prob_11,current-high-T,739.0,407.0,2350.0,10.270317,small/4bay/lowproc/runtime-safe,small/4bay/lowproc/diffuse/runtime-safe/tight/mid-T
+tier_13_16,prob_13,current-high-T,923.0,4390.0,4366.0,11.255635,medium/4bay/lowproc/runtime-safe,medium/4bay/lowproc/diffuse/runtime-safe/tight/mid-T
+tier_17_20,prob_19,current-high-T,389.0,7056.0,4042.0,12.670568,medium/4bay/lowproc/runtime-safe,medium/4bay/lowproc/diffuse/runtime-safe/tight/low-T
+tier_21_25,prob_25,current-high-T,2089.0,241.0,3044.0,32.113198,small/2bay/lowproc/runtime-mid,small/2bay/lowproc/moderate/runtime-mid/tight/mid-T
+tier_26_30,prob_27,current-high-T,5541.0,2033.0,5796.0,46.197811,small/2bay/lowproc/runtime-risk,small/2bay/lowproc/moderate/runtime-risk/tight/high-T
+tier_31_35,prob_33,hypothesis-target,3805.0,1094.0,5289.0,45.749651,small/3bay/lowproc/runtime-risk,small/3bay/lowproc/diffuse/runtime-risk/tight/high-T
+tier_36_40,prob_38,hypothesis-target,11120.0,3894.0,9947.0,47.079474,medium/3bay/lowproc/runtime-risk,medium/3bay/lowproc/moderate/runtime-risk/tight/high-T
