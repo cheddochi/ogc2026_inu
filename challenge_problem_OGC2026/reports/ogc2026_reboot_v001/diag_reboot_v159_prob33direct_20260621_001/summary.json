@@ -1,0 +1,42 @@
+{
+  "run_id": "diag_reboot_v159_prob33direct_20260621_001",
+  "timestamp": "2026-06-21T04:42:30",
+  "summary": {
+    "total": 3,
+    "feasible": 0,
+    "accepted_for_score": 0,
+    "checker_feasible": 3,
+    "timed_out": 3,
+    "failed": 3,
+    "objective_sum": null,
+    "objective_avg": null,
+    "obj1_sum": null,
+    "obj1_avg": null,
+    "obj1_max": null,
+    "obj2_avg": null,
+    "obj3_avg": null,
+    "runtime_sum": 189.672335,
+    "runtime_avg": 63.224111666666666,
+    "runtime_max": 63.391129
+  },
+  "algorithms": [
+    {
+      "name": "v141",
+      "version": "reboot_v141_20260620_1530_prob33like_postpass_on_v136",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v141_20260620_1530_prob33like_postpass_on_v136.py"
+    },
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    },
+    {
+      "name": "v152",
+      "version": "reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_33.json"
+  ]
+}

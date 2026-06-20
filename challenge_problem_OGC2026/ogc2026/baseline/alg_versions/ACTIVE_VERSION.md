@@ -176,3 +176,14 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - do not publish the active surface as a newly trusted BEST
     - the next repair target is the prob33-like runtime cliff, while preserving
       the prob40-family signal isolated by `v158`
+- Latest live runtime note (`2026-06-21`, tier-smoke drift after publish):
+  - fresh tier smoke on the current recovery parent surface:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v160_tier9_20260621_001/`
+  - the same current-tree runtime backlog has now shifted again:
+    - `v152 prob_33`: TIMEOUT `61.470279s`
+    - `v160 prob_27`: TIMEOUT `60.687807s`
+  - interpretation:
+    - the current tree does not currently have a trustworthy scoreable parent
+      surface, even at the tier-representative smoke layer
+    - next work should treat `prob_27` and `prob_33` as a joint runtime
+      stabilization problem before any renewed BEST claim

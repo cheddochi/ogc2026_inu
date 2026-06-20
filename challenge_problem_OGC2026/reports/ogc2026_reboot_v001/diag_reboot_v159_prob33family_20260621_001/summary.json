@@ -1,0 +1,49 @@
+{
+  "run_id": "diag_reboot_v159_prob33family_20260621_001",
+  "timestamp": "2026-06-21T04:29:39",
+  "summary": {
+    "total": 12,
+    "feasible": 7,
+    "accepted_for_score": 7,
+    "checker_feasible": 10,
+    "timed_out": 5,
+    "failed": 5,
+    "objective_sum": 189911436.0,
+    "objective_avg": 27130205.14285714,
+    "obj1_sum": 34984.0,
+    "obj1_avg": 4997.714285714285,
+    "obj1_max": 8366.0,
+    "obj2_avg": 2510.285714285714,
+    "obj3_avg": 5294.571428571428,
+    "runtime_sum": 736.233874,
+    "runtime_avg": 61.352822833333335,
+    "runtime_max": 90.04493
+  },
+  "algorithms": [
+    {
+      "name": "v065",
+      "version": "reboot_v065_20260618_1735_threebay_diffuse_single_research",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v065_20260618_1735_threebay_diffuse_single_research.py"
+    },
+    {
+      "name": "v081",
+      "version": "reboot_v081_20260619_1948_prob33like_runtime_flatten",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v081_20260619_1948_prob33like_runtime_flatten.py"
+    },
+    {
+      "name": "v150",
+      "version": "reboot_v150_20260620_2315_prob33like_thin_gap_on_v142",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v150_20260620_2315_prob33like_thin_gap_on_v142.py"
+    },
+    {
+      "name": "v152",
+      "version": "reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_32.json",
+    "train\\prob_33.json",
+    "train\\prob_37.json"
+  ]
+}

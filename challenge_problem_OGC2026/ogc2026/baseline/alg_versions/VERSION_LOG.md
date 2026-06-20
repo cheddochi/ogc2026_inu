@@ -13852,3 +13852,179 @@
   - preserve the prob40-family signal isolated by `v158`
   - flatten or replace the prob33-like runtime-risk chain on the current-tree
     parent before attempting any new promotion
+
+## reboot_v159_20260621_prob33_guard_on_v158
+- File:
+  `reboot_v159_20260621_prob33_guard_on_v158.py`
+- Parent:
+  `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
+- Status:
+  rejected
+- Experiment note:
+  - current trusted historical BEST remains `v142`, while the current tree is
+    still in recovery mode
+  - the newest structural signal is now split cleanly:
+    - `v158` isolated a strong prob40-like T gain
+    - but the same surface still failed full40 because `prob_33` timed out
+  - refreshed current-tree evidence on the prob33 family:
+    - direct compare on `prob_32/prob_33/prob_37`:
+      `reports/ogc2026_reboot_v001/diag_reboot_v159_prob33family_20260621_001/`
+      - delegated `v152` drifted to `prob_33 = 31433403 / T=4571 / 64.27s`
+      - legacy `v141/v142/v152` all timed out on a focused rerun:
+        `reports/ogc2026_reboot_v001/diag_reboot_v159_prob33direct_20260621_001/`
+    - bounded builder probe on the same row showed a stable current-tree
+      fallback shape:
+      - direct `release_due`, `top_bays=3`, `max_positions=14`, `budget=45`
+      - base: `31911533 / T=4629`
+      - plus thin gap repair: `31180651 / T=4523`
+      - total runtime stayed around `46-48s`
+- Hypothesis:
+  - `v158` is already the right current-tree prob40-like slice, and the
+    remaining blocker to scoreability is the unstable delegated prob33-like
+    chain
+  - replacing only the prob33-like subtype on top of `v158` with one capped
+    direct `release_due` warm start plus the already-thin v150 gap repair
+    should restore runtime margin while preserving the prob40-like T gain
+- Feature / subtype / timelimit selector:
+  - preserve `v158` unchanged outside the target subtype
+  - activate only when all are true:
+    - bays `== 3`
+    - blocks in `[180, 220]`
+    - proc_mean in `[15.0, 18.5]`
+    - slack_mean in `[3.0, 4.4]`
+    - pref_concentration in `[0.38, 0.48]`
+    - pref_gap_mean `<= 52.0`
+    - workload_imbalance_pressure in `[0.15, 0.28]`
+    - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v158` by default
+  - on the target prob33-like subtype only:
+    - bypass the inherited delegated chain
+    - build one direct `release_due` candidate with
+      `top_bays=3`, `max_positions=14`, bounded around `45s`
+    - apply the already-thin v150 gap repair on that direct base
+    - keep the repaired direct candidate when it is officially feasible;
+      otherwise fall back to `v158`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+  - targeted subtype compare:
+    `prob_31`, `prob_32`, `prob_33`, `prob_37`, `prob_40`
+  - full train40 only if the target gate keeps scoreability and does not
+    materially surrender the `v158` prob40-like gain
+- Validation result:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v159_tier9_20260621_001/`
+    - `v159 prob_33`: PASS `28906951 / T=4204 / 40.70s`
+    - `v159 prob_40`: PASS `7117822 / T=10439 / 45.16s`
+    - but untouched `prob_27` timed out at `69.01s`
+  - interpretation:
+    - the new prob33-like guard itself worked
+    - the failure came from using `v158` as the parent surface, because
+      untouched rows did not stay stable under smoke
+- Decision:
+  rejected
+- Reason:
+  - smoke gate failed:
+    - accepted_for_score was not `9/9`
+    - untouched `prob_27` timed out, so the candidate cannot proceed to target
+      compare or full40
+  - publish note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v159.md`
+- Next strategy:
+  - keep the prob33-like direct guard
+  - drop the unstable whole-`v158` parent surface
+  - move to a new `v152`-based composition that explicitly lifts only:
+    - the prob40-like narrow direct builder signal
+    - the prob33-like direct guard
+
+## reboot_v160_20260621_prob33_prob40_direct_slices_on_v152
+- File:
+  `reboot_v160_20260621_prob33_prob40_direct_slices_on_v152.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - `v158` proved the prob40-like narrow direct builder is real, but the full40
+    surface still failed because of the reopened prob33-like timeout
+  - `v159` then proved that the prob33-like direct guard works on its own row,
+    but inheriting the whole `v158` parent surface reintroduced untouched-row
+    instability (`prob_27` timeout at smoke)
+  - the stable compromise is now clear:
+    - use the more scoreable `v152` recovery parent as the base
+    - explicitly lift only the two direct-builder slices that have live evidence
+      behind them
+- Hypothesis:
+  - The current-tree delegated-chain instability can be contained by replacing
+    only the two empirically isolated cliff slices on top of `v152`:
+    - prob40-like high-T tail -> narrow direct builder from `v158`
+    - prob33-like runtime-risk row -> direct release_due guard from `v159`
+  - keeping the rest of `v152` untouched should be materially more stable than
+    inheriting the whole `v158` surface, while still reducing the largest
+    remaining T tail.
+- Feature / subtype / timelimit selector:
+  - preserve `v152` unchanged outside the target slices
+  - prob40-like slice:
+    - bays `== 4`
+    - blocks `>= 240`
+    - proc_mean `>= 20.0`
+    - tight_slack_ratio in `[0.28, 0.34]`
+    - pref_concentration `>= 0.74`
+    - pref_gap_mean `>= 58.0`
+    - workload_mean `>= 160.0`
+  - prob33-like slice:
+    - bays `== 3`
+    - blocks in `[180, 220]`
+    - proc_mean in `[15.0, 18.5]`
+    - slack_mean in `[3.0, 4.4]`
+    - pref_concentration in `[0.38, 0.48]`
+    - pref_gap_mean `<= 52.0`
+    - workload_imbalance_pressure in `[0.15, 0.28]`
+  - timelimit tier not in `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - delegate to `v152` by default
+  - on prob40-like slice only:
+    - run the narrow direct builder from `v158`
+  - on prob33-like slice only:
+    - run the direct release_due builder plus thin v150 gap repair from `v159`
+  - keep each slice only when officially feasible; otherwise fall back to `v152`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+  - targeted subtype compare:
+    `prob_31`, `prob_32`, `prob_33`, `prob_37`, `prob_40`
+  - full train40 only if smoke stays fully scoreable and the target gate keeps
+    the prob40-like gain without reopening non-target runtime failures
+- Validation result:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v160_tier9_20260621_001/`
+    - `v152 prob_33`: TIMEOUT `26500068 / T=3854 / 61.47s`
+    - `v160 prob_33`: PASS `28906951 / T=4204 / 40.85s`
+    - `v152 prob_40`: PASS `12062727 / T=17844 / 58.68s`
+    - `v160 prob_40`: PASS `7117822 / T=10439 / 43.57s`
+    - but untouched `prob_27` timed out on `v160` at `60.69s`
+- Decision:
+  rejected
+- Reason:
+  - the direct slices themselves behaved as intended:
+    - `prob_33` became scoreable with large runtime margin
+    - `prob_40` kept the strong narrow-direct gain
+  - but smoke still failed because the surrounding current-tree parent surface
+    is not stable enough:
+    - `v152` itself already timed out on `prob_33`
+    - `v160` then timed out on untouched `prob_27`
+  - this means the remaining blocker is broader runtime stabilization of the
+    `2-bay high-proc heavy-tail` and `3-bay moderate-highproc` rows together,
+    not just one isolated slice
+- Next strategy:
+  - stop stacking local tail fixes on an unstable parent
+  - pivot to a joint runtime-stabilization hypothesis for:
+    - `prob27-like 2-bay high-proc heavy-tail`
+    - `prob33-like 3-bay moderate-highproc`
+  - only after that parent surface is scoreable again should the prob40-like
+    T-gain slice be replayed for promotion
