@@ -14272,3 +14272,283 @@
     `reports/ogc2026_reboot_v001/validation_note_20260621_active_v142_subtype_audit.md`
   - recovery checkpoint note:
     `reports/ogc2026_reboot_v001/recovery_checkpoint_20260621_prob27like_plateau.md`
+
+## reboot_v163_20260621_0710_prob27like_pregate_on_v142
+- File:
+  `reboot_v163_20260621_0710_prob27like_pregate_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  pending
+- Experiment note:
+  - current trusted historical BEST remains `v142`, but the current tree is
+    still recovery-only
+  - the fresh subtype audit established:
+    - xlarge-lowproc is not yet the cleanest next recovery family
+    - the strongest current-tree positive signal is `prob27-like`
+      from:
+      `reports/ogc2026_reboot_v001/probe_v142_v146_prob27like_20260621_001/`
+  - the same probe also showed the present `v146` surface is too broad for a
+    safe promotion claim because sibling `prob_25` failed by time limit even
+    though the useful improvement signal lives on `prob_27`
+- Hypothesis:
+  - the next useful move is not another broader family repair, but an even
+    narrower activation boundary for the existing `v146` idea
+  - if we pre-gate the `prob27-like` selector before entering the heavier
+    `v146` warm-start / research path, then:
+    - non-target rows keep the direct `v142` behavior
+    - sibling `prob_25` should avoid the spillover risk
+    - target `prob_27` can still use the one-block efficiency shortlist signal
+- Feature / subtype / timelimit selector:
+  - `prob27-like` only when all are true:
+    - bays `== 2`
+    - blocks `>= 140`
+    - proc_mean `>= 20.0`
+    - slack_mean `>= 4.5`
+    - pref_concentration `>= 0.65`
+    - pref_pressure `>= 0.62`
+    - pref_gap_mean `>= 65.0`
+  - skip for `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - non-target rows:
+    - immediately delegate to direct `v142`
+  - `prob27-like` rows only:
+    - delegate to the existing `v146` guarded recovery path
+  - no new local-search kernel, no joint-family logic, no broad parent rewrite
+- Validation plan:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted family check:
+    `prob_25`, `prob_27`
+  - full40 only if representative smoke is fully scoreable and the target
+    runtime recovery is preserved without reopening sibling spillover
+- Validation result:
+  - representative tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v163_tier9_20260621_001/`
+    - `v142` current-tree representative surface:
+      - `accepted_for_score=6/9`
+      - timeouts on `prob_25`, `prob_27`, `prob_33`
+    - `v163` representative surface:
+      - `accepted_for_score=8/9`
+      - recovered:
+        - `prob_25`: TIMEOUT `61.71s ->` PASS `53.73s`
+        - `prob_27`: TIMEOUT `90s watchdog ->` PASS `58.55s`
+      - remaining blocker:
+        - `prob_33`: still TIMEOUT, but improved
+          `124920938 / T=18614 / 73.59s -> 99323596 / T=14778 / 65.03s`
+  - non-target delegation recheck:
+    `reports/ogc2026_reboot_v001/recheck_reboot_v163_nontarget_20260621_001/`
+    - `prob_25` confirmed the intended spillover fix:
+      - `v142`: TIMEOUT `62.75s`
+      - `v163`: PASS `56.89s`
+    - but delegated non-target rows still moved materially:
+      - `prob_1`:
+        `839356 / T=29 -> 19311629 / T=657`
+      - `prob_19`:
+        `4715273 / T=389 -> 7593645 / T=650`
+      - `prob_38`:
+        `1006727224 / T=75430 -> 1024666955 / T=76633`
+- Decision:
+  rejected
+- Reason:
+  - representative smoke still failed scoreability:
+    - `accepted_for_score` only `8/9`
+    - `prob_33` remained a timeout
+  - the intended `prob27-like` recovery signal is real and useful
+  - but the non-target delegation recheck showed material hidden-risk drift on
+    rows that should have stayed on the inherited `v142` path
+  - because the hypothesis was supposed to be a clean target-only pre-gate,
+    that delegated-row movement is enough to reject it as a trustworthy next
+    parent
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v163.md`
+  - next strategy:
+    move to a structurally different runtime-stability hypothesis rather than
+    another prob27-like wrapper-only tweak; the strongest next blocker is the
+    surviving `prob33-like` timeout plus unexplained delegated non-target drift
+
+## reboot_v164_20260621_0742_v142_pure_delegate_surface
+- File:
+  `reboot_v164_20260621_0742_v142_pure_delegate_surface.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  pending
+- Experiment note:
+  - `v163` showed a stronger hidden-risk than selector width alone:
+    rows that should have stayed on delegated `v142` still moved materially
+  - before choosing the next direct prob33-like builder or another flattening
+    repair, we need a minimal control:
+    can a pure wrapper that does nothing except call `v142.algorithm(...)`
+    reproduce `v142` exactly on non-target rows?
+- Hypothesis:
+  - if a pure delegate wrapper reproduces direct `v142`, then `v163` hidden
+    risk came from extra wrapper logic and the next candidate should flatten
+    target logic more aggressively
+  - if a pure delegate wrapper still drifts, then the current-tree issue is
+    deeper module/wrapper-surface instability and the next candidate should
+    avoid wrapper stacking entirely on the affected families
+- Feature / subtype / timelimit selector:
+  none
+- Planned behavior:
+  - no subtype selection
+  - no local repair
+  - no budget propagation
+  - call direct `v142.algorithm(prob_info, timelimit)` only
+- Validation plan:
+  - non-target representative recheck:
+    `prob_1`, `prob_19`, `prob_25`, `prob_38`
+  - compare direct `v142` vs pure delegate `v164`
+  - use the result to choose the next real improvement hypothesis
+- Validation result:
+  - delegate-surface probe:
+    `reports/ogc2026_reboot_v001/probe_v142_v164_delegate_surface_20260621_001/`
+  - pure delegate did **not** reproduce direct `v142`
+  - representative non-target deltas:
+    - `prob_1`:
+      `2108308 / T=60 -> 17195464 / T=578`
+    - `prob_19`:
+      `4715273 / T=389 -> 5986879 / T=509`
+    - `prob_25`:
+      `1798973 / T=2609 -> 1573893 / T=2267`
+    - `prob_38`:
+      `1167173816 / T=87306 -> 1058407054 / T=79156`
+- Decision:
+  rejected as a parent surface
+- Reason:
+  - this version proved the hidden-risk is deeper than target-family logic
+  - an imported-submodule delegate surface is not behaviorally equivalent to
+    running the same file as the main algorithm module
+  - therefore the next real candidate should avoid wrapper stacking and test a
+    flattened direct-main-module parent surface before any new target-family
+    repair claim
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v164.md`
+
+## reboot_v165_20260621_0755_v142_flattened_main_surface
+- File:
+  `reboot_v165_20260621_0755_v142_flattened_main_surface.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  pending
+- Experiment note:
+  - `v164` showed that importing `v142` as a delegated submodule is not a
+    stable control surface
+  - the next structural question is whether a flat main-module copy of the
+    exact `v142` body reproduces direct `v142` behavior more faithfully
+- Hypothesis:
+  - if the same `v142` logic is executed as the main algorithm module rather
+    than as an imported delegated submodule, representative non-target rows
+    should match direct `v142` much more closely
+  - if that holds, future real candidates should build on a flattened direct
+    parent instead of wrapper stacking
+- Feature / subtype / timelimit selector:
+  none
+- Planned behavior:
+  - exact `v142` body copied into a new main-module surface
+  - no target-family change yet
+  - compare direct `v142` vs flattened `v165` on representative non-target rows
+- Validation plan:
+  - `prob_1`, `prob_19`, `prob_25`, `prob_38`
+  - if flattened `v165` matches or nearly matches direct `v142`, use it as the
+    structural base for the next real `prob33-like` runtime repair
+- Validation result:
+  - flattened-surface probe:
+    `reports/ogc2026_reboot_v001/probe_v142_v165_flattened_surface_20260621_001/`
+  - copied main-module body still did not reproduce direct `v142`
+  - representative deltas:
+    - `prob_1`:
+      `1076550 / T=24 -> 5350203 / T=169`
+    - `prob_19`:
+      `4715273 / T=389 -> 17119187 / T=1545`
+    - `prob_25`:
+      `1671338 / T=2415 -> 1851356 / T=2688`
+    - `prob_38`:
+      `1082278381 / T=80949 -> 1212252311 / T=90691`
+- Decision:
+  rejected as a stable parent surface
+- Reason:
+  - the current-tree instability is broader than imported wrapper delegation
+  - even a flattened copy of the `v142` body still drifted materially
+  - the next coherent improvement hypothesis should therefore build on a
+    current-tree line that has its own direct smoke evidence (`v158`) and apply
+    the next target-family repair there without extra wrapper stacking
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v165.md`
+
+## reboot_v166_20260621_0812_v158_flat_prob33_guard
+- File:
+  `reboot_v166_20260621_0812_v158_flat_prob33_guard.py`
+- Parent:
+  `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
+- Status:
+  pending
+- Experiment note:
+  - `v158` remains the strongest current-tree direct surface:
+    representative smoke was `9/9`, and `prob40` improved sharply
+  - `v159` showed a strong prob33-like recovery signal on top of that surface:
+    - `prob_33`: timeout under `v158` -> PASS under `v159`
+  - but `v159` also reopened non-target `prob_27` timeout, and `v164`/`v165`
+    showed that wrapper/module surfaces are themselves unstable
+- Hypothesis:
+  - if we keep the direct `v158` main surface and inline only the prob33-like
+    direct guard from `v159`, then we can preserve the good current-tree
+    prob40/non-target behavior while recovering the remaining prob33-like
+    runtime blocker without extra wrapper stacking
+- Feature / subtype / timelimit selector:
+  - prob33-like only when the existing `v141` selector matches
+  - skip for `very_short/short`
+  - no instance name / file name / row-id selectors in the new guard
+- Planned behavior:
+  - preserve the exact `v158` body as the default line
+  - on the prob33-like slice only:
+    - bypass the inherited delegated chain
+    - build one capped direct release_due warm start
+    - apply the thin gap repair already used by `v159`
+    - keep the repaired direct candidate only when it is officially feasible
+- Validation plan:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+  - full40 only if smoke is `9/9 scoreable` and `prob_27` stays scoreable
+- Validation result:
+  - representative tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v166_tier9_20260621_001/`
+  - `v158` in the same run:
+    - `accepted_for_score=8/9`
+    - only failing row: `prob_33` timeout
+      `159070997 / T=23225 / 64.23s`
+  - `v166`:
+    - `accepted_for_score=8/9`
+    - recovered the intended target:
+      - `prob_33`: PASS
+        `100765612 / T=14795 / 46.20s`
+    - but reopened a sibling runtime row:
+      - `prob_27`: PASS `57.90s ->` TIMEOUT `61.73s`
+  - non-target movement also remained visible:
+    - `prob_1`: `693901 / T=11 -> 15198382 / T=509`
+    - `prob_16`: `2038247 / T=15 -> 176817 / T=0`
+    - `prob_25`: `2628433 / T=3820 -> 1499211 / T=2141`
+    - `prob_40`: `14311856 / T=21242 -> 15650653 / T=23246`
+- Decision:
+  rejected
+- Reason:
+  - representative smoke still failed scoreability:
+    - `accepted_for_score` stayed `8/9`
+    - `prob_27` reopened as timeout
+  - the `prob33-like` direct guard is still a useful building block
+  - but on the current tree it behaves like a family trade:
+    - fixing `prob_33`
+    - while pushing `prob_27` back onto the runtime cliff
+  - that means the next structural hypothesis should treat
+    `prob27-like` and `prob33-like` as a coupled runtime-stability family
+    rather than repairing either one in isolation
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v166.md`
