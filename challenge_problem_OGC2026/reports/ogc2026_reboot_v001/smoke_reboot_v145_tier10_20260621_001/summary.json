@@ -1,0 +1,46 @@
+{
+  "run_id": "smoke_reboot_v145_tier10_20260621_001",
+  "timestamp": "2026-06-20T18:44:46",
+  "summary": {
+    "total": 20,
+    "feasible": 20,
+    "accepted_for_score": 20,
+    "checker_feasible": 20,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 630855106.0,
+    "objective_avg": 31542755.3,
+    "obj1_sum": 63970.0,
+    "obj1_avg": 3198.5,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2849.1,
+    "obj3_avg": 5802.8,
+    "runtime_sum": 626.842657,
+    "runtime_avg": 31.342132850000002,
+    "runtime_max": 55.709205
+  },
+  "algorithms": [
+    {
+      "name": "direct",
+      "version": "reboot_v142_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    },
+    {
+      "name": "direct",
+      "version": "reboot_v145_prob38like_bounded_pair",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v145_20260621_0045_prob38like_bounded_pair_quantile_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_19.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_31.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

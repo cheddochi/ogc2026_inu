@@ -12172,3 +12172,235 @@
     nesting created cross-family full-run instability
   - pivot the next hypothesis toward a cleaner 3-bay family move that does not
     wrap the active prob40-like parent inside another layer
+
+## reboot_v144_20260620_2355_prob38like_pair_reinsert_on_v142
+- File:
+  `reboot_v144_20260620_2355_prob38like_pair_reinsert_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1532.125`, `avg objective=15035076.025`
+    - canonical trust recheck:
+      `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_002/`
+      with `accepted_for_score=7/7`, including
+      `prob_27=76200619 / T=5541` and `prob_40=5780789 / T=8429`
+    - direct-vs-wrapper tail surface recheck:
+      `reports/ogc2026_reboot_v001/verify_v142_wrapper_vs_direct_tail_20260620_001/`
+      with wrapper/direct agreement on `prob_27`, `prob_39`, and `prob_40`
+  - refreshed residual tail after the publish checkpoint:
+    - strongest remaining T rows on trusted `v142`:
+      `prob_38=11120`, `prob_40=8429`, `prob_27=5541`,
+      `prob_37=3961`, `prob_33=3805`, `prob_39=3521`, `prob_32=2992`,
+      `prob_31=2735`
+    - the `prob38-like 3-bay xlarge high-proc concentrated` family is still
+      the single largest T contributor and still has material wall-time
+      headroom at the trusted surface (`~47.1s` runtime under a 60s limit)
+  - historical move audit on the same family:
+    - accepted release-aware direct policy `v050` established the current
+      family baseline
+    - quantile single reinsertion (`v080`) did not break through
+    - bounded high-proc prefix repair (`v123`) also failed to convert the
+      family into a trusted T improvement
+  - interpretation:
+    - the residual prob38-like tail now looks less like a single-block issue
+      and more like a two-block interaction inside one bay
+    - the next coherent move should stay bounded, keep the trusted warm start
+      intact elsewhere, and only re-place the top tardy block together with
+      one same-bay blocker under a deterministic rebuild order
+- Hypothesis:
+  - On the prob38-like family, the trusted warm start is blocked by one
+    interacting pair rather than by the global order. Removing the top tardy
+    block together with one same-bay blocker and re-placing only that pair
+    with a deterministic bounded greedy kernel can lower T where both
+    single-block reinsertion and generic prefix rebuild stalled.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v142` path unchanged outside the target slice
+  - activate only when all are true:
+    - `v050._matches_prob38like_class(features)`
+    - tier not in `very_short/short`
+    - warm-start feasible
+    - warm-start `T >= 9000`
+    - remaining wall time clears
+      `v050._dynamic_reserve(timelimit) + 6.0`
+- Planned behavior:
+  - keep `v142` warm start as the baseline
+  - on the target slice only, identify:
+    - the top tardy block on the warm start
+    - one same-bay blocker chosen by interval interaction / closeness
+  - re-place only that two-block pair with deterministic schedule rebuild
+    order and bounded greedy placement
+  - try only two deterministic pair orders and keep only strictly better
+    officially feasible results by `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+  - targeted subtype smoke:
+    `prob_26`, `prob_33`, `prob_38`
+  - short-limit stress:
+    `prob_38 @ 45s`
+  - full train40 only if smoke remains fully scoreable and the prob38-like
+    target row improves without reopening the trusted prob40-like tail
+- Validation:
+  - first block-tier representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v144_tier10_20260620_001/`
+    - accepted_for_score `20/20`, timeout `0`, invalid `0`
+    - all representative rows stayed scoreable
+    - the target row `prob_38` stayed unchanged at
+      `151254848 / T=11120`
+    - runtime stayed under the official limit, but the new pair move did not
+      actually execute because the initial headroom gate was too strict:
+      trusted `v142` left only `12.45s` remaining on `prob_38`, versus the
+      original guard `reserve + 8.0 = 12.8s`
+  - adjustment within the same hypothesis:
+    - relax only the execution guard from
+      `reserve + 8.0` to `reserve + 6.0`
+    - keep the same target subtype, pair selection logic, deterministic rebuild,
+      and bounded two-order pair repair
+- Targeted subtype validation after the guard relaxation:
+  `reports/ogc2026_reboot_v001/target_reboot_v144_prob38like_pair_20260620_001/`
+  - accepted_for_score `7/8`, timeout `1`, invalid `1`
+  - `prob_26`, `prob_33`, and `prob_40` stayed scoreable
+  - `prob_38` hit a runtime cliff:
+    - trusted `v142`: `151254848 / T=11120 / 47.76s`
+    - `v144`: timed out at `90.015105s`
+  - the log shows the trusted warm start completed, then the new pair repair
+    phase pushed the run beyond the official limit before a scoreable result
+    was returned
+- Decision:
+  - rejected
+  - the first smoke proved the original gate was too strict and the move never
+    executed; after relaxing the same-hypothesis guard, the target subtype run
+    exposed an immediate runtime cliff on `prob_38`
+  - because plateau mode is T-first under the 60s official surface, a pair
+    repair that cannot stay scoreable on the top target row is not a viable
+    promotion path
+- Next strategy:
+  - stop spending more budget on multi-block pair rebuilds for the current
+    prob38-like family under the 60s surface
+  - pivot to a structurally different T-breakthrough hypothesis on the
+    `2-bay concentrated high-tail` family, where the trusted `v136` trace
+    still showed several scoreable intermediate improvements before the final
+    best move
+
+## reboot_v145_20260621_0045_prob38like_bounded_pair_quantile_on_v142
+- File:
+  `reboot_v145_20260621_0045_prob38like_bounded_pair_quantile_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1532.125`, `avg objective=15035076.025`
+    - canonical trust recheck:
+      `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_002/`
+      with `accepted_for_score=7/7`
+  - refreshed residual tail after the v144 rejection:
+    - strongest remaining T rows on trusted `v142`:
+      `prob_38=11120`, `prob_40=8429`, `prob_27=5541`,
+      `prob_37=3961`, `prob_33=3805`, `prob_39=3521`
+    - the top unresolved T contributor is still the prob38-like
+      `3-bay xlarge high-proc concentrated` family
+  - v144 failure diagnosis:
+    - first smoke proved the pair-repair guard was initially too strict and the
+      move did not execute
+    - after relaxing the guard, the direct target probe
+      `target_reboot_v144_prob38like_pair_20260620_001`
+      timed out on `prob_38` at `90.015105s`
+    - the cliff came from the full greedy two-block rebuild, not from the
+      trusted `v142` warm start itself
+  - interpretation:
+    - the pair interaction hypothesis remains plausible
+    - what failed was the unbounded rebuild kernel, so the next coherent move
+      should keep the same family and interaction model but replace the heavy
+      pair rebuild with a deadline-bounded sequential quantile reinsert
+- Hypothesis:
+  - On the prob38-like family, one tardy block still interacts with one
+    same-bay blocker, but a full pair rebuild is too expensive. Removing the
+    pair and reinserting them sequentially with the existing quantile one-block
+    kernel under a shared small deadline can capture the local T signal while
+    preserving 60s scoreability.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v142` path unchanged outside the target slice
+  - activate only when all are true:
+    - `v050._matches_prob38like_class(features)`
+    - tier not in `very_short/short`
+    - warm-start feasible
+    - warm-start `T >= 9000`
+    - remaining wall time clears
+      `v050._dynamic_reserve(timelimit) + 6.0`
+- Planned behavior:
+  - keep `v142` warm start as the baseline
+  - identify the same pair as `v144`:
+    - the top tardy block
+    - one same-bay blocker chosen by interval interaction / closeness
+  - remove both blocks
+  - try only two deterministic reinsertion orders
+  - for each order, reinsert the two blocks sequentially with the existing
+    quantile one-block kernel under one shared deadline and a smaller
+    `max_positions` cap than the generic prob38-like probe used
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+  - targeted subtype smoke:
+    `prob_26`, `prob_33`, `prob_38`
+  - short-limit stress:
+    `prob_38 @ 45s`
+  - full train40 only if smoke remains fully scoreable and the prob38-like
+    target row improves without reopening the trusted prob40-like tail
+- Validation:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v145_tier10_20260621_001/`
+    - accepted_for_score `20/20`, timeout `0`, invalid `0`
+    - all ten representative rows remained scoreable
+    - target rows were unchanged:
+      - `prob_38`: `151254848 / T=11120` -> unchanged
+      - `prob_40`: `5780789 / T=8429` -> unchanged
+    - runtimes were slightly worse on the activated tail:
+      - `prob_27`: `46.27s -> 48.77s`
+      - `prob_38`: `46.84s -> 47.62s`
+      - `prob_40`: `55.26s -> 55.71s`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v145_prob38like_20260621_001/`
+    - accepted_for_score `6/6`, timeout `0`, invalid `0`
+    - all subtype rows stayed scoreable
+    - all subtype objectives stayed unchanged:
+      - `prob_26`: `31708207`
+      - `prob_33`: `26172225`
+      - `prob_38`: `151254848`
+    - runtimes again moved only slightly upward:
+      - `prob_26`: `25.09s -> 26.47s`
+      - `prob_33`: `44.45s -> 44.49s`
+      - `prob_38`: `47.73s -> 48.44s`
+- Decision:
+  - rejected
+  - the bounded sequential pair kernel stayed scoreable, but it produced no
+    objective or T improvement on the representative smoke or on the full
+    prob38-like subtype slice
+  - because plateau mode is T-first and the move only adds runtime without
+    changing the returned solution, this is a no-op regression rather than a
+    candidate worth promoting
+- Next strategy:
+  - stop iterating further on the current prob38-like pair-removal line unless
+    a materially different move family is available
+  - pivot back to the `2-bay concentrated high-tail` family, where the trusted
+    `v136` trace still showed scoreable intermediate moves and the current v142
+    surface looks locally saturated only for the existing one-block quantile
+    kernel
