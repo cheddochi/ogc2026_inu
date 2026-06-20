@@ -4,11 +4,11 @@ Current active working line:
     reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136
 
 Publish-trust note:
-    v142 keeps the trusted v136 line intact outside the narrow prob40-like
-    xlarge high-workload tail subtype and replays the stronger bounded four-bay
-    top-tardy quantile move only on that family. It is intended to preserve
-    the v136 scoreable train40 surface while converting the live prob40 signal
-    into a trusted full40 improvement.
+    v142 is currently restored as the recovery rollback line because the newer
+    v146 candidate reopened canonical wrapper drift. Historical accepted
+    evidence for v142 still exists, but the current source tree is under
+    revalidation and should not be described as a newly re-trusted BEST until
+    the wrapper surface is stable again.
 """
 
 from alg_versions import reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136 as active

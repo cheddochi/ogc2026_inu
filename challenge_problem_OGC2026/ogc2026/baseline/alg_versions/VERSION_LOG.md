@@ -12404,3 +12404,199 @@
     `v136` trace still showed scoreable intermediate moves and the current v142
     surface looks locally saturated only for the existing one-block quantile
     kernel
+
+## reboot_v146_20260621_0215_prob27like_efficiency_shortlist_on_v142
+- File:
+  `reboot_v146_20260621_0215_prob27like_efficiency_shortlist_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  pending
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1532.125`, `avg objective=15035076.025`
+    - canonical trust recheck:
+      `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_002/`
+      with `accepted_for_score=7/7`
+  - refreshed T-first backlog on trusted `v142`:
+    `prob_38=11120`, `prob_40=8429`, `prob_27=5541`, `prob_37=3961`,
+    `prob_33=3805`, `prob_39=3521`
+  - current target subtype:
+    `2-bay concentrated high-proc heavy-tail`
+    - taxonomy rows:
+      `prob_25` and `prob_27`
+    - the plateau-relevant heavier row is `prob_27`
+  - new live probe on the current canonical `v142` solution surface showed the
+    residual signal is not exhausted:
+    - canonical source:
+      `verify_active_v142_publish_20260620_002/.../prob_27.solution.json`
+    - bounded one-block probe on the current row:
+      - block `77` -> `T 5541 -> 5518`, objective `76200619 -> 75893960`
+      - block `72` -> `T 5541 -> 5535`, objective `76200619 -> 76138707`
+      - block `104` -> `T 5541 -> 5451`, objective `76200619 -> 74967337`
+    - these winners were not all in the narrow `v136` live shortlist on the
+      current surface; they are delay-heavy, preference-penalized but still
+      light enough to move cheaply
+  - interpretation:
+    - the remaining `prob_27`-like residual is still a one-block problem
+    - what changed is the shortlist: after the first `v136` move, the best
+      next block is no longer pure top tardy; it is better captured by an
+      efficiency-weighted displaced shortlist
+- Hypothesis:
+  - On the `2-bay concentrated high-proc heavy-tail` slice, the post-`v136`
+    residual comes from delay-heavy, preference-penalized but comparatively
+    light tardy blocks. A tiny second-pass quantile reinsert over the top three
+    efficiency-ranked blocks should reduce T on the `prob_27`-like row while
+    staying scoreable under the 60s surface.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v142` path unchanged outside the target slice
+  - activate only when all are true:
+    - `bays == 2`
+    - `blocks >= 140`
+    - `proc_mean >= 20.0`
+    - `slack_mean >= 4.5`
+    - `pref_concentration >= 0.65`
+    - `pref_pressure >= 0.62`
+    - `pref_gap_mean >= 65.0`
+    - warm-start feasible
+    - warm-start `T >= 5000`
+    - tier not in `very_short/short`
+    - remaining wall time clears
+      `dynamic_reserve + headroom`
+- Planned behavior:
+  - keep the full trusted `v142` warm start
+  - on the target subtype only, rank tardy blocks by an efficiency score that
+    rewards:
+    - tardiness
+    - entry delay
+    - preference penalty
+    and discounts:
+    - workload
+    - processing time
+  - try only the top three unique block ids from that shortlist
+  - use the existing bounded quantile single-reinsert kernel
+  - keep only strictly better officially feasible candidates by
+    `(T, objective, L, P)`
+- Validation plan:
+  - block-tier representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_38`, `prob_40`
+  - targeted subtype smoke:
+    `prob_25`, `prob_27`
+  - short-limit stress:
+    `prob_27 @ 45s`
+  - full train40 only if smoke remains fully scoreable and the target family
+    moves without reopening the trusted prob38/prob40 tail
+- Validation update within the same hypothesis:
+  - first representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v146_tier10_20260621_001/`
+    - accepted_for_score `20/20`, timeout `0`, invalid `0`
+    - but `prob_27` stayed unchanged at `76200619 / T=5541`
+  - root cause from the `prob_27` log:
+    - the new post-pass never executed
+    - after building the trusted `v142` warm start, remaining time was
+      `12.13s` while the original guard required
+      `reserve + headroom = 4.8 + 8.5 = 13.3s`
+  - adjustment within the same hypothesis:
+    - relax only the activation headroom to:
+      - `standard: 6.5s`
+      - `long: 5.5s`
+      - `very_long: 4.5s`
+    - keep the same feature selector, efficiency shortlist, top-3 limit, and
+      quantile single-reinsert kernel
+  - second targeted check:
+    `reports/ogc2026_reboot_v001/target_reboot_v146_prob27like_20260621_001/`
+    - accepted_for_score `4/4`, timeout `0`, invalid `0`
+    - `prob_25` stayed unchanged as intended
+    - `prob_27` still stayed unchanged at `76200619 / T=5541`
+  - second root cause:
+    - the post-pass still did not execute on the live target row
+    - on that run the trusted `v142` warm start left only `10.52s`, while the
+      updated guard still required
+      `reserve + headroom = 4.8 + 6.5 = 11.3s`
+- second adjustment within the same hypothesis:
+    - relax only the activation headroom again to:
+      - `standard: 5.0s`
+      - `long: 4.5s`
+      - `very_long: 4.0s`
+    - keep the same target subtype, shortlist score, top-3 limit, and kernel
+- Final validation:
+  - targeted subtype smoke after the second headroom relaxation:
+    `reports/ogc2026_reboot_v001/target_reboot_v146_prob27like_20260621_002/`
+    - accepted_for_score `4/4`, timeout `0`, invalid `0`
+    - `prob_25` unchanged
+    - `prob_27`: objective `76200619 -> 74967337`, `T 5541 -> 5451`
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v146_prob27like_short45_20260621_001/`
+    - accepted_for_score `2/2`, timeout `0`, invalid `0`
+    - `prob_27 @ 45s`: objective `78787221 -> 77588636`
+  - representative smoke rerun:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v146_tier10_20260621_002/`
+    - accepted_for_score `20/20`, timeout `0`, invalid `0`
+    - only changed row in the smoke was `prob_27`
+  - direct full compare:
+    `reports/ogc2026_reboot_v001/full_reboot_v146_train40_20260621_001/`
+    - both algorithms stayed accepted_for_score `40/40`
+    - direct `v146` improved the headline over trusted `v142`:
+      - avg objective `15035076.025 -> 15005778.05`
+      - avg T `1532.125 -> 1530.0`
+      - avg L `2683.325 -> 2680.65`
+      - avg P `4185.775 -> 4183.375`
+      - only changed row on that direct compare was `prob_27`
+  - canonical publish-subset wrapper recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v146_publish_20260621_001/`
+    - accepted_for_score `7/7`, timeout `0`, invalid `0`
+    - `prob_27` reproduced an even stronger row:
+      objective `74967337`, `T 5451`
+  - canonical wrapper full40 recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v146_full40_20260621_001/`
+    - accepted_for_score `40/40`, timeout `0`, invalid `0`
+    - wrapper full40 headline stayed improved versus trusted historical `v142`
+      evidence:
+      - avg objective `15035076.025 -> 15022631.925`
+    - but the canonical active surface no longer stayed unchanged outside the
+      intended `prob_27`-like slice:
+      - `prob_27`: objective `76200619 -> 74967337`, `T 5541 -> 5451`
+      - `prob_39`: objective `48160369 -> 48743275`, `T 3521 -> 3563`
+      - `prob_40`: objective `5780789 -> 5933401`, `T 8429 -> 8658`
+    - wrapper full40 averages also worsened on the secondary headline metrics:
+      - avg T `1532.125 -> 1536.65`
+      - avg L `2683.325 -> 2690.7`
+      - avg P `4185.775 -> 4187.65`
+- Decision:
+  candidate
+- Reason:
+  - `v146` is scoreable and still looks promising on the canonical surface, but
+    the trusted active wrapper must remain a line whose full40 evidence matches
+    its claimed narrow selector behavior.
+  - Because the full canonical wrapper recheck reopened non-target regressions
+    on `prob_39` and `prob_40`, do not promote `v146` to trusted accepted BEST
+    and do not leave `baseline_hh.py` pointed at it.
+- Active baseline action:
+  - restore `baseline_hh.py` and `ACTIVE_VERSION.md` to trusted
+    `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Recovery follow-up:
+  - immediate restored-tail recheck on the current source tree:
+    `reports/ogc2026_reboot_v001/verify_active_v142_restore_tail_20260621_001/`
+    - accepted_for_score `1/2`, timeout `1`, invalid `0`
+    - `prob_27` timed out at `69.02s`
+    - `prob_40` passed but drifted to objective `14271151`, `T 21156`
+  - interpretation:
+    - the current workspace cannot honestly publish either `v146` or the
+      restored `v142` line as freshly trusted on the current source tree
+    - publish this cycle as a recovery/failure checkpoint, not as a BEST
+      promotion
+- Next strategy:
+  - keep `v146` as the current `2-bay concentrated high-proc heavy-tail`
+    candidate line
+  - investigate why the full canonical wrapper surface reopens `prob_39` and
+    `prob_40` despite the direct compare and publish subset staying clean
+  - investigate why the restored historical `v142` wrapper also fails its tail
+    recheck on the current source tree before attempting any new promotion
+  - require the next `prob_27`-family attempt to revalidate on full wrapper 40
+    before promotion
