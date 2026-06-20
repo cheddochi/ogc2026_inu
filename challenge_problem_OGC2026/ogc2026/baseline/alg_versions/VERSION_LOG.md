@@ -12411,7 +12411,7 @@
 - Parent:
   `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
 - Status:
-  pending
+  rejected
 - Experiment note:
   - trusted starting line reconfirmed from current workspace:
     - active wrapper:
@@ -14134,3 +14134,95 @@
     - isolate/reset mutable inherited state between rows, or
     - replace the drifting non-target delegated warm-start path with a stable
       direct builder on the affected tail rows before any new promotion claim
+
+## reboot_v162_20260621_budget_propagation_guards_on_v142
+- File:
+  `reboot_v162_20260621_budget_propagation_guards_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  pending
+- Experiment note:
+  - current trusted historical BEST remains `v142`
+  - latest current-tree blocker has two layers:
+    - the joint runtime-risk families:
+      - `prob27-like 2-bay high-proc heavy-tail`
+      - `prob33-like 3-bay moderate-highproc`
+    - non-target `prob40-like` timed out under `v161` even though it delegated
+      to inherited `v142`
+  - fresh code audit changed the leading diagnosis:
+    - canonical batchrunner rows are isolated subprocesses with fresh JSON
+      loads, so the earlier same-process probe does not directly explain the
+      benchmark timeout rows
+    - the stronger current code-path explanation is delegated budget reset:
+      - `v161 -> v142(prob40)` passed the full original `timelimit`
+      - `v146 -> v142(prob27)` also passes the full original `timelimit`
+      - `v159 -> v158` fallbacks also pass the full original `timelimit`
+    - this means each wrapper layer can consume wall time before invoking its
+      child while the child still behaves as if it owns the full budget
+- Hypothesis:
+  - the current runtime cliff is materially driven by optimistic timelimit
+    reset across delegated wrapper layers, not just by selector choice
+  - preserving the `v161` family guards but propagating only the remaining wall
+    time to each delegated child should stabilize:
+    - the non-target inherited `prob40-like` row
+    - the guarded `prob27-like` path
+    - the guarded `prob33-like` fallback path
+  - if this is right, scoreability should improve without introducing another
+    broad warm-start rewrite
+- Feature / subtype / timelimit selector:
+  - keep the same target families as `v161`
+  - no instance name / file name / row-id selectors
+  - add only elapsed-aware child-budget propagation:
+    - outer wrapper computes remaining wall time before each delegated call
+    - delegated child receives that remaining budget instead of the original
+      full `timelimit`
+- Planned behavior:
+  - preserve `v142` semantics on non-target rows, but call it with remaining
+    budget after selector work
+  - preserve the `prob27-like` and `prob33-like` selectors from `v161`
+  - route those slices through budget-aware guarded children
+  - keep a small floor budget so delegated children still return a scoreable
+    safe path instead of collapsing into negative-time arithmetic
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_40`
+  - targeted runtime-risk smoke:
+    `prob_25`, `prob_27`, `prob_32`, `prob_33`, `prob_37`, `prob_40`
+  - promote to full only if tier smoke is fully scoreable and the non-target
+    `prob_40` row stops timing out
+- Validation result:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v162_tier9_20260621_001/`
+    - `v142` on the same current-tree run:
+      - `prob_27`: TIMEOUT `77480587 / T=5637 / 68.53s`
+      - `prob_33`: TIMEOUT `40984512 / T=6036 / 63.95s`
+      - `prob_40`: PASS `18230025 / T=27087 / 58.74s`
+    - `v162` with remaining-budget propagation:
+      - `prob_27`: still TIMEOUT `77480587 / T=5637 / 65.20s`
+      - `prob_33`: recovered to PASS `38323059 / T=5597 / 46.15s`
+      - `prob_40`: PASS `17499131 / T=25996 / 58.69s`
+    - non-target regression surfaced on an accepted row:
+      - `prob_6`: `3991577 / T=118 -> 16554568 / T=542`
+- Decision:
+  rejected
+- Reason:
+  - smoke gate still failed:
+    - accepted_for_score was only `8/9`
+    - `prob_27` remained a timeout
+  - the runtime-budget hypothesis is directionally useful:
+    - it removed the `prob_33` timeout
+    - it kept `prob_40` scoreable and improved its T/objective
+  - but it is not promotable because:
+    - the key `prob27-like` runtime failure remained open
+    - `prob_6` took a large objective/T regression outside the intended target
+      family
+- Publish note:
+  `reports/ogc2026_reboot_v001/validation_note_20260621_v162.md`
+- Next strategy:
+  - treat the remaining `prob27-like` timeout as a separate guarded-path
+    efficiency problem, not just a delegated budget propagation problem
+  - preserve the useful lesson from `v162`:
+    remaining-budget propagation helps non-target inherited paths and
+    `prob33-like` recovery, so keep it available for future guarded wrappers

@@ -199,3 +199,19 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - the current blocker is no longer just feature-family runtime risk
     - same-process drift / inherited mutable state is now a first-class hidden
       risk on the current tree
+- Latest delegated-budget note (`2026-06-21`, v162 smoke):
+  - remaining-budget propagation on top of the same `v161` family selectors:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v162_tier9_20260621_001/`
+  - it did improve part of the current-tree runtime picture:
+    - `prob_33`: TIMEOUT under direct `v142` row -> PASS under `v162`
+    - `prob_40`: remained PASS and improved
+      `18230025 / T=27087 -> 17499131 / T=25996`
+  - but the smoke still failed:
+    - `prob_27`: TIMEOUT persisted under `v162` at `65.196941s`
+    - `prob_6`: accepted, but regressed badly
+      `3991577 / T=118 -> 16554568 / T=542`
+  - interpretation:
+    - delegated budget reset was a real hidden cost in the wrapper chain
+    - fixing only that is not enough to restore a trustworthy parent surface
+    - the current tree remains in recovery mode; do not publish the active
+      wrapper as a re-trusted BEST yet

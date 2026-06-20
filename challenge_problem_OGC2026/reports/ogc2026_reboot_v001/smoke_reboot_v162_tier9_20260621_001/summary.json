@@ -1,0 +1,45 @@
+{
+  "run_id": "smoke_reboot_v162_tier9_20260621_001",
+  "timestamp": "2026-06-21T06:13:46",
+  "summary": {
+    "total": 18,
+    "feasible": 15,
+    "accepted_for_score": 15,
+    "checker_feasible": 18,
+    "timed_out": 3,
+    "failed": 3,
+    "objective_sum": 143162122.0,
+    "objective_avg": 9544141.466666667,
+    "obj1_sum": 65900.0,
+    "obj1_avg": 4393.333333333333,
+    "obj1_max": 27087.0,
+    "obj2_avg": 2890.8,
+    "obj3_avg": 4122.933333333333,
+    "runtime_sum": 748.184386,
+    "runtime_avg": 41.565799222222225,
+    "runtime_max": 68.531379
+  },
+  "algorithms": [
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    },
+    {
+      "name": "v162",
+      "version": "reboot_v162_20260621_budget_propagation_guards_on_v142",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v162_20260621_budget_propagation_guards_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_16.json",
+    "train\\prob_19.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_40.json"
+  ]
+}
