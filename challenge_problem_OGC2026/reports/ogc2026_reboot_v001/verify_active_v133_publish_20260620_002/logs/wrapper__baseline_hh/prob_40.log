@@ -1,0 +1,4 @@
+[baseline_hh v007] empty-window repair feasible=True stage=5 rounds=1 T=8622.0 objective=5910122.0
+[baseline_hh v007] limited_concurrent built forced=0 order=due_release_proc elapsed=46.62s
+[baseline_hh reboot_v017] target=prob_40 feasible=True T=8622.0 objective=5910122.0 elapsed=46.84s budget=58.0
+[baseline_hh reboot_v133] skip_prob40like_guard instance=prob_40 tier=standard remaining=12.48s reserve=4.80s base_T=8622.0

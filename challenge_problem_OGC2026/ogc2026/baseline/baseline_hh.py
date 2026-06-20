@@ -1,20 +1,17 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122
+    reboot_v133_20260620_1705_prob40like_narrow_quantile_on_v132
 
 Publish-trust note:
-    v123 now has accepted full-train evidence at
-    reports/ogc2026_reboot_v001/full_reboot_v123_train40_20260620_003/
-    and refreshed wrapper/active-path revalidation at
-    reports/ogc2026_reboot_v001/verify_active_v123_publish_20260620_002/.
-    Treat this file as the current trusted accepted BEST surface.
+    v133 preserves the stabilized v132 surface and adds a safe prob40-like
+    narrow quantile move that improves the full-train headline metrics.
 """
 
-from alg_versions import reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122 as active
+from alg_versions import reboot_v133_20260620_1705_prob40like_narrow_quantile_on_v132 as active
 
 
-ACTIVE_VERSION = "reboot_v123_20260620_0915_threebay_highproc_prefix_repair_on_v122"
+ACTIVE_VERSION = "reboot_v133_20260620_1705_prob40like_narrow_quantile_on_v132"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
