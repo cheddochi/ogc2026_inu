@@ -12600,3 +12600,106 @@
     recheck on the current source tree before attempting any new promotion
   - require the next `prob_27`-family attempt to revalidate on full wrapper 40
     before promotion
+
+## reboot_v147_20260621_0915_prob40like_v001base_narrow_on_v146
+- File:
+  `reboot_v147_20260621_0915_prob40like_v001base_narrow_on_v146.py`
+- Parent:
+  `reboot_v146_20260621_0215_prob27like_efficiency_shortlist_on_v142`
+- Status:
+  rejected
+- Experiment note:
+  - current active/trust state before the new candidate:
+    - historical accepted BEST evidence remains `v142`
+    - current tree is in recovery mode after:
+      - `v146` wrapper full40 reopened `prob_39` / `prob_40` regressions
+      - restored `v142` tail recheck failed to reproduce historical rows
+  - refreshed recovery evidence on the current source tree:
+    - restored wrapper tail recheck at `60s`:
+      `reports/ogc2026_reboot_v001/verify_active_v142_restore_tail_20260621_001/`
+      - `prob_27` timed out at `69.02s`
+      - `prob_40` passed at `14271151 / T=21156`
+    - restored wrapper tail stress at `90s`:
+      `reports/ogc2026_reboot_v001/verify_active_v142_restore_tail_90s_20260621_001/`
+      - `prob_27` stayed weak at `77480587 / T=5637`
+      - `prob_40` got much worse at `23786201 / T=35414`
+    - warm-start decomposition on the current tree:
+      `reports/ogc2026_reboot_v001/diag_warmstart_v005_v006_v001_v142_tail_20260621_001/`
+      - `prob_27`
+        - `v001 direct`: `88054194 / T=6440`
+        - `v142 direct`: timeout, but intermediate chain recovered
+          `77480587 / T=5637`
+      - `prob_40`
+        - `v001 direct`: `7177664 / T=10530`
+        - `v142 direct`: `20462156 / T=30439`
+  - interpretation:
+    - the current `prob40`-like failure is not just a top-level `v142` issue
+    - on the current tree the inherited `v132/v135/v142` warm-start path is
+      materially worse than the direct `v001` warm start on the same subtype
+    - `prob27` and `prob40` now show different drift modes, so the next step
+      should isolate the `prob40`-like recovery without reopening the `prob27`
+      candidate line
+- Hypothesis:
+  - On the `4-bay prob40-like xlarge high-workload tail`, bypassing the
+    inherited `v132/v135/v142` warm-start chain and instead using the direct
+    `v001` warm start before one bounded `v130` narrow quantile reinsert should
+    recover the current-tree Family B cliff while preserving the `v146`
+    `prob27`-like candidate behavior outside that subtype.
+- Feature / subtype / timelimit selector:
+  - `prob40`-like recovery branch only when all are true:
+    - `bays == 4`
+    - `blocks >= 240`
+    - `proc_mean >= 20.0`
+    - `0.28 <= tight_slack_ratio <= 0.34`
+    - `pref_concentration >= 0.74`
+    - `pref_gap_mean >= 58.0`
+    - `workload_mean >= 160.0`
+    - warm-start feasible
+    - warm-start `T >= 5000`
+    - tier not in `very_short/short`
+  - otherwise delegate to parent `v146`
+- Planned behavior:
+  - keep the parent `v146` path unchanged outside the `prob40`-like selector
+  - on the `prob40`-like selector only:
+    - build `v001` direct warm start
+    - try only the bounded `v130` narrow quantile move on top of that base
+    - keep only strictly better officially feasible candidates
+  - do not add the broader `v124` move in this version
+- Validation plan:
+  - block-tier representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_40`
+  - targeted Family B smoke:
+    `prob_39`, `prob_40`
+  - time-stress smoke:
+    `prob_40 @ 45s` and `prob_40 @ 60s`
+  - full train40 only if Family A remains scoreable and Family B no longer
+    shows the current wrapper cliff
+- Validation:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v147_tier9_20260621_001/`
+    - parent `v146` itself was already unstable on the current tree:
+      - `prob_31` timed out at `83.21s`
+      - `prob_40` stayed weak at `15338466 / T=22755`
+    - `v147` recovered the targeted Family B row strongly:
+      - `prob_40`: `15338466 / T=22755 -> 7117822 / T=10439`
+    - but the candidate failed the required scoreable smoke gate:
+      - `prob_27` timed out at `63.83s`
+      - `prob_31` timed out at `75.48s`
+    - because the representative smoke already violated
+      `accepted_for_score=true` on all rows, no targeted Family B follow-up or
+      full40 run is justified
+- Decision:
+  rejected
+- Reason:
+  - this was a coherent Family B recovery hypothesis and it did recover the
+    intended `prob40`-like tail, but it inherited too much current-tree Family
+    A/runtime instability from the parent line to be benchmark-safe
+  - under the plateau/T-zero-first contract, a candidate that times out on the
+    representative smoke cannot proceed regardless of an isolated Family B win
+- Next strategy:
+  - stop stacking Family B recovery on top of the unstable current `v146`
+    parent
+  - first build a runtime-stable current-tree parent that keeps the current
+    Family A rows scoreable at `60s`, then replay Family B recovery on top of
+    that parent in a separate version
