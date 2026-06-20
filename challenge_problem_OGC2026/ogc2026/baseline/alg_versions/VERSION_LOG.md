@@ -12039,3 +12039,136 @@
   - keep `v142` as the trusted active base
   - resume the T-zero-first loop from the remaining frontier after removing the
     prob40-like wrapper gap
+
+## reboot_v143_20260620_1845_threebay_xlarge_lowproc_headroom_reinsert_on_v142
+- File:
+  `reboot_v143_20260620_1845_threebay_xlarge_lowproc_headroom_reinsert_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - trusted starting line reconfirmed from current workspace:
+    - active wrapper:
+      `baseline_hh.py -> reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+    - trusted full evidence:
+      `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+      with `accepted_for_score=40/40`, `timeout=0`, `invalid=0`,
+      `avg T=1532.125`, `avg objective=15035076.025`
+    - canonical publish revalidation:
+      `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_001/`
+      with `accepted_for_score=7/7`
+  - refreshed residual tail after the publish checkpoint:
+    - strongest remaining T rows:
+      `prob_38=11120`, `prob_27=5541`, `prob_37=3961`, `prob_33=3805`,
+      `prob_39=3521`, `prob_32=2992`, `prob_31=2735`
+    - the prob38-like `3-bay xlarge high-proc concentrated` family still
+      appears saturated on the historical accepted 60s surface
+    - the `3-bay xlarge low-proc` family still shows an accepted current-source
+      objective delta on `prob_37` from the old `v096` line, while the
+      sibling `prob_39` row is runtime-tight and should stay guarded
+  - current family evidence behind this pivot:
+    - accepted historical `v096` row:
+      `prob_37: 17454197 / T=3961`
+    - current trusted `v142` row:
+      `prob_37: 17644653 / T=3961`
+    - current trusted `v142` runtime headroom split:
+      - `prob_37`: runtime `52.682378s`
+      - `prob_39`: runtime `57.660195s`
+  - interpretation:
+    - the next safe move is not a broader 3-bay search; it is a headroom-aware
+      replay of the already accepted `v096` fast one-block reinsert on top of
+      the current `v142` warm start
+    - the selector should stay feature-based on the xlarge 3-bay low-proc
+      family, and the runtime gate should suppress the move on tight runtime
+      siblings such as `prob_39` under the 60s limit
+- Hypothesis:
+  - The current trusted `v142` line still leaves a small objective win inside
+    the `3-bay xlarge low-proc` family. Replaying the accepted `v096`
+    penalty-aware fast single reinsertion only when the warm start leaves
+    clear remaining wall-time headroom should recover the `prob37-like`
+    objective delta while keeping the runtime-risk `prob39-like` sibling on
+    the untouched `v142` path.
+- Feature / subtype / timelimit selector:
+  - preserve the accepted `v142` path unchanged outside the new target slice
+  - activate only when all are true:
+    - `bays == 3`
+    - `blocks >= 240`
+    - `proc_mean < 12.0`
+    - `slack_mean <= 2.3`
+    - warm-start feasible
+    - warm-start `T >= 3500`
+    - tier not in `very_short/short`
+    - remaining wall time clears
+      `dynamic_reserve + max(2.0, 0.04 * timelimit)`
+- Planned behavior:
+  - keep `v142` warm start as the baseline
+  - on the target slice only, reuse the `v072` target-block selector and the
+    accepted `v073/v096` bounded one-block reinsertion helper
+  - keep only strictly better officially feasible results by
+    `(T, objective, L, P)`
+- Validation plan:
+  - tier-representative smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_21`,
+    `prob_27`, `prob_31`, `prob_37`, `prob_40`
+  - targeted subtype smoke:
+    `prob_32`, `prob_33`, `prob_37`, `prob_39`
+  - short-limit stress:
+    `prob_37 @ 45s`, `prob_39 @ 45s`
+  - full train40 only if smoke remains fully scoreable and the
+    `prob37-like` row improves without reopening runtime risk on the sibling
+    3-bay xlarge low-proc family
+- Validation:
+  - tier-representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v143_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - `prob_37` improved to `17586461 / T=3961`
+    - `prob_40` stayed at `5780789 / T=8429`
+    - runtime max `55.638576s`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v143_threebay_xlarge_lowproc_20260620_001/`
+    - accepted_for_score `10/10`, timeout `0`, invalid `0`
+    - `prob_32`, `prob_33`, `prob_38`, and `prob_39` stayed unchanged versus
+      trusted `v142`
+    - `prob_37` improved:
+      `17644653 / T=3961 -> 17586461 / T=3961`
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v143_threebay_xlarge_lowproc_short45_20260620_001/`
+    - accepted_for_score `4/4`, timeout `0`, invalid `0`
+    - `prob_37 @ 45s` stayed unchanged versus `v142`
+    - `prob_39 @ 45s` stayed scoreable and did not show a timeout cliff
+  - focused revalidation:
+    `reports/ogc2026_reboot_v001/verify_reboot_v143_prob37_prob40_20260620_001/`
+    - accepted_for_score `4/4`, timeout `0`, invalid `0`
+    - `prob_37` improvement reproduced
+    - `prob_40` matched trusted `v142` on the isolated rerun
+  - first full train40:
+    `reports/ogc2026_reboot_v001/full_reboot_v143_train40_20260620_001/`
+    - accepted_for_score `40/40`, timeout `0`, invalid `0`
+    - avg objective `15035076.025 -> 15034853.55`
+    - avg T `1532.125 -> 1533.95`
+    - only changed rows versus trusted `v142`:
+      - `prob_37`: objective `17644653 -> 17586461`, `T` unchanged
+      - `prob_40`: objective `5780789 -> 5830082`, `T 8429 -> 8502`
+  - second full train40 rerun:
+    `reports/ogc2026_reboot_v001/full_reboot_v143_train40_20260620_002/`
+    - accepted_for_score `40/40`, timeout `0`, invalid `0`
+    - avg objective worsened sharply to `15089762.4`
+    - avg T worsened to `1616.275`
+    - `prob_40` drifted further to `8026436 / T=11795`
+    - the prob37-like local gain still reproduced, but the non-target
+      prob40-like row became unstable across full-run replays
+- Decision:
+  - rejected
+  - the line is scoreable, but the full train40 replay is not reproducible on
+    the current-source surface: the supposedly untouched prob40-like family
+    drifted from the trusted `v142` row on both full runs, and the second full
+    rerun turned the tiny headline gain into a clear regression
+- Current trusted active BEST:
+  - `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Next strategy:
+  - keep `v142` untouched as the canonical active line
+  - do not reuse the v143 composition pattern directly, because the v142-on-v143
+    nesting created cross-family full-run instability
+  - pivot the next hypothesis toward a cleaner 3-bay family move that does not
+    wrap the active prob40-like parent inside another layer

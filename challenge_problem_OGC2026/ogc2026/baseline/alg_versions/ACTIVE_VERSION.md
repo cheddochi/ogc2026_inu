@@ -55,6 +55,18 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - `prob_31`: objective `39589844`, `T=2735`
     - `prob_39`: objective `48160369`, `T=3521`
     - `prob_40`: objective `5780789`, `T=8429`
+- Latest trust recheck:
+  - path:
+    `reports/ogc2026_reboot_v001/verify_active_v142_publish_20260620_002/`
+  - accepted `7/7`; timeout `0`, invalid `0`
+  - the current wrapper surface reproduced the same canonical subset rows again,
+    including the historically sensitive tail rows:
+    - `prob_27`: objective `76200619`, `T=5541`
+    - `prob_40`: objective `5780789`, `T=8429`
+  - interpretation:
+    - exploratory tail probes showed drift signals on direct-file runs, but the
+      canonical `baseline_hh.py` wrapper surface still revalidated cleanly
+      under the publish subset on the current source tree
 - Historical note:
   - `v123` remains the historical score-improving step over `v122`.
   - `v132` remains the last plateau-stable recovery line and rollback target.
