@@ -1,0 +1,2 @@
+instance,blocks,bays,objective,T,L,P,runtime_sec,checker_feasible,timed_out,valid_under_time_limit,accepted_for_score,error_message,algorithm_version,report_path,solution_file
+prob_33.json,200,3,26172225.0,3805.0,1094,5289.0,57.606380,true,false,true,true,,reboot_v150_20260620_2315,reports\ogc2026_reboot_v001\target_reboot_v150_prob33like_20260620_002\report.html,reports\ogc2026_reboot_v001\target_reboot_v150_prob33like_20260620_002\solutions\hh__reboot_v150_20260620_2315\prob_33.solution.json

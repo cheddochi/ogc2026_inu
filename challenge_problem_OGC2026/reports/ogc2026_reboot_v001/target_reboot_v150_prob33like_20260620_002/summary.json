@@ -1,0 +1,32 @@
+{
+  "run_id": "target_reboot_v150_prob33like_20260620_002",
+  "timestamp": "2026-06-20T23:01:27",
+  "summary": {
+    "total": 1,
+    "feasible": 1,
+    "accepted_for_score": 1,
+    "checker_feasible": 1,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 26172225.0,
+    "objective_avg": 26172225.0,
+    "obj1_sum": 3805.0,
+    "obj1_avg": 3805.0,
+    "obj1_max": 3805.0,
+    "obj2_avg": 1094.0,
+    "obj3_avg": 5289.0,
+    "runtime_sum": 57.60638,
+    "runtime_avg": 57.60638,
+    "runtime_max": 57.60638
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v150_20260620_2315",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v150_20260620_2315_prob33like_thin_gap_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_33.json"
+  ]
+}

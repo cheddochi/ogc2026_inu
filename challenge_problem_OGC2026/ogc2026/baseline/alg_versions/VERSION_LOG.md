@@ -12900,3 +12900,115 @@
     reproduces the trusted tail rows again
   - for the next improvement loop, prefer parent-surface stabilization and
     canonical wrapper revalidation before any new subtype-local T-zero repair
+
+## reboot_v150_20260620_2315_prob33like_thin_gap_on_v142
+- File:
+  `reboot_v150_20260620_2315_prob33like_thin_gap_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- Experiment note:
+  - `v149` showed that the `prob33-like` feature selector is still valid and
+    isolated to only `prob_33` in training, but its targeted smoke timed out
+    because the expensive `v081` gap-single replay occasionally consumed about
+    `3.8s`, leaving almost no runtime margin
+  - direct current-tree probes isolated the cost profile:
+    - `v065` warm start -> `3854 / 26515388`
+    - `fast_single` alone is nearly free but does not reduce `T`
+    - `gap_single` is the actual `T=3805` breakthrough
+    - shrinking the `gap_single` position sample from `24` down to
+      `6/8/10/12` preserved the same
+      `26173385 / T=3805`, and the follow-up fast single still preserved the
+      final `26172225 / T=3805`
+- Hypothesis:
+  - On the isolated `prob33-like` selector, replaying the same trusted
+    `gap_single + fast_single` sequence but with a much thinner quantile sample
+    should preserve the `T=3805` row while removing the targeted-smoke timeout
+    cliff that rejected `v149`.
+- Feature / subtype / timelimit selector:
+  - reuse `v081._matches_prob33like_runtime_class(features)`
+  - selector currently matches only `prob_33` in training
+  - skip on `very_short/short`
+  - require a feasible `v065` warm start with `T >= 3800`
+- Planned behavior:
+  - preserve `v142` unchanged outside the `prob33-like` class
+  - inside the class:
+    - build the same `v065` warm start
+    - replay the same trusted `v081` move sequence
+    - reduce only the `gap_single` position sample width from `24` to `6`
+    - keep only strictly better officially feasible candidates
+- Validation plan:
+  - representative block-tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype smoke:
+    `prob_33`
+  - optional short-limit stress:
+    `prob_33` at `45s`
+  - full train40 only if the representative smoke remains scoreable and the
+    targeted row regains runtime margin
+- Validation:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v150_tier9_20260620_001/`
+    - accepted_for_score `9/9`, timeout `0`, invalid `0`
+    - representative deltas versus the historical trusted `v142` full40 rows:
+      - `prob_25`: restored the historical row
+        `1489168 / T=2141 -> 1454484 / T=2089`
+      - `prob_27`: improved versus the current-tree drift row
+        `77480587 / T=5637 -> 77480587 / T=5637` on the run surface and stayed
+        scoreable at `48.31s`
+      - `prob_33`: recovered the intended row
+        `26172225 / T=3805` at `48.60s`
+      - `prob_38`: still regressed versus the historical trusted best, but
+        improved versus the worse current-tree drift rows
+        to `226152761 / T=16739`
+  - targeted subtype smoke:
+    - first run:
+      `reports/ogc2026_reboot_v001/target_reboot_v150_prob33like_20260620_001/`
+      - timeout on `prob_33` at `61.31s`
+    - rerun:
+      `reports/ogc2026_reboot_v001/target_reboot_v150_prob33like_20260620_002/`
+      - accepted_for_score `1/1`
+      - `prob_33`: `26172225 / T=3805`, runtime `57.61s`
+    - interpretation:
+      - the thin-gap replay did materially improve runtime stability versus
+        `v149`, but not enough to claim a fully closed current-tree trust issue
+  - short-limit stress:
+    `reports/ogc2026_reboot_v001/stress_reboot_v150_prob33_short45_20260620_001/`
+    - accepted_for_score `1/1`
+    - `prob_33`: `42293607 / T=6231`, runtime `44.73s`
+    - interpretation:
+      - the branch remains scoreable under short limit by correctly falling
+        back to the shallow base path, but the short-limit score is not the
+        main value proposition of this candidate
+  - full train40:
+    `reports/ogc2026_reboot_v001/full_reboot_v150_train40_20260620_001/`
+    - accepted_for_score `37/40`
+    - timeout `3`, invalid `0`
+    - reopened runtime failures on non-target rows:
+      - `prob_31` timeout, runtime `75.27s`
+      - `prob_32` timeout, runtime `66.25s`
+      - `prob_37` timeout, runtime `90.03s`
+    - surviving tail rows still showed large regressions versus historical
+      trusted `v142` full40 evidence:
+      - `prob_38`: `346034606 / T=25718`
+      - `prob_40`: `11209127 / T=12041`
+- Decision:
+  rejected
+- Reason:
+  - the coherent thin-gap hypothesis succeeded at its local `prob33-like`
+    target and improved targeted runtime margin versus `v149`
+  - however, the full40 benchmark reopened three non-target runtime failures
+    on the current tree, so this version cannot be promoted under the
+    accepted_for_score-first contract
+  - the evidence now points more strongly to a parent warm-start/runtime-family
+    instability problem than to a remaining `prob33-like` repair-width problem
+- Next strategy:
+  - stop spending iterations on narrower `prob33-like` repair tuning for now
+  - pivot the next coherent hypothesis toward feature-based runtime-family
+    stabilization for the rows that reopened in full40:
+    `prob_31`, `prob_32`, `prob_37`
+  - use the current subtype analysis and direct current-tree evidence to choose
+    one runtime-risk family and stabilize its warm-start path before trying any
+    further T-breakthrough move on top of it

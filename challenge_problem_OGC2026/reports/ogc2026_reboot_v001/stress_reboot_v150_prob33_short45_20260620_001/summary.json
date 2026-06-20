@@ -1,0 +1,32 @@
+{
+  "run_id": "stress_reboot_v150_prob33_short45_20260620_001",
+  "timestamp": "2026-06-20T22:48:41",
+  "summary": {
+    "total": 1,
+    "feasible": 1,
+    "accepted_for_score": 1,
+    "checker_feasible": 1,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 42293607.0,
+    "objective_avg": 42293607.0,
+    "obj1_sum": 6231.0,
+    "obj1_avg": 6231.0,
+    "obj1_max": 6231.0,
+    "obj2_avg": 1173.0,
+    "obj3_avg": 4932.0,
+    "runtime_sum": 44.730756,
+    "runtime_avg": 44.730756,
+    "runtime_max": 44.730756
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v150_20260620_2315",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v150_20260620_2315_prob33like_thin_gap_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_33.json"
+  ]
+}

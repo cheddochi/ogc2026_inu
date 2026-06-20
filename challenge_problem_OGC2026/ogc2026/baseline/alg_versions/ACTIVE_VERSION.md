@@ -97,6 +97,22 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - interpretation:
       - the wrapper is still scoreable on this subset, but it is not currently
         trustworthy as a reproduced accepted BEST surface
+  - latest rejected candidate checkpoint:
+    `reports/ogc2026_reboot_v001/full_reboot_v150_train40_20260620_001/`
+    - `v150` recovered the local `prob_33` row on representative smoke and on
+      a targeted rerun, but full40 still failed at `accepted_for_score=37/40`
+    - reopened runtime failures:
+      - `prob_31` timeout at `75.27s`
+      - `prob_32` timeout at `66.25s`
+      - `prob_37` timeout at `90.03s`
+    - surviving tail regressions remained large:
+      - `prob_38`: `346034606 / T=25718`
+      - `prob_40`: `11209127 / T=12041`
+    - interpretation:
+      - this confirms the current tree is still in recovery mode
+      - do not publish the active wrapper as a re-trusted BEST yet
+      - the next repair should stabilize the reopened runtime-risk family
+        before any further `prob33-like` local tuning
 - Historical note:
   - `v123` remains the historical score-improving step over `v122`.
   - `v132` remains the last plateau-stable recovery line and rollback target.
