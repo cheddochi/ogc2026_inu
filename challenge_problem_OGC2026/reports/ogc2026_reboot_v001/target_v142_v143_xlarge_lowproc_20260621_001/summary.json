@@ -1,0 +1,39 @@
+{
+  "run_id": "target_v142_v143_xlarge_lowproc_20260621_001",
+  "timestamp": "2026-06-21T06:36:59",
+  "summary": {
+    "total": 6,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 2,
+    "failed": 2,
+    "objective_sum": 714826437.0,
+    "objective_avg": 178706609.25,
+    "obj1_sum": 159829.0,
+    "obj1_avg": 39957.25,
+    "obj1_max": 56910.0,
+    "obj2_avg": 4489.5,
+    "obj3_avg": 10675.0,
+    "runtime_sum": 413.839253,
+    "runtime_avg": 68.97320883333333,
+    "runtime_max": 90.083558
+  },
+  "algorithms": [
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    },
+    {
+      "name": "v143",
+      "version": "reboot_v143_20260620_1845",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v143_20260620_1845_threebay_xlarge_lowproc_headroom_reinsert_on_v142.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_37.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}

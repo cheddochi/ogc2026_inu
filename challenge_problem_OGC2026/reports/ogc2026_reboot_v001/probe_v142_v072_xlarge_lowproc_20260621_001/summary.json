@@ -1,0 +1,38 @@
+{
+  "run_id": "probe_v142_v072_xlarge_lowproc_20260621_001",
+  "timestamp": "2026-06-21T06:45:28",
+  "summary": {
+    "total": 4,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 3,
+    "timed_out": 2,
+    "failed": 2,
+    "objective_sum": 596706360.0,
+    "objective_avg": 298353180.0,
+    "obj1_sum": 44546.0,
+    "obj1_avg": 22273.0,
+    "obj1_max": 22766.0,
+    "obj2_avg": 3786.5,
+    "obj3_avg": 9147.5,
+    "runtime_sum": 276.32275,
+    "runtime_avg": 69.0806875,
+    "runtime_max": 90.235624
+  },
+  "algorithms": [
+    {
+      "name": "v142",
+      "version": "reboot_v142_20260620_1548",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.py"
+    },
+    {
+      "name": "v072",
+      "version": "reboot_v072_20260618_2135",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v072_20260618_2135_threebay_xlarge_lowproc_opportunity_single.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_37.json",
+    "train\\prob_39.json"
+  ]
+}

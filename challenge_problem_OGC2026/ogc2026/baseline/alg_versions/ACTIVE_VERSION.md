@@ -215,3 +215,29 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     - fixing only that is not enough to restore a trustworthy parent surface
     - the current tree remains in recovery mode; do not publish the active
       wrapper as a re-trusted BEST yet
+- Latest subtype-audit note (`2026-06-21`, post-v162 plateau checkpoint):
+  - trusted historical full40 evidence is still:
+    `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+    with `accepted_for_score=40/40`, timeout `0`, invalid `0`
+  - but fresh current-tree targeted revalidation still does not justify a BEST
+    publish:
+    - `prob27-like` direct probe:
+      `reports/ogc2026_reboot_v001/probe_v142_v146_prob27like_20260621_001/`
+      - `v146` restored `prob_27` to PASS `58.677993s`
+      - but the same path made sibling `prob_25` fail by time limit
+        at `64.784196s`
+    - xlarge-lowproc direct audit:
+      `reports/ogc2026_reboot_v001/probe_v142_v072_xlarge_lowproc_20260621_001/`
+      - direct `v072` did not beat current-tree `v142` on `prob_39`
+      - `prob_37` remained unstable / timed out
+    - xlarge-lowproc guarded audit:
+      `reports/ogc2026_reboot_v001/target_v142_v143_xlarge_lowproc_20260621_001/`
+      - `v143` improved `prob_39` and `prob_40`
+      - but still did not recover `prob_37`
+  - interpretation:
+    - current active wrapper remains a recovery rollback surface only
+    - the strongest next coherent hypothesis is now a narrow
+      `prob27-like`-only guard that preserves the useful `v146` runtime fix
+      without activating on sibling `prob_25`
+    - do not publish the active wrapper as a re-trusted BEST until that
+      current-tree recovery line reproduces scoreable canonical behavior

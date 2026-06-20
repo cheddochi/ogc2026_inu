@@ -1,0 +1,131 @@
+{
+  "results_csv": "D:\\dev\\ogc2026_inu\\challenge_problem_OGC2026\\reports\\ogc2026_reboot_v001\\full_reboot_v142_train40_20260620_001\\readable_results.csv",
+  "train_dir": "D:\\dev\\ogc2026_inu\\challenge_problem_OGC2026\\train",
+  "target_subtype_keyword": "2bay/highproc/runtime-risk",
+  "top_t_instances": [
+    "prob_38",
+    "prob_40",
+    "prob_27",
+    "prob_37",
+    "prob_33",
+    "prob_39",
+    "prob_32",
+    "prob_31",
+    "prob_26",
+    "prob_30",
+    "prob_25",
+    "prob_36"
+  ],
+  "next_family": {
+    "family_key": "medium/3bay/lowproc/runtime-risk",
+    "count": 3,
+    "avg_T": 6200.667,
+    "sum_T": 18602.0,
+    "avg_runtime_sec": 52.474,
+    "max_runtime_sec": 57.66,
+    "nonzero_T_count": 3,
+    "high_T_count": 3,
+    "instances": "prob_37,prob_38,prob_39"
+  },
+  "representative_tier_smoke": [
+    {
+      "tier": "tier_01_04",
+      "instance": "prob_1",
+      "reason": "current-high-T",
+      "T": 11.0,
+      "L": 1700.0,
+      "P": 1810.0,
+      "runtime_sec": 12.645361,
+      "family_key": "small/2bay/lowproc/runtime-safe",
+      "subtype": "small/2bay/lowproc/moderate/runtime-safe/tight/low-T"
+    },
+    {
+      "tier": "tier_05_08",
+      "instance": "prob_6",
+      "reason": "current-high-T",
+      "T": 9.0,
+      "L": 1980.0,
+      "P": 3170.0,
+      "runtime_sec": 29.077613,
+      "family_key": "small/3bay/lowproc/runtime-mid",
+      "subtype": "small/3bay/lowproc/diffuse/runtime-mid/tight/low-T"
+    },
+    {
+      "tier": "tier_09_12",
+      "instance": "prob_11",
+      "reason": "current-high-T",
+      "T": 739.0,
+      "L": 407.0,
+      "P": 2350.0,
+      "runtime_sec": 10.270317,
+      "family_key": "small/4bay/lowproc/runtime-safe",
+      "subtype": "small/4bay/lowproc/diffuse/runtime-safe/tight/mid-T"
+    },
+    {
+      "tier": "tier_13_16",
+      "instance": "prob_13",
+      "reason": "current-high-T",
+      "T": 923.0,
+      "L": 4390.0,
+      "P": 4366.0,
+      "runtime_sec": 11.255635,
+      "family_key": "medium/4bay/lowproc/runtime-safe",
+      "subtype": "medium/4bay/lowproc/diffuse/runtime-safe/tight/mid-T"
+    },
+    {
+      "tier": "tier_17_20",
+      "instance": "prob_19",
+      "reason": "current-high-T",
+      "T": 389.0,
+      "L": 7056.0,
+      "P": 4042.0,
+      "runtime_sec": 12.670568,
+      "family_key": "medium/4bay/lowproc/runtime-safe",
+      "subtype": "medium/4bay/lowproc/diffuse/runtime-safe/tight/low-T"
+    },
+    {
+      "tier": "tier_21_25",
+      "instance": "prob_25",
+      "reason": "current-high-T",
+      "T": 2089.0,
+      "L": 241.0,
+      "P": 3044.0,
+      "runtime_sec": 32.113198,
+      "family_key": "small/2bay/lowproc/runtime-mid",
+      "subtype": "small/2bay/lowproc/moderate/runtime-mid/tight/mid-T"
+    },
+    {
+      "tier": "tier_26_30",
+      "instance": "prob_27",
+      "reason": "current-high-T",
+      "T": 5541.0,
+      "L": 2033.0,
+      "P": 5796.0,
+      "runtime_sec": 46.197811,
+      "family_key": "small/2bay/lowproc/runtime-risk",
+      "subtype": "small/2bay/lowproc/moderate/runtime-risk/tight/high-T"
+    },
+    {
+      "tier": "tier_31_35",
+      "instance": "prob_33",
+      "reason": "current-high-T",
+      "T": 3805.0,
+      "L": 1094.0,
+      "P": 5289.0,
+      "runtime_sec": 45.749651,
+      "family_key": "small/3bay/lowproc/runtime-risk",
+      "subtype": "small/3bay/lowproc/diffuse/runtime-risk/tight/high-T"
+    },
+    {
+      "tier": "tier_36_40",
+      "instance": "prob_38",
+      "reason": "current-high-T",
+      "T": 11120.0,
+      "L": 3894.0,
+      "P": 9947.0,
+      "runtime_sec": 47.079474,
+      "family_key": "medium/3bay/lowproc/runtime-risk",
+      "subtype": "medium/3bay/lowproc/moderate/runtime-risk/tight/high-T"
+    }
+  ]
+}

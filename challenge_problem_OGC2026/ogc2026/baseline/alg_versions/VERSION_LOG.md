@@ -14226,3 +14226,49 @@
   - preserve the useful lesson from `v162`:
     remaining-budget propagation helps non-target inherited paths and
     `prob33-like` recovery, so keep it available for future guarded wrappers
+
+## Recovery checkpoint (`2026-06-21`, post-v162 subtype audit)
+- Status:
+  checkpoint-only, no new candidate created yet
+- Purpose:
+  - publish the honest plateau state before starting the next candidate
+  - avoid any false BEST promotion while the current tree is still in recovery
+- Reconfirmed trusted historical BEST evidence:
+  - active wrapper still points to:
+    `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+  - trusted full40 evidence still remains:
+    `reports/ogc2026_reboot_v001/full_reboot_v142_train40_20260620_001/`
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid `0`
+- Fresh audit artifacts:
+  - subtype refresh:
+    `reports/ogc2026_reboot_v001/subtype_analysis_v142_20260621_001/`
+  - xlarge-lowproc direct bypass probe:
+    `reports/ogc2026_reboot_v001/probe_v142_v072_xlarge_lowproc_20260621_001/`
+  - xlarge-lowproc guarded probe:
+    `reports/ogc2026_reboot_v001/target_v142_v143_xlarge_lowproc_20260621_001/`
+  - prob27-like focused probe:
+    `reports/ogc2026_reboot_v001/probe_v142_v146_prob27like_20260621_001/`
+- Plateau finding:
+  - xlarge-lowproc still has some improvement signal (`prob_39`, `prob_40`)
+    but it does not give the cleanest next recovery path because `prob_37`
+    remains unstable
+  - the strongest current-tree positive signal is now `prob27-like`:
+    - `prob_27`: direct current-tree `v142` timeout -> `v146` PASS
+      `58.677993s`
+    - but sibling `prob_25` worsened from PASS to fail-by-time-limit under the
+      same broader `v146` surface
+- Decision:
+  recovery checkpoint publish only
+- Reason:
+  - no fresh score-improving accepted candidate was promoted
+  - current active wrapper still should not be described as a newly re-trusted
+    BEST surface
+  - next candidate should be a narrow `prob27-like`-only guard, not a broad
+    xlarge-lowproc or joint-family experiment
+- Notes:
+  - active validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_active_v142_subtype_audit.md`
+  - recovery checkpoint note:
+    `reports/ogc2026_reboot_v001/recovery_checkpoint_20260621_prob27like_plateau.md`
