@@ -1,0 +1,44 @@
+{
+  "run_id": "target_reboot_v168_coupled_runtime_20260621_001",
+  "timestamp": "2026-06-21T08:55:35",
+  "summary": {
+    "total": 16,
+    "feasible": 14,
+    "accepted_for_score": 14,
+    "checker_feasible": 16,
+    "timed_out": 2,
+    "failed": 2,
+    "objective_sum": 2451890664.0,
+    "objective_avg": 175135047.42857143,
+    "obj1_sum": 219849.0,
+    "obj1_avg": 15703.5,
+    "obj1_max": 61818.0,
+    "obj2_avg": 4887.642857142857,
+    "obj3_avg": 8115.071428571428,
+    "runtime_sum": 835.766756,
+    "runtime_avg": 52.23542225,
+    "runtime_max": 74.008792
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "v158_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v158_20260621_prob40like_narrow_builder_on_v152.py"
+    },
+    {
+      "name": "hh",
+      "version": "v168_coupled_runtime_slices",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v168_20260621_0825_v158_coupled_runtime_slices.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_31.json",
+    "train\\prob_32.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}

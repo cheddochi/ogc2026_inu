@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OGC2026 Benchmark smoke_reboot_v168_tier10_20260621_001</title>
+<style>
+    body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; color: #1f2933; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    h2 { font-size: 18px; margin-top: 28px; border-bottom: 1px solid #d8dee9; padding-bottom: 4px; }
+    .meta { color: #52606d; margin-bottom: 18px; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+    .card { border: 1px solid #d8dee9; border-radius: 6px; padding: 10px 12px; min-width: 150px; }
+    .card .label { color: #52606d; font-size: 12px; }
+    .card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #d8dee9; padding: 6px 8px; text-align: right; vertical-align: top; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: #243447; color: #ffffff; position: sticky; top: 0; }
+    tr:nth-child(even) td { background: #f7f9fb; }
+    .good { color: #0f7b35; font-weight: 700; }
+    .bad { color: #b42318; font-weight: 700; }
+    .neutral { color: #52606d; }
+    .best { color: #0f7b35; font-weight: 700; }
+    code { background: #eef2f7; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h1>OGC2026 T Benchmark</h1>
+<div class="meta">
+  timestamp=<code>2026-06-21T08:40:12</code> |
+  timelimit=<code>60.0s</code>
+  <details>
+    <summary>Files and internal ids</summary>
+    run_id=<code>smoke_reboot_v168_tier10_20260621_001</code><br>
+    readable_csv=<code>reports\ogc2026_reboot_v001\smoke_reboot_v168_tier10_20260621_001\readable_results.csv</code><br>
+    raw_csv=<code>reports\ogc2026_reboot_v001\smoke_reboot_v168_tier10_20260621_001\results.csv</code><br>
+    cumulative_csv=<code>reports\ogc2026_reboot_v001\candidate_reboot_v168_tier10.csv</code>
+  </details>
+</div>
+<div class="cards">
+  <div class="card"><div class="label">Rows</div><div class="value">20</div></div>
+  <div class="card"><div class="label">Feasible (accepted)</div><div class="value">19/20</div></div>
+  <div class="card"><div class="label">Checker PASS</div><div class="value">20/20</div></div>
+  <div class="card"><div class="label">Timed Out</div><div class="value">1</div></div>
+  <div class="card"><div class="label">Avg T (obj1)</div><div class="value">12,143.00</div></div>
+  <div class="card"><div class="label">Max T (obj1)</div><div class="value">82,307</div></div>
+  <div class="card"><div class="label">Avg obj2</div><div class="value">3,825.16</div></div>
+  <div class="card"><div class="label">Avg obj3</div><div class="value">5,215.63</div></div>
+  <div class="card"><div class="label">Avg Runtime</div><div class="value">43.93s</div></div>
+</div>
+<h2>T By Instance</h2>
+<table><thead><tr><th>Instance</th><th>Accepted</th><th>T (obj1)</th><th>obj2</th><th>obj3</th><th>Objective</th><th>Runtime</th><th>Delta T</th></tr></thead><tbody><tr><td>prob_1.json</td><td><span class='good'>yes</span></td><td>138</td><td>1,656</td><td>1,852</td><td>4,396,550</td><td>29.83s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_6.json</td><td><span class='good'>yes</span></td><td>1,131</td><td>3,714</td><td>3,443</td><td>34,053,978</td><td>48.77s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_11.json</td><td><span class='good'>yes</span></td><td>739</td><td>406</td><td>2,356</td><td>17,207,513</td><td>21.72s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_13.json</td><td><span class='good'>yes</span></td><td>923</td><td>4,390</td><td>4,366</td><td>17,775,043</td><td>28.86s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_19.json</td><td><span class='good'>yes</span></td><td>389</td><td>7,089</td><td>4,044</td><td>4,715,671</td><td>32.18s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_25.json</td><td><span class='good'>yes</span></td><td>2,159</td><td>278</td><td>2,944</td><td>1,499,211</td><td>55.49s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_27.json</td><td><span class='good'>yes</span></td><td>5,735</td><td>2,033</td><td>5,796</td><td>78,787,221</td><td>58.14s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_33.json</td><td><span class='good'>yes</span></td><td>14,714</td><td>2,441</td><td>6,557</td><td>99,106,198</td><td>46.41s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_38.json</td><td><span class='good'>yes</span></td><td>68,115</td><td>8,883</td><td>9,777</td><td>911,128,161</td><td>52.28s</td><td><span class='neutral'>new</span></td></tr><tr><td>prob_40.json</td><td><span class='good'>yes</span></td><td>21,362</td><td>8,833</td><td>11,674</td><td>14,409,049</td><td>55.41s</td><td><span class='neutral'>new</span></td></tr></tbody></table>
+<h2>T Comparison</h2>
+<table><thead><tr><th>Instance</th><th>v158_direct</th><th>v168_coupled_runtime_slices</th></tr></thead><tbody><tr><td>prob_1.json</td><td><span class=''>309</span></td><td><span class='best'>138</span></td></tr><tr><td>prob_6.json</td><td><span class='best'>1,131</span></td><td><span class='best'>1,131</span></td></tr><tr><td>prob_11.json</td><td><span class='best'>739</span></td><td><span class='best'>739</span></td></tr><tr><td>prob_13.json</td><td><span class='best'>923</span></td><td><span class='best'>923</span></td></tr><tr><td>prob_19.json</td><td><span class='best'>389</span></td><td><span class='best'>389</span></td></tr><tr><td>prob_25.json</td><td><span class='best'>2,159</span></td><td><span class='best'>2,159</span></td></tr><tr><td>prob_27.json</td><td><span class='best'>5,735</span></td><td><span class='best'>5,735</span></td></tr><tr><td>prob_33.json</td><td><span class='bad'>TIMEOUT</span></td><td><span class='best'>14,714</span></td></tr><tr><td>prob_38.json</td><td><span class=''>82,307</span></td><td><span class='best'>68,115</span></td></tr><tr><td>prob_40.json</td><td><span class=''>21,620</span></td><td><span class='best'>21,362</span></td></tr></tbody></table>
+<h2>Unaccepted Rows</h2>
+<table><thead><tr><th>Instance</th><th>Status</th><th>Checker Feasible</th><th>Timed Out</th><th>Error</th></tr></thead><tbody><tr><td>prob_33.json</td><td>TIMEOUT</td><td>true</td><td>true</td><td>runtime exceeded official_limit 60.000000s</td></tr></tbody></table>
+<h2>Slowest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Runtime</th><th>Status</th><th>T (obj1)</th><th>Objective</th></tr></thead><tbody><tr><td>prob_33.json</td><td>66.45s</td><td>TIMEOUT</td><td>23,731</td><td>159,070,997</td></tr><tr><td>prob_27.json</td><td>58.14s</td><td>PASS</td><td>5,735</td><td>78,787,221</td></tr><tr><td>prob_25.json</td><td>56.63s</td><td>PASS</td><td>2,159</td><td>1,499,211</td></tr><tr><td>prob_27.json</td><td>55.66s</td><td>PASS</td><td>5,735</td><td>78,787,221</td></tr><tr><td>prob_25.json</td><td>55.49s</td><td>PASS</td><td>2,159</td><td>1,499,211</td></tr><tr><td>prob_40.json</td><td>55.41s</td><td>PASS</td><td>21,362</td><td>14,409,049</td></tr><tr><td>prob_40.json</td><td>54.25s</td><td>PASS</td><td>21,620</td><td>14,578,721</td></tr><tr><td>prob_38.json</td><td>52.28s</td><td>PASS</td><td>68,115</td><td>911,128,161</td></tr><tr><td>prob_6.json</td><td>51.14s</td><td>PASS</td><td>1,131</td><td>34,053,978</td></tr><tr><td>prob_38.json</td><td>50.08s</td><td>PASS</td><td>82,307</td><td>1,100,342,367</td></tr></tbody></table>
+<h2>Fastest Rows</h2>
+<table><thead><tr><th>Instance</th><th>Runtime</th><th>Status</th><th>T (obj1)</th><th>Objective</th></tr></thead><tbody><tr><td>prob_11.json</td><td>20.75s</td><td>PASS</td><td>739</td><td>17,206,722</td></tr><tr><td>prob_11.json</td><td>21.72s</td><td>PASS</td><td>739</td><td>17,207,513</td></tr><tr><td>prob_13.json</td><td>28.86s</td><td>PASS</td><td>923</td><td>17,775,043</td></tr><tr><td>prob_13.json</td><td>29.11s</td><td>PASS</td><td>923</td><td>17,775,043</td></tr><tr><td>prob_1.json</td><td>29.83s</td><td>PASS</td><td>138</td><td>4,396,550</td></tr><tr><td>prob_19.json</td><td>32.18s</td><td>PASS</td><td>389</td><td>4,715,671</td></tr><tr><td>prob_1.json</td><td>32.47s</td><td>PASS</td><td>309</td><td>9,394,149</td></tr><tr><td>prob_19.json</td><td>32.99s</td><td>PASS</td><td>389</td><td>4,715,273</td></tr><tr><td>prob_33.json</td><td>46.41s</td><td>PASS</td><td>14,714</td><td>99,106,198</td></tr><tr><td>prob_6.json</td><td>48.77s</td><td>PASS</td><td>1,131</td><td>34,053,978</td></tr></tbody></table>
+</body>
+</html>

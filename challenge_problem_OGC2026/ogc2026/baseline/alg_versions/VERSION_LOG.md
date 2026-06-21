@@ -14488,7 +14488,7 @@
 - Parent:
   `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
 - Status:
-  pending
+  rejected
 - Experiment note:
   - `v158` remains the strongest current-tree direct surface:
     representative smoke was `9/9`, and `prob40` improved sharply
@@ -14552,3 +14552,194 @@
 - Notes:
   - validation note:
     `reports/ogc2026_reboot_v001/validation_note_20260621_v166.md`
+
+## reboot_v167_20260621_0815_v158_lazy_prob33_guard
+- File:
+  `reboot_v167_20260621_0815_v158_lazy_prob33_guard.py`
+- Parent:
+  `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
+- Status:
+  pending
+- Experiment note:
+  - trusted historical full40 BEST is still `v142`, but the current tree is
+    operating in runtime-recovery / plateau mode
+  - the next T-first hypothesis is driven by fresh subtype analysis:
+    `reports/ogc2026_reboot_v001/subtype_analysis_v167_coupled_runtime_20260621_001.md`
+  - that analysis showed the useful `v166` `prob33-like` signal is real, but
+    the reopened `prob_27` timeout was a runtime-only regression:
+    objective/T/L/P were unchanged while runtime moved
+    `57.90s -> 61.73s`
+- Hypothesis:
+  - the coupled `prob27-like` / `prob33-like` runtime blocker is currently
+    sensitive to unconditional module-load overhead on runtime-cliff siblings
+  - if the `prob33` repair stack is loaded lazily only when the
+    `prob33-like` feature selector actually matches, then:
+    - non-target `v158` rows should keep the same direct runtime margin,
+      especially `prob27-like`
+    - the useful `prob33-like` direct repair from `v166` can still fire
+    - we can test the coupling hypothesis without another broader parent rewrite
+- Feature / subtype / timelimit selector:
+  - keep the existing `v158` `prob40-like` selector unchanged
+  - keep the existing `v141` `prob33-like` selector unchanged
+  - no instance name / file name / row-id selectors
+  - skip heavy work for `very_short/short` as before
+- Planned behavior:
+  - preserve the direct `v158` main surface for non-target rows
+  - move `prob33-like` helper imports behind the feature gate
+  - keep the same direct `prob33-like` builder and thin-gap repair kernel from
+    `v166`; only change when that stack is loaded
+- Validation plan:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - promotion gate:
+    - all smoke rows `accepted_for_score=true`
+    - `prob_27` must remain scoreable
+    - `prob_33` must improve from the parent smoke
+  - full40 only if the coupled runtime family closes cleanly without reopening
+    Family B runtime-risk rows
+- Validation result:
+  - representative tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v167_tier10_20260621_001/`
+  - parent `v158` on the same smoke:
+    - `accepted_for_score=9/10`
+    - failing row:
+      - `prob_33`: TIMEOUT
+        `145881189 / T=21767 / 65.41s`
+  - `v167`:
+    - `accepted_for_score=9/10`
+    - recovered the intended target:
+      - `prob_33`: PASS
+        `84069719 / T=12457 / 46.91s`
+    - but reopened the coupled sibling:
+      - `prob_27`: PASS `56.63s ->` TIMEOUT `62.46s`
+  - hidden-risk regressions remained visible:
+    - `prob_1`: `693901 / T=11 -> 12124653 / T=403`
+    - `prob_25`: `1499211 / T=2159 -> 1506742 / T=2171`
+    - `prob_40`: `14019975 / T=20774 -> 15650653 / T=23225`
+  - one useful Family B signal did survive:
+    - `prob_38`: `1040525141 / T=77821 -> 963801823 / T=72063`
+- Decision:
+  rejected
+- Reason:
+  - the smoke still failed the scoreability gate:
+    - `accepted_for_score` stayed `9/10`
+    - `prob_27` reopened as timeout
+  - the intended lazy-load hypothesis was too weak:
+    - `prob_27` remained a runtime-only regression with identical
+      objective/T/L/P
+    - so unconditional prob33-stack import cost is not the full cause of the
+      coupling
+  - additional non-target movement also stayed too large for a trustworthy
+    promotion candidate
+- Notes:
+  - subtype analysis:
+    `reports/ogc2026_reboot_v001/subtype_analysis_v167_coupled_runtime_20260621_001.md`
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v167.md`
+  - next strategy:
+    move to an explicit coupled runtime-family hypothesis that stabilizes
+    `prob27-like` directly while keeping the useful `prob33-like` direct repair
+
+## reboot_v168_20260621_0825_v158_coupled_runtime_slices
+- File:
+  `reboot_v168_20260621_0825_v158_coupled_runtime_slices.py`
+- Parent:
+  `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
+- Status:
+  pending
+- Experiment note:
+  - `v167` proved the lazy-load explanation was too weak:
+    `prob_33` recovered, but `prob_27` still reopened as timeout
+  - the strongest surviving target signals are now explicit and separate:
+    - `prob27-like`: direct recovery signal already proven by `v146`
+    - `prob33-like`: direct repair signal already proven by `v166` / `v167`
+  - the next structurally different move is to stabilize the coupled family
+    explicitly instead of trying to preserve one sibling indirectly
+- Hypothesis:
+  - if we keep `v158` as the direct parent surface, but add two explicit
+    feature-gated target slices:
+    - `prob27-like` -> direct `v146` recovery path
+    - `prob33-like` -> direct builder + thin-gap repair
+    then the coupled runtime family can close together while leaving other
+    rows on the same direct parent
+- Feature / subtype / timelimit selector:
+  - keep the existing `v146` `prob27-like` selector unchanged
+  - keep the existing `v141` `prob33-like` selector unchanged
+  - keep the existing `v158` `prob40-like` selector unchanged
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - direct parent defaults to `v158`
+  - `prob27-like` rows import and run `v146` directly
+  - `prob33-like` rows run the direct builder + thin-gap repair path from
+    `v167`
+  - `prob40-like` rows keep the direct narrow builder inherited from `v158`
+- Validation plan:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - smoke gate:
+    - `prob_27` must stay scoreable
+    - `prob_33` must recover
+    - Family B regressions on `prob_1`, `prob_19`, `prob_25`, `prob_40`
+      must stay explainable and bounded enough to justify any full40 attempt
+- Validation result:
+  - representative tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v168_tier10_20260621_001/`
+  - parent `v158` on the same smoke:
+    - `accepted_for_score=9/10`
+    - failing row:
+      - `prob_33`: TIMEOUT
+        `159070997 / T=23731 / 66.45s`
+  - `v168`:
+    - `accepted_for_score=10/10`
+    - intended target repairs did fire on the representative slice:
+      - `prob_27`: PASS
+        `78787221 / T=5735 / 55.66s`
+      - `prob_33`: PASS
+        `99106198 / T=14714 / 46.41s`
+    - additional representative improvements also appeared:
+      - `prob_1`: `9394149 / T=309 -> 4396550 / T=138`
+      - `prob_38`: `1100342367 / T=82307 -> 911128161 / T=68115`
+      - `prob_40`: `14578721 / T=21620 -> 14409049 / T=21362`
+  - targeted subtype smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v168_coupled_runtime_20260621_001/`
+  - parent `v158` on the same target family:
+    - `accepted_for_score=7/8`
+    - failing row:
+      - `prob_33`: TIMEOUT
+        `75146886 / T=11148 / 62.48s`
+  - `v168` on the target family:
+    - `accepted_for_score=7/8`
+    - it recovered the intended coupled sibling:
+      - `prob_33`: PASS
+        `39938437 / T=5841 / 46.58s`
+    - but reopened the runtime cliff on the paired subtype:
+      - `prob_27`: PASS `55.36s ->` TIMEOUT `74.01s`
+    - several target-family rows did improve materially:
+      - `prob_25`: `1798973 / T=2609 -> 1499211 / T=2159`
+      - `prob_31`: `310854644 / T=23075 -> 200043171 / T=14766`
+      - `prob_32`: `16119470 / T=3890 -> 14498408 / T=3436`
+      - `prob_38`: `827168422 / T=61818 -> 662283744 / T=49442`
+      - `prob_39`: `145091141 / T=10777 -> 136012133 / T=10097`
+    - one remaining non-timeout regression stayed visible:
+      - `prob_40`: `8393616 / T=12351 -> 9402073 / T=13853`
+- Decision:
+  rejected
+- Reason:
+  - representative smoke was promising, but the mandatory targeted subtype gate
+    still failed scoreability:
+    - `accepted_for_score` stayed `7/8`
+    - `prob_27` reopened as timeout at `74.01s`
+  - this means the direct `v146` delegation is not a stable current-tree
+    `prob27-like` recovery path even when paired with a proven `prob33-like`
+    repair
+  - the candidate improved many rows, but a coupled-family timeout blocks any
+    full40 attempt and keeps it out of accepted / candidate promotion
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v168.md`
+  - next strategy:
+    keep the useful direct `prob33-like` repair signal, but replace the
+    delegated `v146` branch with a lighter direct current-tree `prob27-like`
+    stabilizer that bypasses the long inherited runtime stack
