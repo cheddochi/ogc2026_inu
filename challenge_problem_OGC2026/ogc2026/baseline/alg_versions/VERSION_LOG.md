@@ -14743,3 +14743,279 @@
     keep the useful direct `prob33-like` repair signal, but replace the
     delegated `v146` branch with a lighter direct current-tree `prob27-like`
     stabilizer that bypasses the long inherited runtime stack
+
+## reboot_v169_20260621_0935_v152_prob27like_micro_shortlist
+- File:
+  `reboot_v169_20260621_0935_v152_prob27like_micro_shortlist.py`
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- Status:
+  rejected
+- Experiment note:
+  - trusted historical BEST remains `v142`, but the current tree is still in
+    recovery mode and the newest scoreable current-tree parent is `v152`
+  - refreshed subtype table from trusted `v142` full40 plus train JSON:
+    `reports/ogc2026_reboot_v001/subtype_analysis_v169_prob27_direct_20260621_001/analysis.md`
+  - the repeated-family summary highlights `prob_37/prob_39`, but the newest
+    structural blocker in the current-tree recovery line is still the
+    `small/2bay/highproc/runtime-risk` family:
+    - trusted historical `prob_27`: `5541 / 46.20s`
+    - current-tree `v152` `prob_27`: `5637 / 54.00s`
+    - recent `v168` targeted smoke reopened the same family as a timeout when
+      `v146` was delegated wholesale from a heavier parent
+  - current-tree logs show why the older repair stopped working:
+    - `v152` reaches `5637` with only about `6.64s` remaining
+    - `v136` then skips because its deeper replay needs much more headroom
+  - the direct `v146` evidence still shows a live one-block signal:
+    - the efficiency shortlist top3 all improved `prob_27`
+    - even the first candidate alone improved:
+      `5637 -> 5456`
+- Hypothesis:
+  - the current-tree `prob27-like` residual is still a one-block move, but the
+    available headroom on top of `v152` is too small for the full `v136/v146`
+    second pass
+  - if we preserve `v152` unchanged everywhere, and on the
+    `prob27-like` feature class only run one ultra-cheap direct efficiency
+    shortlist reinsert with a tiny wall-clock budget, then:
+    - `prob_27` can recover part of the historical T gap
+    - the repair can stay under the 60s runtime cliff
+    - we avoid the coupled `prob33`/`prob27` timeout trade reopened by `v168`
+- Feature / subtype / timelimit selector:
+  - `bays == 2`
+  - `blocks >= 140`
+  - `proc_mean >= 20`
+  - `slack_mean >= 4.5`
+  - `pref_concentration >= 0.65`
+  - `pref_pressure >= 0.62`
+  - `pref_gap_mean >= 65`
+  - `timelimit` tier not `very_short/short`
+  - no instance name / file name / row-id selectors
+- Planned behavior:
+  - preserve `v152` exactly for every non-target row
+  - build the exact `v152` warm start first
+  - on the `prob27-like` feature class only, score tardy blocks with the
+    existing efficiency signal from `v146`
+  - try only the top one or two candidates with a much smaller budget and
+    position cap than `v146`
+  - keep only strictly better officially feasible results
+- Validation plan:
+  - representative tier smoke from refreshed subtype table:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype smoke:
+    `prob_25`, `prob_27`, `prob_30`, `prob_31`, `prob_32`,
+    `prob_33`, `prob_37`, `prob_39`, `prob_40`
+  - promotion gate:
+    - all representative smoke rows `accepted_for_score=true`
+    - targeted subtype smoke timeout `0`
+    - `prob_27` must improve on `v152`
+    - Family B rows (`prob_31`, `prob_32`, `prob_33`, `prob_37`, `prob_39`,
+      `prob_40`) must not reopen the current-tree runtime cliff
+- Smoke result:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v169_tier9_20260621_001/`
+  - `accepted_for_score=7/9`
+  - timeout `2`, invalid `0`, error `0`
+  - timed out rows:
+    - `prob_27`: TIMEOUT `90471292 / T=6614 / 62.49s`
+    - `prob_33`: TIMEOUT `142073506 / T=21188 / 69.83s`
+  - representative scoreable rows stayed accepted:
+    - `prob_1`: `28213016 / T=957 / 34.06s`
+    - `prob_25`: `1798973 / T=2609 / 53.49s`
+    - `prob_38`: `1082278381 / T=80949 / 50.54s`
+- Decision:
+  rejected
+- Reason:
+  - the mandatory representative smoke gate failed immediately at `7/9`, so no
+    targeted subtype smoke or full40 run was allowed
+  - the intended `prob27-like` micro-shortlist never fired in time:
+    - `prob_27` log shows `v152` reached the warm start so late that
+      `reboot_v169` skipped with `remaining=0.00s`
+  - a non-target sibling also reopened catastrophically before the new branch
+    could help:
+    - `prob_33` timed out at `69.83s`
+  - this means the candidate did not expose a useful new direct-move signal on
+    the current tree; instead it surfaced that the assumed scoreable `v152`
+    parent path is not reproducing its earlier runtime envelope in this smoke
+    run
+- Hidden-risk / interpretation:
+  - this is not a narrow `prob27-like` regression only
+  - the stronger signal is current-tree runtime drift on the inherited parent
+    chain before the new micro-shortlist has any chance to execute
+  - next work should revalidate `v152` directly on the reopened
+    `prob27/prob33` surface and isolate which inherited branch changed the
+    runtime envelope before attempting another T-improvement hypothesis
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260621_v169.md`
+
+## reboot_v170_20260621_1135_runtime_family_flatten_probe_driven
+- File:
+  `reboot_v170_20260621_1135_runtime_family_flatten_probe_driven.py`
+- Parent:
+  `reboot_v151_20260620_prob31like_direct_stabilizer_on_v142`
+- Status:
+  rejected
+- Experiment note:
+  - after `v169` failed, direct revalidation showed the current-tree `v152`
+    parent is not a trustworthy scoreable surface on the reopened runtime rows:
+    `reports/ogc2026_reboot_v001/verify_v152_runtime_surface_20260621_001/`
+    - `accepted_for_score=4/6`
+    - timeouts:
+      - `prob_27`: subprocess timeout at `90.03s`
+      - `prob_33`: TIMEOUT `104839535 / T=15615 / 71.80s`
+    - large accepted regressions also reopened:
+      - `prob_31`: `4554 -> 20702`
+      - `prob_38`: `25718 -> 77821`
+      - `prob_40`: `14530 -> 52012`
+  - the deeper cause is selector/chain mismatch, not only one bad local move:
+    - `v152`'s own `threebay_diffuse_runtime_backlog` selector matches none of
+      the representative reopened rows:
+      - `prob_33`, `prob_37`, `prob_38`, `prob_39` all return `match=False`
+    - so the current tree is still falling back into the inherited
+      runtime-sensitive `v001/v017/v023/...` chain on the very rows `v152`
+      was meant to flatten
+  - probe results identify a promising flatten direction:
+    - `prob_33` direct-builder probes on the current tree:
+      - `release_due + top_bays=3 + max_positions=8 + budget=32`
+        -> feasible `T=8388`, objective `56865786`, runtime `31.17s`
+      - this is much better than the current drifting inherited path
+        `T=15615 / 71.80s`, while staying comfortably inside the time limit
+    - `prob_27` direct smaller-budget builders are too weak, but the current
+      chain still reaches the good `v070` gap-single result before the late
+      inherited phases reopen the timeout:
+      - direct chain reaches `T=5637 / objective=77480587`
+      - timeout reopens only later when `v102/v122/...` continue past that
+- Hypothesis:
+  - the next repair should not search for another deeper T move first
+  - instead, flatten the reopened runtime-sensitive families into earlier,
+    cheaper, feature-based exits:
+    - for `2bay/highproc/concentrated/runtime-risk`, stop after the stable
+      `v070`-style gap-single phase instead of continuing into the late
+      inherited chain
+    - for `3bay/runtime-risk` rows, replace the inherited delegated warm-start
+      chain with a proc-tier-aware direct limited-concurrent builder using the
+      lighter probe-driven caps
+  - if this restores scoreability and cuts the current runtime drift, later
+    T-breakthrough candidates can be built on top of a trustworthy surface
+- Feature / subtype intent:
+  - `2bay/highproc/concentrated/runtime-risk`
+  - `3bay/lowproc|midproc|highproc/runtime-risk`
+  - selectors must use only `blocks`, `bays`, `proc_mean`,
+    `tight_slack_ratio`, `pref_concentration`, `pref_gap_mean`, and
+    `timelimit` tier
+- Planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted runtime-family smoke:
+    `prob_27`, `prob_33`, `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - promotion gate:
+    - representative smoke `accepted_for_score=true` on every row
+    - targeted runtime-family timeout `0`
+    - `prob_27` must stay scoreable at or near the `5637` current-tree signal
+    - `prob_33` must stop timing out and improve materially on the drifting
+      `15615`
+- Smoke result:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v170_tier9_20260621_001/`
+  - `accepted_for_score=7/9`
+  - timeout `2`, invalid `0`, error `0`
+  - scoreable improvements:
+    - `prob_33`: PASS `55219258 / T=8134 / 32.44s`
+      - large recovery versus the drifting current-tree `v152` recheck
+        `104839535 / T=15615 / 71.80s`
+    - `prob_38`: PASS `1024666955 / T=76633 / 50.59s`
+      - still poor, but below the catastrophic `v152` recheck
+  - failing rows:
+    - `prob_25`: TIMEOUT `1537897 / T=2217 / 61.14s`
+    - `prob_27`: TIMEOUT `77480587 / T=5637 / 78.27s`
+- Decision:
+  rejected
+- Reason:
+  - the representative smoke gate failed immediately at `7/9`, so no targeted
+    subtype smoke or full40 run was allowed
+  - the good signal on `prob33-like` is real and useful, but the candidate
+    still leaves the reopened 2-bay concentrated runtime family unstable
+  - logs show two distinct failure modes:
+    - `prob_25` never hit the new selector and still fell through the late
+      inherited chain until timing out just above the official limit
+    - `prob_27` reached the intended good direct result
+      `5637 / 77480587`, but the added gap-single phase was too expensive on
+      the current tree and pushed total runtime to `78.27s`
+- Hidden-risk / interpretation:
+  - the current-tree runtime restore should keep the recovered `prob33-like`
+    direct builder, but the next candidate must flatten the whole 2-bay
+    concentrated runtime family earlier:
+    - `prob25-like` needs an early direct exit instead of the late inherited
+      chain
+    - `prob27-like` should stop after the stable direct builder unless a much
+      cheaper follow-up move is proven
+- Notes:
+  - next structural hypothesis:
+    treat `2bay/highproc/concentrated/runtime-risk` as the next target family
+    while preserving the now-validated `prob33-like` direct restore
+
+## reboot_v171_20260621_1215_twobay_concentrated_early_exit_on_v170
+- File:
+  `reboot_v171_20260621_1215_twobay_concentrated_early_exit_on_v170.py`
+- Parent:
+  `reboot_v170_20260621_1135_runtime_family_flatten_probe_driven`
+- Status:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  repaired the narrow `2bay/highproc/concentrated` family, but did not close
+  the wider runtime-risk Family B guard and did not produce scoreable full40
+  evidence
+- Experiment note:
+  - preserve the useful `prob33-like` direct restore from `v170`
+  - flatten the `prob25-like` and `prob27-like` rows into earlier direct exits:
+    - `prob25-like` -> stable `v066` direct builder
+    - `prob27-like` -> stable direct builder from `v170` with the expensive
+      gap-single follow-up removed
+  - keep all selectors feature-based only
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v171_tier9_20260621_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - recovered intended current-tree rows:
+    - `prob_25`: PASS `1512671 / T=2176 / 32.20s`
+    - `prob_27`: PASS `78787221 / T=5735 / 44.12s`
+    - `prob_33`: PASS `66465567 / T=9821 / 33.85s`
+- Targeted runtime-family smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v171_runtime_family_20260621_001/`
+  - target set:
+    `prob_25`, `prob_27`, `prob_31`, `prob_33`,
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=7/8`
+  - timeout `1`, invalid `0`, error `0`
+  - blocking row:
+    - `prob_37`: TIMEOUT `90944439 / T=25911 / 73.74s`
+  - remaining high-T guard rows:
+    - `prob_31`: PASS `295623767 / T=21938 / 44.29s`
+    - `prob_38`: PASS `1120394778 / T=83806 / 51.70s`
+    - `prob_39`: PASS `251183395 / T=18737 / 59.79s`
+    - `prob_40`: PASS `8026436 / T=11795 / 59.93s`
+- Decision:
+  rejected
+- Reason:
+  - the candidate repaired the intended narrow family and passed the mandatory
+    representative smoke gate
+  - but the targeted guard still failed because `prob_37` exceeded the
+    official runtime limit
+  - the Family B high-T tail also remained materially open, so there is no
+    basis for full40 or BEST-promotion evaluation
+- Hidden-risk / interpretation:
+  - the new early exits are useful candidate-only evidence for the
+    `2bay/highproc/concentrated` slice
+  - the next bounded recovery cycle should move to the
+    `3bay/runtime-risk/high-T tail` family while preserving these early exits
+    as local evidence, not as a promoted active line
+- Notes:
+  - validation note:
+    `reports/ogc2026_reboot_v001/validation_note_20260623_v171.md`
+  - checkpoint note:
+    `reports/ogc2026_reboot_v001/recovery_checkpoint_20260623_publish.md`

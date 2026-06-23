@@ -241,3 +241,27 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
       without activating on sibling `prob_25`
     - do not publish the active wrapper as a re-trusted BEST until that
       current-tree recovery line reproduces scoreable canonical behavior
+- Latest recovery checkpoint note (`2026-06-23`, v171 family guard audit):
+  - representative tier smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v171_tier9_20260621_001/`
+    - `accepted_for_score=9/9`, timeout `0`, invalid `0`
+    - recovered the intended early-exit rows on the current tree:
+      - `prob_25`: `1512671 / T=2176 / 32.20s`
+      - `prob_27`: `78787221 / T=5735 / 44.12s`
+      - `prob_33`: `66465567 / T=9821 / 33.85s`
+  - targeted runtime-family smoke:
+    `reports/ogc2026_reboot_v001/target_reboot_v171_runtime_family_20260621_001/`
+    - `accepted_for_score=7/8`, timeout `1`, invalid `0`
+    - remaining blocker:
+      - `prob_37`: TIMEOUT `90944439 / T=25911 / 73.74s`
+    - large high-T tail also remained open:
+      - `prob_31`: `295623767 / T=21938`
+      - `prob_38`: `1120394778 / T=83806`
+      - `prob_39`: `251183395 / T=18737`
+      - `prob_40`: `8026436 / T=11795`
+  - interpretation:
+    - `v171` restored the narrow `2bay/highproc/concentrated` slice and kept
+      the `prob33-like` direct restore alive
+    - but the runtime-risk Family B guard still failed on `prob_37`, so the
+      candidate is not scoreable enough to justify full40 or BEST promotion
+    - publish this checkpoint as recovery-only, not as a trusted BEST refresh

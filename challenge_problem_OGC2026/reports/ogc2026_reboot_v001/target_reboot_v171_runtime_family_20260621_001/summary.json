@@ -1,0 +1,39 @@
+{
+  "run_id": "target_reboot_v171_runtime_family_20260621_001",
+  "timestamp": "2026-06-21T10:21:31",
+  "summary": {
+    "total": 8,
+    "feasible": 7,
+    "accepted_for_score": 7,
+    "checker_feasible": 8,
+    "timed_out": 1,
+    "failed": 1,
+    "objective_sum": 1815257962.0,
+    "objective_avg": 259322566.0,
+    "obj1_sum": 153042.0,
+    "obj1_avg": 21863.14285714286,
+    "obj1_max": 83806.0,
+    "obj2_avg": 4412.0,
+    "obj3_avg": 8184.714285714285,
+    "runtime_sum": 394.067953,
+    "runtime_avg": 49.258494125,
+    "runtime_max": 73.735319
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "reboot_v171_20260621_1215_twobay_concentrated_early_exit_on_v170",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v171_20260621_1215_twobay_concentrated_early_exit_on_v170.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_31.json",
+    "train\\prob_33.json",
+    "train\\prob_37.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
