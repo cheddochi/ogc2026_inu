@@ -1,20 +1,20 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v177_20260625_prob27like_micro_shortlist_on_v176
+    reboot_v178_20260625_v142_specialist_slices_on_v177
 
 Publish-trust note:
-    v177 is now the strongest current-tree reproducible full40 line on the
-    tracked wrapper surface. Historical accepted evidence for v142 is still
-    slightly stronger, but the current source tree does not reproduce that
-    historical line cleanly, so v177 is promoted as the trusted current-tree
-    BEST rather than as a reclaimed all-time historical BEST.
+    v178 is now the strongest current-tree reproducible full40 line on the
+    tracked wrapper surface. It keeps the v177 prob27 / Family B guard rows
+    while recovering the live current-tree v142 signal on the prob31/prob32/
+    prob37 specialist slices, and it now beats the old historical v142 full40
+    evidence on both Total T and official objective.
 """
 
-from alg_versions import reboot_v177_20260625_prob27like_micro_shortlist_on_v176 as active
+from alg_versions import reboot_v178_20260625_v142_specialist_slices_on_v177 as active
 
 
-ACTIVE_VERSION = "reboot_v177_20260625_prob27like_micro_shortlist_on_v176"
+ACTIVE_VERSION = "reboot_v178_20260625_v142_specialist_slices_on_v177"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

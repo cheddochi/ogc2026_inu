@@ -15654,3 +15654,127 @@
     scoreability or timeout risk anywhere else in the training 40
   - it remains weaker than the historical accepted `v142` evidence, so the
     promotion is again specifically a current-tree trusted BEST promotion
+
+## reboot_v178_20260625_v142_specialist_slices_on_v177
+- parent_version: `reboot_v177_20260625_prob27like_micro_shortlist_on_v176`
+- status: accepted
+- hypothesis:
+  - the freshly published `v177` line fixed the current-tree `prob27` tail, but
+    bounded probes still show a separate live signal where the current-tree
+    direct `v142` body remains materially stronger on a narrow subset:
+    - `prob_31`: `49464822 / T=3465 -> 39589844 / T=2735`
+    - `prob_32`: `13118978 / T=3076 -> 12781706 / T=2991`
+    - `prob_37`: `21777210 / T=5234 -> 17644653 / T=4208`
+  - the same probe also confirms why `v142` cannot be restored broadly:
+    `prob_27` regresses from `75028700 / T=5456` back to `76200619 / T=5541`
+  - therefore the next bounded candidate should keep `v177` as the default
+    surface and only dispatch to the current-tree direct `v142` body on the
+    narrow feature slices where that stronger signal is still live
+- chosen high-T subtype / selector direction:
+  - `small/4bay/highproc/concentrated/runtime-mid/tight/high-T`
+    (`prob_31`-like)
+  - `3bay/lowproc/diffuse/low-slack/runtime-mid-or-safe/high-T`
+    (`prob_32` / `prob_37`-like)
+  - explicitly exclude the `prob27-like` 2-bay heavy-tail slice and keep the
+    current `v177` Family B guards untouched
+- structural difference versus `v177`:
+  - `v177` added a bounded micro-shortlist postpass on top of `v176`
+  - `v178` instead uses a feature-gated portfolio dispatch between two full
+    parent bodies (`v177` default, `v142` specialist) under a runtime estimate
+    guard
+- planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_37`
+  - targeted subtype/guard smoke:
+    `prob_27`, `prob_31`, `prob_32`, `prob_33`, `prob_37`,
+    `prob_38`, `prob_39`, `prob_40`
+  - promote only if all rows stay `accepted_for_score=true` and the target
+    rows improve without reopening the current `v177` high-T guards
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v178_tier9_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_31`, `prob_37`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - target-family and guard rows stayed scoreable:
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_31`: `39589844 / T=2735`
+    - `prob_37`: `17644653 / T=3961`
+- Targeted subtype / guard smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v178_v142slices_20260625_001/`
+  - target set:
+    `prob_27`, `prob_31`, `prob_32`, `prob_33`, `prob_37`,
+    `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=8/8`
+  - timeout `0`, invalid `0`, error `0`
+  - current-tree comparison versus `v177` on the critical rows:
+    - `prob_27`: held at `75028700 / T=5456`
+    - `prob_31`: improved `49464822 / T=3465 -> 39589844 / T=2735`
+    - `prob_32`: improved `13118978 / T=3076 -> 12781706 / T=2992`
+    - `prob_33`: held at `26172225 / T=3805`
+    - `prob_37`: improved `21777210 / T=5234 -> 17644653 / T=3961`
+    - `prob_38`: held at `151254848 / T=11120`
+    - `prob_39`: held at `48160369 / T=3521`
+    - `prob_40`: held at `5780789 / T=8429`
+- Full 40:
+  `reports/ogc2026_reboot_v001/full_reboot_v178_train40_20260625_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`, invalid `0`, error `0`
+  - Total Objective `600231122`
+  - Avg Objective `15005778.050`
+  - Total T `61200`
+  - Avg T `1530.000`
+  - Total L `107226.0`
+  - Avg L `2680.650`
+  - Total P `167335.0`
+  - Avg P `4183.375`
+  - Avg Runtime `26.89s`
+  - Max Runtime `55.89s`
+  - current-tree comparison versus trusted active parent `v177` full40:
+    - Total Objective `615747848 -> 600231122`
+    - Avg Objective `15393696.200 -> 15005778.050`
+    - Total T `63287 -> 61200`
+    - Avg T `1582.175 -> 1530.000`
+    - Total L `111020.0 -> 107226.0`
+    - Avg L `2775.500 -> 2680.650`
+    - Total P `167738.0 -> 167335.0`
+    - Avg P `4193.450 -> 4183.375`
+    - Max Runtime `55.98s -> 55.89s`
+  - per-instance improvements:
+    - `prob_31`: objective `49464822 -> 39589844`, `T 3465 -> 2735`
+    - `prob_32`: objective `13118978 -> 12781706`, `T 3076 -> 2992`
+    - `prob_37`: objective `21777210 -> 17644653`, `T 5234 -> 3961`
+  - worst regression: none
+  - historical comparison versus old trusted `v142` full40:
+    - Total Objective `601403041 -> 600231122`
+    - Total T `61285 -> 61200`
+- Active wrapper publish subset recheck:
+  `reports/ogc2026_reboot_v001/verify_active_v178_publish_20260625_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`, invalid `0`, error `0`
+  - wrapper-sensitive target and guard rows matched the direct candidate:
+    - `prob_25`: `1454484 / T=2089`
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_31`: `39589844 / T=2735`
+    - `prob_32`: `12781706 / T=2992`
+    - `prob_37`: `17644653 / T=3961`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Decision:
+  accepted
+- meaningful_progress:
+  true
+- plateau_reason:
+  current-tree plateau was broken by a structural portfolio dispatch that cut
+  Total T materially and removed three high-T specialist rows without causing
+  any regression on the current trusted guard set
+- Reason:
+  - this candidate keeps `accepted_for_score=40/40` and preserves the current
+    `v177` prob27 / Family B guard behavior
+  - it materially improves the remaining current-tree high-T tail on
+    `prob_31`, `prob_32`, and `prob_37`
+  - it is also stronger than the old historical `v142` full40 evidence, so the
+    promotion is a genuine new BEST rather than a recovery-only refresh

@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `full_reboot_v178_train40_20260625_001`
+- algorithm_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- parent_algorithm_version: `reboot_v177_20260625_prob27like_micro_shortlist_on_v176`
+- run_id: `full_reboot_v178_train40_20260625_001`
+- timestamp: `2026-06-25T15:47:55`
+- git_branch: `hh_algorithm_loop`
+- git_head: `3db08a92f1274b2a474eba3ea17bdab1e63570cf`
+- git_dirty: `True`
+- algorithm_sha256: `4c0a43ba1b112dc3af514d13866cd34bf9ee909f3fe79b59414e8f0e276b7a43`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `40`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `600,231,122`
+- Avg Objective: `15,005,778.050`
+- Total T: `61,200`
+- Avg T: `1,530.000`
+- Total L: `107,226.0`
+- Avg L: `2,680.650`
+- Total P: `167,335.0`
+- Avg P: `4,183.375`
+- decision label: `accepted`
+- promotion status: `current-tree trusted BEST; stronger than published v177 and historical v142 full40 evidence`
