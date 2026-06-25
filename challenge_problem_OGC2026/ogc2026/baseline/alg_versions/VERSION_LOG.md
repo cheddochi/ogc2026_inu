@@ -15019,3 +15019,396 @@
     `reports/ogc2026_reboot_v001/validation_note_20260623_v171.md`
   - checkpoint note:
     `reports/ogc2026_reboot_v001/recovery_checkpoint_20260623_publish.md`
+
+## reboot_v172_20260623_2245_prob37like_direct_fast_single_on_v171
+- File:
+  `reboot_v172_20260623_2245_prob37like_direct_fast_single_on_v171.py`
+- Parent:
+  `reboot_v171_20260621_1215_twobay_concentrated_early_exit_on_v170`
+- Status:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  restored scoreability on the narrow `prob37-like` boundary runtime slice,
+  but the full40 line remained strictly worse than the historical trusted BEST:
+  total objective `+89,141,215`, total T `+8,973`, and no per-instance
+  objective/T improvement versus `v142`
+- Experiment note:
+  - latest rejected `v171` repaired the `2bay/highproc/concentrated` family
+    but still failed the targeted Family B guard because `prob_37` timed out
+    at `73.74s`
+  - the log shows `prob_37` still flowing through the late inherited
+    `v132 -> v060 -> v065` chain, where the final diffuse single-research
+    improvement is useful but runtime-unsafe on the current tree
+  - this candidate isolates the tighter `3bay/xlarge/lowproc/diffuse/tight`
+    subtype and replaces the late inherited path with:
+    - one direct `release_due` warm start
+    - one very cheap bounded single-block reinsertion only if wall-time
+      headroom remains
+  - preserve `v171` unchanged everywhere else, including the useful
+    `prob25-like`, `prob27-like`, and `prob33-like` early exits
+- Hypothesis:
+  - the current blocker is not lack of another broad search layer
+  - it is the current-tree runtime cliff on the `prob37-like` boundary member
+  - if we flatten that subtype into an early direct builder plus bounded fast
+    local repair, then the targeted runtime-family guard may become fully
+    scoreable without reopening the already-fixed 2-bay family
+- Feature / subtype / timelimit selector:
+  - `bays == 3`
+  - `blocks >= 240`
+  - `proc_mean < 12`
+  - `slack_mean <= 2.35`
+  - `pref_concentration <= 0.45`
+  - `pref_pressure <= 0.42`
+  - `workload_imbalance_pressure <= 0.20`
+  - timelimit tier not `very_short/short`
+  - no instance/file/id selectors
+- Planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_37`
+  - targeted runtime-family smoke:
+    `prob_25`, `prob_27`, `prob_31`, `prob_33`,
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - promotion gate for this bounded cycle:
+    - representative smoke `accepted_for_score=true` on every row
+    - targeted runtime-family timeout `0`
+    - `prob_37` must improve from the `v171` timeout state to scoreable
+    - `prob_25`, `prob_27`, `prob_33` must preserve their current-tree early
+      recovery behavior
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v172_tier9_20260623_002/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_37`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - repaired boundary row:
+    - `prob_37`: PASS `17947956 / T=4052 / 45.46s`
+- Targeted runtime-family smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v172_runtime_family_20260623_001/`
+  - target set:
+    `prob_25`, `prob_27`, `prob_31`, `prob_33`,
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=8/8`
+  - timeout `0`, invalid `0`, error `0`
+  - relative to `v171`, the candidate restored the whole guard slice:
+    - `prob_31`: `-246,158,945 objective / -18,473 T`
+    - `prob_33`: `-16,865,340 objective / -2,530 T`
+    - `prob_37`: TIMEOUT -> PASS `17947956 / T=4052 / 45.05s`
+    - `prob_38`: `-918,513,753 objective / -68,891 T`
+    - `prob_39`: `-202,584,790 objective / -15,184 T`
+    - `prob_40`: `-2,116,314 objective / -3,173 T`
+- Full benchmark:
+  `reports/ogc2026_reboot_v001/full_reboot_v172_train40_20260623_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`, invalid `0`, error `0`
+  - Total Objective `690,544,256`
+  - Avg Objective `17,263,606.400`
+  - Total T `70,258`
+  - Avg T `1,756.450`
+  - Total L `119,908`
+  - Avg L `2,997.700`
+  - Total P `168,092`
+  - Avg P `4,202.300`
+  - Avg Runtime `29.90s`
+  - Max Runtime `58.52s`
+  - versus historical trusted BEST `v142`:
+    - Total Objective `+89,141,215`
+    - Avg Objective `+2,228,530.375`
+    - Total T `+8,973`
+    - Avg T `+224.325`
+    - Total L `+12,575`
+    - Avg L `+314.375`
+    - Total P `+661`
+    - Avg P `+16.525`
+  - only `10/40` rows differed from `v142`, and all `10/40` were regressions
+  - worst regressions:
+    - `prob_38`: `+58,434,471 objective / +4,391 T`
+    - `prob_33`: `+16,666,903 objective / +2,479 T`
+    - `prob_31`: `+9,874,978 objective / +730 T`
+    - `prob_27`: `+2,586,602 objective / +194 T`
+- High-T rows:
+  - `prob_38`: `T=15,511`
+  - `prob_40`: `T=8,917`
+  - `prob_33`: `T=6,284`
+  - `prob_27`: `T=5,735`
+  - `prob_37`: `T=4,052`
+  - `prob_39`: `T=3,553`
+  - `prob_31`: `T=3,465`
+  - `prob_32`: `T=3,021`
+- Decision:
+  rejected
+- Reason:
+  - the candidate successfully closed the pending `prob37-like` runtime cliff
+    and produced scoreable full40 evidence
+  - but it did so by replacing the historical trusted BEST on the same Family B
+    rows with uniformly worse outcomes
+  - there is no avg objective, total objective, avg T, or total T improvement,
+    so this is repair evidence only and not a promotion line
+- Hidden-risk / interpretation:
+  - `v172` proves that the `prob37-like` timeout state can be flattened into a
+    scoreable direct path
+  - the next bounded cycle should preserve that runtime repair but recover the
+    stronger `v142` quality on the wider `prob31/prob33/prob38/prob39/prob40`
+    Family B tail
+- Notes:
+  - benchmark report:
+    `reports/ogc2026_reboot_v001/full_reboot_v172_train40_20260623_001/benchmark_report.md`
+
+## reboot_v173_20260623_2328_threebay_highproc_micro_prefix_on_v142
+- File:
+  `reboot_v173_20260623_2328_threebay_highproc_micro_prefix_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  the family-level `threebay_highproc_tail` micro-prefix hypothesis stayed
+  scoreable on representative smoke, but failed the Family B guard because
+  non-target `prob_37` timed out again at `66.61s`; the target family also did
+  not beat the trusted historical `v142` tail on the canonical comparison
+- Experiment note:
+  - current trusted historical BEST `v142` remains the safest full40 line, but
+    its largest remaining family-level T backlog is still the
+    `threebay_highproc_tail`
+  - family selector from `v123` matches four training rows together:
+    `prob_26`, `prob_28`, `prob_33`, `prob_38`
+  - on the trusted `v142` surface, that family still carries large T:
+    - `prob_26`: `T=2305`
+    - `prob_28`: family member with residual T/objective pressure
+    - `prob_33`: `T=3805`
+    - `prob_38`: `T=11120`
+  - instead of replaying an older broad parent, keep exact `v142` as the warm
+    start and run only a very short 2-3 block tardy-prefix micro-repair on the
+    family rows
+- Hypothesis:
+  - the remaining `threebay_highproc_tail` loss on `v142` is not a one-block
+    issue and not a full-family rebuild issue
+  - a bounded 2-3 block tardy-prefix repair on top of the exact `v142` warm
+    start can reduce Family B high-T tail without reopening the non-target
+    runtime surface
+- Feature / subtype / timelimit selector:
+  - family:
+    `threebay_highproc_tail`
+  - selector:
+    - `bays == 3`
+    - `blocks >= 150`
+    - `proc_mean >= 16.0`
+    - `0.20 <= tight_slack_ratio <= 0.40`
+    - `pref_gap_mean >= 48.0`
+    - `0.40 <= pref_concentration <= 0.80`
+  - timelimit tier not `very_short/short`
+  - no instance/file/id selectors
+- Planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_20`,
+    `prob_25`, `prob_26`, `prob_33`, `prob_38`
+  - targeted family/guard smoke:
+    `prob_26`, `prob_28`, `prob_31`, `prob_33`,
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - promotion gate for this bounded cycle:
+    - representative smoke `accepted_for_score=true` on every row
+    - targeted family smoke timeout `0`
+    - `threebay_highproc_tail` must improve on at least one family row without
+      materially reopening the `prob_31/prob_37/prob_39/prob_40` guard
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v173_tier9_20260623_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_20`,
+    `prob_25`, `prob_26`, `prob_33`, `prob_38`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - target-family rows remained scoreable:
+    - `prob_26`: PASS `31708207 / T=2305 / 37.81s`
+    - `prob_33`: PASS `26172225 / T=3805 / 51.57s`
+    - `prob_38`: PASS `222237362 / T=16442 / 50.01s`
+  - but the main tail signal was already wrong versus trusted historical `v142`:
+    - `prob_38`: `+70,982,514 objective / +5,322 T`
+- Targeted family/guard smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v173_threebay_highproc_20260623_001/`
+  - target set:
+    `prob_26`, `prob_28`, `prob_31`, `prob_33`,
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=7/8`
+  - timeout `1`, invalid `0`, error `0`
+  - blocking guard row:
+    - `prob_37`: TIMEOUT `17644653 / T=3961 / 66.61s`
+  - target-family rows:
+    - `prob_26`: PASS `31708207 / T=2305 / 37.39s`
+    - `prob_28`: PASS `18836666 / T=1463 / 34.59s`
+    - `prob_33`: PASS `26172225 / T=3805 / 50.49s`
+    - `prob_38`: PASS `191700468 / T=14146 / 50.76s`
+- Decision:
+  rejected
+- Reason:
+  - the family-level selector was valid and the candidate stayed scoreable on
+    representative smoke
+  - but the mandatory Family B guard reopened a non-target timeout on
+    `prob_37`, so the candidate is not scoreable enough for full40
+  - within the target family, the candidate did not show a trustworthy
+    canonical gain over historical `v142`; even the main tail row `prob_38`
+    stayed materially worse than the trusted benchmark
+- Hidden-risk / interpretation:
+  - the `threebay_highproc_tail` repair itself is not the only cost; calling
+    the exact `v142` warm start first still leaves too little runtime margin
+    for sibling Family B rows
+  - the next bounded cycle should move away from a `v142 warm-start + repair`
+    pattern and instead test a structurally different Family B strategy that
+    manages cross-row runtime budget earlier
+
+## reboot_v174_20260623_2358_threebay_diffuse_direct_fast_single_on_v142
+- File:
+  `reboot_v174_20260623_2358_threebay_diffuse_direct_fast_single_on_v142.py`
+- Parent:
+  `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
+- Status:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  the direct diffuse specialist stayed runtime-safe and cleared the targeted
+  smoke without timeout, but it still worsened the actual target-family rows:
+  `prob_32` and `prob_37` both regressed on objective/T versus trusted `v142`
+- Experiment note:
+  - `v173` showed that `v142 warm-start + repair` is still too expensive for
+    Family B guard rows because non-target `prob_37` timed out again at
+    `66.61s`
+  - the next bounded cycle therefore moves to a structurally different
+    strategy: bypass the inherited `v142` chain entirely on a multi-row
+    diffuse low-proc subtype and use one direct specialist path instead
+  - subtype choice from current high-T backlog:
+    - `prob_32`: `3-bay / 200 blocks / proc_mean=11.46 / diffuse / tight`
+    - `prob_37`: `3-bay / 250 blocks / proc_mean=11.51 / diffuse / tight`
+    - guarded-out concentrated neighbor:
+      - `prob_39`: `pref_concentration=0.572`, `pref_gap_mean=55.25`
+- Hypothesis:
+  - on the `3-bay / large-xlarge / mid-low proc / diffuse / tight-slack`
+    subtype, the inherited `v142` path is spending too much time before any
+    useful local movement happens
+  - an earlier direct `release_due` warm start plus one bounded fast-single
+    reinsert should recover runtime headroom and improve or preserve the
+    diffuse rows without reopening the concentrated neighbor
+- Feature / subtype / timelimit selector:
+  - `bays == 3`
+  - `blocks >= 180`
+  - `10.0 <= proc_mean <= 12.0`
+  - `tight_slack_ratio >= 0.54`
+  - `pref_concentration <= 0.45`
+  - `pref_gap_mean <= 50.0`
+  - timelimit tier not `very_short/short`
+  - no instance/file/id selectors
+- Planned validation:
+  - representative tier smoke:
+    `prob_3`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_25`, `prob_28`, `prob_32`, `prob_37`
+  - targeted subtype / guard smoke:
+    `prob_9`, `prob_32`, `prob_37`, `prob_39`, `prob_40`
+  - promotion gate for this bounded cycle:
+    - representative smoke `accepted_for_score=true` on every row
+    - targeted subtype smoke timeout `0`
+    - `prob_32` and/or `prob_37` must improve or preserve safely
+    - `prob_39` and `prob_40` must not regress into timeout
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v174_tier9_20260623_001/`
+  - smoke set:
+    `prob_3`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_25`, `prob_28`, `prob_32`, `prob_37`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - target rows stayed scoreable:
+    - `prob_32`: PASS `14823893 / T=3401 / 29.64s`
+    - `prob_37`: PASS `17947956 / T=4052 / 45.85s`
+  - but both already regressed against trusted `v142`:
+    - `prob_32`: `+2,042,187 objective / +409 T`
+    - `prob_37`: `+303,303 objective / +91 T`
+- Targeted subtype / guard smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v174_diffuse_direct_20260623_001/`
+  - target set:
+    `prob_9`, `prob_32`, `prob_37`, `prob_39`, `prob_40`
+  - `accepted_for_score=5/5`
+  - timeout `0`, invalid `0`, error `0`
+  - target-family rows:
+    - `prob_32`: `+2,042,187 objective / +409 T / -20.42s runtime`
+    - `prob_37`: `+303,303 objective / +91 T / -9.41s runtime`
+  - guarded concentrated neighbor also worsened:
+    - `prob_39`: `+438,236 objective / +32 T`
+    - `prob_40`: `+324,519 objective / +488 T`
+- Full 40:
+  - not run
+- Decision:
+  rejected
+- Reason:
+  - the structurally different direct specialist did solve the runtime-safety
+    part of the hypothesis
+  - but it failed the actual T-zero-first goal because the intended diffuse
+    target rows became worse, not better, on objective/T
+  - with no target-family gain and some guard degradation, there is no basis
+    for a full40 run
+- Hidden-risk / interpretation:
+  - earlier direct release_due entry does buy runtime margin on the diffuse
+    slice
+  - but the direct specialist by itself is too coarse and throws away too much
+    of the stronger `v142` quality signal
+  - the next bounded cycle should keep the runtime-margin lesson while testing
+    a different Family B strategy, likely a lightweight portfolio choice or a
+    bay/preference-aware direct builder rather than a pure release_due path
+
+## recovery_checkpoint_20260625_active_v142_drift_recheck
+- Status:
+  recovery
+- meaningful_progress:
+  false
+- plateau_reason:
+  the historical trusted `v142` evidence still exists, but the current active
+  wrapper surface no longer reproduces it scoreably on the current tree; BEST
+  promotion is blocked until a current-tree recovery parent is stabilized and a
+  new T-reducing candidate is validated from that parent
+- Current active wrapper recheck:
+  `reports/ogc2026_reboot_v001/verify_active_v142_recheck_20260625_001/`
+  - accepted_for_score `9/11`
+  - timeout `2`, invalid `0`
+  - blocking rows:
+    - `prob_33`: TIMEOUT `34809210 / T=5110 / 63.50s`
+    - `prob_37`: TIMEOUT `90.02s`
+  - major tail regressions versus historical trusted `v142`:
+    - `prob_27`: `76200619 / T=5541 -> 77480587 / T=5637`
+    - `prob_38`: `151254848 / T=11120 -> 382903971 / T=28497`
+    - `prob_39`: `48160369 / T=3521 -> 48743275 / T=3563`
+- Recovery parent recheck:
+  `reports/ogc2026_reboot_v001/verify_reboot_v152_recheck_20260625_001/`
+  - accepted_for_score `11/11`
+  - timeout `0`, invalid `0`
+  - representative current-tree tail rows:
+    - `prob_27`: `76200619 / T=5541`
+    - `prob_33`: `26172225 / T=3805`
+    - `prob_37`: `21777210 / T=5234`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+- High-T backlog refresh:
+  `reports/ogc2026_reboot_v001/analysis_live_v142_20260625_001/`
+  - repeated backlog family selected for the next bounded cycle:
+    `medium/3bay/lowproc/runtime-risk`
+  - representative members:
+    - `prob_37`: `T=3961`
+    - `prob_39`: `T=3521`
+- Follow-up candidate note:
+  - local candidate `reboot_v175_20260625_prob37like_direct_guarded_on_v152`
+    was created and smoke-tested on top of `v152`, but failed the gate:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v175_tier_target_20260625_001/`
+    - accepted_for_score `12/13`
+    - `prob_37`: TIMEOUT `17947956 / T=4052 / 61.89s`
+  - Decision:
+    rejected
+  - Reason:
+    the direct guarded specialist improved neither scoreability nor T on the
+    target boundary row under the 60s official limit
+- Interpretation:
+  - `v152` is currently the strongest smoke-valid recovery parent on this tree
+  - do not publish `baseline_hh.py` as trusted BEST
+  - next bounded cycle should keep `v152` as parent and pivot to a
+    structurally different T-breakthrough hypothesis rather than another direct
+    release_due specialist on the same prob37-like boundary

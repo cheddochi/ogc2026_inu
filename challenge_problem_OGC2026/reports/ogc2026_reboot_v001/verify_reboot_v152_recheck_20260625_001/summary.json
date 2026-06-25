@@ -1,0 +1,42 @@
+{
+  "run_id": "verify_reboot_v152_recheck_20260625_001",
+  "timestamp": "2026-06-25T12:01:43",
+  "summary": {
+    "total": 11,
+    "feasible": 11,
+    "accepted_for_score": 11,
+    "checker_feasible": 11,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 366166724.0,
+    "objective_avg": 33287884.0,
+    "obj1_sum": 33381.0,
+    "obj1_avg": 3034.6363636363635,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2464.6363636363635,
+    "obj3_avg": 5009.181818181818,
+    "runtime_sum": 353.739469,
+    "runtime_avg": 32.15813354545455,
+    "runtime_max": 55.956502
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "reboot_v152_recheck_20260625",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_19.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_37.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json"
+  ]
+}

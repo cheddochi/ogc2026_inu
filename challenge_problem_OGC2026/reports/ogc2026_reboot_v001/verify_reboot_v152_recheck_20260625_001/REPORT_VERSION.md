@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `verify_reboot_v152_recheck_20260625_001`
+- algorithm_version: `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- parent_algorithm_version: `reboot_v151_20260620_prob31like_direct_stabilizer_on_v142`
+- run_id: `verify_reboot_v152_recheck_20260625_001`
+- timestamp: `2026-06-25T18:07:54+09:00`
+- git_branch: `hh_algorithm_loop`
+- git_head: `ae77991e`
+- git_dirty: `true`
+- algorithm_sha256: see `run_manifest.json`
+- checker_sha256: see `run_manifest.json`
+- official_limit/timelimit: `60.0s`
+- accepted_for_score count: `11/11`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `366166724`
+- Avg Objective: `33287884.0`
+- Total T: `33381`
+- Avg T: `3034.6363636363635`
+- Total L: `27111`
+- Avg L: `2464.6363636363635`
+- Total P: `55101`
+- Avg P: `5009.181818181818`
+- decision label: `recovery`
+- promotion status: `current-tree recovery parent only; not trusted BEST`

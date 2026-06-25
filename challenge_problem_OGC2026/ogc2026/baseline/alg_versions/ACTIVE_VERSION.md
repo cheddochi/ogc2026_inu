@@ -157,6 +157,33 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     (`accepted_for_score=40/40`), but not a trusted BEST promotion candidate.
   - publish the current state as recovery evidence only unless a fresh
     canonical wrapper revalidation reproduces trusted `v142` behavior again.
+- Latest recovery checkpoint note (`2026-06-25`, active drift recheck):
+  - active wrapper recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v142_recheck_20260625_001/`
+    - accepted `9/11`; timeout `2`, invalid `0`
+    - blocking rows:
+      - `prob_33`: timeout at `63.50s`
+      - `prob_37`: subprocess timeout at `90.02s`
+    - major current-tree drift reopened on historical tail rows:
+      - `prob_27`: `76200619 / T=5541 -> 77480587 / T=5637`
+      - `prob_38`: `151254848 / T=11120 -> 382903971 / T=28497`
+      - `prob_39`: `48160369 / T=3521 -> 48743275 / T=3563`
+  - recovery parent recheck:
+    `reports/ogc2026_reboot_v001/verify_reboot_v152_recheck_20260625_001/`
+    - accepted `11/11`; timeout `0`, invalid `0`
+    - current-tree parent rows stayed scoreable:
+      - `prob_27`: `76200619 / T=5541`
+      - `prob_33`: `26172225 / T=3805`
+      - `prob_37`: `21777210 / T=5234`
+      - `prob_38`: `151254848 / T=11120`
+      - `prob_39`: `48160369 / T=3521`
+  - interpretation:
+    - the current `baseline_hh.py` wrapper surface is not trustworthy as a
+      reproduced accepted BEST on this source tree
+    - the newest smoke-valid current-tree recovery parent is now `v152`
+    - keep the active wrapper on the historical rollback line for now, but do
+      not describe it as trusted BEST until a fresh canonical full surface is
+      revalidated cleanly
 - Latest recovery checkpoint note (`2026-06-21`, prob40-family narrow-builder audit):
   - `v158` closed as rejected for promotion:
     `reports/ogc2026_reboot_v001/validation_note_20260621_v158.md`
