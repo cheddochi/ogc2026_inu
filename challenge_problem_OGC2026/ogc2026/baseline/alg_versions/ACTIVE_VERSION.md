@@ -1,14 +1,14 @@
 # Active HH Version
 
 - Active surface: `ogc2026/baseline/baseline_hh.py`
-- Active version id: `reboot_v176_20260625_prob38like_pair_quantile_on_v152`
+- Active version id: `reboot_v177_20260625_prob27like_micro_shortlist_on_v176`
 - Status: current-tree trusted BEST on the tracked baseline_hh surface; the
   historical accepted `v142` full evidence is still slightly stronger, but it
   is not publish-trusted on the current source tree because the wrapper surface
   drifted during revalidation
 - Entrypoint chain:
   `myalgorithm.py ACTIVE="hh"` -> `baseline_hh.py` ->
-  `alg_versions.reboot_v176_20260625_prob38like_pair_quantile_on_v152.algorithm`
+  `alg_versions.reboot_v177_20260625_prob27like_micro_shortlist_on_v176.algorithm`
 - Public interface:
 
 ```python
@@ -71,13 +71,18 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
       canonical `baseline_hh.py` wrapper surface still revalidated cleanly
       under the publish subset on the current source tree
 - Current recovery note:
-  - `v146` direct/full evidence stayed score-improving and its publish subset
-    recheck stayed scoreable, but its canonical wrapper full40 recheck reopened
-    non-target regressions:
-    `reports/ogc2026_reboot_v001/verify_active_v146_full40_20260621_001/`
-  - after restoring the active wrapper to historical `v142`, an immediate tail
-    recheck also failed to reproduce the old trusted tail rows on the current
-    source tree:
+  - the active wrapper moved from `v176` to `v177` because `v177` preserved
+    the `v176` Family B guard rows while reducing the remaining prob27-like
+    T tail on the current tree
+  - canonical evidence for the active trusted line:
+    - representative tier smoke:
+      `reports/ogc2026_reboot_v001/smoke_reboot_v177_tier9_20260625_001/`
+    - targeted subtype smoke:
+      `reports/ogc2026_reboot_v001/target_reboot_v177_prob27family_20260625_001/`
+    - active wrapper publish subset:
+      `reports/ogc2026_reboot_v001/verify_active_v177_publish_20260625_001/`
+    - full:
+      `reports/ogc2026_reboot_v001/full_reboot_v177_train40_20260625_001/`
     `reports/ogc2026_reboot_v001/verify_active_v142_restore_tail_20260621_001/`
     - `prob_27` timed out
     - `prob_40` passed with a large objective/T regression

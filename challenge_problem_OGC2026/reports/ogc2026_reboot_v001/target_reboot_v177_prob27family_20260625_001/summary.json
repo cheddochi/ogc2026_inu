@@ -1,0 +1,36 @@
+{
+  "run_id": "target_reboot_v177_prob27family_20260625_001",
+  "timestamp": "2026-06-25T14:05:25",
+  "summary": {
+    "total": 5,
+    "feasible": 5,
+    "accepted_for_score": 5,
+    "checker_feasible": 5,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 281679190.0,
+    "objective_avg": 56335838.0,
+    "obj1_sum": 30615.0,
+    "obj1_avg": 6123.0,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2240.4,
+    "obj3_avg": 7721.6,
+    "runtime_sum": 239.927838,
+    "runtime_avg": 47.9855676,
+    "runtime_max": 56.173451
+  },
+  "algorithms": [
+    {
+      "name": "candidate",
+      "version": "reboot_v177_prob27micro",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v177_20260625_prob27like_micro_shortlist_on_v176.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}

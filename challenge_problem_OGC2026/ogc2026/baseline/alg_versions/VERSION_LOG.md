@@ -15519,3 +15519,138 @@
   - it does not reclaim the stronger historical `v142` evidence, so the
     promotion is specifically a current-tree trusted BEST promotion rather than
     a historical all-time BEST restoration
+
+## reboot_v177_20260625_prob27like_micro_shortlist_on_v176
+- Status:
+  accepted
+- Parent:
+  `reboot_v176_20260625_prob38like_pair_quantile_on_v152`
+- meaningful_progress:
+  true
+- plateau_reason:
+  plateau/T-zero-first mode is still active after the `v176` publish
+  checkpoint, and the next bounded cycle must attack the next remaining
+  high-T subtype rather than spend more change budget on L/P-only polish
+- Experiment note:
+  - selected subtype from the refreshed high-T backlog:
+    `small/2bay/highproc/runtime-risk`
+  - representative target row:
+    - `prob_27`: `T=5541` on the full `v176` line and `T=5637` on the active
+      wrapper publish subset
+  - guard rows for this cycle:
+    - `prob_25` same-family sibling
+    - `prob_38`, `prob_39`, `prob_40` Family B runtime-risk guards
+  - bounded probe evidence before editing:
+    `reports/ogc2026_reboot_v001/probe_prob27family_20260625_001/`
+    - `accepted_for_score=20/20`, timeout `0`, invalid `0`, error `0`
+    - probe comparison on the target/guard slice:
+      - `prob_25`:
+        - `v152`: `1454484 / T=2089`
+        - `v169`: `1454484 / T=2089`
+        - `v176`: `1454484 / T=2089`
+      - `prob_27`:
+        - `v152`: `77173928 / T=5614`
+        - `v169`: `76282002 / T=5550`
+        - `v176`: `77480587 / T=5637`
+      - `prob_38`:
+        - `v169`: `181792691 / T=13403`
+        - `v176`: `151254848 / T=11120`
+      - `prob_39`:
+        - `v169`: `48598605 / T=3553`
+        - `v176`: `48598605 / T=3553`
+- Hypothesis:
+  - `v176` is already the best current-tree full40 line because it strongly
+    repairs the prob38-like Family B tail
+  - however, on the prob27-like 2-bay heavy-tail slice, `v176` falls back to
+    the inherited `v152`/`v070` path and leaves a remaining one-block local
+    improvement signal
+  - the `v169` micro-shortlist proved that this improvement is still live on
+    the current tree and does not disturb the nearby guard rows in a focused
+    probe
+  - therefore the next bounded candidate should keep the exact `v176` parent
+    surface everywhere, and only graft the tiny `v169` shortlist postpass onto
+    the prob27-like slice
+- Feature / selector / budget:
+  - feature-gated only; no instance/file/id selectors
+  - start from the exact `v176` result as the base solution
+  - activate only on the `prob27-like` feature family with positive residual T
+  - reuse the tiny shortlist budget from `v169` under strict
+    improvement-only acceptance
+- Planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_39`
+  - targeted subtype/guard smoke:
+    `prob_25`, `prob_27`, `prob_38`, `prob_39`, `prob_40`
+  - promotion gate for this bounded cycle:
+    - every smoke row must stay `accepted_for_score=true`
+    - timeout `0`, invalid `0`, error `0`
+    - `prob_27` must improve on T or objective against `v176`
+    - `prob_38`, `prob_39`, `prob_40` must preserve the `v176` Family B guard
+      behavior
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v177_tier9_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_39`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - target-family and guard rows stayed scoreable:
+    - `prob_25`: `1454484 / T=2089 / 32.02s`
+    - `prob_27`: `75028700 / T=5456 / 49.64s`
+    - `prob_39`: `48160369 / T=3521 / 56.99s`
+- Targeted subtype / Family B guard smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v177_prob27family_20260625_001/`
+  - target set:
+    `prob_25`, `prob_27`, `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=5/5`
+  - timeout `0`, invalid `0`, error `0`
+  - current-tree comparison versus `v176` on the critical rows:
+    - `prob_25`: held at `1454484 / T=2089`
+    - `prob_27`: improved `77480587 / T=5637 -> 75028700 / T=5456`
+    - `prob_38`: held at `151254848 / T=11120`
+    - `prob_39`: held at `48160369 / T=3521`
+    - `prob_40`: held at `5780789 / T=8429`
+- Full 40:
+  `reports/ogc2026_reboot_v001/full_reboot_v177_train40_20260625_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`, invalid `0`, error `0`
+  - Total Objective `614575929`
+  - Avg Objective `15364398.225`
+  - Total T `63287`
+  - Avg T `1582.175`
+  - Avg L `2775.5`
+  - Avg P `4193.45`
+  - Avg Runtime `25.11s`
+  - Max Runtime `55.98s`
+  - current-tree comparison versus trusted active parent `v176` full40:
+    - Total Objective `615747848 -> 614575929`
+    - Avg Objective `15393696.2 -> 15364398.225`
+    - Total T `63372 -> 63287`
+    - Avg T `1584.3 -> 1582.175`
+    - Avg L `2778.175 -> 2775.5`
+    - Avg P `4195.85 -> 4193.45`
+    - Max Runtime `55.68s -> 55.98s`
+  - historical comparison versus old trusted `v142` full40:
+    - Total Objective `601403041 -> 614575929` worse by `13172888`
+    - Total T `61285 -> 63287` worse by `2002`
+- Active wrapper publish subset recheck:
+  `reports/ogc2026_reboot_v001/verify_active_v177_publish_20260625_001/`
+  - `accepted_for_score=5/5`
+  - timeout `0`, invalid `0`, error `0`
+  - wrapper-sensitive target and guard rows matched the direct candidate:
+    - `prob_25`: `1454484 / T=2089`
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Decision:
+  accepted
+- Reason:
+  - this candidate keeps `accepted_for_score=40/40` and preserves the current
+    `v176` Family B guard rows while achieving real T-zero-first progress on
+    the next high-T subtype
+  - the prob27-like heavy-tail row improved materially without reopening
+    scoreability or timeout risk anywhere else in the training 40
+  - it remains weaker than the historical accepted `v142` evidence, so the
+    promotion is again specifically a current-tree trusted BEST promotion
