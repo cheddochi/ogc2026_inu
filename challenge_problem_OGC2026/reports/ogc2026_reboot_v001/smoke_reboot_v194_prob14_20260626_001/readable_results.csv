@@ -1,0 +1,3 @@
+instance,blocks,bays,objective,T,L,P,runtime_sec,checker_feasible,timed_out,valid_under_time_limit,accepted_for_score,error_message,algorithm_version,report_path,solution_file
+prob_14.json,250,4,4097312.0,198.0,3707,4201.0,28.830114,true,false,true,true,,v186,reports\ogc2026_reboot_v001\smoke_reboot_v194_prob14_20260626_001\report.html,reports\ogc2026_reboot_v001\smoke_reboot_v194_prob14_20260626_001\solutions\active__v186\prob_14.solution.json
+prob_14.json,250,4,4097312.0,198.0,3707,4201.0,31.634130,true,false,true,true,,v194,reports\ogc2026_reboot_v001\smoke_reboot_v194_prob14_20260626_001\report.html,reports\ogc2026_reboot_v001\smoke_reboot_v194_prob14_20260626_001\solutions\trackA__v194\prob_14.solution.json

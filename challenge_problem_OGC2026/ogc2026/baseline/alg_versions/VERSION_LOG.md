@@ -15778,3 +15778,1532 @@
     `prob_31`, `prob_32`, and `prob_37`
   - it is also stronger than the old historical `v142` full40 evidence, so the
     promotion is a genuine new BEST rather than a recovery-only refresh
+
+## reboot_v179_20260625_prob37_runtime_guard_on_v178
+
+- File: `reboot_v179_20260625_prob37_runtime_guard_on_v178.py`
+- Parent: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- Status: candidate
+- Timestamp: 2026-06-25 16:40 KST
+- Strategy:
+  - Preserve trusted `v178` unchanged outside one very narrow
+    `medium/3bay/lowproc/runtime-risk` boundary subtype.
+  - On that prob37-like slice only, bypass the expensive `v178 -> v142`
+    specialist path and call the cheaper direct-fast-single runtime-stable
+    specialist from `v174`.
+  - Gate the bypass by feature shape and by thin runtime headroom so
+    prob32-like rows stay on the stronger `v178` direct `v142` path.
+- Hypothesis:
+  - live rechecks after publishing `v178` showed a runtime cliff on `prob_37`
+    under workstation load while `prob_38/39/40` remained stable
+  - the issue looks like thin wall-time headroom on the prob37-like boundary
+    slice, not a lost T signal on the broader Family B tail
+  - a narrower recovery guard should trade a small amount of row quality on
+    that slice for materially safer runtime without reopening prob32/prob38/
+    prob39/prob40 guards
+- Intended target:
+  - restore scoreable runtime headroom on the prob37-like boundary row
+  - preserve current `v178` behavior on prob31/prob32/prob38/prob39/prob40
+  - treat this as a recovery/runtime-stability cycle first, not a BEST
+    promotion candidate unless the objective also holds up
+- Validation plan:
+  - representative tier smoke from the current v178 backlog analysis:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_21`, `prob_27`, `prob_33`, `prob_38`
+  - targeted guard additions:
+    `prob_31`, `prob_32`, `prob_37`, `prob_40`
+  - judge as `recovery` / `candidate` / `rejected` based on scoreability and
+    whether the runtime cliff is removed without broader guard regressions
+- Live wrapper recheck under workstation load:
+  `reports/ogc2026_reboot_v001/recheck_active_v178_tail_20260625_001/`
+  - scope: `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - result: `accepted_for_score=3/4`
+  - runtime cliff reproduced on `prob_37` only:
+    `17644653 / T=3961 / runtime 63.03s / Feas=N`
+  - sibling guards still matched canonical v178:
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Family probe against older diffuse specialists:
+  `reports/ogc2026_reboot_v001/probe_v178_v172_v174_familyB_20260625_001/`
+  - current live rechecks and older specialists both indicated that the
+    runtime-risk issue had collapsed to the prob37-like boundary row rather
+    than the whole Family B tail
+  - `v172` / `v174` removed the runtime cliff on `prob_37` but did not produce
+    a stronger score surface than canonical `v178`
+- Representative tier smoke plus targeted guards:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v179_prob37guard_20260625_002/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_21`,
+    `prob_27`, `prob_31`, `prob_32`, `prob_33`, `prob_37`,
+    `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=28/28`
+  - timeout `0`, invalid `0`, error `0`
+  - guard behavior held everywhere except the intended trade on `prob_37`
+  - key comparison versus live `v178` on the target row:
+    - `prob_37`: runtime `52.44s -> 34.89s`
+    - objective `17644653 -> 17947956`
+    - `T 3961 -> 4052`
+  - unchanged guard rows:
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_31`: `39589844 / T=2735`
+    - `prob_32`: `12781706 / T=2992`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Decision:
+  recovery
+- meaningful_progress:
+  false
+- plateau_reason:
+  runtime-headroom recovery only; candidate removes the prob37-like cliff but
+  does not improve T/objective and therefore cannot replace the trusted v178
+  BEST surface
+- Reason:
+  - `v179` is useful evidence that the current live risk is localized and can
+    be traded away with a narrow runtime guard
+  - however the trade is score-negative on the target row and offers no T
+    breakthrough on the overall high-T backlog
+  - keep `v178` active and carry the learned selector shape into the next
+    Family B runtime/T-tail hypothesis instead of promoting this candidate
+
+## post_v179_prob38family_probe_20260625
+
+- Probe path:
+  `reports/ogc2026_reboot_v001/probe_v178_v173_v108_prob38family_20260625_001/`
+- Scope:
+  `prob_21`, `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+- Compared:
+  - active `v178`
+  - `reboot_v173_20260623_2328_threebay_highproc_micro_prefix_on_v142`
+  - `reboot_v108_20260619_1857_prob38like_longlimit_gate_on_v106`
+- Result:
+  - `v173` is rejected as a reusable old-family T-breakthrough:
+    - `prob_38` timed out at `85.81s`
+    - no gain on `prob_39` / `prob_40`
+  - `v108` is rejected as a reusable old-family gate:
+    - `prob_39` timed out at `60.21s`
+    - `prob_27`, `prob_31`, and `prob_40` guard quality regressed
+  - active `v178` remains the only scoreable line on this target/guard set
+- Interpretation:
+  - the old prob38-family scheduling repairs have been exhausted on the
+    current-source surface
+  - the next meaningful Family B hypothesis should be structurally different:
+    not another inherited scheduling/prefix/quantile reuse, but a packing /
+    placement / bay-migration style move on the remaining high-T tail
+
+## post_v179_placement_probe_20260625
+
+- Probe path:
+  `reports/ogc2026_reboot_v001/probe_v178_v062_v092_placement_20260625_001/`
+- Scope:
+  `prob_21`, `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+- Compared:
+  - active `v178`
+  - `reboot_v062_20260618_1455_prob38like_edge_release_portfolio`
+  - `reboot_v092_20260619_0859_prob40like_runtime_stable_orient3`
+- Result:
+  - both legacy placement/orientation candidates stayed scoreable on this
+    subset, but neither is promotion-worthy on the current surface
+  - `v062` showed the edge/wall-hugging arm is still live enough to change the
+    prob38-family rows, but it regressed every critical guard:
+    - `prob_27`: `75028700 -> 78787221`
+    - `prob_31`: `39589844 -> 40956985`
+    - `prob_39`: `48160369 -> 48743275`
+    - `prob_40`: `5780789 -> 6517538`
+  - `v092` kept `prob_38` / `prob_39` on the stronger stable values, but still
+    regressed the surrounding guard rows:
+    - `prob_27`: `75028700 -> 77480587`
+    - `prob_31`: `39589844 -> 39781302`
+    - `prob_40`: `5780789 -> 6333528`
+- Interpretation:
+  - there is still a live placement/orientation signal on the remaining Family
+    B tail, but the old legacy selectors are too broad and couple the target
+    rows to the wrong neighbors
+  - the next real T-breakthrough candidate should not reuse `v062` / `v092`
+    directly; instead it should build a new narrow v178-based specialist that
+    isolates the placement signal without reopening prob27/prob31/prob40
+    regressions
+
+## reboot_v180_20260625_prob38like_release_restore_on_v178
+
+- Status:
+  rejected
+- Target subtype:
+  `medium/3bay/highproc/moderate/runtime-risk/tight/high-T`
+- Representative live row:
+  `prob_38`
+- Plateau mode:
+  `T-zero-first / high-T tail reduction`
+- Hypothesis:
+  current-tree `v178` still leaves a live builder-level release-aware signal on
+  the exact prob38-like slice. Instead of reusing the broader placement
+  portfolios directly, graft the old `v050` release-aware direct builder onto
+  `v178` only for the exact prob38-like feature band and keep `v178`
+  everywhere else.
+- Guard intent:
+  keep `prob_27`, `prob_31`, `prob_39`, and `prob_40` on the `v178` path
+  unchanged by selector design.
+- Planned smoke:
+  representative tiers `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+  `prob_21`, `prob_27`, `prob_31`, `prob_38`
+  plus targeted guards `prob_39`, `prob_40`
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v180_prob38release_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_21`,
+    `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+  - candidate `v180` result:
+    `accepted_for_score=11/11`, timeout `0`, invalid/error `0`
+  - live active comparison was noisy on this run:
+    active `v178` timed out on `prob_31` and regressed live on `prob_38`,
+    while candidate stayed scoreable everywhere
+  - temporary signal:
+    `prob_38` improved versus that noisy live active row
+    `170633608 / T=12576 -> 152453868 / T=11212`
+- Targeted subtype smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v180_prob38family_20260625_001/`
+  - scope:
+    `prob_21`, `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+  - candidate `v180` result:
+    `accepted_for_score=6/6`, timeout `0`, invalid/error `0`
+  - stable active `v178` reappeared cleanly on the same scope, so the exact
+    slice comparison is decisive
+  - unchanged guards:
+    - `prob_21`: `9383482 / T=664`
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_31`: `39589844 / T=2735`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+  - target row regression:
+    - `prob_38`: objective `151254848 -> 152453868`
+    - `prob_38`: `T 11120 -> 11212`
+    - runtime `47.13s -> 39.99s`
+- Decision:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  exact prob38like direct release-restore is runtime-cheaper but does not
+  reduce T or objective against the trusted active `v178` target row, so it is
+  not a real plateau break
+- Reason:
+  - the direct release-aware builder remains a live recovery signal when the
+    active line drifts badly under workstation noise
+  - however once the stable `v178` target row is reproduced, the narrow `v180`
+    slice is strictly worse on the only row it changes
+  - keep `v178` active and move the next Family B hypothesis away from pure
+    release-order restoration toward a new bounded placement / bay-migration /
+    orientation repair that can beat the trusted `prob_38` anchor itself
+
+## post_v180_prob40family_probe_20260625
+
+- Probe path:
+  `reports/ogc2026_reboot_v001/probe_v178_v092_v158_prob40family_20260625_001/`
+- Scope:
+  `prob_21`, `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+- Compared:
+  - active `v178`
+  - `reboot_v092_20260619_0859_prob40like_runtime_stable_orient3`
+  - `reboot_v158_20260621_prob40like_narrow_builder_on_v152`
+- Result:
+  - all three lines were scoreable on the targeted Family B set:
+    `accepted_for_score=6/6`, timeout `0`, invalid/error `0`
+  - neither legacy prob40-family direct/orientation line beats the trusted
+    `v178` anchor on the actual target row:
+    - active `v178` on `prob_40`:
+      `5780789 / T=8429 / runtime 55.42s`
+    - `v092` on `prob_40`:
+      `6333528 / T=9268 / runtime 32.51s`
+    - `v158` on `prob_40`:
+      `7117822 / T=10439 / runtime 28.19s`
+  - both legacy candidates also reopen nearby guard damage:
+    - `v092` regresses `prob_27` and `prob_31`
+    - `v158` regresses `prob_27` heavily and `prob_31` severely
+  - `prob_38` / `prob_39` stay at the active values under `v092` and `v158`,
+    so the negative result is localized to the prob40-family move itself
+- Interpretation:
+  - the old prob40-family direct/orient builders are still useful as runtime
+    reducers, but they are not score-superior to the trusted `v178` surface
+  - therefore the next meaningful Family B cycle should stop replaying old
+    direct-builder restorations and move to a genuinely different local tail
+    repair, such as bounded bay-migration / window sliding / pair swap around
+    the current `prob_38` and `prob_40` tardy clusters
+
+## reboot_v181_20260625_prob38like_runtime_quantile_on_v178
+
+- Status:
+  rejected
+- Target subtype:
+  `medium/3bay/highproc/moderate/runtime-risk/tight/high-T`
+- Representative live row:
+  `prob_38`
+- Plateau mode:
+  `T-zero-first / high-T tail reduction`
+- Hypothesis:
+  old direct-builder restorations are exhausted, but the live current-tree
+  drift on the exact prob38-like slice still looks like a stranded tardy-block
+  issue on top of the existing `v178` warm start. Replaying a very short
+  quantile shortlist only when the warm-start T is already well above the
+  trusted anchor may recover those spikes without disturbing the stable
+  trusted surface.
+- Guard intent:
+  preserve `v178` exactly on non-target rows and also on stable prob38-like
+  reruns where the base T is already near the trusted anchor.
+- Planned smoke:
+  representative tiers `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+  `prob_21`, `prob_27`, `prob_31`, `prob_38`
+  plus targeted guards `prob_39`, `prob_40`
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v181_prob38quant_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_21`,
+    `prob_27`, `prob_31`, `prob_38`, `prob_39`, `prob_40`
+  - candidate `v181` result:
+    `accepted_for_score=11/11`, timeout `0`, invalid/error `0`
+  - exact row behavior:
+    every row matched the active `v178` objective/T surface, including the
+    target row `prob_38`
+  - target row:
+    - active `v178`: `151254848 / T=11120 / runtime 46.76s`
+    - candidate `v181`: `151254848 / T=11120 / runtime 47.16s`
+  - unchanged guards:
+    - `prob_27`: `75028700 / T=5456`
+    - `prob_31`: `39589844 / T=2735`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Decision:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  recovery-style quantile shortlist never triggered on the stable trusted
+  surface, so the candidate produced no target-family movement at all
+- Reason:
+  - the live drift-recovery idea is plausible when `prob_38` spikes far above
+    the trusted anchor, but on the current stable active surface there is no
+    measurable T or objective gain
+  - because the candidate is a no-op on representative smoke, it is not worth
+    escalating to targeted/full validation as the next plateau-break attempt
+  - move on to a genuinely different Family B tail repair kernel, such as
+    bounded bay-migration / window-sliding / pair-swap around the current
+    `prob_38` or `prob_40` tardy clusters
+
+## reboot_v182_20260625_medium3bay_lowproc_fast_single_on_v178
+
+- Status:
+  in-progress
+- Target subtype:
+  `medium/3bay/lowproc/runtime-risk`
+- Representative live rows:
+  `prob_37`, `prob_39`
+- Plateau mode:
+  `T-zero-first / repeated-family tail reduction`
+- Hypothesis:
+  the expensive multi-block prefix repair does expose real T improvement on the
+  stable `v178` warm start for the repeated medium/3bay/lowproc/runtime-risk
+  family, but it is too slow to graft onto rows that already run in the 50s.
+  A much cheaper single-block bounded reinsertion on top of the exact `v178`
+  warm start may still recover a little local structure on this repeated
+  family without reopening the runtime cliff.
+- Guard intent:
+  keep `v178` unchanged outside the repeated medium/3bay/lowproc/runtime-risk
+  slice, especially on `prob_38` and `prob_40`
+- Planned smoke:
+  representative tiers `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+  `prob_21`, `prob_27`, `prob_33`, `prob_38`
+  plus targeted subtype rows `prob_37`, `prob_39`
+  and Family B guard row `prob_40`
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v182_medium3bay_lowproc_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_21`,
+    `prob_27`, `prob_33`, `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - scoreability:
+    both `v178` and `v182` were `accepted_for_score=12/12`, timeout `0`,
+    invalid/error `0`
+  - candidate surface versus canonical trusted `v178`:
+    - `prob_37`: objective `17644653 -> 17602705`, `T 3961 -> 3961`
+    - `prob_39`: objective `48160369 -> 48598605`, `T 3521 -> 3553`
+    - `prob_38`: candidate re-landed on the canonical trusted surface
+      `151254848 / T=11120` during a noisy smoke where the sibling `v178`
+      invocation drifted upward
+    - `prob_40`: candidate also re-landed on the canonical trusted surface
+      `5780789 / T=8429` during the same noisy smoke
+- Decision:
+  rejected
+- meaningful_progress:
+  false
+- plateau_reason:
+  the cheap fast-single kernel is runtime-safe, but on the target repeated
+  family it only produces a polish-only objective change on `prob_37` with no
+  T reduction and still misses the canonical trusted `prob_39` row
+- Reason:
+  - the candidate does preserve scoreability and appears to be robust against
+    some local drift on non-target guard rows, but that behavior is incidental
+    and not a real target-family breakthrough
+  - relative to the canonical trusted `v178` evidence, there is no Total T
+    win signal on the targeted repeated family
+  - stop here and move the next bounded cycle to a different structure, likely
+    a more direct drift-stable Family B / 3-bay high-T portfolio path or a
+    separate recovery-oriented stabilization note rather than another
+    lowproc-fast-single polish pass
+## 2026-06-25 reboot_v183_20260625_familyB_runtime_cliff_relax_on_v178 (in progress)
+
+- parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- status: `candidate`
+- focus_family: `Family B runtime-cliff recovery`
+- target_subtype:
+  - `threebay_xlarge_lowproc_opportunity` (prob39-like feature slice)
+  - `fourbay_highproc_narrow_tail` (prob40-like feature slice)
+- hypothesis:
+  - current-tree v178 canonical full evidence is no longer directly reproducible on
+    prob39/prob40, not because of random drift, but because the current runtime
+    surface reaches the late local-improvement gates too late and skips the
+    already-proven Family B tail moves.
+  - a narrow feature-gated recovery layer that lowers only those late headroom
+    guards should restore the lost T on the current environment without reopening
+    the broader Family B regressions.
+- expected_behavior:
+  - preserve v178 unchanged outside the two runtime-cliff slices
+  - recover prob39-like `v072` opportunity move with a much lower late gate
+  - recover prob40-like `v130` narrow quantile move with a smaller effective
+    reserve on top of the current base
+
+### Decision
+
+- status: `rejected`
+- decision_type: `recovery-oriented targeted probe rejection`
+- meaningful_progress: `false`
+- plateau_reason:
+  - the candidate exposed real current-tree runtime-cliff behavior, but it did
+    not produce a robust T improvement surface; the recovered moves depend on
+    several seconds of unstable residual headroom and disappear again under a
+    slightly slower base run.
+- evidence:
+  - canonical full evidence still shows the stronger v178 tail:
+    - `reports/ogc2026_reboot_v001/full_reboot_v178_train40_20260625_001/logs/hh__v178/prob_39.log`
+    - `reports/ogc2026_reboot_v001/full_reboot_v178_train40_20260625_001/logs/hh__v178/prob_40.log`
+  - current recovery note:
+    - `reports/ogc2026_reboot_v001/recovery_v178_runtime_cliff_20260625_001.md`
+- targeted probe summary:
+  - `prob_39`
+    - earlier manual replay showed the v072 opportunity move is still live when
+      remaining headroom stays above about `reserve + 4.0s`, recovering
+      `T=3521`.
+    - later direct v183 recheck reached the family path too late and skipped,
+      returning the current drifted `T=3553`.
+  - `prob_40`
+    - manual replay with a smaller effective reserve recovered the cheaper
+      narrow quantile move to `T=8549`, but a later direct v183 run reached the
+      family path with only `2.84s` remaining and returned a much worse current
+      base `T=10551`.
+- verdict:
+  - this is not a stable improvement candidate.
+  - the stronger conclusion is a recovery finding: the current tree has a real
+    runtime-cliff reproducibility problem on the Family B tail, so the next
+    bounded cycle should target a cheaper direct builder or earlier family
+    dispatch rather than another late-gate relaxation.
+
+## 2026-06-25 reboot_v184_20260625_prob40like_v158_slice_on_v178 (in progress)
+
+- parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- status: `candidate`
+- focus_family: `Family B high-T tail`
+- target_subtype: `fourbay_highproc_narrow_tail` (`prob40-like`)
+- hypothesis:
+  - on the current cold-start subprocess surface, the active `v178` prob40-like
+    chain is now too slow and frequently collapses into a much worse base build.
+  - the older `v158` narrow direct builder still dominates that same cold-start
+    subtype on both T and runtime, so a narrow feature-gated slice on top of
+    `v178` may recover the current-tree high-T tail without disturbing the rest
+    of the active surface.
+- targeted cold compare:
+  - `reports/ogc2026_reboot_v001/compare_prob40_cold_v178_v155_v158_20260625_001`
+  - `v178`: Objective `21,557,058`, `T=31,316`, Runtime `58.88s`
+  - `v155`: Objective `22,863,850`, `T=34,034`, Runtime `45.14s`
+  - `v158`: Objective `7,117,822`, `T=11,203`, Runtime `33.48s`
+
+### Decision
+
+- status: `rejected`
+- decision_type: `targeted smoke rejection`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v184_prob40like_v158slice_20260625_001`
+- smoke_set:
+  - tier smoke: `prob_1, prob_6, prob_11, prob_14, prob_19, prob_24, prob_27, prob_33, prob_38`
+  - targeted guard: `prob_39, prob_40`
+- scoreability:
+  - accepted_for_score `22/22`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `false`
+- plateau_reason:
+  - the narrow v158 slice improved runtime on the target family, but it did not
+    reduce T on the live current-tree prob40-like row and instead regressed it.
+- target comparison:
+  - `v178 prob_40`: Objective `6,376,359`, `T=9,318`, Runtime `58.57s`
+  - `v184 prob_40`: Objective `7,117,822`, `T=10,439`, Runtime `29.59s`
+- guard summary:
+  - all non-target smoke rows remained scoreable and effectively unchanged
+  - `prob_39` stayed unchanged at `T=3,553`
+- verdict:
+  - faster but worse on the actual T target, so this is not a valid T-zero-first
+    promotion path.
+  - next cycle should avoid replaying old direct builders verbatim and instead
+    search for a new prob40-like cold-start builder or an earlier Family B
+    dispatch that preserves the live `v178` target surface while reducing the
+    base force-placement collapse.
+
+## 2026-06-25 reboot_v185_20260625_familyA_tightslack_portfolio_on_v178 (in progress)
+
+- parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A T-zero constructive scheduler`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - representative backlog rows: `prob_11`, `prob_13`, `prob_19`, `prob_10`,
+    `prob_14`, `prob_20`
+- hypothesis:
+  - the current trusted `v178` line is plateaued on the first20 backlog because
+    it mostly preserves the older warm-start surface there instead of spending
+    bounded time on a T-first constructive portfolio.
+  - a feature-gated Family A layer that builds a few cheap direct candidates
+    with `slack`, `slack_workload`, and related tight-slack orderings on top of
+    the exact `v178` warm start can reduce first20 Total T without reopening
+    the Family B runtime cliff.
+- expected_behavior:
+  - preserve `v178` exactly outside the Family A tight-slack feature band
+  - require the `v178` warm start to already be scoreable before spending extra
+    budget
+  - compare a small feature-based constructive portfolio against the warm start
+    and keep only strictly better scoreable results
+- planned smoke:
+  - tier smoke: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_31`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_14`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+
+### Decision
+
+- status: `rejected`
+- decision_type: `targeted smoke rejection`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v185_trackA_20260625_001`
+- smoke_set:
+  - tier smoke: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_31`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_14`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+- scoreability:
+  - accepted_for_score `28/28`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `false`
+- plateau_reason:
+  - the Track A constructive portfolio is a no-op on the trusted warm-start
+    surface: every smoke row kept identical T and objective, while the direct
+    constructive candidates themselves were dramatically worse than the v178
+    warm start on the target first20 rows.
+- target comparison:
+  - no target-family smoke row improved:
+    - `prob_10`: `T 367 -> 367`, objective unchanged
+    - `prob_11`: `T 739 -> 739`, objective unchanged
+    - `prob_13`: `T 923 -> 923`, objective unchanged
+    - `prob_14`: `T 329 -> 329`, objective unchanged
+    - `prob_19`: `T 389 -> 389`, objective unchanged
+    - `prob_20`: `T 283 -> 283`, objective unchanged
+- runtime note:
+  - the wrapper stayed scoreable, but the extra Track A portfolio work raised
+    runtime on several targeted rows without any T gain:
+    - `prob_13`: runtime `12.57s -> 21.31s`
+    - `prob_19`: runtime `14.23s -> 21.75s`
+    - `prob_1`: runtime `14.59s -> 19.95s`
+- verdict:
+  - the current direct constructive portfolio is not competitive with the
+    existing v178 warm start on the Family A tight-slack band.
+  - the next Track A cycle should not replay raw direct builders again; it
+    should instead start from the trusted warm start and use a bounded tardy
+    reinsert / due-violation repair kernel aimed at the first20 backlog.
+
+## 2026-06-25 reboot_v186_20260625_familyA_warm_tardy_repair_on_v178 (in progress)
+
+- parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A T-zero warm-start repair`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - representative backlog rows: `prob_11`, `prob_13`, `prob_19`, `prob_10`,
+    `prob_14`, `prob_20`
+- hypothesis:
+  - the direct constructive candidates are much weaker than the trusted v178
+    warm start, so Track A should stop rebuilding from scratch and instead
+    repair only the actual tardy cluster in the warm-start solution.
+  - a bounded quantile single-reinsert / due-violation repair loop over the
+    top Family A tardy blocks may reduce first20 T while preserving the trusted
+    Family B surface.
+- expected_behavior:
+  - preserve `v178` unchanged outside the Family A tight-slack feature band
+  - require the `v178` warm start to already be scoreable before any extra work
+  - try a short sequence of tardy-block reinserts on the current best warm-start
+    assignments and keep only strictly better scoreable results
+- planned smoke:
+  - tier smoke: `prob_3`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_13`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+
+### Smoke decision
+
+- status: `candidate`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v186_trackA_20260625_001`
+- smoke_set:
+  - tier smoke: `prob_3`, `prob_6`, `prob_11`, `prob_14`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_13`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+- scoreability:
+  - accepted_for_score `28/28`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `true`
+- plateau_reason:
+  - Track A direct constructive replay was exhausted, but the new warm-start
+    tardy repair loop finally moved the first20 backlog while leaving Family B
+    guard rows unchanged.
+- smoke highlights:
+  - `prob_10`: `T 367 -> 214`, objective `5648556 -> 3425698`
+  - `prob_11`: `T 739 -> 665`, objective `17206722 -> 15527141`
+  - `prob_13`: `T 923 -> 892`, objective `17775043 -> 17198288`
+  - `prob_14`: `T 329 -> 198`, objective `6413830 -> 4097312`
+  - `prob_19`: `T 389 -> 347`, objective `4715273 -> 4269370`
+  - `prob_20`: `T 283 -> 278`, objective `8371363 -> 8239778`
+  - Family B guards unchanged on `prob_39` and `prob_40`
+
+### Full benchmark decision
+
+- status: `accepted`
+- decision_type: `direct full accepted pending wrapper publish recheck`
+- full_evidence:
+  - `reports/ogc2026_reboot_v001/full_reboot_v186_train40_20260625_001`
+- scoreability:
+  - accepted_for_score `40/40`
+  - timed_out `0`
+  - invalid/error `0`
+  - max runtime `56.05s` under the `60.0s` official limit
+- meaningful_progress: `true`
+- plateau_reason:
+  - this is not a polish-only candidate; it reduces Total T, Avg T, first20
+    Total T, and official objective on the full trusted surface with no
+    per-instance regressions.
+- comparison vs prior trusted `v178`:
+  - Total Objective `600231122 -> 592407671`
+  - Avg Objective `15005778.050 -> 14810191.775`
+  - Total T `61200 -> 60743`
+  - Avg T `1530.000 -> 1518.575`
+  - Total L `107226.0 -> 105539.0`
+  - Avg L `2680.650 -> 2638.475`
+  - Total P `167335.0 -> 167580.0`
+  - Avg P `4183.375 -> 4189.500`
+  - Avg Runtime `26.89s -> 28.06s`
+  - Max Runtime `55.89s -> 56.05s`
+  - first20 Total T `3180 -> 2723`
+  - T>0 count unchanged at `33`, but the first20 high-T backlog shrank
+- strongest row gains:
+  - `prob_10`: `T 367 -> 214`
+  - `prob_14`: `T 329 -> 198`
+  - `prob_11`: `T 739 -> 665`
+  - `prob_19`: `T 389 -> 347`
+  - `prob_13`: `T 923 -> 892`
+  - `prob_20`: `T 283 -> 278`
+- worst regression:
+  - none
+- promotion note:
+  - promote `v186` to the active baseline_hh wrapper and record the canonical
+    evidence bundle as the new trusted BEST.
+
+## 2026-06-25 reboot_v187_20260625_familyA_multiblock_warm_repair_on_v186 (in progress)
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A T-zero multi-block warm repair`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - representative backlog rows: `prob_13`, `prob_11`, `prob_19`, `prob_20`,
+    `prob_10`, `prob_14`
+- hypothesis:
+  - `v186` proved that warm-start single-block reinsertion can reduce the
+    first20 backlog, but the remaining gap now looks more coupled across 2-3
+    nearby tardy blocks.
+  - a bounded multi-block sequence repair on top of the exact `v186` warm start
+    may unlock additional Family A T reduction without disturbing the Family B
+    guard surface.
+- expected_behavior:
+  - preserve `v186` unchanged outside the Family A tight-slack feature band
+  - require the `v186` warm start to already be scoreable before extra work
+  - try a few short tardy-block sequences rather than isolated one-block moves
+- planned smoke:
+  - tier smoke: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_14`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+
+### Smoke decision
+
+- status: `candidate`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v187_trackA_20260625_001`
+- smoke_set:
+  - tier smoke: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_14`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+- scoreability:
+  - accepted_for_score `28/28`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `true`
+- plateau_reason:
+  - Track A warm-start single-block repair still left a coupled first20
+    backlog. The new multi-block sequence repair moved additional Family A
+    rows while keeping the Family B guard surface unchanged.
+- smoke highlights:
+  - `prob_10`: `T 214 -> 173`, objective `3425698 -> 2840658`
+  - `prob_13`: `T 892 -> 870`, objective `17198288 -> 16784598`
+  - `prob_14`: `T 198 -> 187`, objective `4097312 -> 3901754`
+  - `prob_11`: unchanged at `T 665`
+  - `prob_19`: unchanged at `T 347`
+  - `prob_20`: unchanged at `T 278`
+  - Family B guards unchanged on `prob_39` and `prob_40`
+
+### Full benchmark decision
+
+- status: `accepted`
+- decision_type: `direct full accepted pending wrapper publish recheck`
+- full_evidence:
+  - `reports/ogc2026_reboot_v001/full_reboot_v187_train40_20260625_001`
+- scoreability:
+  - accepted_for_score `40/40`
+  - timed_out `0`
+  - invalid/error `0`
+  - max runtime `55.54s` under the `60.0s` official limit
+- meaningful_progress: `true`
+- plateau_reason:
+  - this is not a polish-only candidate; it reduces Total T, Avg T, first20
+    Total T, and official objective on the full trusted surface with no
+    per-instance regressions.
+- comparison vs prior trusted `v186`:
+  - Total Objective `592407671 -> 591213383`
+  - Avg Objective `14810191.775 -> 14780334.575`
+  - Total T `60743 -> 60669`
+  - Avg T `1518.575 -> 1516.725`
+  - Total L `105539.0 -> 105594.0`
+  - Avg L `2638.475 -> 2639.850`
+  - Total P `167580.0 -> 167630.0`
+  - Avg P `4189.500 -> 4190.750`
+  - Avg Runtime `28.06s -> 29.79s`
+  - Max Runtime `56.05s -> 55.54s`
+  - first20 Total T `2723 -> 2649`
+  - T>0 count unchanged at `33`, but the first20 backlog shrank again
+- strongest row gains:
+  - `prob_10`: `T 214 -> 173`
+  - `prob_13`: `T 892 -> 870`
+  - `prob_14`: `T 198 -> 187`
+- worst regression:
+  - none
+- promotion note:
+  - direct full evidence is strong enough to justify wrapper-surface publish
+    recheck, but trusted BEST promotion still depends on reproducing the same
+    behavior through `baseline_hh.py`.
+
+### Wrapper publish recheck
+
+- status: `candidate`
+- wrapper_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_active_v187_publish_20260625_001`
+- scoreability:
+  - accepted_for_score `9/9`
+  - timed_out `0`
+  - invalid/error `0`
+- wrapper-surface reproduction:
+  - reproduced target gains:
+    - `prob_10`: `2840658 / T=173`
+    - `prob_13`: `16784598 / T=870`
+    - `prob_14`: `3901754 / T=187`
+  - near-match / stable rows:
+    - `prob_19`: `4269370 / T=347`
+    - `prob_20`: `8239778 / T=278`
+    - `prob_40`: `5780789 / T=8429`
+  - reopened guard drift versus direct full evidence:
+    - `prob_38`: direct `151254848 / T=11120` -> wrapper `195029258 / T=14398`
+    - `prob_39`: direct `48160369 / T=3521` -> wrapper `48598605 / T=3553`
+    - `prob_11`: minor wrapper-only drift `15527141 -> 15526245`
+- decision:
+  - do not promote `v187` to the trusted active wrapper
+  - restore `baseline_hh.py` active BEST to `v186`
+  - keep `v187` as a strong direct candidate with unresolved wrapper-surface
+    drift, not as a trusted publishable baseline_hh BEST
+
+## 2026-06-26 reboot_v188_20260626_familyA_lazy_multiblock_on_v186
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `rejected`
+- Track: `A`
+- focus_family: `Family A T-zero lazy-import warm repair`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - representative backlog rows: `prob_11`, `prob_13`, `prob_19`, `prob_20`,
+    `prob_10`, `prob_14`
+- hypothesis:
+  - `v187` improved the direct full40 surface but changed the wrapper-surface
+    Family B guards before any Track A work should have fired.
+  - the most plausible explanation is eager import-order / module-initialization
+    drift in the deep legacy chain.
+  - a lazy-import Track A postpass that calls exact `v186` first and imports
+    repair helpers only after the parent solution is already built should keep
+    the trusted wrapper-safe Family B surface while preserving the new
+    multi-block first20 repair signal.
+- expected_behavior:
+  - import only `v186` at module load time
+  - build exact `v186` warm start first
+  - if the row is not Family A, return immediately without loading repair
+    helpers
+  - if the row is Family A and still tardy, lazily import the repair helpers
+    and run the bounded multi-block sequence repair
+- planned smoke:
+  - tier smoke: `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_20`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_13`, `prob_19`
+  - Family B guard rows: `prob_39`, `prob_40`
+
+### Smoke gate
+
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v188_trackA_20260626_001`
+- scoreability:
+  - accepted_for_score `28/28`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `true`
+- direct-surface gains:
+  - `prob_10`: `3425698 / T=214 -> 2840658 / T=173`
+  - `prob_11`: `15903873 / T=682 -> 15527141 / T=665`
+  - `prob_13`: `17198288 / T=892 -> 16784598 / T=870`
+  - `prob_14`: `4097312 / T=198 -> 3901754 / T=187`
+  - `prob_27`: `75975343 / T=5527 -> 75028700 / T=5456`
+  - `prob_38`: `184556364 / T=13620 -> 151254848 / T=11120`
+  - `prob_39`: `48598605 / T=3553 -> 48160369 / T=3521`
+  - `prob_40`: `5910122 / T=8622 -> 5780789 / T=8429`
+- smoke note:
+  - the direct candidate restored the strong guard values seen in the trusted
+    `v186` publish subset while also improving several Family A rows.
+
+### Wrapper targeted revalidation
+
+- wrapper_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_wrapper_v188_target_20260626_001`
+- scoreability:
+  - accepted_for_score `9/9`
+  - timed_out `0`
+  - invalid/error `0`
+  - max runtime `59.41s` under the `60.0s` limit
+- wrapper-surface reproduction:
+  - reproduced target gains:
+    - `prob_10`: `2840658 / T=173`
+    - `prob_11`: `15527141 / T=665`
+    - `prob_13`: `16784598 / T=870`
+    - `prob_14`: `3901754 / T=187`
+    - `prob_19`: `4269370 / T=347`
+    - `prob_20`: `8239778 / T=278`
+    - `prob_39`: `48160369 / T=3521`
+  - reopened guard drift versus the direct smoke / trusted subset target:
+    - `prob_38`: direct `151254848 / T=11120` -> wrapper `170633608 / T=12576`
+    - `prob_40`: direct `5780789 / T=8429` -> wrapper `6376359 / T=9318`
+- decision:
+  - do not promote `v188` to full wrapper benchmark
+  - keep trusted active BEST on `v186`
+  - record `v188` as a structurally useful Track A probe that improved direct
+    behavior but still failed wrapper-surface guard stability
+
+## 2026-06-26 reboot_v189_20260626_familyA_inline_postpass_on_v186
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A T-zero inline postpass`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - representative backlog rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_19`, `prob_20`
+- hypothesis:
+  - `v188` showed that the multiblock Track A repair signal is real, but the
+    nested `v186 -> helper module` import chain still perturbs wrapper-surface
+    Family B guards.
+  - the next structural step is to keep the exact `v186` surface and add a
+    very small inline postpass that operates only on the already-built parent
+    solution, without importing the deeper Track A helper stack at runtime.
+- expected_behavior:
+  - build exact `v186` solution first
+  - compute light Family A features
+  - if not Family A or already near-zero tardy, return immediately
+  - otherwise run a bounded inline reorder/reinsert postpass over the tardy
+    subset only
+  - avoid new module-level imports beyond the exact trusted parent surface
+
+### Smoke gate
+
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v189_trackA_20260626_001`
+- smoke_set:
+  - tier rows: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_23`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_14`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+- scoreability:
+  - accepted_for_score `28/28`
+  - timed_out `0`
+  - invalid/error `0`
+- meaningful_progress: `true`
+- direct-surface gains:
+  - `prob_10`: `3425698 / T=214 -> 1697461 / T=95`
+  - `prob_11`: `15527141 / T=665 -> 11154452 / T=473`
+  - `prob_13`: `17198288 / T=892 -> 13873697 / T=713`
+  - `prob_19`: `4269370 / T=347 -> 2765323 / T=206`
+  - `prob_20`: `8239778 / T=278 -> 5199740 / T=164`
+  - `prob_27`: `75975343 / T=5527 -> 75028700 / T=5456`
+  - `prob_38`: `184556364 / T=13620 -> 151254848 / T=11120`
+  - `prob_39`: `48598605 / T=3553 -> 48160369 / T=3521`
+  - `prob_40`: unchanged at `5780789 / T=8429`
+- smoke note:
+  - unlike `v188`, the inline postpass improved multiple first20 rows while
+    also preserving the strong `prob_38/39/40` guard values on the direct
+    smoke surface.
+
+### Full benchmark decision
+
+- status: `accepted`
+- decision_type: `direct full accepted pending wrapper publish recheck`
+- full_evidence:
+  - `reports/ogc2026_reboot_v001/full_reboot_v189_train40_20260626_001`
+- scoreability:
+  - accepted_for_score `40/40`
+  - timed_out `0`
+  - invalid/error `0`
+  - max runtime `55.44s` under the `60.0s` official limit
+- meaningful_progress: `true`
+- comparison vs trusted `v186`:
+  - Total Objective `592407671 -> 577514263`
+  - Avg Objective `14810191.775 -> 14437856.575`
+  - Total T `60743 -> 59939`
+  - Avg T `1518.575 -> 1498.475`
+  - Total L `105539.0 -> 105781.0`
+  - Avg L `2638.475 -> 2644.525`
+  - Total P `167580.0 -> 167751.0`
+  - Avg P `4189.500 -> 4193.775`
+  - Avg Runtime `28.06s -> 29.11s`
+  - Max Runtime `56.05s -> 55.44s`
+  - first20 Total T materially reduced again
+- strongest row gains:
+  - `prob_10`: `T 214 -> 95`
+  - `prob_11`: `T 665 -> 473`
+  - `prob_12`: `T 14 -> 8`
+  - `prob_13`: `T 892 -> 713`
+  - `prob_15`: `T 80 -> 28`
+  - `prob_19`: `T 347 -> 206`
+  - `prob_20`: `T 278 -> 164`
+- worst regression:
+  - none on direct full40
+- promotion note:
+  - `v189` is the strongest direct Track A candidate so far, but trusted BEST
+  promotion still depends on reproducing the same behavior through the
+  wrapper-surface chain.
+
+### Wrapper targeted revalidation
+
+- wrapper_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_wrapper_v189_target_20260626_001`
+- scoreability:
+  - accepted_for_score `10/10`
+  - timed_out `0`
+  - invalid/error `0`
+  - max runtime `56.71s` under the `60.0s` official limit
+- wrapper-surface reproduction:
+  - reproduced direct gains exactly:
+    - `prob_10`: `1697461 / T=95`
+    - `prob_12`: `553078 / T=8`
+    - `prob_13`: `13873697 / T=713`
+    - `prob_15`: `890826 / T=28`
+    - `prob_19`: `2765323 / T=206`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+  - partial wrapper drift versus direct full evidence:
+    - `prob_11`: direct `11154452 / T=473` -> wrapper `11575932 / T=492`
+    - `prob_20`: direct `5199740 / T=164` -> wrapper `8239778 / T=278`
+- drift diagnosis:
+  - this is not the old Family B guard failure mode from `v187/v188`
+  - `prob_20` wrapper log shows the inline postpass was skipped because the
+    exact trusted parent consumed more time on that surface:
+    - `remaining=5.51s reserve=4.80s -> skip_familyA_inline_postpass`
+  - `prob_11` wrapper still improved materially over `v186`, but its parent
+    path consumed enough extra time that only a weaker `v186` base and a
+    slightly weaker inline carryover were reproduced
+- decision:
+  - do not promote `v189` to trusted active BEST yet
+  - keep `v189` as the strongest direct full40 Track A candidate with
+    wrapper-runtime drift concentrated on late-arriving Family A postpass work
+  - current trusted active BEST remains `v186`
+
+## 2026-06-26 reboot_v190_20260626_familyA_fastpath_portfolio_on_v186 (planned)
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A early-budget fastpath portfolio`
+- target_subtype:
+  - `tight-slack / short-proc / low-preference-concentration / high-w1`
+  - runtime-sensitive backlog rows: `prob_11`, `prob_20`
+- hypothesis:
+  - `v189` proved the inline postpass is effective, but placing it only after
+    the full `v186` chain leaves too little headroom on slower wrapper runs.
+  - the next structural move is a true Track A portfolio branch:
+    - trusted fallback candidate = exact `v186`
+    - fast Family A candidate = earlier, cheaper inline repair path
+    - optional bounded repair candidate = existing `v186` postpass
+    - choose the best feasible result under a stricter time planner
+- expected_behavior:
+  - extract features and timelimit tier immediately
+  - on Family A rows, reserve a dedicated early budget slice for the cheap
+    inline repair before the later parent work consumes all headroom
+  - preserve current Family B direct guard chain untouched
+  - keep only strictly better officially feasible outcomes
+
+### Smoke gate
+
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v190_trackA_20260626_001`
+- smoke_set:
+  - tier rows: `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_23`, `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows: `prob_10`, `prob_12`, `prob_15`, `prob_20`
+  - Family B guard rows: `prob_39`, `prob_40`
+- scoreability:
+  - accepted_for_score `30/30`
+  - timed_out `0`
+  - invalid/error `0`
+- direct-surface gains:
+  - `prob_10`: `3425698 / T=214 -> 1697461 / T=95`
+  - `prob_11`: `15527141 / T=665 -> 11154452 / T=473`
+  - `prob_12`: `684586 / T=14 -> 553078 / T=8`
+  - `prob_13`: `17198288 / T=892 -> 13873697 / T=713`
+  - `prob_15`: `1661206 / T=80 -> 913712 / T=29`
+  - `prob_19`: `4269370 / T=347 -> 3170387 / T=243`
+  - `prob_20`: `8239778 / T=278 -> 5304658 / T=168`
+- regressions / hidden risk:
+  - `prob_38`: `151254848 / T=11120 -> 157009384 / T=11550`
+  - `prob_39`: `48160369 / T=3521 -> 48598605 / T=3553`
+  - `prob_27`, `prob_33`, `prob_40`: no T gain despite added portfolio cost
+- drift diagnosis:
+  - the early fastpath candidate accidentally routed a guard row into the
+    weaker `v178` parent chain before the trusted `v186` fallback could win.
+  - `prob_38` log shows the fastpath base itself took the `forced=8` weaker
+    release-aware line, which is exactly the kind of guard reopening this
+    cycle was meant to avoid.
+- decision:
+  - reject `v190`
+  - do not run full benchmark
+  - keep active trusted BEST on `v186`
+
+## 2026-06-26 reboot_v191_20260626_familyA_fourbay_fastpath_on_v186 (planned)
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A four/five-bay fastpath portfolio`
+- target_subtype:
+  - `tight-slack / short-proc / high-w1 / 4-5 bay Family A rows`
+  - runtime-sensitive rows: `prob_10`, `prob_11`, `prob_12`, `prob_13`,
+    `prob_15`, `prob_19`, `prob_20`
+- hypothesis:
+  - `v190` showed that the early fastpath idea works on the target rows, but
+    the feature gate was still too broad and let a 3-bay guard row (`prob_38`)
+    into the weaker parent chain.
+  - the next structural move is to keep the same early-budget portfolio idea
+    but restrict the fastpath to the 4-5 bay Family A band, leaving 2-3 bay
+    rows on the exact trusted `v186` surface.
+- expected_behavior:
+  - exact `v186` remains the fallback candidate everywhere
+  - fastpath candidate is attempted only on 4-5 bay Family A rows
+  - 2-3 bay rows, especially the current guard surface, never leave the
+    trusted `v186` parent chain
+
+### Smoke decision
+
+- status: `rejected`
+- decision_type: `targeted smoke rejection`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v191_trackA_20260626_001/`
+- smoke_set:
+  - representative tiers:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_23`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype add-ons:
+    `prob_10`, `prob_12`, `prob_15`, `prob_20`, `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `30/30`
+  - timeout `0`
+  - invalid/error `0`
+  - target Family A gains were strong:
+    - `prob_10`: objective `3425698 -> 1697461`, `T 214 -> 95`
+    - `prob_11`: objective `15527141 -> 11154452`, `T 665 -> 473`
+    - `prob_12`: objective `684586 -> 553078`, `T 14 -> 8`
+    - `prob_13`: objective `17198288 -> 13873697`, `T 892 -> 713`
+    - `prob_15`: objective `1661206 -> 913712`, `T 80 -> 29`
+    - `prob_19`: objective `4269370 -> 3170387`, `T 347 -> 243`
+    - `prob_20`: objective `8239778 -> 5304658`, `T 278 -> 168`
+  - but the mandatory guard rows regressed materially:
+    - `prob_38`: objective `151254848 -> 170633608`, `T 11120 -> 12576`
+    - `prob_39`: objective `48160369 -> 48598605`, `T 3521 -> 3553`
+    - `prob_40`: objective `5780789 -> 5910122`, `T 8429 -> 8622`
+- diagnosis:
+  - this is not just a too-broad feature gate problem.
+  - `prob_38`, `prob_39`, and `prob_40` do not match the Family A selector, so
+    `v191` should have returned the exact trusted `v186` surface there.
+  - however the smoke logs still drifted from the active `v186` logs; the
+    clearest example is `prob_38`, where the active run built
+    `limited_concurrent forced=0`, while the `v191` surface built
+    `limited_concurrent forced=19` before landing on the weaker
+    `T=12576 / objective=170633608` result.
+  - this indicates import-chain / wrapper-surface drift from stacking `v190`
+    under a thin `v191` gate, even on non-target rows that were supposed to be
+    exact fallbacks.
+- decision:
+  - do not run full benchmark
+  - do not promote `v191`
+  - keep trusted active BEST on `v186`
+- next_structural_hypothesis:
+  - stay on Track A because the first20 T signal is real and strong.
+  - the next candidate should flatten the fastpath portfolio directly on top of
+    `v186` without importing the broader `v190` helper chain, so non-target
+    rows can truly remain on the exact trusted `v186` surface.
+  - in other words: rebuild the early Family A candidate as a direct,
+    side-effect-light `v186`-anchored portfolio rather than a wrapper around a
+    wrapper.
+
+## 2026-06-26 reboot_v192_20260626_familyA_flat_portfolio_on_v186 (planned)
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A four/five-bay flattened early portfolio`
+- target_subtype:
+  - `tight-slack / short-proc / high-w1 / 4-5 bay Family A rows`
+  - runtime-sensitive rows: `prob_10`, `prob_11`, `prob_12`, `prob_13`,
+    `prob_15`, `prob_19`, `prob_20`
+- hypothesis:
+  - `v191` confirmed the target signal is real, but the import chain through
+    `v190` perturbed non-target guard rows even when the feature gate should
+    have fallen back to exact `v186`.
+  - the next structural move is to rebuild the same candidate roles directly in
+    one file that imports only `v186`, so the non-target path is literally the
+    trusted `v186` path and the early candidate logic can only affect gated
+    Family A rows.
+- planned candidate roles:
+  - trusted fallback candidate = exact `v186`
+  - fast constructive candidate = early `v178` warm start with capped budget
+  - Track A specialist candidate = local inline same-bay tardy-order postpass
+    on the early warm start
+  - bounded repair candidate = local inline postpass on the exact `v186`
+    fallback when headroom remains
+  - no `v190` / `v191` wrapper stacking
+- expected_behavior:
+  - non-Family-A rows, especially `prob_38`, `prob_39`, `prob_40`, should
+    remain byte-for-byte on the trusted `v186` behavioral surface
+  - 4-5 bay Family A rows should still see the early T reductions shown by
+    `v190` / `v191`
+  - if the early candidate loses to exact `v186`, the trusted fallback must win
+
+### Smoke decision
+
+- status: `rejected`
+- decision_type: `targeted smoke rejection`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v192_trackA_20260626_001/`
+- smoke_set:
+  - representative tiers:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_23`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype add-ons:
+    `prob_10`, `prob_12`, `prob_15`, `prob_20`, `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `30/30`
+  - timeout `0`
+  - invalid/error `0`
+  - exact guard restoration succeeded:
+    - `prob_38`: exact hold at `151254848 / T=11120`
+    - `prob_39`: exact hold at `48160369 / T=3521`
+    - `prob_40`: exact hold at `5780789 / T=8429`
+  - 4-bay target rows improved materially:
+    - `prob_10`: objective `3425698 -> 1697461`, `T 214 -> 95`
+    - `prob_11`: objective `15527141 -> 11154452`, `T 665 -> 473`
+    - `prob_12`: objective `684586 -> 553078`, `T 14 -> 8`
+    - `prob_13`: objective `17198288 -> 13873697`, `T 892 -> 713`
+    - `prob_15`: objective `1661206 -> 890826`, `T 80 -> 28`
+    - `prob_19`: objective `4269370 -> 2765323`, `T 347 -> 206`
+  - but one mandatory target row regressed sharply:
+    - `prob_20`: objective `8239778 -> 27965190`, `T 278 -> 1016`
+- diagnosis:
+  - flattening the portfolio directly on `v186` did fix the wrapper/import
+    drift problem; the Family B guard surface now matches exact `v186`.
+  - the remaining issue is target-subtype heterogeneity inside the gated band.
+  - the new early portfolio is strong on the 4-bay Family A rows but not on the
+    5-bay / 300-block `prob_20`-like slice.
+  - `prob_20` log shows the early `v178` warm start reached
+    `T=1227 / objective=33591927` under the fast budget, the inline postpass
+    improved that only to `T=1016 / objective=27965190`, and the exact `v186`
+    fallback was skipped because the remaining headroom was below the runtime
+    estimate.
+- decision:
+  - do not run full benchmark
+  - do not promote `v192`
+  - keep trusted active BEST on `v186`
+- next_structural_hypothesis:
+  - stay on Track A.
+  - split the target family one step further: keep the new flattened early
+    portfolio only on the 4-bay Family A runtime-sensitive slice, and leave the
+    5-bay `prob_20`-like slice on exact `v186`.
+  - this is no longer about wrapper drift; it is about separating the real
+    4-bay T-breakthrough signal from the 5-bay false-positive slice.
+
+## 2026-06-26 reboot_v193_20260626_familyA_fourbay_flat_portfolio_on_v186 (planned)
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A 4-bay-only flattened early portfolio`
+- target_subtype:
+  - `tight-slack / short-proc / high-w1 / 4-bay Family A rows`
+  - representative target rows:
+    `prob_10`, `prob_11`, `prob_12`, `prob_13`, `prob_15`, `prob_19`
+- hypothesis:
+  - `v192` proved the flattened direct portfolio fixes the wrapper/import drift
+    and restores exact `v186` guard behavior on `prob_38` / `prob_39` /
+    `prob_40`.
+  - the remaining failure is subtype mixing: the same early portfolio is strong
+    on 4-bay Family A rows but harmful on the 5-bay `prob_20`-like slice.
+  - the next structural move is to keep the flattened Track A portfolio only on
+    the 4-bay band and leave 5-bay rows on exact `v186`.
+- planned candidate roles:
+  - trusted fallback candidate = exact `v186`
+  - fast constructive candidate = early `v178` warm start with capped budget
+  - Track A specialist candidate = local inline tardy-order postpass on the
+    early warm start
+  - bounded repair candidate = local inline postpass on the exact `v186`
+    fallback when headroom remains
+  - 5-bay Family A rows never enter the early portfolio
+- expected_behavior:
+  - `prob_38`, `prob_39`, `prob_40` should stay exactly on `v186`
+  - `prob_20` should also stay on exact `v186`
+  - the 4-bay Family A rows should preserve most of the `v192` T gains
+
+### Smoke decision
+
+- status: `candidate`
+- decision_type: `targeted smoke pass`
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v193_trackA_20260626_001/`
+- smoke_set:
+  - representative tiers:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_23`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype add-ons:
+    `prob_10`, `prob_12`, `prob_15`, `prob_20`, `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `30/30`
+  - timeout `0`
+  - invalid/error `0`
+  - target improvements held on the intended 4-bay slice:
+    - `prob_10`: objective `3425698 -> 1697461`, `T 214 -> 95`
+    - `prob_11`: objective `15527141 -> 11154452`, `T 665 -> 473`
+    - `prob_12`: objective `684586 -> 553078`, `T 14 -> 8`
+    - `prob_13`: objective `17198288 -> 13873697`, `T 892 -> 713`
+    - `prob_15`: objective `1661206 -> 913712`, `T 80 -> 29`
+    - `prob_19`: objective `4269370 -> 2765323`, `T 347 -> 206`
+  - the repaired guard behavior also held exactly:
+    - `prob_20`: exact hold at `8239778 / T=278`
+    - `prob_38`: exact hold at `151254848 / T=11120`
+    - `prob_39`: exact hold at `48160369 / T=3521`
+    - `prob_40`: exact hold at `5780789 / T=8429`
+
+### Full benchmark decision
+
+- status: `accepted`
+- decision_type: `direct full accepted pending wrapper publish recheck`
+- full_evidence:
+  - `reports/ogc2026_reboot_v001/full_reboot_v193_train40_20260626_001/`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `582923637`
+  - Avg Objective `14573090.925`
+  - Total T `60186`
+  - Avg T `1504.650`
+  - Avg Runtime `29.32s`
+  - Max Runtime `56.43s`
+- comparison_vs_trusted_v186:
+  - Total Objective `592407671 -> 582923637`
+  - Avg Objective `14810191.775 -> 14573090.925`
+  - Total T `60743 -> 60186`
+  - Avg T `1518.575 -> 1504.650`
+  - first20 Total T `2723 -> 2166`
+  - T>0 count `33 -> 33`
+  - material improvements:
+    - `prob_10`: `3425698 / T=214 -> 1697461 / T=95`
+    - `prob_11`: `15527141 / T=665 -> 11154452 / T=473`
+    - `prob_13`: `17198288 / T=892 -> 13873697 / T=713`
+    - `prob_15`: `1661206 / T=80 -> 913712 / T=29`
+    - `prob_19`: `4269370 / T=347 -> 2765323 / T=206`
+    - `prob_12`: `684586 / T=14 -> 553078 / T=8`
+  - known regression:
+    - `prob_14`: `4097312 / T=198 -> 6421844 / T=329`
+  - hidden-risk assessment:
+    - the regression is real and sits in the same 4-bay family, so it is not
+      ignored.
+    - however the new line still satisfies the plateau/T-first promotion rule:
+      Total T and Avg T improve materially, the entire first20 T reduction is
+      large (`-557`), and the rest of the target/guard surface stays stable.
+
+### Wrapper publish recheck
+
+- wrapper_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_wrapper_v193_target_20260626_001/`
+- wrapper_recheck_rows:
+  - target/improvement rows:
+    `prob_10`, `prob_11`, `prob_12`, `prob_13`, `prob_14`, `prob_15`,
+    `prob_19`, `prob_20`
+  - guard rows:
+    `prob_38`, `prob_39`, `prob_40`
+- wrapper_recheck_result:
+  - accepted_for_score `11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - wrapper surface matched the direct full candidate exactly on objective/T for
+    every checked row, including the known `prob_14` regression and the
+    `prob_38` / `prob_39` / `prob_40` guards.
+
+### Promotion decision
+
+- status: `accepted`
+- decision:
+  - promote `reboot_v193_20260626_familyA_fourbay_flat_portfolio_on_v186` to
+    current-tree trusted BEST
+  - update `baseline_hh.py` active wrapper to `v193`
+  - update `ACTIVE_VERSION.md` canonical evidence path to the `v193` full run
+- rationale:
+  - this line is not polish-only.
+  - it materially improves Total T, Avg T, first20 Total T, and total
+    objective while preserving scoreability `40/40` and reproducing the wrapper
+    surface on the target/guard recheck.
+  - the remaining `prob_14` regression is explicitly recorded as the next
+    Track A repair target, not hidden.
+- next_structural_hypothesis:
+  - start the next bounded cycle from trusted `v193`.
+  - stay in Track A first and isolate the `prob_14`-like 4-bay regression
+    pocket without giving back the new `prob_10` / `prob_11` / `prob_13` /
+    `prob_15` / `prob_19` gains.
+
+### Active publish override
+
+- status: `candidate`
+- decision_type: `active publish recheck override`
+- active_publish_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_active_v193_publish_20260626_001/`
+- active_publish_recheck_rows:
+  - `prob_10`, `prob_14`, `prob_20`, `prob_38`, `prob_39`, `prob_40`
+- active_publish_recheck_result:
+  - accepted_for_score `6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - `prob_10`, `prob_14`, `prob_20`, `prob_38`, `prob_39` matched the direct
+    and wrapper-recheck values
+  - but `prob_40` drifted on the real active publish chain:
+    - direct full / wrapper recheck:
+      `5780789 / T=8429`
+    - active publish chain:
+      `5860829 / T=8549`
+- drift diagnosis:
+  - this is a runtime-headroom drift on the real `myalgorithm.py -> baseline_hh.py`
+    publish surface, not a checker feasibility problem.
+  - the active publish `prob_40` log skipped the later `reboot_v142`
+    broad-move selection and stopped on the weaker `reboot_v135`
+    `prob40like_quantile` result, while the wrapper-recheck surface still had
+    enough headroom to reach the stronger `T=8429` solution.
+- final_decision:
+  - revoke the attempted `v193` promotion
+  - restore trusted active wrapper to `v186`
+  - keep `v193` as the strongest direct current-tree candidate with unresolved
+    active publish drift
+- corrected_next_structural_hypothesis:
+  - keep trusted BEST on `v186` for now.
+  - the next Track A candidate should inline the 4-bay portfolio signal more
+    directly into the trusted parent surface so the real active publish chain
+    does not lose the `prob_40` late headroom that `v186` currently preserves.
+
+## 2026-06-26 reboot_v194_20260626_familyA_fourbay_inline_on_v186
+
+- parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- status: `accepted`
+- Track: `A`
+- focus_family: `Family A 4-bay inline postpass on trusted v186 surface`
+- target_subtype:
+  - `tight-slack / short-proc / high-w1 / 4-bay Family A rows`
+  - representative target rows:
+    `prob_10`, `prob_11`, `prob_12`, `prob_13`, `prob_15`, `prob_19`
+- structural_hypothesis:
+  - `v193` showed that the 4-bay Family A signal is real, but the layered
+    wrapper path reintroduced active publish drift on non-target `prob_40`.
+  - `v194` keeps the exact trusted `v186` body as the active surface and adds
+    only a small inline same-bay tardy-order postpass after the trusted result,
+    so non-target rows inherit the canonical `v186` timing behavior.
+- candidate roles:
+  - trusted fallback candidate = exact `v186` result inside the same surface
+  - bounded repair candidate = current `v186` warm tardy repair
+  - Track A specialist candidate = extra 4-bay inline same-bay tardy-order
+    replay on top of the trusted `v186` result
+  - 5-bay and non-Family-A rows never enter the new postpass
+
+### Representative tier smoke
+
+- smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v194_trackA_20260626_001/`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_23`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows:
+    `prob_10`, `prob_12`, `prob_15`
+  - Family B / guard rows:
+    `prob_20`, `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `30/30`
+  - timeout `0`
+  - invalid/error `0`
+  - Avg Runtime `31.16s`
+  - Max Runtime `55.85s`
+- smoke_improvements_vs_v186:
+  - `prob_10`: `3425698 / T=214 -> 1697461 / T=95`
+  - `prob_11`: `15527141 / T=665 -> 11154452 / T=473`
+  - `prob_12`: `684586 / T=14 -> 553078 / T=8`
+  - `prob_13`: `17198288 / T=892 -> 13873697 / T=713`
+  - `prob_15`: `1661206 / T=80 -> 890826 / T=28`
+  - `prob_19`: `4269370 / T=347 -> 2765323 / T=206`
+- smoke_guard_holds:
+  - `prob_20`, `prob_23`, `prob_27`, `prob_33`, `prob_38`, `prob_39`,
+    `prob_40` stayed on the trusted `v186` surface with no regression
+
+### Targeted subtype smoke
+
+- targeted_smoke_evidence:
+  - `reports/ogc2026_reboot_v001/smoke_reboot_v194_prob14_20260626_001/`
+- targeted_smoke_result:
+  - accepted_for_score `2/2`
+  - timeout `0`
+  - invalid/error `0`
+  - `prob_14` exact hold:
+    `4097312 / T=198`
+- targeted_smoke_note:
+  - this explicitly removed the `v193` four-bay regression pocket before the
+    full benchmark
+
+### Full benchmark
+
+- full_evidence:
+  - `reports/ogc2026_reboot_v001/full_reboot_v194_train40_20260626_001/`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `580576219`
+  - Avg Objective `14514405.475`
+  - Total T `60054`
+  - Avg T `1501.350`
+  - Total L `105781.0`
+  - Avg L `2644.525`
+  - Total P `167751.0`
+  - Avg P `4193.775`
+  - Avg Runtime `28.52s`
+  - Max Runtime `56.44s`
+- full_comparison_vs_v186:
+  - prior trusted evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v186_train40_20260625_001/`
+  - Total Objective `592407671 -> 580576219`
+  - Avg Objective `14810191.775 -> 14514405.475`
+  - Total T `60743 -> 60054`
+  - Avg T `1518.575 -> 1501.350`
+  - Total L `105539.0 -> 105781.0`
+  - Avg L `2638.475 -> 2644.525`
+  - Total P `167580.0 -> 167751.0`
+  - Avg P `4189.500 -> 4193.775`
+  - Avg Runtime `28.06s -> 28.52s`
+  - Max Runtime `56.05s -> 56.44s`
+  - first20 Total T `2723 -> 2034`
+  - T>0 count `33 -> 33`
+- full_row_changes:
+  - improved rows only:
+    `prob_10`, `prob_11`, `prob_12`, `prob_13`, `prob_15`, `prob_19`
+  - no per-instance regressions on the full 40
+
+### Active publish recheck
+
+- active_publish_recheck_evidence:
+  - `reports/ogc2026_reboot_v001/verify_active_v194_publish_20260626_001/`
+- active_publish_recheck_rows:
+  - `prob_10`, `prob_11`, `prob_12`, `prob_13`, `prob_14`, `prob_15`,
+    `prob_19`, `prob_20`, `prob_38`, `prob_39`, `prob_40`
+- active_publish_recheck_result:
+  - accepted_for_score `11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - active publish chain matched the promoted values on every checked row:
+    - `prob_10`: `1697461 / T=95`
+    - `prob_11`: `11154452 / T=473`
+    - `prob_12`: `553078 / T=8`
+    - `prob_13`: `13873697 / T=713`
+    - `prob_14`: `4097312 / T=198`
+    - `prob_15`: `890826 / T=28`
+    - `prob_19`: `2765323 / T=206`
+    - `prob_20`: `8239778 / T=278`
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+
+### Promotion decision
+
+- status: `accepted`
+- decision:
+  - promote `reboot_v194_20260626_familyA_fourbay_inline_on_v186` to
+    current-tree trusted BEST
+  - keep `baseline_hh.py` on `v194`
+  - keep `ACTIVE_VERSION.md` canonical evidence on the `v194` smoke/full/active
+    publish recheck bundle
+- rationale:
+  - this line is not polish-only.
+  - it materially improves Total T, Avg T, first20 Total T, and total
+    objective while preserving accepted_for_score `40/40`.
+  - unlike `v193`, it also reproduces the promoted values on the real
+    `myalgorithm.py -> baseline_hh.py` active publish chain, so there is no
+    unresolved wrapper drift.
+
+### Next structural hypothesis
+
+- next_structural_hypothesis:
+  - start the next bounded cycle from trusted `v194`.
+  - stay in Track A first because first20 Total T is still `2034`, not near
+    zero.
+  - attack the remaining Family A first20 backlog without giving back the
+    trusted `prob_20` / `prob_38` / `prob_39` / `prob_40` guard surface.

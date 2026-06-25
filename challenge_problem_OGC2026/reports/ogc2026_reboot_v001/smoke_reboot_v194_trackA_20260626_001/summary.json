@@ -1,0 +1,51 @@
+{
+  "run_id": "smoke_reboot_v194_trackA_20260626_001",
+  "timestamp": "2026-06-26T06:21:25",
+  "summary": {
+    "total": 30,
+    "feasible": 30,
+    "accepted_for_score": 30,
+    "checker_feasible": 30,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 746991560.0,
+    "objective_avg": 24899718.666666668,
+    "obj1_sum": 71977.0,
+    "obj1_avg": 2399.233333333333,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2894.2,
+    "obj3_avg": 4897.5,
+    "runtime_sum": 934.703039,
+    "runtime_avg": 31.156767966666667,
+    "runtime_max": 55.850164
+  },
+  "algorithms": [
+    {
+      "name": "active",
+      "version": "v186",
+      "path": "ogc2026\\baseline\\myalgorithm.py"
+    },
+    {
+      "name": "trackA",
+      "version": "v194",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v194_20260626_familyA_fourbay_inline_on_v186.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_12.json",
+    "train\\prob_13.json",
+    "train\\prob_15.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_23.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}

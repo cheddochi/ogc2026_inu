@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `full_reboot_v194_train40_20260626_001`
+- algorithm_version: `reboot_v194_20260626_familyA_fourbay_inline_on_v186`
+- parent_algorithm_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
+- run_id: `full_reboot_v194_train40_20260626_001`
+- timestamp: `2026-06-26T06:38:45`
+- git_branch: `hh_algorithm_loop`
+- git_head: `8f012603`
+- git_dirty: `True`
+- algorithm_sha256: `3E5FBEBD4886022F2BE57C2E0C35DF857E3612F038DF621EFAA39C8FFF5E845E`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `40`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `580,576,219`
+- Avg Objective: `14,514,405.475`
+- Total T: `60,054`
+- Avg T: `1,501.350`
+- Total L: `105,781.0`
+- Avg L: `2,644.525`
+- Total P: `167,751.0`
+- Avg P: `4,193.775`
+- decision label: `accepted`
+- promotion status: `current-tree trusted BEST; lower Total T and objective than v186, with active publish target/guard recheck matched`

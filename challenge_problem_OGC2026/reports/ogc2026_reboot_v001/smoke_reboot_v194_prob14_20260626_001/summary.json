@@ -1,0 +1,37 @@
+{
+  "run_id": "smoke_reboot_v194_prob14_20260626_001",
+  "timestamp": "2026-06-26T06:37:29",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 8194624.0,
+    "objective_avg": 4097312.0,
+    "obj1_sum": 396.0,
+    "obj1_avg": 198.0,
+    "obj1_max": 198.0,
+    "obj2_avg": 3707.0,
+    "obj3_avg": 4201.0,
+    "runtime_sum": 60.464243999999994,
+    "runtime_avg": 30.232121999999997,
+    "runtime_max": 31.63413
+  },
+  "algorithms": [
+    {
+      "name": "active",
+      "version": "v186",
+      "path": "ogc2026\\baseline\\myalgorithm.py"
+    },
+    {
+      "name": "trackA",
+      "version": "v194",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v194_20260626_familyA_fourbay_inline_on_v186.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_14.json"
+  ]
+}
