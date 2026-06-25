@@ -15412,3 +15412,110 @@
   - next bounded cycle should keep `v152` as parent and pivot to a
     structurally different T-breakthrough hypothesis rather than another direct
     release_due specialist on the same prob37-like boundary
+
+## reboot_v176_20260625_prob38like_pair_quantile_on_v152
+- Status:
+  accepted
+- Parent:
+  `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- meaningful_progress:
+  true
+- plateau_reason:
+  current-tree trusted BEST remains in recovery, and the previous bounded cycle
+  (`v175`) spent its change budget on another direct specialist without
+  improving the target T tail; this cycle must switch to a structurally
+  different local-repair hypothesis
+- Experiment note:
+  - selected subtype from the refreshed high-T backlog:
+    `medium/3bay/highproc/runtime-risk`
+  - representative target row:
+    - `prob_38`: `T=11120`, runtime `47.08s`
+  - Family B guard rows for this cycle:
+    - `prob_37`, `prob_39`, `prob_40`
+- Hypothesis:
+  - `v152` is already scoreable on the current tree, but it still leaves the
+    largest Family B high-T tail on the prob38-like slice
+  - replacing the whole row builder was too fragile (`v154`/`v155`/`v175`)
+  - instead, keep the exact `v152` warm start and spend only residual headroom
+    on a bounded two-block quantile reinsert around the top tardy block
+  - this should target T reduction on the prob38-like slice while preserving
+    the current-tree scoreable parent surface on non-target runtime-risk guards
+- Feature / selector / budget:
+  - feature-gated only; no instance/file/id selectors
+  - start from `v152` base solution
+  - activate only on `prob38-like` feature family with positive residual T
+  - use a small shared deadline and strict improvement-only acceptance
+- Planned validation:
+  - representative tier smoke:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - targeted Family B guard smoke:
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - promotion gate for this bounded cycle:
+    - every smoke row must stay `accepted_for_score=true`
+    - timeout `0`, invalid `0`, error `0`
+    - `prob_38` must improve on T or objective against `v152`
+    - `prob_37`, `prob_39`, `prob_40` must not reopen scoreable/runtime failure
+- Representative tier smoke:
+  `reports/ogc2026_reboot_v001/smoke_reboot_v176_tier9_20260625_001/`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`,
+    `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=9/9`
+  - timeout `0`, invalid `0`, error `0`
+  - high-T representative rows stayed scoreable:
+    - `prob_27`: `76200619 / T=5541 / 52.42s`
+    - `prob_33`: `26172225 / T=3805 / 43.58s`
+    - `prob_38`: `151254848 / T=11120 / 47.76s`
+- Targeted Family B guard smoke:
+  `reports/ogc2026_reboot_v001/target_reboot_v176_prob38family_20260625_001/`
+  - target set:
+    `prob_37`, `prob_38`, `prob_39`, `prob_40`
+  - `accepted_for_score=4/4`
+  - timeout `0`, invalid `0`, error `0`
+  - current-tree comparison versus recovery parent recheck / full surface:
+    - `prob_37`: held scoreable at `21777210 / T=5234`
+    - `prob_38`: held the improved current-tree tail row
+      `151254848 / T=11120`
+    - `prob_39`: recovered from the unstable parent-target rerun to
+      `48160369 / T=3521`
+    - `prob_40`: recovered the strong tail row
+      `5780789 / T=8429`
+- Full 40:
+  `reports/ogc2026_reboot_v001/full_reboot_v176_train40_20260625_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`, invalid `0`, error `0`
+  - Total Objective `615747848`
+  - Avg Objective `15393696.2`
+  - Total T `63372`
+  - Avg T `1584.3`
+  - Avg L `2778.175`
+  - Avg P `4195.85`
+  - Avg Runtime `24.75s`
+  - Max Runtime `55.68s`
+  - current-tree comparison versus accepted recovery parent `v152` full40:
+    - Total Objective `840910136 -> 615747848`
+    - Avg Objective `21022753.4 -> 15393696.2`
+    - Total T `90386 -> 63372`
+    - Avg T `2259.65 -> 1584.3`
+    - Max Runtime `59.53s -> 55.68s`
+  - historical comparison versus old trusted `v142` full40:
+    - Total Objective `601403041 -> 615747848` worse by `14344807`
+    - Total T `61285 -> 63372` worse by `2087`
+- Active wrapper publish subset recheck:
+  `reports/ogc2026_reboot_v001/verify_active_v176_publish_20260625_001/`
+  - `accepted_for_score=5/5`
+  - timeout `0`, invalid `0`, error `0`
+  - wrapper-sensitive tail rows remained scoreable:
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- Decision:
+  accepted
+- Reason:
+  - this candidate is the strongest current-tree reproducible full40 line and
+    materially improves the recovery parent on Total T, Avg T, Total Objective,
+    and high-T Family B guard stability
+  - it does not reclaim the stronger historical `v142` evidence, so the
+    promotion is specifically a current-tree trusted BEST promotion rather than
+    a historical all-time BEST restoration

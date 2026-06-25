@@ -1,13 +1,14 @@
 # Active HH Version
 
 - Active surface: `ogc2026/baseline/baseline_hh.py`
-- Active version id: `reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136`
-- Status: recovery rollback line on the current tracked baseline_hh surface; the
-  last historical accepted BEST evidence is still `v142`, but the current
-  source tree is under trust revalidation
+- Active version id: `reboot_v176_20260625_prob38like_pair_quantile_on_v152`
+- Status: current-tree trusted BEST on the tracked baseline_hh surface; the
+  historical accepted `v142` full evidence is still slightly stronger, but it
+  is not publish-trusted on the current source tree because the wrapper surface
+  drifted during revalidation
 - Entrypoint chain:
   `myalgorithm.py ACTIVE="hh"` -> `baseline_hh.py` ->
-  `alg_versions.reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136.algorithm`
+  `alg_versions.reboot_v176_20260625_prob38like_pair_quantile_on_v152.algorithm`
 - Public interface:
 
 ```python
@@ -136,6 +137,33 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
     wrapper/publish-subset evidence, but it is not the trusted active BEST
     because the canonical wrapper full40 recheck reopened `prob_39` and
     `prob_40` regressions outside its intended target slice.
+- Latest current-tree trusted BEST note (`2026-06-25`, v176 full40 publish):
+  - canonical full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v176_train40_20260625_001/`
+  - accepted `40/40`; timeout `0`, invalid `0`
+  - current-tree improvement versus recovery parent `v152`:
+    - Total Objective `840,910,136 -> 615,747,848`
+    - Avg Objective `21,022,753.4 -> 15,393,696.2`
+    - Total T `90,386 -> 63,372`
+    - Avg T `2,259.65 -> 1,584.3`
+    - Max Runtime `59.53s -> 55.68s`
+  - historical comparison:
+    - historical `v142` still has stronger old full evidence
+      (`601,403,041`, `T=61,285`)
+    - but the current wrapper surface did not reproduce that line cleanly on
+      revalidation, so `v142` is not being published as the active BEST
+  - interpretation:
+    - `v176` is the strongest current-tree reproducible full40 line
+    - publish `v176` as the tracked active wrapper target
+    - keep the historical `v142` evidence recorded only as stronger-but-drifted
+      reference history, not as the current trusted active BEST
+  - active wrapper publish subset recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v176_publish_20260625_001/`
+    - accepted `5/5`; timeout `0`, invalid `0`
+    - sensitive tail rows stayed scoreable on the wrapper surface:
+      - `prob_38`: `151254848 / T=11120`
+      - `prob_39`: `48160369 / T=3521`
+      - `prob_40`: `5780789 / T=8429`
 - `v096` remains the last team-shared historical benchmark report reference:
     `reports/ogc2026_reboot_v001/full_reboot_v096_train40_20260619_001/benchmark_report.md`
 - Rollback target:

@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `report_full_reboot_v176_train40_20260625_001`
+- algorithm_version: `reboot_v176_20260625_prob38like_pair_quantile_on_v152`
+- parent_algorithm_version: `reboot_v152_20260621_runtime_backlog_direct_flatten_on_v151`
+- run_id: `full_reboot_v176_train40_20260625_001`
+- timestamp: `2026-06-25T13:12:36`
+- git_branch: `hh_algorithm_loop`
+- git_head: `97dd3776`
+- git_dirty: `True`
+- algorithm_sha256: `7d48cb24ff9cf34dd014d26917f42ac8bc5af1c5698af1e35868e16cf4905bc7`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit: `60.000000`
+- accepted_for_score_count: `40`
+- timeout_count: `0`
+- invalid_error_count: `0`
+- Total Objective: `615747848.0`
+- Avg Objective: `15393696.2`
+- Total T: `63372.0`
+- Avg T: `1584.3`
+- Avg L: `2778.175`
+- Avg P: `4195.85`
+- Avg Runtime: `24.747000375`
+- Max Runtime: `55.678491`
+- decision_label: `accepted`
+- promotion_status: `current-tree trusted best; historical v142 remains stronger but drifted and is not publish-trusted on the current wrapper surface`

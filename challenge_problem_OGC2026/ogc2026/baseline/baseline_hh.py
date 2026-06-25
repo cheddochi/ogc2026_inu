@@ -1,20 +1,20 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136
+    reboot_v176_20260625_prob38like_pair_quantile_on_v152
 
 Publish-trust note:
-    v142 is currently restored as the recovery rollback line because the newer
-    v146 candidate reopened canonical wrapper drift. Historical accepted
-    evidence for v142 still exists, but the current source tree is under
-    revalidation and should not be described as a newly re-trusted BEST until
-    the wrapper surface is stable again.
+    v176 is now the strongest current-tree reproducible full40 line on the
+    tracked wrapper surface. Historical accepted evidence for v142 is still
+    stronger, but the current source tree does not reproduce that historical
+    line cleanly, so v176 is promoted as the trusted current-tree BEST rather
+    than as a reclaimed all-time historical BEST.
 """
 
-from alg_versions import reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136 as active
+from alg_versions import reboot_v176_20260625_prob38like_pair_quantile_on_v152 as active
 
 
-ACTIVE_VERSION = "reboot_v142_20260620_1548_prob40like_broad_move_narrow_selector_on_v136"
+ACTIVE_VERSION = "reboot_v176_20260625_prob38like_pair_quantile_on_v152"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

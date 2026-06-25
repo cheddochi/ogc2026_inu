@@ -1,0 +1,35 @@
+{
+  "run_id": "target_reboot_v176_prob38family_20260625_001",
+  "timestamp": "2026-06-25T13:09:01",
+  "summary": {
+    "total": 4,
+    "feasible": 4,
+    "accepted_for_score": 4,
+    "checker_feasible": 4,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 226973216.0,
+    "objective_avg": 56743304.0,
+    "obj1_sum": 28304.0,
+    "obj1_avg": 7076.0,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3289.25,
+    "obj3_avg": 9264.25,
+    "runtime_sum": 186.606903,
+    "runtime_avg": 46.65172575,
+    "runtime_max": 56.750871
+  },
+  "algorithms": [
+    {
+      "name": "candidate",
+      "version": "reboot_v176_prob38pair",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v176_20260625_prob38like_pair_quantile_on_v152.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_37.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
