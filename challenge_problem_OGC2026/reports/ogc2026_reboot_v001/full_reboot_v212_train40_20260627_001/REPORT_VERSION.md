@@ -1,0 +1,28 @@
+# REPORT_VERSION
+
+- report_version_id: `full_reboot_v212_train40_20260627_001`
+- algorithm_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- parent_algorithm_version: `reboot_v210_20260626_trackA_latest_feasible_tardy_repair`
+- run_id: `full_reboot_v212_train40_20260627_001`
+- timestamp: `2026-06-27T00:31:13`
+- git_branch: `hh_algorithm_loop`
+- git_head: `e02a0a9745b600a68c5f67ff5118fd6367e3e6aa`
+- git_dirty: `true`
+- algorithm_sha256: `bb6b4d492c7e6d9af9a3a59ad0a8c573ca001228c5cd9ca3d1b6d2a7c2b64fb3`
+- checker_sha256: `see run_manifest.json`
+- official_limit: `60`
+- accepted_for_score_count: `40`
+- timeout_count: `0`
+- invalid_error_count: `0`
+- Total Objective: `570842085`
+- Avg Objective: `14271052.125`
+- Total T: `59579`
+- Avg T: `1489.475`
+- Total L: `105329.0`
+- Avg L: `2633.225`
+- Total P: `167678.0`
+- Avg P: `4191.950`
+- Avg Runtime: `32.082798225`
+- Max Runtime: `56.143512`
+- decision_label: `accepted`
+- promotion_status: `promoted_to_active_baseline_hh`

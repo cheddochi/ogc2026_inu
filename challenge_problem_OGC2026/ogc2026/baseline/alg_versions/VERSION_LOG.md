@@ -18701,3 +18701,156 @@
     on `prob_19` and `prob_20`; otherwise shift the next structural cycle to
     Track `B` for high-tail rows `prob_27`, `prob_33`, `prob_38`, and
     `prob_40`.
+
+## 2026-06-26 reboot_v211_20260626_trackA_micro_pair_prefix_on_v210
+
+- parent_version: `reboot_v210_20260626_trackA_latest_feasible_tardy_repair`
+- status: `rejected`
+- decision_type: `direct full improvement rejected after official baseline_hh publish recheck drift`
+- Track: `A`
+- focus_family:
+  - `Track A residual 200~250 block / 4-bay high-urgency rows where v209 showed interacting tardy-pair headroom but the broad prefix repair was too expensive on lower-payoff 300-block rows`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v211_trackA_20260626_001/`
+  - direct full:
+    `reports/ogc2026_reboot_v001/full_reboot_v211_train40_20260626_001/`
+  - official baseline_hh publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v211_baseline_hh_20260626_001/`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A / guard additions:
+    `prob_14`, `prob_20`
+- smoke_result:
+  - accepted_for_score `22/22`
+  - timeout `0`
+  - invalid/error `0`
+  - improvements vs trusted `v210`:
+    - `prob_11`: objective `9012637 -> 8761210`, `T 380 -> 369`
+    - `prob_14`: objective `3795716 -> 3795716` on the targeted smoke rerun
+      remained stable at the promoted `v210` level, while the earlier v210-v211
+      smoke comparison showed the direct micro-pair branch can also reach
+      `T 181` on this subtype
+  - no smoke regressions
+- direct_full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `571093512 -> 570842085`
+  - Avg Objective `14277337.800 -> 14271052.125`
+  - Total T `59590 -> 59579`
+  - Avg T `1489.750 -> 1489.475`
+  - first20 Total T `1570 -> 1559`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+  - improved rows:
+    - `prob_11`: objective `9012637 -> 8761210`, `T 380 -> 369`
+  - no direct full regressions versus trusted `v210`
+- publish_recheck_result:
+  - accepted_for_score `16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - wrapper/direct matched on:
+    - `prob_10`, `prob_19`, `prob_20`, `prob_33`, `prob_38`, `prob_40`
+  - wrapper/direct mismatches on:
+    - `prob_11`: wrapper `9661742 / T 409` vs direct `8761210 / T 369`
+    - `prob_14`: wrapper `3991274 / T 192` vs direct `3795716 / T 181`
+- rejection_reason:
+  - the direct `v211` specialist improves the targeted Track A rows only when
+    enough remaining wall-clock budget survives into the late mid-fourbay
+    repair stages.
+  - on the official `baseline_hh.py` surface, wrapper overhead reduced the
+    remaining time enough that `prob_11` and `prob_14` skipped the last
+    specialist branch and fell back to weaker intermediate results.
+  - because the official surface no longer reproduces the direct evidence, `v211`
+    cannot be trusted as a promoted BEST even though the direct full40 bundle
+    is better than `v210`.
+- recovery_action:
+  - restore `baseline_hh.py` active wrapper to trusted `v210`
+  - keep `ACTIVE_VERSION.md` pinned to canonical `v210` evidence
+- next_hypothesis:
+  - keep the search on Track `A`, but move the remaining-time guard earlier in
+    the portfolio so the mid-size four-bay specialist receives reserved budget
+    on the official wrapper surface instead of depending on late leftover time.
+
+## 2026-06-27 reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210
+
+- parent_version: `reboot_v210_20260626_trackA_latest_feasible_tardy_repair`
+- status: `accepted`
+- promotion_decision: `promoted_to_active_baseline_hh`
+- decision_type: `accepted after smoke, direct full benchmark, and official baseline_hh publish recheck`
+- Track: `A`
+- focus_family:
+  - `Track A residual 200~250 block / 4-bay high-urgency rows where the direct-only v211 gain was real, but the official wrapper surface lost it because the specialist depended on late leftover time`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v212_trackA_20260627_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v212_train40_20260627_001/`
+  - official baseline_hh publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v212_baseline_hh_20260627_001/`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A / wrapper-risk additions:
+    `prob_14`, `prob_20`
+- smoke_result:
+  - accepted_for_score `22/22`
+  - timeout `0`
+  - invalid/error `0`
+  - improvements versus trusted `v210`:
+    - `prob_11`: objective `9387458 -> 8761210`, `T 409/380-class -> 369`
+  - stable guards:
+    - `prob_1`, `prob_6`, `prob_13`, `prob_14`, `prob_19`, `prob_20`,
+      `prob_25`, `prob_27`, `prob_33`, `prob_38`
+  - no smoke regressions
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `571093512 -> 570842085`
+  - Avg Objective `14277337.800 -> 14271052.125`
+  - Total T `59590 -> 59579`
+  - Avg T `1489.750 -> 1489.475`
+  - Total L `105329.0 -> 105329.0`
+  - Avg L `2633.225 -> 2633.225`
+  - Total P `167678.0 -> 167678.0`
+  - Avg P `4191.950 -> 4191.950`
+  - Avg Runtime `32.11s -> 32.08s`
+  - Max Runtime `56.63s -> 56.14s`
+  - first20 Total T `1570 -> 1559`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+  - improved rows:
+    - `prob_11`: objective `9012637 -> 8761210`, `T 380 -> 369`
+  - no full40 regressions versus canonical `v210`
+- publish_recheck_result:
+  - accepted_for_score `16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - objective / `T` / `L` / `P` matched direct `v212` on:
+    - `prob_10`, `prob_11`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+- promotion_reason:
+  - `v212` keeps the trusted `v210` Track A fallback and runtime-cliff guards,
+    but moves specialist budget allocation earlier so the profitable late repair
+    candidate still executes on the official wrapper surface.
+  - unlike `v211`, the wrapper surface and direct module now reproduce the same
+    targeted improvements, removing the source/evidence drift that blocked the
+    prior promotion.
+  - the gain is small but promotion-worthy under the T-first rule because Total
+    T improves, first20 Total T improves, `accepted_for_score` stays `40/40`,
+    and no rows regress on the canonical train40 benchmark.
+- promotion_actions:
+  - update `baseline_hh.py` active wrapper to `v212`
+  - update `ACTIVE_VERSION.md` canonical evidence path to the `v212`
+    smoke / publish-recheck / full bundle
+- next_hypothesis:
+  - keep Track `A` only if the next bounded candidate can reduce additional
+    first20 rows beyond `prob_11` without reopening the `prob_19` / `prob_20`
+    runtime guards.
+  - otherwise shift the next structural cycle to Track `B` for the persistent
+    high-tail rows `prob_27`, `prob_33`, `prob_38`, and `prob_40`.

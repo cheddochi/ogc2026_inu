@@ -1,0 +1,44 @@
+{
+  "run_id": "verify_active_v212_baseline_hh_20260627_001",
+  "timestamp": "2026-06-27T00:53:06",
+  "summary": {
+    "total": 16,
+    "feasible": 16,
+    "accepted_for_score": 16,
+    "checker_feasible": 16,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 409130534.0,
+    "objective_avg": 25570658.375,
+    "obj1_sum": 48596.0,
+    "obj1_avg": 3037.25,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3313.75,
+    "obj3_avg": 5814.625,
+    "runtime_sum": 728.412397,
+    "runtime_avg": 45.5257748125,
+    "runtime_max": 55.852205
+  },
+  "algorithms": [
+    {
+      "name": "active",
+      "version": "baseline_hh_v212_official",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    },
+    {
+      "name": "direct",
+      "version": "reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}
