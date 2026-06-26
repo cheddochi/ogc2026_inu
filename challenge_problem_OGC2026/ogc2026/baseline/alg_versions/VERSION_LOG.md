@@ -17307,3 +17307,180 @@
     zero.
   - attack the remaining Family A first20 backlog without giving back the
     trusted `prob_20` / `prob_38` / `prob_39` / `prob_40` guard surface.
+
+## 2026-06-26 reboot_v195_20260626_familyA_window_reorder_on_v194 (planned)
+
+- parent_version: `reboot_v194_20260626_familyA_fourbay_inline_on_v186`
+- status: `candidate`
+- Track: `A`
+- focus_family: `Family A 4~5 bay tardy-window local reorder on trusted v194 surface`
+- target_subtype:
+  - `tight-slack / short-proc / high-w1 / 4~5 bay Family A rows with residual tardy clusters`
+  - primary backlog rows:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+- hypothesis:
+  - `v194` removed the easy single-block jump opportunities on 4-bay rows, but
+    the remaining first20 backlog still contains small tardy clusters whose
+    order within the same bay is locally wrong.
+  - the next structural move is not another threshold tweak; it is a bounded
+    same-bay tardy-window reorder that explores pair swaps and tiny local
+    due/slack-guided permutations around the tardy block.
+  - widening the target band from `4` bays to `4~5` bays should finally let the
+    active trusted line attack `prob_20` while still leaving Family B guards
+    untouched.
+- planned candidate roles:
+  - trusted fallback candidate = exact `v194` result inside the same surface
+  - fast constructive candidate = inherited `v194 -> v186 -> v178` trusted path
+  - Track A specialist candidate = tardy-window pair-swap / local reorder replay
+    inside the same bay
+  - bounded repair candidate = existing empty-window repair after replay
+- planned_risk_based_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_20`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted subtype rows:
+    `prob_10`, `prob_14`, `prob_19`
+  - guard rows:
+    `prob_39`, `prob_40`
+
+## 2026-06-26 active_v194_recovery_after_wrapper_drift
+
+- affected_version: `reboot_v194_20260626_familyA_fourbay_inline_on_v186`
+- status: `recovery`
+- reason:
+  - the promoted `v194` full40 evidence remains historically strong, but the
+    latest revalidation found run-to-run drift on the same active wrapper file.
+  - this means the current `baseline_hh.py` surface cannot remain labeled as a
+    trusted BEST until the drift is explained or removed.
+- recovery_evidence:
+  - active-vs-wrapper recheck:
+    `reports/ogc2026_reboot_v001/recheck_active_v194_vs_wrapper_20260626_001/`
+  - wrapper-vs-wrapper stability recheck:
+    `reports/ogc2026_reboot_v001/stability_v194_wrapper_dual_20260626_001/`
+- drift_highlights:
+  - `prob_38`
+    - `wrapA`: objective `180910506`, `T=13344`
+    - `wrapB`: objective `176755429`, `T=13027`
+  - `prob_40`
+    - both wrapper runs landed at objective `5910122`, `T=8622`
+    - this is worse than the earlier promoted guard value
+      `5780789 / T=8429`
+  - prior active-path mismatch evidence still stands for
+    `prob_11`, `prob_38`, `prob_39`, `prob_40`
+- promotion_decision:
+  - keep `v194` code available as the current active file only for continuity
+  - do not treat `v194` as the current trusted BEST in reports or publish logic
+  - continue Track A on the versioned candidate path, not on the assumption
+    that the active wrapper is stable
+- next_action:
+  - classify `reboot_v195_20260626_familyA_window_reorder_on_v194` with a full
+    benchmark as a Track A candidate under recovery conditions
+
+## 2026-06-26 reboot_v195_20260626_familyA_window_reorder_on_v194
+
+- parent_version: `reboot_v194_20260626_familyA_fourbay_inline_on_v186`
+- status: `accepted`
+- Track: `A`
+- focus_family:
+  - `Family A 4~5 bay tardy-window reorder on trusted v194 fallback`
+- canonical_evidence:
+  - representative smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v195_trackA_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v195_train40_20260626_002/`
+  - active publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v195_publish_20260626_001/`
+  - wrapper stability recheck:
+    `reports/ogc2026_reboot_v001/stability_v195_wrapper_dual_20260626_001/`
+- smoke_result:
+  - accepted_for_score `28/28`
+  - timeout `0`
+  - invalid/error `0`
+  - targeted improvements already visible on:
+    `prob_10`, `prob_20`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `577544688`
+  - Avg Objective `14438617.200`
+  - Total T `59959`
+  - Avg T `1498.975`
+  - Total L `105961.0`
+  - Avg L `2649.025`
+  - Total P `167845.0`
+  - Avg P `4196.125`
+  - Avg Runtime `30.08s`
+  - Max Runtime `57.92s`
+- comparison_vs_v194:
+  - prior full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v194_train40_20260626_001/`
+  - Total Objective `580576219 -> 577544688`
+  - Avg Objective `14514405.475 -> 14438617.200`
+  - Total T `60054 -> 59959`
+  - Avg T `1501.350 -> 1498.975`
+  - first20 Total T `2034 -> 1910`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56747`
+  - improved rows:
+    - `prob_10`: objective `1697461 -> 1552011`, `T 95 -> 85`
+    - `prob_20`: objective `8239778 -> 5199740`, `T 278 -> 164`
+  - regression to monitor:
+    - `prob_32`: objective `12781706 -> 12935663`, `T 2992 -> 3021`
+- publish_chain_validation:
+  - `myalgorithm.py -> baseline_hh.py` matched the promoted values on:
+    `prob_10`, `prob_20`, `prob_38`, `prob_39`, `prob_40`
+  - a one-off `prob_32` mismatch appeared on the `myalgorithm.py` probe, but
+    the official wrapper stability recheck on `baseline_hh.py` reproduced the
+    promoted `v195` value twice:
+    `12935663 / T=3021`
+  - official wrapper guard rows remained stable:
+    - `prob_38`: `151254848 / T=11120`
+    - `prob_39`: `48160369 / T=3521`
+    - `prob_40`: `5780789 / T=8429`
+- promotion_decision:
+  - promote `reboot_v195_20260626_familyA_window_reorder_on_v194` to the
+    current-tree trusted BEST
+  - repoint `baseline_hh.py` to `v195`
+  - keep `v194` as historical recovery context, not as the active trusted line
+- rationale:
+  - this is not polish-only.
+  - it clears the hard gate `40/40` and improves Total T and total objective
+    by a material amount, with especially useful Family A progress on the
+    first20 set.
+  - wrapper stability on the official `baseline_hh.py` surface was rechecked
+    successfully after the `v194` drift incident.
+- next_structural_hypothesis:
+  - continue Track A, but move away from the already-won `prob_10 / prob_20`
+    window reorder pattern.
+  - next bounded candidate should target the remaining first20 backlog
+    `prob_11`, `prob_13`, `prob_14`, `prob_19` while explicitly guarding
+    `prob_32` and the high-T wrapper rows `prob_38/39/40`.
+
+## 2026-06-26 reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195 (planned)
+
+- parent_version: `reboot_v195_20260626_familyA_window_reorder_on_v194`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A residual first20 backlog after the v195 same-bay reorder win`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`, `prob_19`
+- guard_rows:
+  - `prob_10`, `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - `v195` already harvested the easy same-bay tardy-order fixes.
+  - the remaining first20 backlog likely needs a structural move that migrates
+    a small tardy block set across adjacent bays or across tiny empty windows
+    instead of only reordering inside the same bay.
+  - the next Track A candidate should therefore explore bounded cross-bay
+    tardy migration around the critical tardy cluster, followed by the existing
+    repair and replay path.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_20`, `prob_25`,
+    `prob_27`, `prob_32`, `prob_38`
+  - targeted subtype rows:
+    `prob_14`, `prob_19`
+  - wrapper guards:
+    `prob_39`, `prob_40`
