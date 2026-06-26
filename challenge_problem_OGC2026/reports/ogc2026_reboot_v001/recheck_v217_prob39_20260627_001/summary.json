@@ -1,0 +1,37 @@
+{
+  "run_id": "recheck_v217_prob39_20260627_001",
+  "timestamp": "2026-06-27T04:35:54",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 97197210.0,
+    "objective_avg": 48598605.0,
+    "obj1_sum": 7106.0,
+    "obj1_avg": 3553.0,
+    "obj1_max": 3553.0,
+    "obj2_avg": 314.0,
+    "obj3_avg": 8168.0,
+    "runtime_sum": 101.226439,
+    "runtime_avg": 50.6132195,
+    "runtime_max": 51.693686
+  },
+  "algorithms": [
+    {
+      "name": "trusted",
+      "version": "reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210.py"
+    },
+    {
+      "name": "candidate",
+      "version": "reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_39.json"
+  ]
+}

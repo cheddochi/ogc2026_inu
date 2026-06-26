@@ -1,0 +1,44 @@
+{
+  "run_id": "verify_active_v217_baseline_hh_file_20260627_002",
+  "timestamp": "2026-06-27T05:15:17",
+  "summary": {
+    "total": 16,
+    "feasible": 16,
+    "accepted_for_score": 16,
+    "checker_feasible": 16,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 408772952.0,
+    "objective_avg": 25548309.5,
+    "obj1_sum": 48562.0,
+    "obj1_avg": 3035.125,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3326.875,
+    "obj3_avg": 5816.625,
+    "runtime_sum": 736.496791,
+    "runtime_avg": 46.0310494375,
+    "runtime_max": 55.908175
+  },
+  "algorithms": [
+    {
+      "name": "wrapper",
+      "version": "baseline_hh_v217_active",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    },
+    {
+      "name": "direct",
+      "version": "reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

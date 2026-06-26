@@ -18854,3 +18854,315 @@
     runtime guards.
   - otherwise shift the next structural cycle to Track `B` for the persistent
     high-tail rows `prob_27`, `prob_33`, `prob_38`, and `prob_40`.
+
+## 2026-06-27 reboot_v213_20260627_trackB_v178_surface_dispatch_on_v212
+
+- parent_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- status: `polish-only`
+- Track: `B`
+- hypothesis:
+  - the current trusted `v212` Track A line remains best for the first20
+    tight-slack family, but a narrow Family B heavy-tail surface derived from
+    the older `v178` line is still stronger on the live `prob_27` / `prob_40`
+    class and matches the `prob_38` / `prob_39` surface at lower runtime.
+  - instead of replaying another prob38/prob40-only tweak, route only a
+    feature-gated Family B subtype to the `v178` surface and keep `v212` as the
+    trusted fallback everywhere else.
+- probe_evidence:
+  - Track B shortlist probe:
+    `reports/ogc2026_reboot_v001/probe_trackB_v212_shortlist_20260627_001/`
+  - `v178` / `v183` confirmation probe:
+    `reports/ogc2026_reboot_v001/probe_trackB_v178_v183_20260627_001/`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track B additions:
+    `prob_39`, `prob_40`
+    `prob_26`, `prob_31`, `prob_36`
+- smoke_result:
+  - accepted_for_score `14/14`
+  - timeout `0`
+  - invalid/error `0`
+  - Family A guard rows unchanged:
+    `prob_1`, `prob_6`, `prob_11`, `prob_16`, `prob_19`, `prob_25`
+  - gated Track B rows score-identical to trusted `v212` while staying within
+    time:
+    `prob_26`, `prob_27`, `prob_31`, `prob_33`, `prob_36`,
+    `prob_38`, `prob_39`, `prob_40`
+- full_result:
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v213_train40_20260627_001/`
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `570842085 -> 570842085`
+  - Avg Objective `14271052.125 -> 14271052.125`
+  - Total T `59579 -> 59579`
+  - Avg T `1489.475 -> 1489.475`
+  - first20 Total T `1559 -> 1559`
+  - T>0 count `33 -> 33`
+  - high-tail sum (`T>=1000`) `56718 -> 56718`
+  - per-instance T/objective deltas versus trusted `v212`: none
+  - Avg Runtime `32.082798225 -> 31.5469172`
+  - Max Runtime `56.143512 -> 55.075855`
+- classification_reason:
+  - the Track B dispatch is stable and slightly faster on the current machine,
+    but it does not change the accepted score surface at all versus trusted
+    `v212`.
+  - because Total `T`, high-tail rows, and Total Objective are unchanged, this
+    candidate is not promotion-worthy under the T-first rule.
+- promotion_decision:
+  - keep `baseline_hh.py` and `ACTIVE_VERSION.md` pinned to trusted `v212`
+- next_hypothesis:
+  - reuse the recovered Family B runtime headroom to add an actual bounded tail
+    improvement pass on top of the `v178`/`v212` dispatch surface.
+  - priority targets remain `prob_27`, `prob_38`, `prob_39`, and `prob_40`,
+    but the next Track B candidate must produce a real `T` delta, not just a
+    runtime flattening.
+
+## 2026-06-27 reboot_v214_20260627_trackA_250block_prefix_slice_on_v212
+
+- parent_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - the remaining first20 Track A backlog is still concentrated in the stable
+    four-bay slice, but the broad residual-prefix replay from `v209` was too
+    expensive because it also touched lower-payoff `300-block` rows such as the
+    `prob_19`-like subtype.
+  - the profitable signal should still exist on the narrower `250-block / 4-bay
+    / high-w1 / tight-slack` slice represented by `prob_13` and `prob_14`.
+  - add a bounded tardy-prefix rebuild only on that slice and keep trusted
+    `v212` everywhere else.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_14`, `prob_20`
+- smoke_result:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v214_trackA_20260627_001/`
+  - accepted_for_score `11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - targeted rows unchanged:
+    - `prob_13`: objective `10783287`, `T 547`
+    - `prob_14`: objective `3795716`, `T 181`
+  - guard regression:
+    - `prob_33`: objective `26172225 -> 28157061`, `T 3805 -> 4103`
+- targeted_probe:
+  - confirmation:
+    `reports/ogc2026_reboot_v001/probe_v212_v214_prob33_20260627_001/`
+  - `prob_13`: unchanged versus trusted `v212`
+  - `prob_14`: unchanged versus trusted `v212`
+  - `prob_33`: regression confirmed again
+    - trusted `v212`: `26172225 / T 3805`
+    - candidate `v214`: `28938655 / T 4225`
+- rejection_reason:
+  - the narrow `250-block` prefix slice produced no gain on its intended
+    `prob_13` / `prob_14` targets.
+  - worse, wrapping trusted `v212` inside an outer Track A layer perturbed the
+    supposedly untouched `prob_33` guard row, indicating a runtime-surface
+    drift rather than a clean subtype-local change.
+  - because the candidate fails the regression guard before any compensating
+    `T` improvement appears, it is rejected without a full40 run.
+- next_hypothesis:
+  - do not stack a new outer wrapper on top of trusted `v212`.
+  - the next Track A candidate should inline any new `prob_13` / `prob_14`
+    specialist directly inside the trusted stable-fourbay portfolio so the
+    untouched rows inherit the exact same runtime surface as `v212`.
+
+## 2026-06-27 reboot_v215_20260627_trackA_inline_exact_prefix_on_v212
+
+- parent_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v212` runtime surface fully intact by editing inside the
+    stable-fourbay portfolio rather than wrapping around it.
+  - replace only the old exact-slice micro-pair candidate on the
+    `250-block / 4-bay / high-w1` rows with a slightly broader tardy-prefix
+    rebuild, hoping to improve `prob_13` / `prob_14` without reopening guard
+    rows.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_14`, `prob_20`
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v212_v215_target_20260627_001/`
+  - `prob_13`: unchanged
+    - trusted `v212`: `10783287 / T 547`
+    - candidate `v215`: `10783287 / T 547`
+  - `prob_14`: timeout / invalid under official limit
+    - trusted `v212`: `3795716 / T 181`, runtime `52.62s`
+    - candidate `v215`: same score surface but runtime `68.69s`
+  - `prob_33`: unchanged
+    - trusted `v212`: `26172225 / T 3805`
+    - candidate `v215`: `26172225 / T 3805`
+- rejection_reason:
+  - unlike the earlier outer-wrapper `v214`, the inline design does preserve
+    the untouched `prob_33` guard row.
+  - however, it still fails the bounded-candidate gate because the target row
+    `prob_14` exceeds the official time limit while producing no `T` gain, and
+    `prob_13` also stays unchanged.
+  - since the candidate already fails on the targeted pre-smoke gate, there is
+    no reason to escalate to representative smoke or full40.
+- next_hypothesis:
+  - keep the inline Track A design, but abandon prefix rebuild on the
+    `prob_13` / `prob_14` slice.
+  - the next candidate should try a cheaper latest-feasible or due-violation
+    repair kernel on top of the trusted `v212` stable-fourbay result, with a
+    much smaller budget than the prefix replay.
+
+## 2026-06-27 reboot_v216_20260627_trackA_inline_latest_feasible_slice_on_v212
+
+- parent_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v212` runtime surface intact and stay inside the stable
+    four-bay portfolio.
+  - drop the rejected exact-prefix replay from `v215` and replace it with a
+    much cheaper exact-slice latest-feasible / due-violation repair kernel.
+  - gate that kernel only on the exact `250-block / 4-bay / high-w1 /
+    tight-slack` slice represented by `prob_13` and `prob_14`, while leaving
+    fallback guard rows such as `prob_33` on the same inline surface.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_14`, `prob_20`
+  - pre-smoke gate:
+    `prob_13`, `prob_14`, `prob_33`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_13` / `prob_14`
+    without timeout and without regression on `prob_33`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v212_v216_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - target rows unchanged:
+    - `prob_13`: trusted `10783287 / T 547` -> candidate `10783287 / T 547`
+    - `prob_14`: trusted `3901754 / T 187` -> candidate `3901754 / T 187`
+  - guard regression:
+    - `prob_33`: trusted `26172225 / T 3805` -> candidate `26500068 / T 3854`
+- rejection_reason:
+  - the cheaper exact-slice latest-feasible kernel does avoid the `v215`
+    timeout cliff, but it still creates no `T` gain on its intended
+    `prob_13` / `prob_14` targets.
+  - worse, the inherited direct surface on non-target `prob_33` drifts upward
+    versus trusted `v212`, so the candidate fails the guard-row test before any
+    Track A upside appears.
+  - because the pre-smoke gate already failed on a required guard row, this
+    candidate is rejected without representative smoke or full40.
+- next_hypothesis:
+  - stop retrying the `prob_13` / `prob_14` exact 250-block slice for now; the
+    remaining first20 backlog is probably no longer hiding there.
+  - the next structural Track A move should retarget a different first20
+    subtype inside the trusted `v212` surface, likely the `prob_10` /
+    `prob_19` / `prob_20` side where `T` remains material but the stable
+    four-bay exact slice no longer moves.
+
+## 2026-06-27 reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212
+
+- parent_version: `reboot_v212_20260627_trackA_reserved_specialist_budget_on_v210`
+- status: `accepted`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v212` runtime-cliff five-bay route and the existing
+    mid-size four-bay specialist untouched.
+  - add a second, narrow stable-fourbay tardy-repair gate for the
+    `300-block / 4-bay / tight-slack` subtype represented by `prob_19`.
+  - reuse the same cheap one-block quantile reinsertion kernel, but only after
+    `v212`'s multiblock plus stable-window stages, so the candidate stays a
+    bounded inline specialist rather than another prefix replay.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_20`
+  - pre-smoke gate:
+    `prob_19`, `prob_20`, `prob_33`, `prob_10`
+- promotion_gate:
+  - require a real `T` reduction on `prob_19` without regression on
+    `prob_20` or `prob_33`, and without timeout.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v212_v217_target_20260627_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - improvements:
+    - `prob_19`: objective `2325874 -> 2253753`, `T 164 -> 157`
+  - unchanged guard rows:
+    - `prob_10`: objective `1274865 -> 1274865`, `T 66 -> 66`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+- representative_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v217_trackA_20260627_001/`
+  - smoke_set:
+    `prob_1`, `prob_6`, `prob_10`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=20/20`
+  - timeout `0`
+  - invalid/error `0`
+  - material delta:
+    - `prob_19`: objective `2325874 -> 2147083`, `T 164 -> 147`
+- revalidation_note:
+  - the first full run
+    `reports/ogc2026_reboot_v001/full_reboot_v217_train40_20260627_001/`
+    hit a one-off `prob_39` timeout (`63.21s`) even though the row stayed on
+    the inherited non-Track-A direct surface.
+  - targeted recheck evidence
+    `reports/ogc2026_reboot_v001/recheck_v217_prob39_20260627_001/`
+    showed both trusted `v212` and candidate `v217` back under the official
+    limit on `prob_39`, so the timeout was treated as runtime drift rather
+    than a stable structural regression.
+- accepted_full:
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v217_train40_20260627_revalidate_002/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective: `570842085 -> 570663294`
+  - Avg Objective: `14271052.125 -> 14266582.350`
+  - Total T: `59579 -> 59562`
+  - Avg T: `1489.475 -> 1489.050`
+  - Total L: `105329.0 -> 105434.0`
+  - Avg L: `2633.225 -> 2635.850`
+  - Total P: `167678.0 -> 167694.0`
+  - Avg P: `4191.950 -> 4192.350`
+  - Avg Runtime: `32.08s -> 32.02s`
+  - Max Runtime: `56.14s -> 56.30s`
+  - first20 Total T: `1559 -> 1542`
+  - T>0 count: `33 -> 33`
+  - high-T tail (`T>=1000`) sum: `56718 -> 56718`
+  - improved rows:
+    - `prob_19`: objective `2325874 -> 2147083`, `T 164 -> 147`
+  - worst regression: `none`
+- official_baseline_hh_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v217_baseline_hh_file_20260627_002/`
+  - `accepted_for_score=16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - matched direct `v217` on objective / `T` / `L` / `P` for:
+    - `prob_10`, `prob_11`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_baseline_hh`
+  - reason:
+    `v217` keeps the trusted `v212` surface intact everywhere except the
+    targeted long four-bay subtype, where it reduces first20 residual `T`
+    on `prob_19` and clears the accepted 40/40 revalidation gate.
