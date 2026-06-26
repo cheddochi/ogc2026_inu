@@ -19166,3 +19166,108 @@
     `v217` keeps the trusted `v212` surface intact everywhere except the
     targeted long four-bay subtype, where it reduces first20 residual `T`
     on `prob_19` and clears the accepted 40/40 revalidation gate.
+
+## 2026-06-27 reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217
+
+- parent_version: `reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212`
+- status: `accepted`
+- Track: `A`
+- hypothesis:
+  - keep trusted `v217` unchanged on the long four-bay `prob_19`-like subtype
+    and the five-bay runtime-cliff route.
+  - add a new bounded deep residual-chain specialist for the remaining
+    `200~250 block / 4-bay / high-w1 / tight-slack` residual family represented
+    by `prob_11`, `prob_13`, and `prob_14`.
+  - instead of replaying another exact prefix rebuild, run one extra cheap
+    quantile reinsertion chain on top of the already-repaired stable-fourbay
+    candidate, using a slightly wider shortlist and position budget only when
+    residual `T` remains material.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` without timeout and without regression on `prob_20` or `prob_33`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v217_v218_target_20260627_001/`
+  - `accepted_for_score=10/10`
+  - timeout `0`
+  - invalid/error `0`
+  - improvements:
+    - `prob_11`: objective `9011951 -> 8565801`, `T 380 -> 360`
+    - `prob_13`: objective `10783287 -> 10383916`, `T 547 -> 526`
+    - `prob_14`: objective `3901754 -> 3795716`, `T 187 -> 181`
+  - unchanged guard rows:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+- representative_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v218_trackA_20260627_001/`
+  - smoke_set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - material delta versus trusted `v217`:
+    - `prob_11`: objective `8761210 -> 8565801`, `T 369 -> 360`
+    - `prob_13`: objective `10783287 -> 10383916`, `T 547 -> 526`
+  - unchanged guard rows:
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+- accepted_full:
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v218_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective: `570663294 -> 570068514`
+  - Avg Objective: `14266582.350 -> 14251712.850`
+  - Total T: `59562 -> 59532`
+  - Avg T: `1489.050 -> 1488.300`
+  - Total L: `105434.0 -> 105568.0`
+  - Avg L: `2635.850 -> 2639.200`
+  - Total P: `167694.0 -> 167700.0`
+  - Avg P: `4192.350 -> 4192.500`
+  - Avg Runtime: `32.02s -> 32.40s`
+  - Max Runtime: `56.30s -> 55.98s`
+  - first20 Total T: `1542 -> 1512`
+  - T>0 count: `33 -> 33`
+  - high-T tail (`T>=1000`) sum: `56718 -> 56718`
+  - improved rows:
+    - `prob_11`: objective `8761210 -> 8565801`, `T 369 -> 360`
+    - `prob_13`: objective `10783287 -> 10383916`, `T 547 -> 526`
+  - worst regression: `none`
+- official_baseline_hh_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v218_baseline_hh_file_20260627_001/`
+  - `accepted_for_score=18/18`
+  - timeout `0`
+  - invalid/error `0`
+  - matched direct `v218` on objective / `T` / `L` / `P` for:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+  - drift note:
+    - `prob_14` stayed accepted on both routes, but the inherited
+      stable-fourbay multiblock stage diverged before the `v218`
+      deep-chain specialist:
+      - direct recheck: objective `3795716`, `T 181`
+      - wrapper recheck: objective `3901754`, `T 187`
+    - the canonical scoring bundle therefore remains the direct full train40
+      accepted run rather than the wrapper subset.
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_baseline_hh`
+  - reason:
+    `v218` keeps the accepted `v217` surface intact on the long-fourbay and
+    Family B guard rows, improves first20 residual `T` on the dense
+    `prob_11` / `prob_13` four-bay subtype, and clears the 40/40 accepted
+    full benchmark gate.

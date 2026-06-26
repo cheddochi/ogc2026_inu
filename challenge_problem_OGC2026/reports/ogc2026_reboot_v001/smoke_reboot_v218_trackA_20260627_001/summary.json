@@ -1,0 +1,42 @@
+{
+  "run_id": "smoke_reboot_v218_trackA_20260627_001",
+  "timestamp": "2026-06-27T05:44:16",
+  "summary": {
+    "total": 11,
+    "feasible": 11,
+    "accepted_for_score": 11,
+    "checker_feasible": 11,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 286852052.0,
+    "objective_avg": 26077459.272727273,
+    "obj1_sum": 21940.0,
+    "obj1_avg": 1994.5454545454545,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2778.0,
+    "obj3_avg": 4565.909090909091,
+    "runtime_sum": 445.842167,
+    "runtime_avg": 40.53110609090909,
+    "runtime_max": 55.992504
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_24.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json"
+  ]
+}

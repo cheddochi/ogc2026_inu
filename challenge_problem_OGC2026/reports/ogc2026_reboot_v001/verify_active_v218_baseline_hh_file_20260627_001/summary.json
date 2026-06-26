@@ -1,0 +1,45 @@
+{
+  "run_id": "verify_active_v218_baseline_hh_file_20260627_001",
+  "timestamp": "2026-06-27T06:15:56",
+  "summary": {
+    "total": 18,
+    "feasible": 18,
+    "accepted_for_score": 18,
+    "checker_feasible": 18,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 429469344.0,
+    "objective_avg": 23859408.0,
+    "obj1_sum": 49622.0,
+    "obj1_avg": 2756.777777777778,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3482.4444444444443,
+    "obj3_avg": 5658.111111111111,
+    "runtime_sum": 807.916595,
+    "runtime_avg": 44.88425527777778,
+    "runtime_max": 56.286633
+  },
+  "algorithms": [
+    {
+      "name": "direct",
+      "version": "reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217.py"
+    },
+    {
+      "name": "wrapper",
+      "version": "baseline_hh",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "run_id": "probe_v217_v218_target_20260627_001",
+  "timestamp": "2026-06-27T05:36:09",
+  "summary": {
+    "total": 10,
+    "feasible": 10,
+    "accepted_for_score": 10,
+    "checker_feasible": 10,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 109186355.0,
+    "objective_avg": 10918635.5,
+    "obj1_sum": 10119.0,
+    "obj1_avg": 1011.9,
+    "obj1_max": 3805.0,
+    "obj2_avg": 2645.4,
+    "obj3_avg": 4552.2,
+    "runtime_sum": 468.202817,
+    "runtime_avg": 46.820281699999995,
+    "runtime_max": 55.626919
+  },
+  "algorithms": [
+    {
+      "name": "hh",
+      "version": "reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212.py"
+    },
+    {
+      "name": "hh",
+      "version": "reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_20.json",
+    "train\\prob_33.json"
+  ]
+}

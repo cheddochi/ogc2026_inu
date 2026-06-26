@@ -1,0 +1,28 @@
+# REPORT_VERSION
+
+- report_version_id: `full_reboot_v218_train40_20260627_001`
+- algorithm_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- parent_algorithm_version: `reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212`
+- run_id: `full_reboot_v218_train40_20260627_001`
+- timestamp: `2026-06-27T05:51:55`
+- git_branch: `hh_algorithm_loop`
+- git_head: `1ae0e8e4`
+- git_dirty: `true`
+- algorithm_sha256: `EB155A3DC28EF2A74D71B871B8CE4A778B663910A04282DA63BAFD7680559263`
+- checker_sha256: `see run_manifest.json`
+- official_limit: `60`
+- accepted_for_score_count: `40`
+- timeout_count: `0`
+- invalid_error_count: `0`
+- Total Objective: `570068514`
+- Avg Objective: `14251712.850`
+- Total T: `59532`
+- Avg T: `1488.300`
+- Total L: `105568.0`
+- Avg L: `2639.200`
+- Total P: `167700.0`
+- Avg P: `4192.500`
+- Avg Runtime: `32.3985443`
+- Max Runtime: `55.981264`
+- decision_label: `accepted`
+- promotion_status: `promoted_to_active_baseline_hh`

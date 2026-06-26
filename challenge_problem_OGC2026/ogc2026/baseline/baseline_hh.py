@@ -1,20 +1,20 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212
+    reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217
 
 Publish-trust note:
-    v217 is the current-tree trusted BEST on the tracked baseline_hh surface.
-    It preserves the trusted v212 Track A and runtime-cliff surface, then adds
-    one narrow long four-bay tardy-repair specialist that lowers first20
-    residual T on the prob_19-like subtype without changing the rest of the
-    accepted surface.
+    v218 is the current-tree trusted BEST on the tracked baseline_hh surface.
+    It preserves the accepted v217 long four-bay and runtime-cliff behavior,
+    then adds one bounded dense four-bay deep-chain specialist that lowers
+    residual first20 T on the prob_11/prob_13 subtype pocket without opening
+    new regressions on the accepted surface.
 """
 
-from alg_versions import reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212 as active
+from alg_versions import reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217 as active
 
 
-ACTIVE_VERSION = "reboot_v217_20260627_trackA_prob19_long_fourbay_repair_on_v212"
+ACTIVE_VERSION = "reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
