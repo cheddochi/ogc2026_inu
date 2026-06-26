@@ -17484,3 +17484,1220 @@
     `prob_14`, `prob_19`
   - wrapper guards:
     `prob_39`, `prob_40`
+
+## 2026-06-26 active_v195_recovery_after_prob40_drift
+
+- affected_version: `reboot_v195_20260626_familyA_window_reorder_on_v194`
+- status: `recovery`
+- reason:
+  - the canonical accepted `v195` bundle remains historically valid, but a
+    fresh official wrapper recheck on the live `baseline_hh.py` surface no
+    longer reproduces the promoted `prob_40` guard value.
+  - because `baseline_hh.py` is the official submission surface, this breaks
+    the assumption that the current active file is a trusted BEST.
+- recovery_evidence:
+  - canonical accepted full40:
+    `reports/ogc2026_reboot_v001/full_reboot_v195_train40_20260626_002/`
+  - canonical wrapper stability:
+    `reports/ogc2026_reboot_v001/stability_v195_wrapper_dual_20260626_001/`
+  - latest drift probe:
+    `reports/ogc2026_reboot_v001/verify_active_prob40_20260626_001/`
+- drift_highlight:
+  - canonical promoted guard:
+    `prob_40 = 5780789 / T=8429`
+  - latest active wrapper recheck:
+    `prob_40 = 5910122 / T=8622`
+- promotion_decision:
+  - keep the historical `v195` evidence bundle for comparison only
+  - do not treat the current `baseline_hh.py` surface as a presently trusted
+    BEST until the wrapper drift is revalidated or replaced
+- next_action:
+  - classify `v196` under recovery conditions and then run a targeted wrapper
+    revalidation set before any new promotion
+
+## 2026-06-26 reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195
+
+- parent_version: `reboot_v195_20260626_familyA_window_reorder_on_v194`
+- status: `candidate`
+- Track: `A`
+- focus_family:
+  - `Family A residual first20 backlog with bounded cross-bay tardy migration`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v196_trackA_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v196_train40_20260626_001/`
+- smoke_result:
+  - accepted_for_score `14/14`
+  - timeout `0`
+  - invalid/error `0`
+  - targeted gains visible on:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `575472511`
+  - Avg Objective `14386812.775`
+  - Total T `60022`
+  - Avg T `1500.550`
+  - Total L `105188.0`
+  - Avg L `2629.700`
+  - Total P `167924.0`
+  - Avg P `4198.100`
+  - Avg Runtime `30.76s`
+  - Max Runtime `56.45s`
+- comparison_vs_v195_canonical:
+  - prior full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v195_train40_20260626_002/`
+  - Total Objective `577544688 -> 575472511`
+  - Avg Objective `14438617.200 -> 14386812.775`
+  - Total T `59959 -> 60022`
+  - Avg T `1498.975 -> 1500.550`
+  - first20 Total T `1910 -> 1780`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56747 -> 56940`
+  - improved rows:
+    - `prob_10`: objective `1552011 -> 1457378`, `T 85 -> 78`
+    - `prob_11`: objective `11154452 -> 10754578`, `T 473 -> 456`
+    - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+    - `prob_14`: objective `4097312 -> 3991274`, `T 198 -> 192`
+    - `prob_19`: objective `2765323 -> 2435335`, `T 206 -> 175`
+  - regression to monitor:
+    - `prob_40`: objective `5780789 -> 5910122`, `T 8429 -> 8622`
+- candidate_decision:
+  - keep `v196` as a strong Track A candidate but do not promote it to active
+    BEST yet
+  - rationale:
+    - it clears the hard gate `40/40`
+    - it materially improves first20 Total T and total objective by about
+      `0.36%`
+    - but it worsens global Total T / Avg T and the high-T tail, with the
+      visible `prob_40` guard regression landing on a row that also just showed
+      active wrapper drift
+    - under the current recovery conditions, that combination is not strong
+      enough for trusted promotion
+- next_structural_hypothesis:
+  - stay in Track A because first20 Total T is still far from near-zero even
+    after the `1910 -> 1780` improvement.
+  - before starting `v197`, revalidate the live wrapper on a small guard set
+    (`prob_32`, `prob_38`, `prob_39`, `prob_40`) and then build a new Track A
+    candidate that preserves the first20 gain while tightening the tail guard.
+
+## 2026-06-26 reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195 (revalidate planned)
+
+- status: `revalidate`
+- reason:
+  - a one-off official recheck on the active `baseline_hh.py` surface produced
+    a worse `prob_40` value (`5910122 / T=8622`) than the canonical promoted
+    `v195` guard value, which contaminated the interpretation of the first
+    `v196` full40 run.
+  - a fresh active-vs-direct guard revalidation on
+    `prob_32`, `prob_38`, `prob_39`, `prob_40` then reproduced the canonical
+    `v195` guard values on both surfaces, including
+    `prob_40 = 5780789 / T=8429`.
+- revalidation_evidence:
+  - guard revalidation:
+    `reports/ogc2026_reboot_v001/revalidate_v195_guard_active_direct_20260626_001/`
+- revalidated_full_result:
+  - full:
+    `reports/ogc2026_reboot_v001/full_revalidate_reboot_v196_train40_20260626_002/`
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `575375299`
+  - Avg Objective `14384382.475`
+  - Total T `59926`
+  - Avg T `1498.150`
+  - Total L `105774.0`
+  - Avg L `2644.350`
+  - Total P `167736.0`
+  - Avg P `4193.400`
+  - Avg Runtime `31.07s`
+  - Max Runtime `56.61s`
+- revalidated_comparison_vs_v195_canonical:
+  - Total Objective `577544688 -> 575375299`
+  - Avg Objective `14438617.200 -> 14384382.475`
+  - Total T `59959 -> 59926`
+  - Avg T `1498.975 -> 1498.150`
+  - first20 Total T `1910 -> 1786`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56747 -> 56838`
+  - improved rows:
+    - `prob_10`: objective `1552011 -> 1457378`, `T 85 -> 78`
+    - `prob_11`: objective `11154452 -> 10754578`, `T 473 -> 456`
+    - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+    - `prob_19`: objective `2765323 -> 2435335`, `T 206 -> 175`
+    - `prob_32`: objective `12935663 -> 12781706`, `T 3021 -> 2992`
+  - regression to monitor:
+    - `prob_40`: objective `5780789 -> 5860829`, `T 8429 -> 8549`
+- revalidation_decision:
+  - classify `v196` as `candidate`, not `accepted`
+  - rationale:
+    - the rerun confirms `v196` is genuinely stronger than canonical `v195` on
+      Total Objective, Total T, Avg T, and first20 Total T, so the earlier
+      worse `59959 -> 60022` signal was contaminated by drift.
+    - however, the rerun also confirms a stable `prob_40` guard regression
+      (`T +120`) and a slightly worse high-T tail sum despite the global T
+      gain.
+    - under the Track A / Family B guard contract, that trade is still too
+      risky for trusted promotion on the official surface.
+
+## 2026-06-26 reboot_v197_20260626_trackA_stricter_first20_gate_on_v196 (planned)
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A first20 backlog with a tighter first20-like gate before the cross-bay specialist`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_19`
+- guard_rows:
+  - `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - `v196` showed that the cross-bay specialist can buy real first20 T
+    improvements, and the rerun even improved `prob_32`.
+  - the remaining problem is not that the specialist is useless; it is that
+    the activation band is still broad enough to leak risk into the
+    `prob_40`-like guard surface.
+  - the next Track A candidate should keep the same bounded specialist shape
+    but tighten the feature gate to a more obviously short-proc / tighter-slack
+    / lower-preference-pressure subset so the first20 wins remain while the
+    `prob_40` guard row stays on the trusted fallback.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_20`, `prob_24`,
+    `prob_27`, `prob_32`, `prob_38`
+  - targeted subtype rows:
+    `prob_13`, `prob_19`
+  - wrapper guards:
+    `prob_39`, `prob_40`
+
+## 2026-06-26 reboot_v197_20260626_trackA_stricter_first20_gate_on_v196
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `rejected`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v197_trackA_20260626_001/`
+- smoke_result:
+  - accepted_for_score `13/13`
+  - timeout `0`
+  - invalid/error `0`
+- smoke_comparison_vs_v195_canonical:
+  - subset Objective `332009615 -> 391119380`
+  - subset Total T `33369 -> 37845`
+  - targeted improvements:
+    - `prob_11`: objective `11154452 -> 10754578`, `T 473 -> 456`
+    - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+  - catastrophic regression:
+    - `prob_38`: objective `151254848 -> 211988661`, `T 11120 -> 15679`
+- rejection_reason:
+  - the stricter Track A gate did keep the specialist off the obvious Family B
+    guard rows, but the base fallback surface itself still hit a prob38-like
+    runtime cliff during the smoke run.
+  - the `prob_38` log shows the inherited `v050/v080` path degraded because
+    the underlying limited-concurrent builder forced `35` blocks instead of
+    `0`, which is a wall-clock sensitivity problem, not a useful Track A
+    improvement signal.
+  - because the guard regression is too large and happens on a non-target row,
+    `v197` is rejected without a full40 run.
+
+## 2026-06-26 reboot_v198_20260626_trackA_with_prob38_runtimecliff_guard (planned)
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A first20 cross-bay repair preserved, with an explicit prob38-like runtime-cliff guard on the fallback surface`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_19`
+- guard_rows:
+  - `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - the useful part of `v196` is still the first20 cross-bay repair signal.
+  - the failure mode on `v197` came from the inherited prob38-like fallback
+    chain, whose wall-clock-sensitive limited-concurrent builder can collapse
+    under slower runs.
+  - the next candidate should keep the Track A specialist but add a cheaper,
+    more stable runtime-cliff guard for the prob38-like Family B slice so that
+    smoke/full evaluation does not depend on whether the inherited builder
+    happens to finish before its own internal budget edge.
+
+## 2026-06-26 reboot_v198_20260626_trackA_with_prob38_runtimecliff_guard
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `rejected`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v198_trackA_20260626_001/`
+  - guard probe:
+    `reports/ogc2026_reboot_v001/probe_prob38_runtimecliff_candidates_20260626_001/`
+- smoke_result:
+  - accepted_for_score `13/13`
+  - timeout `0`
+  - invalid/error `0`
+- smoke_highlights:
+  - kept the useful first20 improvements on:
+    - `prob_10`: `1457378 / T=78`
+    - `prob_11`: `10754578 / T=456`
+    - `prob_13`: `12649523 / T=647`
+    - `prob_32`: `12781706 / T=2992`
+  - but the prob38-like guard still regressed badly:
+    - `prob_38`: objective `151254848 -> 161995608`, `T 11120 -> 11922`
+- rejection_reason:
+  - routing the prob38-like slice to `v177` was not enough because `v177`
+    still delegates into the same prob38-like chain that can hit a runtime
+    cliff under slower smoke/full runs.
+  - the `prob_38` smoke log shows the selected guard path still landing on
+    `v050/v080`, so the candidate did not actually isolate the unstable
+    surface.
+  - because the guard regression remained material, `v198` is rejected
+    without a full40 run.
+
+## 2026-06-26 reboot_v199_20260626_trackA_with_prob38_stable_v047_guard (planned)
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A first20 cross-bay repair preserved, with the prob38-like runtime-cliff slice forced onto the stable v047 guard`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_19`
+- guard_rows:
+  - `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- guard_evidence:
+  - candidate comparison:
+    `reports/ogc2026_reboot_v001/probe_prob38_runtimecliff_candidates_20260626_001/`
+  - stability check:
+    `reports/ogc2026_reboot_v001/probe_prob38_v047_stability_20260626_001/`
+- hypothesis:
+  - the useful part of `v196` is still the first20 Track A signal.
+  - the unstable part is specifically the inherited prob38-like chain.
+  - `v047` is weaker than canonical `v195` on `prob_38`, but it reproduced the
+    same `153690186 / T=11316` value twice under the official runner, so it is
+    a much safer runtime-cliff guard than the drifting `v050/v080/v177` chain.
+
+## 2026-06-26 reboot_v199_20260626_trackA_with_prob38_stable_v047_guard
+
+- parent_version: `reboot_v196_20260626_trackA_crossbay_tardy_migration_on_v195`
+- status: `rejected`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v199_trackA_20260626_001/`
+  - prob38 guard comparison:
+    `reports/ogc2026_reboot_v001/probe_prob38_runtimecliff_candidates_20260626_001/`
+  - prob38 guard stability:
+    `reports/ogc2026_reboot_v001/probe_prob38_v047_stability_20260626_001/`
+- smoke_result:
+  - accepted_for_score `13/13`
+  - timeout `0`
+  - invalid/error `0`
+- smoke_comparison_vs_v195_canonical:
+  - subset Objective `332009615 -> 332242327`
+  - subset Total T `33369 -> 33415`
+  - improved rows:
+    - `prob_10`: objective `1552011 -> 1457378`, `T 85 -> 78`
+    - `prob_11`: objective `11154452 -> 10754578`, `T 473 -> 456`
+    - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+    - `prob_19`: objective `2765323 -> 2435335`, `T 206 -> 175`
+    - `prob_32`: objective `12935663 -> 12781706`, `T 3021 -> 2992`
+  - regression:
+    - `prob_38`: objective `151254848 -> 153690186`, `T 11120 -> 11316`
+- rejection_reason:
+  - the stable `v047` guard removed the catastrophic prob38 runtime-cliff from
+    `v197/v198`, but the guarded row is still materially worse than canonical
+    `v195`.
+  - because the smoke subset objective and Total T both got slightly worse, the
+    candidate does not justify a full40 run.
+
+## 2026-06-26 reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard (planned)
+
+- parent_version: `reboot_v199_20260626_trackA_with_prob38_stable_v047_guard`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A first20-only specialist with a shared trusted v195 fallback, a strict Track A candidate, an extended low-preference-pressure candidate, and a non-forced stable prob38 guard candidate`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_19`
+- guard_rows:
+  - `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - `v199` showed that forcing the stable prob38 guard is too expensive when
+    canonical `v195` is already trusted again, so the next step should treat
+    the guard as a fallback candidate rather than a forced override.
+  - the main Track A experiment is to reuse one trusted `v195` warm start, then
+    compare a stricter `v197`-like candidate against a narrower extended
+    low-preference-pressure `v196`-like candidate under a shared time budget,
+    choosing by official T-first ordering.
+  - this should preserve the `prob_38` / `prob_39` / `prob_40` surface unless a
+    candidate is actually better, while still keeping access to the useful
+    first20 gains from `prob_10`, `prob_11`, `prob_13`, `prob_19`.
+- planned_smoke_set:
+  - `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_13`, `prob_19`, `prob_20`,
+    `prob_24`, `prob_27`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+
+## 2026-06-26 reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard
+
+- parent_version: `reboot_v199_20260626_trackA_with_prob38_stable_v047_guard`
+- status: `accepted`
+- promotion_decision: `promoted_to_active_baseline_hh`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v200_trackA_20260626_001/`
+  - active publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v200_publish_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v200_train40_20260626_001/`
+- smoke_result:
+  - accepted_for_score `13/13`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke_comparison_vs_v195_canonical:
+    - subset Objective `332009615 -> 329777239`
+    - subset Total T `33369 -> 33173`
+    - improved rows:
+      - `prob_10`: objective `1552011 -> 1457378`, `T 85 -> 78`
+      - `prob_11`: objective `11325471 -> 10754578`, `T 473 -> 456`
+      - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+      - `prob_19`: objective `2765323 -> 2435335`, `T 206 -> 175`
+      - `prob_32`: objective `12935663 -> 12781706`, `T 3021 -> 2992`
+    - guard rows held:
+      - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+      - `prob_39`: objective `48160369 -> 48160369`, `T 3521 -> 3521`
+      - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `575342062`
+  - Avg Objective `14383551.550`
+  - Total T `59809`
+  - Avg T `1495.225`
+  - Total L `105820.0`
+  - Avg L `2645.500`
+  - Total P `167752.0`
+  - Avg P `4193.800`
+  - Avg Runtime `30.21s`
+  - Max Runtime `55.55s`
+- comparison_vs_v195_canonical:
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v195_train40_20260626_002/`
+  - Total Objective `577544688 -> 575342062`
+  - Avg Objective `14438617.200 -> 14383551.550`
+  - Total T `59959 -> 59809`
+  - Avg T `1498.975 -> 1495.225`
+  - Total L `105961.0 -> 105820.0`
+  - Avg L `2649.025 -> 2645.500`
+  - Total P `167845.0 -> 167752.0`
+  - Avg P `4196.125 -> 4193.800`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56747 -> 56718`
+  - first20 Total T `1910 -> 1789`
+  - improved rows:
+    - `prob_10`: objective `1552011 -> 1457378`, `T 85 -> 78`
+    - `prob_11`: objective `11154452 -> 10754578`, `T 473 -> 456`
+    - `prob_13`: objective `13873697 -> 12649523`, `T 713 -> 647`
+    - `prob_19`: objective `2765323 -> 2435335`, `T 206 -> 175`
+    - `prob_32`: objective `12935663 -> 12781706`, `T 3021 -> 2992`
+  - worst_regression:
+    - `none; all other rows matched canonical v195`
+- comparison_vs_v196_candidate:
+  - full:
+    `reports/ogc2026_reboot_v001/full_revalidate_reboot_v196_train40_20260626_002/`
+  - Total Objective `575375299 -> 575342062`
+  - Total T `59926 -> 59809`
+  - first20 Total T `1786 -> 1789`
+  - high-T tail (`T>=1000`) sum `56838 -> 56718`
+  - recovered guard row:
+    - `prob_40`: objective `5860829 -> 5780789`, `T 8549 -> 8429`
+  - remaining small regression:
+    - `prob_15`: objective `844023 -> 890826`, `T 25 -> 28`
+- promotion_reason:
+  - `v200` satisfies accepted_for_score `40/40`, timeout `0`, invalid/error `0`,
+    improves Total T and objective versus the trusted active `v195`, improves
+    the high-T tail, and also beats the stronger-but-riskier `v196` by
+    recovering `prob_40` without giving back the main first20 gains.
+
+## 2026-06-26 reboot_v201_20260626_trackA_portfolio_plus_window_repair_on_v200 (planned)
+
+- parent_version: `reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A post-portfolio bounded repair on the selected v200 warm start`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+- guard_rows:
+  - `prob_15`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - `v200` already picks the better strict/extended Track A candidate, but the
+    chosen warm start still leaves a small same-bay tardy cluster on several
+    first20 rows.
+  - the next structural step is to treat the selected `v200` result as a
+    trusted fallback candidate inside a richer portfolio and add one more
+    bounded same-bay tardy-window reorder repair candidate on top of it.
+  - this should preserve the recovered prob_38 / prob_40 guard surface while
+    creating upside on rows like `prob_14` and `prob_20`, where `v200` still
+    falls back to the canonical `v195` surface.
+- planned_smoke_set:
+  - `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`,
+    `prob_19`, `prob_20`, `prob_24`, `prob_27`, `prob_32`, `prob_38`,
+    `prob_39`, `prob_40`
+
+## 2026-06-26 reboot_v201_20260626_trackA_portfolio_plus_window_repair_on_v200
+
+- parent_version: `reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard`
+- status: `rejected`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v201_trackA_20260626_001/`
+- smoke_result:
+  - accepted_for_score `15/15`
+  - timeout `0`
+  - invalid/error `0`
+- smoke_comparison_vs_v200_active:
+  - subset Objective `334795127 -> 334795127`
+  - subset Total T `33445 -> 33445`
+  - improved rows:
+    - `none`
+  - regressions:
+    - `none in T/objective`
+  - runtime note:
+    - the added post-portfolio window repair consumed extra wall time on target
+      rows such as `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+      without changing the selected solution.
+- rejection_reason:
+  - the extra same-bay window repair is structurally valid, but on the v200
+    warm start it produced no measurable T/objective gain on the risk-based
+    smoke set.
+  - because the candidate only adds runtime and does not improve T, objective,
+    T>0 count, or the high-T tail, it is rejected without a full40 run.
+
+## 2026-06-26 reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair (planned)
+
+- parent_version: `reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard`
+- status: `planned`
+- Track: `A`
+- focus_family:
+  - `Family A post-portfolio multiblock sequence repair on the selected v200 warm start`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+- guard_rows:
+  - `prob_15`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- hypothesis:
+  - the v200 warm start already absorbs the single-step window reorder upside,
+    so another same-bay local reorder layer is too weak.
+  - the next Track A candidate should instead add a genuinely different repair
+    family: bounded multiblock sequence or pair move repair on the selected
+    warm start, targeting residual due-date violations that need coordinated
+    moves rather than one more local reorder pass.
+
+## 2026-06-26 reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair
+
+- parent_version: `reboot_v200_20260626_trackA_stricter_first20_with_stable_prob38_guard`
+- status: `accepted`
+- promotion_decision: `promoted_to_active_baseline_hh`
+- Track: `A`
+- canonical_evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v202_trackA_20260626_001/`
+  - active publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v202_publish_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v202_train40_20260626_001/`
+- smoke_result:
+  - accepted_for_score `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke_comparison_vs_v200_active:
+    - subset Objective `334795127 -> 333083960`
+    - subset Total T `33445 -> 33350`
+    - improved rows:
+      - `prob_10`: objective `1457378 -> 1362135`, `T 78 -> 72`
+      - `prob_11`: objective `10754578 -> 10475485`, `T 456 -> 444`
+      - `prob_13`: objective `12649523 -> 11552493`, `T 647 -> 588`
+      - `prob_14`: objective `4097312 -> 3991274`, `T 198 -> 192`
+      - `prob_15`: objective `890826 -> 844023`, `T 28 -> 25`
+      - `prob_19`: objective `2435335 -> 2347208`, `T 175 -> 166`
+    - guard rows held:
+      - `prob_32`: objective `12781706 -> 12781706`, `T 2992 -> 2992`
+      - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+      - `prob_39`: objective `48160369 -> 48160369`, `T 3521 -> 3521`
+      - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `573629728`
+  - Avg Objective `14340743.200`
+  - Total T `59714`
+  - Avg T `1492.850`
+  - Total L `105492.0`
+  - Avg L `2637.300`
+  - Total P `167720.0`
+  - Avg P `4193.000`
+  - Avg Runtime `31.46s`
+  - Max Runtime `56.80s`
+- comparison_vs_v200_active:
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v200_train40_20260626_001/`
+  - Total Objective `575342062 -> 573629728`
+  - Avg Objective `14383551.550 -> 14340743.200`
+  - Total T `59809 -> 59714`
+  - Avg T `1495.225 -> 1492.850`
+  - Total L `105820.0 -> 105492.0`
+  - Avg L `2645.500 -> 2637.300`
+  - Total P `167752.0 -> 167720.0`
+  - Avg P `4193.800 -> 4193.000`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+  - first20 Total T `1789 -> 1694`
+  - improved rows:
+    - `prob_10`: objective `1457378 -> 1362135`, `T 78 -> 72`
+    - `prob_11`: objective `10754578 -> 10475485`, `T 456 -> 444`
+    - `prob_13`: objective `12649523 -> 11552493`, `T 647 -> 588`
+    - `prob_14`: objective `4097312 -> 3991274`, `T 198 -> 192`
+    - `prob_15`: objective `890826 -> 844023`, `T 28 -> 25`
+    - `prob_19`: objective `2435335 -> 2347208`, `T 175 -> 166`
+  - worst_regression:
+    - `none; all other rows matched v200`
+- comparison_vs_v195_canonical:
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v195_train40_20260626_002/`
+  - Total Objective `577544688 -> 573629728`
+  - Total T `59959 -> 59714`
+  - high-T tail (`T>=1000`) sum `56747 -> 56718`
+  - first20 Total T `1910 -> 1694`
+- comparison_vs_v196_candidate:
+  - full:
+    `reports/ogc2026_reboot_v001/full_revalidate_reboot_v196_train40_20260626_002/`
+  - Total Objective `575375299 -> 573629728`
+  - Total T `59926 -> 59714`
+  - high-T tail (`T>=1000`) sum `56838 -> 56718`
+  - first20 Total T `1786 -> 1694`
+  - recovered guard row:
+    - `prob_40`: objective `5860829 -> 5780789`, `T 8549 -> 8429`
+- promotion_reason:
+  - `v202` satisfies accepted_for_score `40/40`, timeout `0`, invalid/error `0`,
+    improves Total T and objective versus the active `v200` BEST without any
+    full40 regression, and makes the strongest Family A first20 progress so far
+    while keeping the key guard rows unchanged.
+
+## 2026-06-26 reboot_v203_20260626_trackA_v202_plus_window_repair
+
+- parent_version: `reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair`
+- status: `rejected`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v203_trackA_20260626_001/`
+- focus_family:
+  - `Family A post-v202 same-bay tardy-window repair on the stronger multiblock warm start`
+- target_backlog_rows:
+  - `prob_10`, `prob_11`, `prob_19`
+- guard_rows:
+  - `prob_13`, `prob_14`, `prob_15`, `prob_20`, `prob_32`, `prob_38`,
+    `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - targeted improvements versus active `v202` in the same smoke:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - guard holds:
+    - `prob_13`: objective `11552493 -> 11552493`, `T 588 -> 588`
+    - `prob_15`: objective `844023 -> 844023`, `T 25 -> 25`
+    - `prob_32`: objective `12781706 -> 12781706`, `T 2992 -> 2992`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_39`: objective `48160369 -> 48160369`, `T 3521 -> 3521`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - regressions / drift:
+    - `prob_14`: objective `3991274 -> 4097312`, `T 192 -> 198`
+    - active `v202` in this smoke drifted on `prob_20` to objective `8239778`,
+      `T 278`, while canonical `v202` evidence and the `v203` branch on the
+      same row both produced objective `5199740`, `T 164`
+- rejection_reason:
+  - `v203` improved several target Family A rows, but it is not promotion-safe
+    because it lost the trusted `prob_14` guard row inside the inherited `v202`
+    stage and the same smoke exposed a runtime-cliff drift on `prob_20`.
+  - the candidate therefore fails the bounded smoke gate for a trusted BEST
+    promotion and should not proceed to full40.
+- implementation_note:
+  - wrapping `v202.algorithm(...)` and then running one more late same-bay
+    repair is too brittle near the remaining-time cliff; the extra layer changes
+    which inherited repairs fire before the candidate stage even begins.
+- next_hypothesis:
+  - keep `v202` as the trusted active BEST and build the next Track A candidate
+    as an internal portfolio branch inside the `v202` flow, so the late
+    same-bay reorder can compete with the multiblock repair without re-entering
+    the full `v202` stack as a black-box wrapper.
+
+## 2026-06-26 reboot_v204_20260626_trackA_internal_multiblock_window_portfolio
+
+- parent_version: `reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair`
+- status: `rejected`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v204_trackA_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v204_train40_20260626_001/`
+- focus_family:
+  - `Family A internal portfolio between multiblock sequence repair and late same-bay window reorder on the same trusted v200 warm start`
+- target_backlog_rows:
+  - `prob_10`, `prob_11`, `prob_19`
+- guard_rows:
+  - `prob_14`, `prob_20`, `prob_32`, `prob_38`, `prob_39`, `prob_40`
+- smoke_result:
+  - accepted_for_score `14/14`
+  - timeout `0`
+  - invalid/error `0`
+  - subset improvements versus direct `v202`:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+    - `prob_27`: objective `75975343 -> 75028700`, `T 5527 -> 5456`
+  - guard rows held:
+    - `prob_13`, `prob_14`, `prob_20`, `prob_24`, `prob_32`, `prob_38`,
+      `prob_39`, `prob_40`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `576424020`
+  - Avg Objective `14410600.500`
+  - Total T `59814`
+  - Avg T `1495.350`
+  - Total L `105492.0`
+  - Avg L `2637.300`
+  - Total P `167720.0`
+  - Avg P `4193.000`
+  - Avg Runtime `32.23s`
+  - Max Runtime `57.11s`
+- comparison_vs_v202_active:
+  - canonical full:
+    `reports/ogc2026_reboot_v001/full_reboot_v202_train40_20260626_001/`
+  - Total Objective `573629728 -> 576424020`
+  - Avg Objective `14340743.200 -> 14410600.500`
+  - Total T `59714 -> 59814`
+  - Avg T `1492.850 -> 1495.350`
+  - Avg Runtime `31.46s -> 32.23s`
+  - Max Runtime `56.80s -> 57.11s`
+  - first20 Total T `1694 -> 1794`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+  - improved rows:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - worst_regression:
+    - `prob_20`: objective `5199740 -> 8239778`, `T 164 -> 278`
+  - all other rows matched canonical `v202`
+- rejection_reason:
+  - the internal portfolio hypothesis fixed the `prob_14` guard loss seen in
+    `v203` and preserved the smoke guard surface, but it still failed the full40
+    promotion gate because one large `prob_20` regression more than erased the
+    targeted gains on `prob_10` / `prob_11` / `prob_19`.
+  - the candidate therefore worsens Total T, Avg T, first20 Total T, and total
+    objective versus the trusted active `v202` BEST, so it cannot be promoted.
+- implementation_note:
+  - this result narrows the real failure mode: the late internal portfolio is
+    fine for the stable four-bay subtype (`prob_14` stayed fixed), but it still
+    arrives too late for the runtime-cliff `prob_20`-like subtype, where the
+    inherited `v195` window pass can still be skipped before the internal
+    portfolio begins.
+- next_hypothesis:
+  - split Track A into at least two subtypes inside the portfolio:
+    `stable-fourbay-tightslack` and `runtime-cliff-tightslack`.
+  - the next structural candidate should keep the `v204` internal competition
+    for the stable subtype, but add an earlier dedicated due-window candidate
+    for the `prob_20`-like runtime-cliff subtype so the critical same-bay
+    repair is not deferred until after the `v200` warm-start stack has already
+    spent almost all remaining headroom.
+
+## 2026-06-26 reboot_v205_20260626_trackA_subtype_split_early_window
+
+- parent_version: `reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair`
+- status: `rejected`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v205_trackA_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v205_train40_20260626_001/`
+  - direct fallback recheck:
+    `reports/ogc2026_reboot_v001/recheck_v202_prob33_20260626_001/`
+- focus_family:
+  - `Track A subtype split: stable four-bay tight-slack rows keep the v204 internal portfolio, while runtime-cliff five-bay tight-slack rows get an earlier warm-repair + same-bay window candidate`
+- target_backlog_rows:
+  - `prob_10`, `prob_11`, `prob_19`
+- critical_guard_rows:
+  - `prob_20`
+- guard_rows:
+  - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_38`, `prob_40`
+- smoke_result:
+  - accepted_for_score `12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - subset improvements versus direct `v202`:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - recovered critical guard:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+  - additional guards held:
+    - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_38`, `prob_40`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `578645160`
+  - Avg Objective `14466129.000`
+  - Total T `60494`
+  - Avg T `1512.350`
+  - Total L `105070.0`
+  - Avg L `2626.750`
+  - Total P `167532.0`
+  - Avg P `4188.300`
+  - Avg Runtime `31.91s`
+  - Max Runtime `57.31s`
+- comparison_vs_v202_active:
+  - canonical full:
+    `reports/ogc2026_reboot_v001/full_reboot_v202_train40_20260626_001/`
+  - Total Objective `573629728 -> 578645160`
+  - Avg Objective `14340743.200 -> 14466129.000`
+  - Total T `59714 -> 60494`
+  - Avg T `1492.850 -> 1512.350`
+  - Avg Runtime `31.46s -> 31.91s`
+  - Max Runtime `56.80s -> 57.31s`
+  - first20 Total T `1694 -> 1680`
+  - high-T tail (`T>=1000`) sum `56718 -> 57512`
+  - improved rows:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - worst_regression:
+    - `prob_33`: objective `26172225 -> 31433403`, `T 3805 -> 4599`
+  - all other rows matched canonical `v202`
+- drift_check:
+  - `prob_33` direct recheck of `v202` alone returned the canonical
+    objective `26172225`, `T 3805`, so the `v205` full40 regression is not a
+    new trusted-BEST drift of the active `v202` source itself.
+  - the hidden risk is instead the candidate wrapper surface: embedding the
+    subtype router around the trusted fallback changed the non-target `prob_33`
+    runtime/behavior enough to expose a much worse tail row.
+- rejection_reason:
+  - `v205` successfully preserved the `prob_20` runtime-cliff row and retained
+    the intended `prob_10` / `prob_11` / `prob_19` gains, but it is still not
+    promotion-safe because a non-target fallback row `prob_33` regressed
+    heavily, wiping out the Track A progress.
+  - despite a slightly better first20 Total T, the candidate worsens Total T,
+    Avg T, high-T tail, and total objective versus the trusted active `v202`
+    BEST, so it cannot be promoted.
+- next_hypothesis:
+  - keep the subtype split idea, but avoid a top-level wrapper that routes all
+    non-target rows through a different module surface.
+  - the next Track A candidate should inline the `prob_20`-like early-window
+    specialist inside a local copy of the trusted `v202` flow, so non-target
+    rows such as `prob_33` stay on the exact canonical code path while only the
+    runtime-cliff five-bay Family A subtype gets the earlier intervention.
+
+## 2026-06-26 reboot_v206_20260626_trackA_inline_v202_subtype_specialists
+
+- parent_version: `reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair`
+- status: `rejected`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v206_trackA_20260626_001/`
+- focus_family:
+  - `Inline subtype specialists inside a local v202-derived portfolio so non-target rows remain on the exact canonical v202 path`
+- target_backlog_rows:
+  - `prob_10`, `prob_11`, `prob_19`
+- critical_guard_rows:
+  - `prob_20`
+- hidden_risk_rows:
+  - `prob_33`
+- guard_rows:
+  - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_38`, `prob_40`
+- smoke_result:
+  - accepted_for_score `12/13`
+  - timeout `1`
+  - invalid/error `1`
+  - stable subtype improvements versus direct `v202`:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - non-target guard rows held:
+    - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_33`, `prob_38`,
+      `prob_40`
+  - smoke blocker row:
+    - `prob_20`: `timed_out=true`, `accepted_for_score=false`,
+      runtime `90.016s`, error `subprocess timeout after 90.0s`
+- rejection_reason:
+  - `v206` fails the smoke gate outright because the critical `prob_20` row
+    timed out, so it cannot proceed to full40.
+  - the log shows the candidate first ran the trusted `v200` / `v202` stack for
+    the runtime-cliff subtype and then launched the earlier warm-repair +
+    window specialist afterward, effectively paying for two expensive Track A
+    paths on the same row.
+- implementation_note:
+  - the non-target stabilization worked: `prob_33` and the other fallback guard
+    rows matched direct `v202` in smoke.
+  - the remaining issue is purely portfolio ordering and budgeting for the
+    `prob_20`-like runtime-cliff subtype.
+- next_hypothesis:
+  - keep the local-copy `v202` design for non-target stability, but route the
+    runtime-cliff five-bay subtype before building the expensive `v200`
+    portfolio candidate.
+  - the next Track A candidate should build the early warm-repair + window
+    candidate first for that subtype, compare it against a much cheaper trusted
+    fallback, and only spend on the deeper `v200` / `v202` stack when enough
+    headroom remains after that early decision.
+
+## 2026-06-26 reboot_v207_20260626_trackA_runtimecliff_candidate_ordering
+
+- parent_version: `reboot_v202_20260626_trackA_portfolio_plus_multiblock_sequence_repair`
+- status: `accepted`
+- decision_type: `direct full accepted plus official baseline_hh publish recheck`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v207_trackA_20260626_001/`
+  - official baseline_hh publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v207_baseline_hh_20260626_001/`
+  - full:
+    `reports/ogc2026_reboot_v001/full_reboot_v207_train40_20260626_001/`
+  - auxiliary non-canonical `myalgorithm.py ACTIVE="hh"` chain recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v207_publish_20260626_001/`
+- focus_family:
+  - `Track A runtime-cliff candidate ordering: build the prob20-like early window candidate before any expensive v200/v202 fallback stack`
+- target_backlog_rows:
+  - `prob_10`, `prob_11`, `prob_19`
+- critical_guard_rows:
+  - `prob_20`
+- hidden_risk_rows:
+  - `prob_33`
+- guard_rows:
+  - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_38`, `prob_40`
+- smoke_set:
+  - `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_14`, `prob_19`, `prob_20`,
+    `prob_24`, `prob_27`, `prob_32`, `prob_33`, `prob_38`, `prob_40`
+- smoke_result:
+  - accepted_for_score `26/26`
+  - timeout `0`
+  - invalid/error `0`
+  - subset improvements versus direct `v202`:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - recovered runtime-cliff guard:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+  - additional guards held:
+    - `prob_14`, `prob_24`, `prob_27`, `prob_32`, `prob_33`, `prob_38`,
+      `prob_40`
+- full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `573383982`
+  - Avg Objective `14334599.550`
+  - Total T `59700`
+  - Avg T `1492.500`
+  - Total L `105492.0`
+  - Avg L `2637.300`
+  - Total P `167720.0`
+  - Avg P `4193.000`
+  - Avg Runtime `31.87s`
+  - Max Runtime `56.16s`
+- comparison_vs_v202_active:
+  - canonical full:
+    `reports/ogc2026_reboot_v001/full_reboot_v202_train40_20260626_001/`
+  - Total Objective `573629728 -> 573383982`
+  - Avg Objective `14340743.200 -> 14334599.550`
+  - Total T `59714 -> 59700`
+  - Avg T `1492.850 -> 1492.500`
+  - Total L `105492.0 -> 105492.0`
+  - Avg L `2637.300 -> 2637.300`
+  - Total P `167720.0 -> 167720.0`
+  - Avg P `4193.000 -> 4193.000`
+  - Avg Runtime `31.46s -> 31.87s`
+  - Max Runtime `56.80s -> 56.16s`
+  - improved rows:
+    - `prob_10`: objective `1362135 -> 1274865`, `T 72 -> 66`
+    - `prob_11`: objective `10475485 -> 10338343`, `T 444 -> 438`
+    - `prob_19`: objective `2347208 -> 2325874`, `T 166 -> 164`
+  - no full40 regressions versus canonical `v202`
+  - first20 Total T `1694 -> 1680`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+- official_baseline_hh_publish_recheck:
+  - accepted_for_score `16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - objective / `T` / `L` / `P` matched direct `v207` on:
+    - `prob_10`, `prob_11`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+- auxiliary_myalgorithm_chain_note:
+  - the `ogc2026/baseline` directory-path recheck stayed scoreable
+    (`accepted_for_score=22/22`) but did not match direct `v207` on
+    `prob_11`, `prob_14`, `prob_20`, and `prob_33` because the additional
+    `myalgorithm.py -> baseline_hh.py` import path changed wall-time budgeting.
+  - under the current reboot contract the official entrypoint is
+    `baseline_hh.py`, so the baseline_hh recheck above is canonical and the
+    directory-path recheck is recorded only as auxiliary hidden-risk evidence.
+- acceptance_note:
+  - `v207` qualifies for promotion because it preserves `accepted_for_score=40/40`,
+    timeout `0`, and invalid/error `0`, while improving Total T, Avg T, first20
+    Total T, and total objective versus the trusted active `v202` BEST.
+  - the gain is structural rather than polish-only: the runtime-cliff Track A
+    candidate ordering keeps the stable non-target surface but lets the
+    prob20-like subtype spend budget on the cheap due-window repair before any
+    expensive fallback stack.
+- next_hypothesis:
+  - stay on Track `A` because the first20 backlog is still materially above
+    near-zero even after the `v207` win.
+  - the next bounded candidate should target the remaining first20 Family A
+    rows with another local structural repair, but it must preserve the
+    newly-stable prob20-like runtime-cliff ordering from `v207`.
+
+## 2026-06-26 reboot_v208_20260626_trackA_residual_broad_window_sliding (planned)
+
+- parent_version: `reboot_v207_20260626_trackA_runtimecliff_candidate_ordering`
+- status: `rejected`
+- Track: `A`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v208_trackA_20260626_001/`
+- focus_family:
+  - `Track A residual four-bay tight-slack backlog after v207: preserve the prob20-like runtime-cliff ordering, then add a broader same-bay window-sliding candidate on top of the selected v207 four-bay result`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`, `prob_19`
+- critical_guard_rows:
+  - `prob_20`
+- hidden_risk_rows:
+  - `prob_33`
+- guard_rows:
+  - `prob_1`, `prob_6`, `prob_25`, `prob_27`, `prob_38`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A / guard additions:
+    `prob_14`, `prob_20`
+- smoke_result:
+  - accepted_for_score `24/24`
+  - timeout `0`
+  - invalid/error `0`
+  - current trusted `v207` versus candidate `v208`:
+    - `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_25`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+      all matched exactly on objective / `T` / `L` / `P`
+  - runtime moved slightly but stayed scoreable on every row
+- rejection_reason:
+  - the broader same-bay residual window candidate produced no quality change
+    at all on the risk-based smoke set, so it does not justify a full40 run.
+  - this is not a promotion candidate and not even a useful training-best-only
+    variant; it behaved as a structural no-op on the representative rows that
+    were meant to reveal additional first20 Track A movement.
+- next_hypothesis:
+  - keep `v207` as the trusted active BEST.
+  - the remaining first20 backlog likely needs a different Track A structural
+    move than wider same-bay local reorder alone, probably something that can
+    change bay-level assignment pressure or perform a bounded latest-feasible /
+    due-violation repair rather than only replaying a wider sequence window.
+
+## 2026-06-26 reboot_v209_20260626_trackA_residual_prefix_repair (planned)
+
+- parent_version: `reboot_v207_20260626_trackA_runtimecliff_candidate_ordering`
+- status: `rejected`
+- Track: `A`
+- focus_family:
+  - `Track A residual four-bay tight-slack backlog after v207: preserve the prob20-like runtime-cliff ordering, then add a bounded tardy-prefix rebuild candidate on top of the selected stable four-bay result`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`, `prob_19`
+- critical_guard_rows:
+  - `prob_20`
+- hidden_risk_rows:
+  - `prob_33`
+- guard_rows:
+  - `prob_1`, `prob_6`, `prob_25`, `prob_27`, `prob_38`
+- hypothesis:
+  - `v208` showed that a broader same-bay sequence window is still too local;
+    it produced a full smoke no-op on the representative Track A rows.
+  - the next candidate should keep the exact `v207` path as the trusted
+    fallback candidate, then on four-bay tight-slack rows only, remove and
+    rebuild a short top-tardy prefix from the selected `v207` assignments.
+  - this is structurally different from the no-op window variants because it
+    can change the bay-level assignment pressure for a small interacting tardy
+    set while leaving the rest of the trusted warm start intact.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A / guard additions:
+    `prob_13`, `prob_20`
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v209_trackA_20260626_001/`
+- smoke_result:
+  - `accepted_for_score=21/22`, `timed_out=1`, `invalid/error=0`
+  - every row remained checker-feasible, but `prob_19` ran `65.672049s` and
+    became `timed_out=true`, so the candidate fails the smoke gate and cannot
+    proceed to full40.
+  - targeted Track A gains did appear before the timeout regression:
+    - `prob_11`: `T 455 -> 380`, objective `10,713,164 -> 9,012,637`
+    - `prob_13`: `T 588 -> 547`, objective `11,552,493 -> 10,786,878`
+    - `prob_14`: `T 198 -> 192`, objective `4,097,312 -> 3,991,274`
+  - unchanged guards:
+    `prob_1`, `prob_6`, `prob_20`, `prob_25`, `prob_27`, `prob_33`,
+    `prob_38`
+  - worst regression:
+    `prob_19` stayed at the same solution quality but runtime rose
+    `40.770710s -> 65.672049s`, reopening a runtime-cliff failure on a
+    first20 Track A row.
+- decision:
+  - reject `v209` at smoke without a full40 run.
+  - the tardy-prefix rebuild is a real Track A signal, but its current form is
+    too expensive on residual four-bay rows that do not convert the extra work
+    into better `T`.
+- next_hypothesis:
+  - keep `v207` as the trusted active BEST.
+  - next Track A candidate should preserve the observed `prob_11/13/14`
+    breakthrough while replacing the broad prefix rebuild with a more targeted
+    latest-feasible tardy reinsertion / due-violation repair that can stop
+    early on lower-payoff residual rows before reopening the runtime cliff seen
+    on `prob_19`.
+
+## 2026-06-26 reboot_v210_20260626_trackA_latest_feasible_tardy_repair
+
+- parent_version: `reboot_v207_20260626_trackA_runtimecliff_candidate_ordering`
+- status: `accepted`
+- decision_type: `accepted after smoke, official baseline_hh publish recheck, and full revalidation`
+- Track: `A`
+- focus_family:
+  - `Track A residual four-bay tight-slack rows where v209 proved there is T headroom, but full prefix rebuild reopened a runtime cliff on lower-payoff residual rows`
+- target_backlog_rows:
+  - `prob_11`, `prob_13`, `prob_14`
+- critical_guard_rows:
+  - `prob_19`, `prob_20`
+- hidden_risk_rows:
+  - `prob_33`
+- guard_rows:
+  - `prob_1`, `prob_6`, `prob_25`, `prob_27`, `prob_38`
+- hypothesis:
+  - reuse `v207` as the trusted fallback candidate and keep the proven
+    runtime-cliff ordering path intact.
+  - instead of rebuilding a broad tardy prefix, select a very small tardy set
+    and apply bounded latest-feasible reinsertion / due-violation repair moves
+    only when the current row shows enough tight-slack pressure to justify the
+    extra work.
+  - this remains a structural Track A move because it changes the constructive
+    placement of a few critical tardy jobs rather than only polishing weights
+    or widening a local window.
+- evidence:
+  - smoke:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v210_trackA_20260626_001/`
+  - official baseline_hh publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v210_baseline_hh_20260626_001/`
+  - canonical full revalidation:
+    `reports/ogc2026_reboot_v001/full_revalidate_reboot_v210_train40_20260626_001/`
+  - auxiliary initial direct full run:
+    `reports/ogc2026_reboot_v001/full_reboot_v210_train40_20260626_001/`
+- smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A / guard additions:
+    `prob_13`, `prob_20`
+- smoke_result:
+  - accepted_for_score `22/22`
+  - timeout `0`
+  - invalid/error `0`
+  - subset improvements versus direct `v207`:
+    - `prob_11`: objective `10337657 -> 9012637`, `T 438 -> 380`
+    - `prob_13`: objective `11552493 -> 10783287`, `T 588 -> 547`
+    - `prob_14`: objective `3991274 -> 3795716`, `T 192 -> 181`
+  - critical runtime guard held:
+    - `prob_19`: objective `2325874 -> 2325874`, `T 164 -> 164`
+  - additional guards held:
+    - `prob_1`, `prob_6`, `prob_20`, `prob_25`, `prob_27`, `prob_33`,
+      `prob_38`
+- canonical_full_result:
+  - accepted_for_score `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `571093512`
+  - Avg Objective `14277337.800`
+  - Total T `59590`
+  - Avg T `1489.750`
+  - Total L `105329.0`
+  - Avg L `2633.225`
+  - Total P `167678.0`
+  - Avg P `4191.950`
+  - Avg Runtime `32.11s`
+  - Max Runtime `56.63s`
+- comparison_vs_v207_active:
+  - canonical full:
+    `reports/ogc2026_reboot_v001/full_reboot_v207_train40_20260626_001/`
+  - Total Objective `573383982 -> 571093512`
+  - Avg Objective `14334599.550 -> 14277337.800`
+  - Total T `59700 -> 59590`
+  - Avg T `1492.500 -> 1489.750`
+  - Total L `105492.0 -> 105329.0`
+  - Avg L `2637.300 -> 2633.225`
+  - Total P `167720.0 -> 167678.0`
+  - Avg P `4193.000 -> 4191.950`
+  - Avg Runtime `31.87s -> 32.11s`
+  - Max Runtime `56.16s -> 56.63s`
+  - improved rows:
+    - `prob_11`: objective `10338343 -> 9012637`, `T 438 -> 380`
+    - `prob_13`: objective `11552493 -> 10783287`, `T 588 -> 547`
+    - `prob_14`: objective `3991274 -> 3795716`, `T 192 -> 181`
+  - no full40 regressions versus canonical `v207`
+  - first20 Total T `1680 -> 1570`
+  - T>0 count `33 -> 33`
+  - high-T tail (`T>=1000`) sum `56718 -> 56718`
+- official_baseline_hh_publish_recheck:
+  - accepted_for_score `16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - objective / `T` / `L` / `P` matched direct `v210` on:
+    - `prob_10`, `prob_11`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+- revalidation_note:
+  - the first direct full40 run improved `prob_20`, but the later direct
+    publish recheck and the second full40 revalidation reproduced the stable
+    non-improved `prob_20` value from `v207`.
+  - because the source/evidence drift was small but real, the revalidated full
+    bundle above is treated as canonical and the initial full run is recorded
+    only as auxiliary evidence.
+- acceptance_note:
+  - `v210` qualifies for promotion because it preserves `accepted_for_score=40/40`,
+    timeout `0`, and invalid/error `0`, while improving Total T, Avg T, first20
+    Total T, and total objective versus the trusted active `v207` BEST.
+  - the gain is structural rather than polish-only: the new Track A candidate
+    keeps the trusted runtime-cliff ordering from `v207` and adds a smaller
+    tardy reinsertion / repair specialist only for the profitable mid-size
+    four-bay high-urgency subtype.
+- promotion_actions:
+  - update `baseline_hh.py` active wrapper to `v210`
+  - update `ACTIVE_VERSION.md` canonical evidence path to the revalidated
+    `v210` smoke / publish-recheck / full bundle
+  - keep the initial direct `v210` full run as auxiliary drift evidence, not
+    as the canonical trusted bundle
+- next_hypothesis:
+  - keep `v210` as the trusted active BEST.
+  - continue on Track `A` only if the next bounded candidate can reduce the
+    first20 backlog further without weakening the runtime guards now stabilized
+    on `prob_19` and `prob_20`; otherwise shift the next structural cycle to
+    Track `B` for high-tail rows `prob_27`, `prob_33`, `prob_38`, and
+    `prob_40`.
