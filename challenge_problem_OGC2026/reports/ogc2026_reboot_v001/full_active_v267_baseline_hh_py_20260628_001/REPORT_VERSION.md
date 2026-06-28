@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `full_active_v267_baseline_hh_py_20260628_001`
+- algorithm_version: `baseline_hh.py -> reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247`
+- parent_algorithm_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- run_id: `full_active_v267_baseline_hh_py_20260628_001`
+- timestamp: `2026-06-28T12:19:38`
+- git_branch: `hh_algorithm_loop`
+- git_head: `b2236bb3`
+- git_dirty: `True`
+- algorithm_sha256: `54554217a12ad9573cf5138d199da92b4a1df9a13fda67a35fe36142533d4688`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `40`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `569,285,579`
+- Avg Objective: `14,232,139.475`
+- Total T: `59,488`
+- Avg T: `1,487.200`
+- Total L: `105,272.0`
+- Avg L: `2,631.800`
+- Total P: `167,853.0`
+- Avg P: `4,196.325`
+- decision label: `accepted`
+- promotion status: `official baseline_hh active surface promoted; current-tree trusted BEST`

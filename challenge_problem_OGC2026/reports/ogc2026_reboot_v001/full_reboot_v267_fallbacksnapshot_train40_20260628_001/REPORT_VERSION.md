@@ -1,0 +1,22 @@
+# Report Version
+
+- report_version_id: `full_reboot_v267_fallbacksnapshot_train40_20260628_001`
+- algorithm_version: `reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247.py`
+- parent_algorithm_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- run_id: `full_reboot_v267_fallbacksnapshot_train40_20260628_001`
+- timestamp: `2026-06-28T11:43:38`
+- git_branch: `hh_algorithm_loop`
+- git_head: `b2236bb3`
+- git_dirty: `True`
+- algorithm_sha256: `9fd59b1988fb7ce221183885dd2aeeaf18aaaf06857ed98a59c0d95c5f285ea1`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `40`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `569,204,052`
+- Avg Objective: `14,230,101.300`
+- Total T: `59,481`
+- Avg T: `1,487.025`
+- decision label: `accepted candidate-side full`
+- promotion status: `supporting non-canonical direct-source evidence`

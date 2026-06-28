@@ -1,15 +1,11 @@
 # Active HH Version
 
 - Active surface: `ogc2026/baseline/baseline_hh.py`
-- Active version id: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
-- Status: current-tree trusted BEST on the tracked `baseline_hh.py` surface;
-  the canonical accepted `v218` bundle preserves the accepted `v217`
-  long-fourbay and runtime-cliff surface, then adds one bounded dense
-  four-bay deep-chain specialist that improves the residual
-  `prob_11` / `prob_13` first20 subtype pocket.
+- Active version id: `reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247`
+- Status: current-tree trusted BEST on the tracked `baseline_hh.py` surface.
 - Entrypoint chain:
   `myalgorithm.py ACTIVE="hh"` -> `baseline_hh.py` ->
-  `alg_versions.reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217.algorithm`
+  `alg_versions.reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247.algorithm`
 - Public interface:
 
 ```python
@@ -18,70 +14,61 @@ def algorithm(prob_info: dict, timelimit: float) -> dict:
 ```
 
 - Canonical evidence for the active trusted line:
-  - representative tier smoke:
-    `reports/ogc2026_reboot_v001/smoke_reboot_v218_trackA_20260627_001/`
-  - official baseline_hh publish recheck:
-    `reports/ogc2026_reboot_v001/verify_active_v218_baseline_hh_file_20260627_001/`
-  - full:
-    `reports/ogc2026_reboot_v001/full_reboot_v218_train40_20260627_001/`
+  - targeted Track A smoke:
+    `reports/ogc2026_reboot_v001/smoke_v267_trackA_spatial_fallbacksnapshot_20260628_001/`
+  - active wrapper full:
+    `reports/ogc2026_reboot_v001/full_active_v267_baseline_hh_py_20260628_001/`
+  - active wrapper publish recheck:
+    `reports/ogc2026_reboot_v001/verify_active_v267_baseline_hh_py_20260628_004/`
 
-- Historical evidence kept for context:
+- Supporting direct-source evidence for the same v267 hypothesis:
+  - direct source full:
+    `reports/ogc2026_reboot_v001/full_reboot_v267_fallbacksnapshot_train40_20260628_001/`
+
+- Prior active evidence kept for context:
   - prior active trusted BEST:
-    `reports/ogc2026_reboot_v001/full_reboot_v217_train40_20260627_revalidate_002/`
-  - prior representative smoke:
-    `reports/ogc2026_reboot_v001/smoke_reboot_v217_trackA_20260627_001/`
-  - prior official baseline_hh publish recheck:
-    `reports/ogc2026_reboot_v001/verify_active_v217_baseline_hh_file_20260627_002/`
-  - v217 prior canonical full bundle:
-    `reports/ogc2026_reboot_v001/full_reboot_v217_train40_20260627_revalidate_002/`
+    `reports/ogc2026_reboot_v001/full_active_v247_baseline_hh_py_20260627_001/`
+  - prior active wrapper reverify:
+    `reports/ogc2026_reboot_v001/reverify_active_baseline_hh_py_20260628_001/`
+  - prior direct source revalidation:
+    `reports/ogc2026_reboot_v001/revalidate_v247_current_source_train40_20260628_001/`
 
 - Active train40 result:
   - `accepted_for_score=40/40`
   - `timed_out=0`
   - invalid/error `0`
-  - Total Objective `570068514`
-  - Avg Objective `14251712.850`
-  - Total T `59532`
-  - Avg T `1488.300`
-  - Total L `105568.0`
-  - Avg L `2639.200`
-  - Total P `167700.0`
-  - Avg P `4192.500`
-  - Avg Runtime `32.40s`
-  - Max Runtime `55.98s`
+  - Total Objective `569285579`
+  - Avg Objective `14232139.475`
+  - Total T `59488`
+  - Avg T `1487.200`
+  - Total L `105272.0`
+  - Avg L `2631.800`
+  - Total P `167853.0`
+  - Avg P `4196.325`
+  - Avg Runtime `33.09s`
+  - Max Runtime `57.98s`
 
-- Current-tree comparison versus prior active trusted `v217`:
-  - full:
-    `reports/ogc2026_reboot_v001/full_reboot_v217_train40_20260627_revalidate_002/`
-  - Total Objective `570663294 -> 570068514`
-  - Avg Objective `14266582.350 -> 14251712.850`
-  - Total T `59562 -> 59532`
-  - Avg T `1489.050 -> 1488.300`
-  - Total L `105434.0 -> 105568.0`
-  - Avg L `2635.850 -> 2639.200`
-  - Total P `167694.0 -> 167700.0`
-  - Avg P `4192.350 -> 4192.500`
-  - Avg Runtime `32.02s -> 32.40s`
-  - Max Runtime `56.30s -> 55.98s`
+- Comparison versus prior active trusted `v247`:
+  - Total Objective `569663537 -> 569285579`
+  - Avg Objective `14241588.425 -> 14232139.475`
+  - Total T `59512 -> 59488`
+  - Avg T `1487.800 -> 1487.200`
+  - Total L `105327.0 -> 105272.0`
+  - Avg L `2633.175 -> 2631.800`
+  - Total P `167747.0 -> 167853.0`
+  - Avg P `4193.675 -> 4196.325`
+  - Avg Runtime `32.00s -> 33.09s`
+  - Max Runtime `56.52s -> 57.98s`
   - material row improvements:
-    - `prob_11`: objective `8761210 -> 8565801`, `T 369 -> 360`
-    - `prob_13`: objective `10783287 -> 10383916`, `T 547 -> 526`
-  - worst regression: `none`
-  - first20 Total T `1542 -> 1512`
-  - T>0 count `33 -> 33`
+    - `prob_13`: objective `10197866 -> 9876799`, `T 516 -> 498`
+    - `prob_19`: objective `2147083 -> 2072414`, `T 147 -> 140`
+  - worst regression:
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+  - first20 Total T `1492 -> 1468`
+  - first20 T>0 count `13 -> 13`
   - high-T tail (`T>=1000`) sum `56718 -> 56718`
 
-- Official baseline_hh publish recheck:
-  - `accepted_for_score=18/18`
-  - timeout `0`
-  - invalid/error `0`
-  - matched direct `v218` on objective / `T` / `L` / `P` for:
-    - `prob_10`, `prob_11`, `prob_13`, `prob_19`,
-      `prob_20`, `prob_33`, `prob_38`, `prob_40`
-  - `prob_14` remained accepted on both direct and wrapper routes, but hit an
-    existing stable-fourbay multiblock drift boundary before the `v218`
-    deep-chain stage:
-    - direct recheck: objective `3795716`, `T 181`
-    - wrapper recheck: objective `3901754`, `T 187`
-  - because the drift happens upstream of the new `v218` specialist, the
-    canonical scoring evidence stays the direct full train40 accepted bundle.
+- Stability note:
+  - narrow publish rechecks remained accepted `8/8`.
+  - targeted reruns showed small row-level jitter inside the accepted surface,
+    so the canonical trust anchor is the active wrapper full-40 bundle above.

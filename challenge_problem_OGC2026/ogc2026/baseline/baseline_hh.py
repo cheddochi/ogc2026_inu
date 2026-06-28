@@ -1,20 +1,41 @@
 """HH active submission wrapper.
 
 Current active working line:
-    reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217
+    reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247
 
 Publish-trust note:
-    v218 is the current-tree trusted BEST on the tracked baseline_hh surface.
-    It preserves the accepted v217 long four-bay and runtime-cliff behavior,
-    then adds one bounded dense four-bay deep-chain specialist that lowers
-    residual first20 T on the prob_11/prob_13 subtype pocket without opening
-    new regressions on the accepted surface.
+    v267 is the current-tree trusted BEST on the tracked baseline_hh surface.
+    It preserves the exact trusted v247 wrapper result first, then applies a
+    narrow primitive-level Track A spatial reinsertion only on the feature-only
+    prob13like / prob19like residual subtype.
 """
 
-from alg_versions import reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217 as active
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
 
 
-ACTIVE_VERSION = "reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217"
+def _load_active_module():
+    module_path = (
+        Path(__file__).resolve().parent
+        / "alg_versions"
+        / "reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "_ogc2026_active_baseline_hh_v267",
+        module_path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"failed to load active module from {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+active = _load_active_module()
+
+ACTIVE_VERSION = "reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247"
 
 
 def algorithm(prob_info: dict, timelimit: float = 60) -> dict:

@@ -1,0 +1,39 @@
+{
+  "run_id": "verify_active_v267_baseline_hh_py_20260628_004",
+  "timestamp": "2026-06-28T12:42:16",
+  "summary": {
+    "total": 8,
+    "feasible": 8,
+    "accepted_for_score": 8,
+    "checker_feasible": 8,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 212453434.0,
+    "objective_avg": 26556679.25,
+    "obj1_sum": 24682.0,
+    "obj1_avg": 3085.25,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3520.375,
+    "obj3_avg": 6107.375,
+    "runtime_sum": 378.827027,
+    "runtime_avg": 47.353378375,
+    "runtime_max": 56.11896
+  },
+  "algorithms": [
+    {
+      "name": "hh_active",
+      "version": "baseline_hh_v267_loaderfix_recheck",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

@@ -16151,7 +16151,7 @@
 ## 2026-06-25 reboot_v183_20260625_familyB_runtime_cliff_relax_on_v178 (in progress)
 
 - parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
-- status: `candidate`
+- status: `polish-only`
 - focus_family: `Family B runtime-cliff recovery`
 - target_subtype:
   - `threebay_xlarge_lowproc_opportunity` (prob39-like feature slice)
@@ -16208,7 +16208,7 @@
 ## 2026-06-25 reboot_v184_20260625_prob40like_v158_slice_on_v178 (in progress)
 
 - parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
-- status: `candidate`
+- status: `polish-only`
 - focus_family: `Family B high-T tail`
 - target_subtype: `fourbay_highproc_narrow_tail` (`prob40-like`)
 - hypothesis:
@@ -16258,7 +16258,7 @@
 ## 2026-06-25 reboot_v185_20260625_familyA_tightslack_portfolio_on_v178 (in progress)
 
 - parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
-- status: `candidate`
+- status: `polish-only`
 - Track: `A`
 - focus_family: `Family A T-zero constructive scheduler`
 - target_subtype:
@@ -16330,7 +16330,7 @@
 ## 2026-06-25 reboot_v186_20260625_familyA_warm_tardy_repair_on_v178 (in progress)
 
 - parent_version: `reboot_v178_20260625_v142_specialist_slices_on_v177`
-- status: `candidate`
+- status: `polish-only`
 - Track: `A`
 - focus_family: `Family A T-zero warm-start repair`
 - target_subtype:
@@ -16357,7 +16357,7 @@
 
 ### Smoke decision
 
-- status: `candidate`
+- status: `rejected`
 - smoke_evidence:
   - `reports/ogc2026_reboot_v001/smoke_reboot_v186_trackA_20260625_001`
 - smoke_set:
@@ -19271,3 +19271,3742 @@
     Family B guard rows, improves first20 residual `T` on the dense
     `prob_11` / `prob_13` four-bay subtype, and clears the 40/40 accepted
     full benchmark gate.
+
+## 2026-06-27 reboot_v219_20260627_trackA_dense_fourbay_multireplay_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` dense-fourbay deep-chain and long-fourbay
+    specialists intact.
+  - add one bounded dense-fourbay multiblock replay chain between the current
+    first multiblock pass and the downstream stable-window / mid-tardy stages.
+  - the target is the same `200~250 block / 4-bay / high-w1 / tight-slack`
+    residual family, but with a more reliable second-order replay of the
+    multiblock sequence builder so we can recover additional pre-mid-repair
+    structure before the tardy shortlist is evaluated.
+  - success condition is not small polish; it must either reduce first20 Total
+    `T` again or lower the dense-fourbay residual rows without opening runtime
+    or Family B regressions.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at full-train40 accepted `40/40`, with no timeout and no
+    regression on `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v219_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - unchanged target rows:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+  - regression:
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+  - unchanged guard rows:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+- rejection_note:
+  - the bounded multireplay pass did not create any new dense-fourbay
+    improvement before the downstream mid-tardy / deep-chain stages.
+  - on `prob_14`, the replay consumed headroom and the later deep-chain no
+    longer reached the accepted `block=111` improvement that had produced
+    `T 181 -> 180` on `v218`.
+  - because the target pocket did not improve and one target row regressed,
+    the candidate failed the pre-smoke gate and was not promoted to smoke or
+    full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v219` preserved acceptance but failed to improve `prob_11` / `prob_13`
+    and reopened a `prob_14` regression by shifting budget away from the
+    already-useful dense-fourbay deep-chain stage.
+
+## 2026-06-27 reboot_v220_20260627_trackA_dense_fourbay_late_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` early Track A stack unchanged through multiblock,
+    stable-window, and mid-tardy repair.
+  - replace the single fixed late sequence with a bounded late portfolio that
+    compares at least two dense-fourbay specialists:
+    - current `micro_pair -> deep_chain`
+    - alternate `direct_expanded_deep_chain` from the post-mid-tardy state
+  - allow the late portfolio to pick whichever accepted candidate wins on
+    `T` first, so `prob_11` / `prob_13` can keep their current path while
+    `prob_14` gets a second late-stage route that does not depend on the same
+    micro-pair headroom.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v228_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9136031`, `T 360 -> 386`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the bounded `v195` reseed remained runtime-safe and preserved the same
+      accepted side rows, but it still converged to the same bad `prob_11`
+      branch as `v226` / `v227`.
+- rejection_note:
+  - `v228` shows that adding one upstream `v195` reseed candidate is still not
+    enough to change the selected carry state on the prob11-like subtype.
+  - because the result was materially identical to the prior rejected probes on
+    the main target row, the candidate was stopped after targeted probe and was
+    not advanced to smoke or full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v228` moved the alternate seed further upstream than `v227`, but the
+    selected path still reproduced `prob_11 T 386`. The next Track A hypothesis
+    should stop replaying the same late specialist chain from alternate seeds
+    and instead change the actual decision policy earlier, likely inside the
+    `v200` candidate selection or the `v186` warm-repair move acceptance.
+
+## 2026-06-27 reboot_v229_20260627_trackA_prob14_specialist_wrapper_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - promote the narrow prob14-like cleanup from `v225` into an explicit
+    feature-gated portfolio wrapper instead of letting the wider `v225`
+    surface touch unrelated stable four-bay rows.
+  - use:
+    - trusted fallback candidate: direct `v218`
+    - narrow Track A specialist candidate: `v225` only for the prob14-like
+      four-bay subtype
+  - keep the official interface and choose by subtype before search starts,
+    not by training row ids or filenames.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require at least:
+    - no regression versus trusted `v218` on `prob_11`, `prob_13`, `prob_20`,
+      `prob_33`, `prob_38`
+    - preserve the prob14-like accepted cleanup
+    - then test whether the narrower wrapper yields a durable full-train gain
+      large enough to escape `polish-only`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v229_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26500068`, `T 3805 -> 3854`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the wrapper successfully fenced the prob11-like regression and preserved
+      the prob14-like same-`T` cleanup.
+    - however, a Family B guard regression appeared on `prob_33` even though
+      the wrapper routed non-prob14 rows to `v218`.
+- rejection_note:
+  - because `prob_33` regressed in both objective and `T`, the candidate failed
+    the targeted guard gate and was stopped before smoke/full.
+  - this strongly suggests import-time or shared-module side effects from
+    pulling the `v225` specialist into the same runtime, even when the
+    specialist branch is not selected for that row.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v229` fixed the main Track A target regression on `prob_11` and preserved
+    the prob14-like cleanup, but it opened a guard regression on `prob_33`.
+    The next candidate should keep the same subtype wrapper idea while
+    isolating the specialist more aggressively, likely via lazy import or a
+    local copy of the prob14-like cleanup with no shared side effects on the
+    default `v218` path.
+
+## 2026-06-27 reboot_v230_20260627_trackA_prob14_lazy_wrapper_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the same narrow prob14-like specialist-wrapper idea as `v229`, but
+    remove import-time contamination risk by:
+    - copying the prob14-like feature gate locally
+    - lazy-importing `v225` only when that subtype is actually selected
+  - non-prob14 rows should execute the trusted `v218` path with no added
+    specialist module import or startup overhead.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require:
+    - no regression versus trusted `v218` on `prob_11`, `prob_13`, `prob_20`,
+      `prob_33`, `prob_38`
+    - preserve the prob14-like same-`T` cleanup
+    - then judge smoke/full for durable improvement or `polish-only`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v230_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3901754`, `T 181 -> 187`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26500068`, `T 3805 -> 3854`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - lazy import removed neither the prob33 guard regression nor the wrapper
+      route drift on `prob_14`.
+    - `prob_11` stayed protected, but the target specialist row and the Family
+      B guard row both regressed.
+- rejection_note:
+  - `v230` falsified the import-side-effect hypothesis: simply delaying the
+    `v225` import is not enough.
+  - the remaining issue is more likely shared wrapper-route behavior or broader
+    runtime drift in the combined portfolio surface, not just module import
+    overhead.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v230` preserved the prob11-like fallback but regressed both the prob14
+    specialist target and the prob33 guard. The next candidate should stop
+    composing `v225` as a wrapper-time portfolio and instead extract only the
+    specific prob14-like cleanup logic into a minimal local specialist with no
+    wider parent-chain baggage.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v227_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9136031`, `T 360 -> 386`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the earlier carry-seed replay preserved the same accepted surface and
+      kept the prob14-like same-`T` cleanup, but it failed to dislodge the
+      bad stable-fourbay branch on the primary target `prob_11`.
+- rejection_note:
+  - `v227` confirmed that simply replaying the late specialist chain from an
+    earlier stable-fourbay carry seed is still too late for the drifting
+    `prob_11` path.
+  - the dominant regression was unchanged from `v226` (`prob_11 T 386`), while
+    every other tracked probe row stayed flat or same-`T`.
+  - because the target-side regression appeared again in the pre-smoke gate,
+    the candidate was stopped after the targeted probe and was not advanced to
+    smoke or full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v227` tested the right earlier carry-over hypothesis boundary, but the
+    stable-fourbay drift is still already baked in before the late specialist
+    replay starts. The next Track A candidate should move even further
+    upstream, likely around the shared `v186` warm-repair carry-over or the
+    `v200` entry portfolio itself, rather than replaying the same late
+    specialist chain from alternate seeds.
+
+## 2026-06-27 reboot_v228_20260627_trackA_v195_seed_replay_on_v225
+
+- parent_version: `reboot_v225_20260627_trackA_prob14like_postcleanup_retry_on_v223`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v225` surface and the accepted stable-fourbay late
+    specialist order as the primary path.
+  - on a narrow non-prob14-like stable four-bay subtype, build one additional
+    upstream seed directly from `v195` under a tight budget, before the `v200`
+    entry portfolio has a chance to lock onto the wrong carry state.
+  - replay the same late specialist chain from:
+    - the normal `v200`-derived stable-fourbay path
+    - the bounded `v195` reseed path
+  - keep the best feasible result by the usual `T`-first key.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v220_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - target rows:
+    - `prob_11`: objective `8565801 -> 8563673`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+  - unchanged guard rows:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+- polish_only_note:
+  - the alternate late portfolio reproduced the accepted dense-fourbay `T`
+    path on `prob_13` / `prob_14` and only found a small same-`T` objective
+    cleanup on `prob_11`.
+  - because the candidate delivered no `T` reduction, no `T>0` count change,
+    and no high-tail improvement, it failed the Track A promotion gate before
+    smoke despite staying fully accepted on the targeted probe.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v220` is runtime-safe and accepted, but it only polished objective on one
+    target row while leaving `T` unchanged across the dense-fourbay pocket.
+
+## 2026-06-27 reboot_v221_20260627_trackA_dense_fourbay_critical_anchor_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` early Track A stack unchanged through multiblock,
+    stable-window, and mid-tardy repair.
+  - replace the failed replay / expanded-chain late retries with one distinct
+    dense-fourbay late specialist from the same post-mid-tardy state:
+    a bounded critical-anchor chain that mixes top tardy blocks with
+    zero-margin or near-zero-margin anchor blocks carrying tight slack or high
+    preference penalty.
+  - the target subtype is the `prob_14`-like residual where `T` is spread
+    across many small tardy blocks, so a shortlist built only from the largest
+    tardy rows collapses too early and misses anchor moves like the earlier
+    `block=154` gain.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v221_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - target rows:
+    - `prob_11`: objective `8565801 -> 8563673`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3883976 -> 3777938`, `T 186 -> 180`
+  - unchanged guard rows:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v221_trackA_20260627_001/`
+  - smoke_set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - max_runtime `56.22s`
+- full_benchmark:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v221_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `570068514 -> 570066386`
+  - Avg Objective `14251712.850 -> 14251659.650`
+  - Total T `59532 -> 59532`
+  - Avg T `1488.300 -> 1488.300`
+  - Total L `105568.0 -> 105568.0`
+  - Avg L `2639.200 -> 2639.200`
+  - Total P `167700.0 -> 167684.0`
+  - Avg P `4192.500 -> 4192.100`
+  - Avg Runtime `32.40s -> 33.00s`
+  - Max Runtime `55.98s -> 56.85s`
+  - changed rows:
+    - `prob_11`: objective `8565801 -> 8563673`, `T 360 -> 360`
+  - first20 Total T `1512 -> 1512`
+  - first20 T>0 count `13 -> 13`
+- polish_only_note:
+  - the critical-anchor late chain reproduced a better same-run `prob_14`
+    probe state, but that gain did not survive the full train40 rerun.
+  - the only durable full-benchmark change was a same-`T` objective cleanup on
+    `prob_11`, so the candidate improved polish but not the structural Track A
+    `T` target.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v221` is fully accepted and runtime-safe, but it leaves Total `T`,
+    first20 Total `T`, and `T>0` counts unchanged on the canonical full run.
+    The full-train improvement is only `-2128` objective
+    (`570068514 -> 570066386`, well below the 0.1% same-`T` promotion bar),
+    so the active trusted BEST remains `v218`.
+
+## 2026-06-27 reboot_v222_20260627_trackA_dense_fourbay_anchor_precondition_chain_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` early Track A stack unchanged through multiblock,
+    stable-window, and mid-tardy repair.
+  - add one bounded two-step late specialist from the same post-mid-tardy
+    state:
+    1. try a neutral-or-better anchor reinsert on zero-margin / tight-slack /
+       high-preference-penalty blocks such as the observed `prob_14` anchor
+       `block=154`
+    2. from that preconditioned layout, run a short tardy follow-up chain on
+       the top residual tardy blocks
+  - this targets the canonical `prob_14` pocket where the durable blocker is
+    not the final tardy move alone, but whether an equal-score anchor layout
+    leaves enough geometric and temporal room for the tardy block to shift.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v222_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - unchanged target rows:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+  - unchanged guard rows:
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+- rejection_note:
+  - the anchor-precondition late specialist did not regress acceptance, but on
+    the canonical `prob_14` state it usually arrived at the late branch with
+    only about `0.5s` spendable headroom and skipped the alternate chain
+    entirely.
+  - because the new route neither improved the target pocket nor changed any
+    guard rows, it failed the pre-smoke gate and was not promoted to smoke or
+    full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v222` preserved acceptance but did not execute a meaningful target-side
+    improvement on the canonical dense-fourbay residual state.
+
+## 2026-06-27 reboot_v223_20260627_trackA_prob14like_early_alt_budget_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` surface unchanged outside a narrow `prob_14`-like
+    four-bay subtype identified only by lightweight features.
+  - on that subtype, execute the alternate late specialist before the standard
+    dense-fourbay chain and lower its entry threshold so it can actually run
+    with the small remaining headroom observed on canonical full runs.
+  - the goal is not a broad replay; it is a budget-planning change that gives
+    the previously starved late branch a real chance to reproduce the
+    `T 181 -> 180` signal without disturbing `prob_11` / `prob_13` or Family B
+    guards.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v223_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical context:
+    - `prob_11`: objective `8565801`, `T 360` (matched trusted active)
+    - `prob_13`: objective `10383916`, `T 526` (matched trusted active)
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740`, `T 164`
+    - `prob_33`: objective `26172225`, `T 3805`
+    - `prob_38`: objective `151254848`, `T 11120`
+  - probe drift note:
+    - the same probe rerun of comparison `v218` reopened an inherited
+      non-canonical path on `prob_11` (`objective 9387458`, `T 397`), so the
+      promotion read must stay anchored to the trusted canonical `v218` full
+      evidence rather than the ad hoc rerun baseline.
+- polish_only_note:
+  - the prob14-like early alt budget change successfully made the alternate
+    late route run on canonical `prob_14`, but it only produced a same-`T`
+    objective cleanup (`3795716 -> 3794167`) instead of the desired
+    `T 181 -> 180`.
+  - because there was no Total `T`, avg `T`, or first20 `T` improvement, the
+    candidate did not clear the Track A promotion gate and was not advanced to
+    smoke or full benchmark.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v223` proved the late alternate branch can be budgeted into the
+    prob14-like subtype, but the durable result is still only same-`T`
+    polishing. The next structural hypothesis should target upstream
+    stable-fourbay drift / tie stability rather than another late-only tweak.
+
+## 2026-06-27 reboot_v224_20260627_trackA_prob14like_anchorfirst_multiblock_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the accepted `v218` surface unchanged outside the dense stable-
+    fourbay Track A pocket.
+  - target the upstream state drift observed after `v223`: on the prob14-like
+    subtype, the durable blocker is not only the late branch budget but the
+    order in which bounded multiblock candidates consume that budget.
+  - replace the default tardy-first multiblock ordering with an anchor-first
+    bounded portfolio that brings low-slack / high-preference-penalty four-bay
+    anchors and short anchor+tardy sequences to the front, so the stable route
+    can reach the useful layout state before budget is exhausted on weak
+    singleton attempts.
+  - this is a structural Track A upstream candidate, not another late-only
+    replay.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v218_v224_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: matched trusted active at objective `8565801`, `T 360`
+    - `prob_13`: matched trusted active at objective `10383916`, `T 526`
+    - `prob_20`: matched trusted active at objective `5199740`, `T 164`
+    - `prob_33`: matched trusted active at objective `26172225`, `T 3805`
+    - `prob_38`: matched trusted active at objective `151254848`, `T 11120`
+    - `prob_14`: regressed against trusted active from objective `3795716`,
+      `T 181` to objective `3901754`, `T 187`
+  - probe drift note:
+    - the comparison rerun of `v218` inside the same probe drifted on several
+      rows (`prob_11`, `prob_14`, `prob_20`), so promotion judgement stayed
+      anchored to the trusted canonical `v218` full evidence rather than the
+      ad hoc rerun baseline.
+- rejection_note:
+  - the new anchor-first multiblock ordering was structurally upstream, but
+    its first anchor choice was too broad. On canonical `prob_14` it spent the
+    bounded multiblock budget on infeasible `block=241` sequences and never
+    reached the previously useful `block=154` singleton that had improved
+    `198 -> 192` in the accepted line.
+  - with that upstream miss, downstream mid-tardy repair only recovered to
+    `T 187` rather than the trusted `T 181`, so the candidate failed the
+    pre-smoke gate and was not advanced to smoke or full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v224` confirmed that upstream multiblock ordering is the right structural
+    lever, but the current anchor selector is too loose and regresses the
+    canonical prob14-like path.
+
+## 2026-06-27 reboot_v225_20260627_trackA_prob14like_postcleanup_retry_on_v223
+
+- parent_version: `reboot_v223_20260627_trackA_prob14like_early_alt_budget_on_v218`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v218` surface and the narrow prob14-like gate from
+    `v223`.
+  - reuse the prob14-like early same-`T` anchor cleanup from `v223`, then
+    spend one more bounded specialist slice immediately on that improved state
+    using the `v221` critical-anchor chain.
+  - this targets the observed gap between:
+    - `v223`, which could reliably create the better `T=181` cleanup layout,
+      and
+    - `v221` probe behavior, which could sometimes convert a compatible
+      `T=181` state into `T=180`.
+  - the structural claim is that the missed `T=180` signal is a portfolio
+    sequencing issue inside the prob14-like late specialist, not a broad
+    upstream family mismatch.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v225_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 8532199`, `T 360 -> 359`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - note:
+    - the new post-cleanup retry did not fire on the probe `prob_14` path
+      because the remaining headroom after the same-`T` cleanup was still below
+      reserve, but the candidate did expose one real Track A `T` improvement on
+      `prob_11`.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v225_trackA_20260627_001/`
+  - smoke_set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - `accepted_for_score=11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - Family B guard smoke stayed clean on `prob_33`, `prob_38`
+- full_benchmark:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v225_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective `570068514 -> 570066965`
+  - Avg Objective `14251712.850 -> 14251674.125`
+  - Total `T` `59532 -> 59532`
+  - Avg `T` `1488.300 -> 1488.300`
+  - first20 Total `T` `1512 -> 1512`
+  - `T>0` count `33 -> 33`
+  - high-T tail (`T>=1000`) unchanged
+  - per-instance durable change versus trusted canonical `v218`:
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`,
+      `L 3301 -> 3204`, `P 4221 -> 4213`
+  - no durable `T` improvements remained on the full canonical bundle.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v225` produced a real `T` improvement on the targeted probe (`prob_11:
+    360 -> 359`) and passed smoke/full acceptance cleanly, but the durable
+    full-train result retained only a same-`T` objective cleanup on `prob_14`.
+    Because Total `T`, avg `T`, first20 `T`, and `T>0` count were unchanged,
+    and the full objective gain was far below the promotion threshold, the
+    candidate stays `polish-only`.
+
+## 2026-06-27 reboot_v226_20260627_trackA_stable_fourbay_prepair_chain_fork_on_v225
+
+- parent_version: `reboot_v225_20260627_trackA_prob14like_postcleanup_retry_on_v223`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v218` surface and the narrow prob14-like late cleanup
+    path from `v225`.
+  - inside the stable-fourbay Track A portfolio, preserve both states around
+    the micro-pair stage:
+    - pre-pair state after mid-tardy / prob14-like cleanup
+    - post-pair state after the usual micro-pair step
+  - run bounded dense-fourbay deep-chain candidates from both states and choose
+    the best feasible result by the usual `T`-first key.
+  - this directly targets the recurring probe/full drift where one branch
+    reaches a better deep-chain move (`prob_11 T 359`) but the current
+    sequencing only keeps the other branch.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v226_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9136031`, `T 360 -> 386`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3794167`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5149159`, `T 164 -> 162`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the new pre-pair chain fork did surface a non-target `prob_20` gain, but
+      it regressed the primary stable-fourbay target `prob_11` badly and left
+      `prob_14` at same-`T` cleanup only.
+- rejection_note:
+  - the forked deep-chain sequencing did not recover the probe-only `359`
+    signal; instead it locked onto the worse pre-pair stable-fourbay state on
+    `prob_11` and selected `T 386`.
+  - because the target-side regression appeared in the pre-smoke gate itself,
+    the candidate was stopped after the targeted probe and was not advanced to
+    smoke or full benchmark.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v226` explored the right structural surface but amplified stable-fourbay
+    state drift instead of stabilizing it. The next hypothesis should tighten
+    deterministic carry-over earlier in the stable-fourbay chain rather than
+    forking the same deep-chain logic from both sides of the micro-pair stage.
+
+## 2026-06-27 reboot_v227_20260627_trackA_stable_fourbay_carryseed_late_portfolio_on_v225
+
+- parent_version: `reboot_v225_20260627_trackA_prob14like_postcleanup_retry_on_v223`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v225` late Track A surface, including the accepted
+    prob14-like early-alt plus retry path.
+  - for a narrower non-prob14-like stable four-bay subtype, preserve one
+    earlier carry seed from before the window-driven late drift can compound:
+    - current window-carried seed
+    - one earlier seed from either the multiblock-improved state or the
+      original stable-fourbay entry state
+  - replay the bounded late specialist chain from both seeds and keep the best
+    feasible result by the usual `T`-first key.
+  - target the recurring `prob_11` / `prob_13` drift pocket without touching
+    the prob14-like cleanup order or Family B guard surface.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require a real `T` reduction on at least one of `prob_11` / `prob_13` /
+    `prob_14` at accepted `40/40`, with no timeout and no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+
+## 2026-06-27 reboot_v231_20260627_trackA_prob14like_local_postcleanup_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - stop composing `v223` / `v225` as wrapper-time portfolio surfaces.
+  - keep direct `v218` as the only full-surface solver and trusted fallback.
+  - extract only the narrow prob14-like anchor-precondition cleanup logic into
+    a local deterministic post-pass that runs on top of the already-built
+    `v218` solution.
+  - gate strictly by lightweight subtype features so the new path should touch
+    the `prob_14`-like pocket without reopening the `prob_11` / `prob_33`
+    drift seen in `v227`~`v230`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require either a real `T` reduction on `prob_14` or a same-`T` objective
+    cleanup on `prob_14` with no regression on `prob_11`, `prob_20`,
+    `prob_33`, or `prob_38`.
+- targeted_probe:
+  - discarded partial bundle:
+    `reports/ogc2026_reboot_v001/probe_v231_target_20260627_001/`
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/probe_v231_target_20260627_002/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9387458`, `T 360 -> 397`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 28502647`, `T 3805 -> 4161`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the local post-cleanup did recover the desired narrow `prob_14`
+      improvement.
+    - however, the same run reopened the stable-fourbay / rerun-drift problem
+      on `prob_11` and the known unstable rerun surface on `prob_33`, which is
+      not acceptable even at probe stage.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v231` confirmed that the prob14-like local cleanup logic itself is
+    valuable, but applying it as a post-pass on top of the finished `v218`
+    solution is not isolated enough. The next Track A hypothesis should move
+    the same narrow cleanup earlier into a locally copied stable-fourbay
+    internal branch, before the later drift-sensitive sequencing is finalized.
+
+## 2026-06-27 reboot_v232_20260627_trackA_prob14like_early_local_branch_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - avoid wrapper-induced rerun drift by forking directly from `v218`.
+  - copy only the narrow prob14-like anchor-precondition cleanup into the
+    stable-fourbay internal portfolio and run it once immediately after the
+    multiblock candidate, before the later window / mid-tardy / micro-pair /
+    deep-chain sequence compounds drift.
+  - keep all non-prob14-like rows on the original `v218` control flow.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require either `prob_14 T 181 -> 180` or an objective cleanup at the same
+    `T`, with no regression on `prob_11`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/probe_v232_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9387458`, `T 360 -> 397`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - moving the cleanup earlier inside the local stable-fourbay branch did
+      isolate away the `prob_33` regression seen in `v231`.
+    - however, the same subtype surgery still dragged `prob_11` onto the worse
+      `T 397` branch, so the candidate remains unsafe for smoke/full.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v232` is directionally closer than `v231` because it keeps `prob_33`
+    flat while preserving the `prob_14 T 180` gain, but the `prob_11`
+    regression is still too large. The next Track A hypothesis should gate the
+    early prob14-like branch more tightly against the `prob_11` pocket rather
+    than applying the same four-bay family surgery across both nearby
+    subtypes.
+
+## 2026-06-27 reboot_v233_20260627_trackA_prob11like_exhaustive_midrepair_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `polish-only`
+- Track: `A`
+- hypothesis:
+  - recent diagnostics show the recurring `prob_11` drift begins before the
+    deep-chain stage: the bad run accepts the first improving mid-tardy move
+    too early and never evaluates a stronger same-round candidate like block
+    `133`.
+  - keep the trusted `v218` surface, but on a narrow prob11-like subtype only,
+    replace the stable-fourbay mid-tardy phase with a shortlist-best-of-round
+    variant instead of the current first-improvement break.
+  - this aims to preserve the accepted surface elsewhere while reducing
+    first20 drift on the `prob_11` / `prob_13` pocket without reopening
+    `prob_33` or runtime-cliff regressions.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` reduction on `prob_11` or `prob_13`, with no regression
+    on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- diagnostics:
+  - evidence:
+    `reports/ogc2026_reboot_v001/diag_v218_v232_prob11_prob14_prob33_20260627_001/`
+  - key finding:
+    - the recurring `prob_11` divergence is upstream of the recent prob14-like
+      branch work.
+    - bad runs stop the stable-fourbay mid-tardy phase at an early acceptable
+      block, while good runs continue to a stronger same-round candidate such
+      as block `133`, then let micro-pair and deep-chain finish the pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v233_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 8532199`, `T 360 -> 359`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the prob11-like exhaustive mid-repair did produce a real local `T`
+      improvement on the target probe while keeping the Family B guard rows
+      flat.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v233_trackA_20260627_001/`
+  - set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+  - result:
+    - `accepted_for_score=11/11`
+    - timeout `0`
+    - invalid/error `0`
+- full_benchmark:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v233_train40_20260627_001/`
+  - result:
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `570068514`
+    - Avg Objective `14251712.850`
+    - Total T `59532`
+    - Avg T `1488.300`
+    - Total L `105568.0`
+    - Avg L `2639.200`
+    - Total P `167700.0`
+    - Avg P `4192.500`
+    - Avg Runtime `32.27s`
+    - Max Runtime `56.64s`
+  - comparison versus trusted canonical `v218`:
+    - Total Objective `570068514 -> 570068514`
+    - Total T `59532 -> 59532`
+    - T>0 count unchanged
+    - high-T tail unchanged
+    - all per-instance `objective / T / L / P` rows matched; only runtime
+      jitter changed.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v233` is a useful diagnostic confirmation that a prob11-like exhaustive
+    mid-tardy branch can surface a better local probe result, but on the full
+    train40 surface it collapses back to the same scoring outcome as trusted
+    `v218`. Because `T` and official objective are unchanged, the candidate is
+    not eligible for BEST promotion.
+
+## 2026-06-27 reboot_v234_20260627_trackA_prob11like_dual_midrepair_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v233` showed the prob11-like exhaustive mid-tardy arm can win the local
+    target probe, but replacing the standard arm outright still collapsed to
+    the same full-train40 surface as `v218`.
+  - on a narrow prob11-like subtype only, keep both stable-fourbay mid-tardy
+    candidates alive from the same post-window state:
+    - trusted first-improvement arm
+    - shortlist-best-of-round exhaustive arm
+  - choose the better feasible seed by the usual `T`-first key, then continue
+    the downstream micro-pair and deep-chain stages from that chosen seed.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on `prob_11` or first20 aggregate, with no
+    regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+
+## 2026-06-27 reboot_v243_20260627_trackA_fast_dense_chain_role_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v241` already proved the accepted surface can hold the prob11-like
+    ultra-tight lane steady while improving the neighboring prob13-like row.
+  - the remaining first20 four-bay backlog is now concentrated on the
+    non-prob11 pocket: `prob_13`, `prob_14`, and `prob_19`-like rows.
+  - within that pocket, the current role portfolio only compares:
+    - trusted fallback candidate = full `v218` stable-fourbay chain
+    - fast constructive candidate = direct `v200`
+    - exact latest-feasible specialist on fast / primary
+  - add one more structurally distinct candidate:
+    - bounded dense-fourbay deep-chain specialist starting from the `fast_v200`
+      constructive seed, then pick the best feasible result by official
+      `T`-first ordering.
+  - keep the accepted `prob_11` guard frozen and do not open this extra role
+    on the ultra-tight `blocks<=220` lane.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_14`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 `T` reduction on the non-prob11 four-bay pocket,
+    with no regression on `prob_11`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v243_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus current-tree direct `v241` path:
+    - `prob_11`: objective `9136031 -> 8565801`, `T 386 -> 360`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the added fast-seed dense-chain role did not move the intended residual
+      `prob_13 / prob_14 / prob_19` rows, but it did re-stabilize the
+      prob11-like lane back to the historical `T 360` result in the current
+      probe environment.
+- active_wrapper_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v243_vs_active_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus current active `baseline_hh.py` probe:
+    - `prob_11`: objective `9387458 -> 8565801`, `T 397 -> 360`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - this is recovery-only evidence that the current active wrapper probe can
+      drift on `prob_11`; it is not by itself enough for promotion because the
+      trusted baseline remains the canonical accepted `v241` full bundle.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v243_trackA_20260627_001/`
+  - `accepted_for_score=11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v243_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - current-tree comparison versus trusted canonical `v241` full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v241_train40_20260627_001/`
+    - Total Objective `569882464 -> 569931757`
+    - Avg Objective `14247061.600 -> 14248293.925`
+    - Total T `59522 -> 59595`
+    - Avg T `1488.050 -> 1489.875`
+    - Total L `105568.0 -> 105208.0`
+    - Avg L `2639.200 -> 2630.200`
+    - Total P `167700.0 -> 167774.0`
+    - Avg P `4192.500 -> 4194.350`
+    - Avg Runtime `32.33s -> 32.35s`
+    - Max Runtime `56.03s -> 59.20s`
+  - changed row versus trusted canonical `v241` full:
+    - `prob_40`: objective `5780789 -> 5830082`, `T 8429 -> 8502`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v243` re-stabilized the prob11-like lane in focused probes and cleared
+    the representative smoke, but the full train40 benchmark reopened a hidden
+    `prob_40` regression and worsened both Total `T` and Total Objective
+    versus the trusted canonical `v241` bundle. Because the full accepted
+    surface regressed on a runtime-risk tail row, the candidate was rejected
+    and the active trusted BEST stayed on `v241`.
+
+## 2026-06-27 reboot_v244_20260627_trackA_prob11_recovery_wrapper_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the current trusted BEST is still the canonical accepted `v241` full
+    bundle, but the latest direct / wrapper probes reopened a reproducibility
+    pocket on the ultra-tight prob11-like lane:
+    - active wrapper probe drifted to `prob_11 T 397`
+    - direct `v241` probe drifted to `prob_11 T 386`
+    - `v243` recovered `prob_11 T 360`
+  - `v243` itself is not promotable because its copied full surface reopened a
+    hidden `prob_40` regression.
+  - wrap the trusted `v241` line instead of cloning it:
+    - trusted fallback candidate = direct `v241.algorithm`
+    - prob11-like recovery specialist = direct `v243.algorithm`
+    - only open this portfolio on the ultra-tight `blocks<=220 / 4-bay /
+      very-high-w1 / ultra-tight-slack` lane
+    - all other rows return the trusted `v241` fallback unchanged
+  - choose the best feasible candidate by official `T`-first ordering.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_40`
+  - targeted Track A additions:
+    `prob_13`, `prob_38`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require either:
+    - canonical full improvement in Total `T`, or
+    - exact canonical full hold with a clean prob11 recovery / revalidation
+      signal and no regression on `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v244_target_20260627_001/`
+  - `accepted_for_score=11/12`
+  - timeout `1`
+  - invalid/error `0`
+  - candidate-side rows versus direct `v241` probe:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`,
+      runtime `39.83s -> 79.18s`, `accepted_for_score true -> false`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3883976`, `T 181 -> 185`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the wrapper preserved the intended prob11 result and held the prob40
+      guard, but evaluating both full candidate routes on the same ultra-tight
+      lane consumed too much wall time and timed out.
+    - the lane wrapper also reopened a local `prob_14` regression before smoke.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v244` confirmed that the prob11 recovery can be isolated without touching
+    the prob40 tail, but the naive wrapper implementation is too expensive:
+    the prob11 row timed out at `79.18s`, and the same probe also regressed
+    `prob_14`. Because the candidate failed the accepted-for-score gate before
+    smoke, it was rejected at targeted-probe stage.
+
+## 2026-06-27 reboot_v245_20260627_trackA_prob11_tail_retry_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - the failed `v244` wrapper suggests the prob11-like recovery signal is real,
+    but rerunning two full candidate routes is too expensive.
+  - instead of a full fallback-vs-specialist wrapper, keep direct `v241` as
+    the only constructive path, then add one tiny extracted specialist only on
+    the ultra-tight prob11-like lane:
+    - trusted fallback candidate = completed `v241.algorithm`
+    - cheap specialist candidate = bounded tail-stage retry on top of that
+      finished solution:
+      - one micro-pair retry
+      - one dense-fourbay-chain retry
+  - the retry runs only after the main solution is already built, so it should
+    stay far cheaper than `v244` while still offering a chance to recover the
+    `prob_11 T 360` branch if the main run stalls at a worse local minimum.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_40`
+  - targeted Track A additions:
+    `prob_13`, `prob_38`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require either a real `prob_11` / first20 `T` recovery signal with no
+    regression on `prob_40`, or else classify as `polish-only`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v245_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus direct `v241` probe:
+    - `prob_11`: objective `8565801 -> 8364652`, `T 360 -> 351`,
+      runtime `41.95s -> 41.95s`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the extracted tail retry recovers a real Track A gain on the primary
+      ultra-tight prob11-like row without reopening the known prob40 tail
+      regression from `v243`, and it does so without the runtime blow-up seen
+      in `v244`.
+    - because the targeted probe shows a true `prob_11 T 360 -> 351` signal
+      while holding the other guard rows flat, this candidate advances to
+      representative smoke.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v245_trackA_20260627_001/`
+  - `accepted_for_score=22/22`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - changed rows versus direct `v241` smoke:
+    - `prob_11`: objective `8620645 -> 8364652`, `T 363 -> 351`
+    - `prob_33`: objective `26172225 -> 34809210`, `T 3805 -> 5110`
+  - interpretation:
+    - the candidate cleared the accepted-for-score gate on every smoke row, but
+      it also exposed a non-local Family B guard risk: the Track A retry lane
+      worsened `prob_33` sharply while improving `prob_11`.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v245_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - current-tree comparison versus trusted canonical `v241` full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v241_train40_20260627_001/`
+    - Total Objective `569882464 -> 579167428`
+    - Avg Objective `14247061.600 -> 14479185.700`
+    - Total T `59522 -> 60942`
+    - Avg T `1488.050 -> 1523.550`
+    - Total L `105568.0 -> 105289.0`
+    - Avg L `2639.200 -> 2632.225`
+    - Total P `167700.0 -> 167476.0`
+    - Avg P `4192.500 -> 4186.900`
+    - Avg Runtime `32.33s -> 32.63s`
+    - Max Runtime `56.03s -> 57.43s`
+  - changed rows versus trusted canonical `v241` full:
+    - `prob_11`: objective `8565801 -> 8364652`, `T 360 -> 351`
+    - `prob_33`: objective `26172225 -> 35658338`, `T 3805 -> 5234`
+  - aggregate tail signals:
+    - first20 Total T `1502 -> 1493`
+    - T>0 count `33 -> 33`
+    - high-T tail (`T>=1000`) sum `56718 -> 58147`
+    - worst regression: `prob_33`, objective `26172225 -> 35658338`,
+      `T 3805 -> 5234`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v245` found a real Track A improvement on the primary prob11-like row and
+    preserved accepted-for-score `40/40` with timeout `0`, but the extracted
+    retry logic reopened a much larger regression on `prob_33`. That hidden
+    tail regression outweighed the local Family A gain, raising Total `T` by
+    `1420` and Total Objective by `9284964` versus trusted `v241`. Because the
+    candidate worsened the accepted full surface on a high-T guard row, it was
+    rejected and the active trusted BEST remains `v241`.
+
+## 2026-06-27 reboot_v246_20260627_trackA_exact_wrapper_with_prob33_guard_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the latest `v245` evidence shows two separate signals:
+    - real Track A gain on the ultra-tight prob11-like row (`T 360 -> 351`)
+    - a non-local high-T regression on `prob_33`
+  - a targeted recheck confirmed the active trusted `v241` still reproduces its
+    canonical guard surface on `prob_11`, `prob_33`, `prob_38`, and `prob_40`,
+    so the active BEST is stable and the `prob_33` regression belongs to the
+    wrapper candidate rather than the trusted baseline.
+  - next structural step: keep `v241.algorithm` as the exact primary route for
+    every row, then split the portfolio into two bounded post-solve specialists:
+    - Track A prob11-like tail retry:
+      preserve the cheap `micro_pair` + `dense_fourbay_chain` post-solve retry
+      only on the ultra-tight Family A lane.
+    - prob33-like runtime guard:
+      if the exact fallback lands on an unusually bad three-bay `prob_33`-like
+      high-T branch, run one bounded `v081` runtime repair candidate and keep
+      the better feasible result by official `T`-first ordering.
+  - this keeps the trusted fallback route intact, but adds a narrow repair
+    candidate for the exact hidden-risk row that blocked `v245`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted additions:
+    `prob_13`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_33`, `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain with no reopened regression on
+    `prob_33`, `prob_38`, or `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v246_target_20260627_001/`
+  - first run result:
+    - `accepted_for_score=11/12`
+    - timeout `0`
+    - invalid/error `1`
+    - `prob_33` raised an exception because the borrowed `v081` classifier
+      expected older feature keys that are not present in the current light
+      feature extractor.
+  - rerun evidence after fixing the classifier:
+    `reports/ogc2026_reboot_v001/probe_v246_target_20260627_rerun_002/`
+  - rerun result:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus same-run direct `v241`:
+    - `prob_11`: objective `9387458 -> 8364652`, `T 397 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_33`: objective `26172225 -> 36544102`, `T 3805 -> 5366`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the prob11 Track A signal remains real.
+    - the added prob33 guard did not actually open on the bad branch because
+      the exact `v241` fallback had already consumed almost the whole wall-time
+      budget before the wrapper reached the post-solve guard stage.
+    - so this wrapper still passed through the bad `prob_33 T 5366` fallback
+      surface and failed the pre-smoke gate.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v246` repaired the classifier crash and kept the strong prob11-like gain,
+    but the exact-wrapper-plus-postsolve-guard structure is still too late to
+    protect the prob33-like runtime cliff. By the time the wrapper regained
+    control, the fallback had already spent almost all of the budget, so the
+    intended guard candidate could not run. Because `prob_33` regressed from
+    `T 3805` to `T 5366` at probe stage, the candidate was rejected before
+    smoke.
+
+## 2026-06-27 reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `accepted`
+- Track: `A`
+- hypothesis:
+  - the latest probes separate the problem cleanly:
+    - `v245` still gives the best observed prob11-like Track A gain.
+    - direct `v081` currently reproduces the canonical prob33-like row exactly
+      (`T 3805`) and faster than direct `v241`.
+  - instead of a late post-solve prob33 guard, route each sensitive subtype
+    directly to its strongest currently trusted specialist:
+    - ultra-tight prob11-like Family A lane -> `v245.algorithm`
+    - prob33-like runtime-cliff lane -> `v081.algorithm`
+    - every other row -> exact trusted `v241.algorithm`
+  - this is still feature-based routing only, but it removes the budget race
+    that broke `v246`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted additions:
+    `prob_13`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_33`, `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain while holding the canonical
+    prob33/prob38/prob40 guard rows.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v247_target_20260627_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus same-run direct `v241`:
+    - `prob_11`: objective `9387458 -> 8364652`, `T 397 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the direct subtype selector removed the v246 budget race.
+    - it keeps the prob11-like Track A gain while holding the key runtime-risk
+      guard rows flat, so the candidate advances to representative smoke.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v247_trackA_20260627_001/`
+  - `accepted_for_score=22/22`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_24`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - changed rows versus direct `v241` smoke:
+    - `prob_11`: objective `8565801 -> 8364652`, `T 360 -> 351`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+  - interpretation:
+    - the candidate holds the key Family B/runtime-cliff guard rows on the
+      smoke surface while preserving the Track A gain on the prob11-like row,
+      so it advances to full train40.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v247_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - current-tree comparison versus trusted canonical `v241` full evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v241_train40_20260627_001/`
+    - Total Objective `569882464 -> 569681315`
+    - Avg Objective `14247061.600 -> 14242032.875`
+    - Total T `59522 -> 59513`
+    - Avg T `1488.050 -> 1487.825`
+    - Total L `105568.0 -> 105327.0`
+    - Avg L `2639.200 -> 2633.175`
+    - Total P `167700.0 -> 167747.0`
+    - Avg P `4192.500 -> 4193.675`
+    - Avg Runtime `32.33s -> 31.85s`
+    - Max Runtime `56.03s -> 57.62s`
+  - changed rows versus trusted canonical `v241` full:
+    - `prob_11`: objective `8565801 -> 8364652`, `T 360 -> 351`
+  - aggregate signals:
+    - first20 Total T `1502 -> 1493`
+    - T>0 count `33 -> 33`
+    - high-T tail (`T>=1000`) sum `56718 -> 56718`
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_trusted_best`
+  - reason:
+    `v247` preserves accepted-for-score `40/40` with timeout `0` and invalid
+    `0`, keeps the canonical prob33/prob38/prob40 guard rows flat, and still
+    captures the prob11-like Track A gain from the v245 lane. That yields a
+    real full-train40 improvement over trusted `v241`: Total `T 59522 -> 59513`
+    and Total Objective `569882464 -> 569681315`. Because the improvement is
+    real, accepted, and localized without reopening the high-T guard rows, the
+    candidate is promoted to the active trusted BEST.
+  - official baseline_hh publish recheck:
+    - evidence:
+      `reports/ogc2026_reboot_v001/verify_active_v247_baseline_hh_py_20260627_001/`
+    - `accepted_for_score=18/18`
+    - timeout `0`
+    - invalid/error `0`
+    - matched direct `v247` on objective / `T` / `L` / `P` for:
+      `prob_10`, `prob_11`, `prob_13`, `prob_19`, `prob_20`,
+      `prob_33`, `prob_38`, `prob_40`
+    - baseline wrapper improved locally on:
+      - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+  - official baseline_hh active full:
+    - evidence:
+      `reports/ogc2026_reboot_v001/full_active_v247_baseline_hh_py_20260627_001/`
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - active-surface comparison versus trusted canonical `v241` full:
+      - Total Objective `569882464 -> 569663537`
+      - Avg Objective `14247061.600 -> 14241588.425`
+      - Total T `59522 -> 59512`
+      - Avg T `1488.050 -> 1487.800`
+      - first20 Total T `1502 -> 1492`
+    - active-surface changed rows versus trusted canonical `v241` full:
+      - `prob_11`: objective `8565801 -> 8364652`, `T 360 -> 351`
+      - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+
+## 2026-06-28 reboot_v248_20260628_trackA_fourbay_pocket_split_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - the active trusted `v247` surface already captured the prob11-like gain and
+    held the prob33/prob38/prob40 guards, but first20 Total `T` is still
+    `1492`, with the remaining mass concentrated in a narrow four-bay Family A
+    pocket:
+    - `prob_13 T 516`
+    - `prob_14 T 180`
+    - `prob_19 T 147`
+    - `prob_20 T 164`
+  - the next structural move is not another generic tail replay. Instead,
+    split that residual `4-bay / low-proc / high-w1 / tight-slack / diffuse`
+    pocket into its own specialist lane on top of the accepted `v247` surface.
+  - keep the active trusted roles unchanged elsewhere:
+    - trusted fallback candidate = exact `v247.algorithm`
+    - fast constructive candidate = inherited current pocket route
+    - Family A specialist candidate = dedicated four-bay pocket specialist
+    - bounded repair candidate = narrow post-constructive repair on that pocket
+  - require the new pocket lane to improve first20 `T` without reopening the
+    accepted prob33-like runtime cliff or the high-T tail guard rows.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`, `prob_33`,
+    `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain by Total `T`, `T>0` count, or a
+    targeted row improvement on the four-bay pocket, while holding the
+    canonical prob33/prob38/prob40 guard rows.
+- analysis_plan:
+  - first run a source-comparison probe across trusted historical Track A
+    surfaces on `prob_13`, `prob_14`, `prob_19`, `prob_20` plus guard rows.
+  - if a reusable specialist clearly dominates on that pocket, route to it by
+    features from a new direct selector; otherwise build a bounded pocket-only
+    repair lane on top of `v247`.
+- source_comparison_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v248_source_compare_20260628_001/`
+  - compared:
+    `v195`, `v200`, `v216`, `v218`, `v241`, `v247`
+  - all rows stayed `accepted_for_score=true`, timeout `0`, invalid/error `0`.
+  - best rows by official `T`-first ordering:
+    - `prob_13`: tie best `v241 / v247`, `T 516`
+    - `prob_14`: tie best `v216 / v218 / v241 / v247`, `T 181`
+    - `prob_19`: tie best `v218 / v241 / v247`, `T 147`
+    - `prob_20`: all compared routes tied, `T 164`
+    - `prob_33`: all compared routes tied, `T 3805`
+    - `prob_38`: tie best `v200 / v216 / v218 / v241 / v247`, `T 11120`
+  - interpretation:
+    - no older accepted Track A surface clearly dominates the residual
+      `prob_13 / prob_14 / prob_19 / prob_20` pocket.
+    - that ruled out a simple historical specialist reroute and justified a
+      new post-fallback bounded repair portfolio.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v248_target_20260628_001/`
+  - `accepted_for_score=16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus same-run direct `v247`:
+    - `prob_11`: objective `8907377 -> 8364652`, `T 376 -> 351`
+    - `prob_13`: objective `10197866 -> 9695535`, `T 516 -> 488`
+    - `prob_14`: objective `3795716 -> 3901754`, `T 181 -> 187`
+    - `prob_19`: objective `2147083 -> 1790711`, `T 147 -> 114`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the bounded repair portfolio found real gains on `prob_13` and `prob_19`
+      while holding all Family B guard rows flat.
+    - but its gate was still too broad: the lane also opened on `prob_14` and
+      regressed `T 181 -> 187`.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v248` proved the residual four-bay bounded repair idea is viable, but the
+    first gate still included a looser `prob_14`-like subtype that regressed at
+    probe stage. Because the candidate reopened a current active Track A row,
+    it is rejected and narrowed into a follow-up subtype split rather than
+    advancing to smoke.
+
+## 2026-06-28 reboot_v249_20260628_trackA_tighter_fourbay_residual_portfolio_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v248` showed the bounded post-fallback repair portfolio can materially
+    improve the tighter residual pocket:
+    - `prob_13 T 516 -> 488`
+    - `prob_19 T 147 -> 114`
+  - the failure was not the repair portfolio itself, but the gate: it also
+    opened on the looser `prob_14`-like subtype and regressed `T 181 -> 187`.
+  - narrow the lane to the tighter residual subgroup only:
+    - keep the accepted `v247` surface unchanged for prob11-like, prob14-like,
+      prob20-like, and all Family B/runtime-risk rows
+    - open the bounded repair portfolio only on the tighter
+      `4-bay / 240~320 blocks / low-slack / high-tight-ratio` subtype that
+      covers the `prob_13 / prob_19` residual rows
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`, `prob_33`,
+    `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain by Total `T`, `T>0` count, or targeted
+    `prob_13 / prob_19` improvement, while holding `prob_14`, `prob_20`,
+    `prob_33`, `prob_38`, and `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v249_target_20260628_001/`
+  - `accepted_for_score=16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus same-run direct `v247`:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 9602250`, `T 516 -> 483`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_19`: objective `2147083 -> 1790711`, `T 147 -> 114`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the tighter gate removed the explicit `prob_14` probe regression while
+      keeping real gains on `prob_13` and `prob_19`.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v249_trackA_20260628_001/`
+  - `accepted_for_score=24/24`
+  - timeout `0`
+  - invalid/error `0`
+  - smoke set:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - candidate-side rows versus same-run direct `v247`:
+    - `prob_13`: objective `10197866 -> 9724517`, `T 516 -> 490`
+    - major regressions reopened on non-target and guard rows:
+      - `prob_6`: objective `715812 -> 10818883`, `T 7 -> 347`
+      - `prob_11`: objective `8364652 -> 9387458`, `T 351 -> 397`
+      - `prob_14`: objective `3795716 -> 9643216`, `T 181 -> 510`
+      - `prob_20`: objective `5199740 -> 30172911`, `T 164 -> 1098`
+      - `prob_33`: objective `26172225 -> 26515388`, `T 3805 -> 3854`
+      - `prob_38`: objective `151254848 -> 288702174`, `T 11120 -> 21420`
+  - interpretation:
+    - although the targeted probe looked stable, the smoke run showed that
+      rebuilding the fallback surface inside a new module is itself unstable.
+    - the issue is not just the residual-lane gate; the broader current-tree
+      score surface drifts when the accepted fallback is re-expressed instead of
+      treated as a black-box trusted candidate.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v249` produced a promising targeted probe but failed representative smoke
+    with large regressions on both Track A and Family B guard rows. Because the
+    accepted active surface is not reproducible enough when rebuilt inline, the
+    candidate is rejected and the next structural attempt must compare against
+    trusted `v247.algorithm` directly as a black-box fallback.
+
+## 2026-06-28 reboot_v250_20260628_trackA_spatial_orientation_seed_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - after `v248/v249`, the remaining Family A first20 T looks less like a pure
+    tardy-repair problem and more like an initial placement problem: the due-
+    date-feasible window may be lost early because large or awkward footprints
+    are placed without enough spatial structure.
+  - the next bounded candidate should stop rebuilding the accepted fallback
+    inline and instead use trusted `v247.algorithm` as a black-box fallback
+    candidate.
+  - on a Family A spatial gate only, compare that trusted fallback against one
+    new spatial constructive seed that explicitly includes:
+    - large-area / high footprint-pressure blocks earlier in the order
+    - explicit orientation comparison on the constructive path
+    - wall-hugging / edge / corner / bottom-left-biased candidate positions
+    - a fragmentation-like score that prefers cleaner remaining space
+    - a min-slack / latest-feasible style ordering blended with spatial score
+  - select the better feasible candidate by official `T`-first ordering.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`, `prob_33`,
+    `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain by Total `T`, `T>0` count, worst-row
+  reduction, or targeted row improvement, while holding Family B guard rows.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v250_target_20260628_001/`
+  - `accepted_for_score=16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus same-run direct `v247`:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3883976`, `T 181 -> 186`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the black-box fallback structure held the accepted guard rows flat.
+    - but the first spatial seed itself did not beat the fallback on the target
+      residual rows and reopened `prob_14`.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v250` confirmed the safer control architecture for future spatial
+    candidates: compare against trusted `v247.algorithm` directly instead of
+    rebuilding the fallback surface. But the actual spatial constructive seed
+    was too weak; it did not improve `prob_13` or `prob_19` and regressed
+    `prob_14` at probe stage, so it is rejected without smoke or full.
+
+## 2026-06-28 reboot_v251_20260628_trackA_spatial_orientation_seed_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v250` established the safer architecture: trusted `v247.algorithm` must be
+    the black-box fallback, and the spatial seed should only compete against
+    that exact accepted surface.
+  - the next correction is to narrow the spatial gate sharply toward the
+    tighter prob13-like residual subtype instead of the broader four-bay band.
+  - use the full trusted fallback first, then spend only the remaining safe
+    budget on the spatial seed.
+  - the spatial seed will still include:
+    - area-first / tight-slack ordering
+    - explicit multi-orientation comparison
+    - edge / corner / bottom-left candidate positions
+    - fragmentation-like scoring
+    - T-first comparison against the trusted fallback
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`, `prob_33`,
+    `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain, especially on the current prob13-like
+  worst residual row, while holding `prob_14`, `prob_20`, `prob_33`,
+  `prob_38`, and `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v251_target_20260628_001/`
+  - `accepted_for_score=16/16`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus same-run direct `v247`:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - `prob_19`: objective `2253753 -> 2147083`, `T 157 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the black-box fallback-first control flow worked as intended and kept the
+      Family B guard rows stable.
+    - the spatial seed still did not move the intended prob13-like row at all,
+      while a nearby looser row (`prob_14`) regressed and a different subtype
+      (`prob_19`) improved.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v251` improved `prob_19`, but it missed the actual prob13-like spatial
+    target and still reopened `prob_14`. That means the current spatial gate is
+    mixing at least two different first20 subtypes. The candidate is rejected
+    at targeted probe, and the next structural step is to split the spatial
+    gates more sharply instead of widening the same seed again.
+
+## 2026-06-28 reboot_v252_20260628_trackA_spatial_split_seed_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v251` suggests the residual Family A spatial rows are not one subtype.
+    The prob13-like row and the prob19-like row reacted differently, while the
+    looser prob14-like row should stay on the trusted fallback.
+  - split the Track A-spatial gate into two narrower subtype gates:
+    - prob13-like: `240~260 blocks / higher w1 / tighter slack / higher tight ratio`
+    - prob19-like: `280~320 blocks / lower w1 / moderate tight slack`
+  - for either gate, spend only a small bounded spatial seed budget first, then
+    run trusted `v247.algorithm` on the remaining time as a black-box fallback,
+    and choose the better feasible result by official `T`-first ordering.
+  - the spatial seed still includes:
+    - large-area / tight-slack ordering
+    - explicit multi-orientation comparison
+    - edge / corner / bottom-left candidate positions
+    - fragmentation-like score
+    - T-first comparison against trusted fallback
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`, `prob_33`,
+    `prob_38`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 Track A gain, ideally on `prob_13` or `prob_19`,
+    while holding `prob_14`, `prob_20`, `prob_33`, `prob_38`, and `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v252_target_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=8/8`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_11`: objective `9136031 -> 8364652`, `T 386 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the pre-smoke probe looked promising on `prob_11` and slightly positive on
+      `prob_14`, so the split Track A-spatial gate was advanced to a tier smoke.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v252_trackA_spatial_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_1`: objective `606628 -> 606628`, `T 8 -> 8`
+    - `prob_6`: objective `715812 -> 715812`, `T 7 -> 7`
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_25`: objective `1454484 -> 1454484`, `T 41 -> 41`
+    - `prob_27`: objective `75028700 -> 75028700`, `T 5456 -> 5456`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - decision:
+    - reject under the Track A promotion gate.
+  - reason:
+    - the probe-stage `prob_11` gain did not survive the same-run smoke
+      comparison; `prob_11` became identical to direct `v247`.
+    - `prob_14` regressed in smoke (`T 180 -> 181`, objective `+17778`).
+    - there was no real first20 aggregate improvement and no Family B guard
+      gain to offset the regression.
+    - this strongly suggests the apparent probe win was dominated by fallback
+      run-to-run variation rather than a stable spatial constructive win.
+- next_structural_hypothesis:
+  - keep the Track A-spatial direction, but force a more deterministic
+    specialist comparison so probe noise from the trusted fallback does not
+    masquerade as spatial improvement.
+  - next bounded candidate should narrow the gate further and favor a
+    deterministic wall/corner constructive seed whose win condition is a stable
+    same-run gain on `prob_11 / 13 / 14 / 19 / 20`, not a probe-only delta.
+
+## 2026-06-28 reboot_v253_20260628_trackA_spatial_prob14like_same_run_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v252` shows the Track A-spatial idea is still plausible, but the current
+    wrapper structure can let trusted fallback variability look like a spatial
+    win during probe.
+  - the next attempt should keep the same-run comparison architecture, but
+    narrow the spatial gate to the more distinctive prob14-like residual lane:
+    - `4 bays / ~250 blocks / w1 around 17778`
+    - slightly looser slack than prob13-like
+    - higher area pressure and slightly higher preference concentration
+  - instead of searching broadly on every block, make the spatial seed more
+    deterministic:
+    - larger-area urgent prefix gets the richer wall/corner search
+    - later blocks use a lighter continuation
+    - win condition is a stable same-run gain on `prob_14` while holding
+      `prob_13 / 19 / 20 / 33 / 38 / 40`
+  - likely design knobs:
+    - larger-area-first seed with explicit orientation comparison
+    - tighter wall/corner candidate generation
+    - fragmentation score that preserves central slack for later urgent blocks
+    - deterministic or low-variance candidate ordering so repeated smoke runs
+      do not flip the verdict
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a stable first20 gain that survives same-run smoke comparison.
+  - require no regression on `prob_14`, `prob_20`, `prob_33`, `prob_38`,
+    and `prob_40`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v253_target_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=8/8`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_11`: objective `8620645 -> 8364652`, `T 363 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_19`: objective `2147083 -> 2253753`, `T 147 -> 157`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - interpretation:
+    - the narrowed prob14-like gate finally produced the intended targeted
+      signal on `prob_14`, but the wrapper still showed a nontrivial regression
+      on ungated `prob_19`, so the candidate had to prove that the gain would
+      survive smoke.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v253_trackA_spatial_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_1`: objective `606628 -> 606628`, `T 8 -> 8`
+    - `prob_6`: objective `715812 -> 715812`, `T 7 -> 7`
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_19`: objective `2147083 -> 2253753`, `T 147 -> 157`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_25`: objective `1454484 -> 1454484`, `T 41 -> 41`
+    - `prob_27`: objective `75028700 -> 75028700`, `T 5456 -> 5456`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - decision:
+    - reject under the Track A promotion gate.
+  - reason:
+    - the prob14-like spatial gate finally produced a stable targeted gain on
+      `prob_14` (`T 181 -> 180`), but that gain is too small to justify a
+      same-run regression on `prob_19` (`T 147 -> 157`).
+    - the candidate therefore failed the required first20 aggregate / guard
+      balance and cannot be promoted.
+- next_structural_hypothesis:
+  - keep the prob14-like Track A-spatial lane, but the next bounded attempt
+    needs a materially larger gated gain than `-1 T`.
+  - the most promising next step is to add a very small due-date repair or
+    local window adjustment on top of the deterministic prob14-like spatial
+    seed so the gated improvement is large enough to dominate the background
+    fallback variance seen on nearby ungated rows.
+
+## 2026-06-28 reboot_v254_20260628_trackA_prob14like_spatial_plus_due_repair_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v253` is the first spatial candidate that repeatedly improves the
+    intended prob14-like row, but the gain is only `-1 T`, which is not enough
+    to survive same-run noise on nearby ungated rows.
+  - the next bounded candidate should keep the same narrow prob14-like
+    feature gate and deterministic wall/corner constructive seed, then add one
+    tiny gated due-date repair pass:
+    - local window sliding around the top tardy gated blocks
+    - or one bounded pair/prefix swap restricted to the prob14-like lane
+  - success criterion:
+    - keep the prob14-like spatial signal
+    - turn `prob_14` from a `-1 T` win into a materially larger first20 gain
+    - hold `prob_13 / 19 / 20 / 33 / 38 / 40` flat in same-run smoke
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a larger first20 gain than `v253`, not merely a repeat of
+    `prob_14 T 181 -> 180`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v254_target_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=8/8`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_11`: objective `8532199 -> 8364652`, `T 359 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3777938`, `T 180 -> 180`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5910122`, `T 8429 -> 8622`
+  - decision:
+    - reject at targeted probe.
+  - reason:
+    - the tiny same-bay due-date reorder did not improve the gated target row
+      beyond the already-known `prob_14 T=180` surface.
+    - there is no new first20 gain on the intended prob14-like lane.
+    - a Family B guard row (`prob_40`) moved in the wrong direction in the
+      same-run compare, so there is no reason to spend a smoke cycle on this
+      candidate.
+- next_structural_hypothesis:
+  - keep the narrow prob14-like Track A-spatial gate, but replace the tiny
+    window reorder with a slightly stronger gated tardy-reinsertion repair.
+  - the next bounded candidate should try a very small warm tardy repair on top
+    of the deterministic prob14-like spatial seed, because the window reorder
+    postpass was too weak to convert the stable `T=180` landing into a larger
+    first20 gain.
+
+## 2026-06-28 reboot_v255_20260628_prob14like_spatial_plus_warm_repair_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v253` proved the prob14-like spatial seed can stably land on the good
+    `prob_14 T=180` surface.
+  - `v254` proved that a tiny same-bay window reorder is too weak to push that
+    surface any lower.
+  - the next bounded attempt should keep the same narrow prob14-like gate and
+    deterministic spatial seed, then add a very small gated warm tardy repair
+    after the seed:
+    - shortlist only the worst tardy gated blocks
+    - use bounded reinsertion/repair, not a broad replay
+    - require the postpass to stay within the remaining time margin
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a larger prob14-like / first20 gain than `v253` and `v254`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v255_target_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=8/8`
+    - timeout `0`
+    - invalid/error `0`
+  - gate audit:
+    - the candidate gate remained correct and only matched `prob_14`.
+    - `prob_11 / 13 / 19 / 20 / 33 / 38 / 40` all stayed outside the gate.
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_11`: objective `9387458 -> 8364652`, `T 397 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3777938`, `T 180 -> 180`
+    - `prob_19`: objective `2253753 -> 2147083`, `T 157 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - decision:
+    - reject at targeted probe.
+  - reason:
+    - the only gated target row, `prob_14`, did not improve at all beyond the
+      already-known `T=180` surface.
+    - the visible gains appeared only on ungated rows (`prob_11`, `prob_19`),
+      so they cannot be credited to the new prob14-like candidate and are best
+      interpreted as fallback runtime drift between sibling runs.
+    - because there is no real gated gain signal, there is no reason to spend a
+      smoke cycle on this candidate.
+- next_structural_hypothesis:
+  - the prob14-like Track A-spatial lane appears to have plateaued at the same
+    stable `T=180` landing.
+  - the next bounded candidate should leave that lane alone and pivot to a
+    different residual Family A subtype instead of polishing the same gate
+    again.
+
+## 2026-06-28 reboot_v256_20260628_trackA_prob20like_fivebay_spatial_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - after `v250` through `v255`, the prob14-like four-bay spatial line is
+    informative but plateaued; it can re-land on the `T=180` surface without
+    generating a larger first20 gain.
+  - the next bounded Track A-spatial attempt should pivot to the remaining
+    five-bay Family A row (`prob_20`-like):
+    - `5 bays / ~300 blocks / high w1 / moderate tight slack / lower
+      preference concentration`
+    - use a spatial seed that emphasizes area pressure, wall/corner placement,
+      and compact early packing across more bays
+    - compare against trusted fallback by the same official T-first rule
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real five-bay first20 gain on `prob_20` or first20 aggregate,
+    not merely a re-landing of existing four-bay surfaces.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v256_target_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=8/8`
+    - timeout `0`
+    - invalid/error `0`
+  - gate audit:
+    - the candidate gate remained correct and matched only `prob_20`.
+  - candidate-side rows versus the same-run direct `v247` context:
+    - `prob_11`: objective `8220328 -> 8364652`, `T 345 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - decision:
+    - reject at targeted probe.
+  - reason:
+    - the five-bay spatial seed produced no movement at all on its only gated
+      target row, `prob_20`.
+    - visible differences on ungated rows are not attributable to the new
+      candidate and do not justify a smoke cycle.
+- next_structural_hypothesis:
+  - isolated single-row spatial gates are now giving either plateaued
+    re-landings (`prob_14`) or no target signal at all (`prob_20`).
+  - the next bounded Track A-spatial attempt should pivot back to a broader
+    first20 spatial-prefix family where one seed can influence multiple residual
+    rows, especially the `prob_13 / 14 / 19` band, without replaying the old
+    dense-chain / exact-slice repairs.
+
+## 2026-06-28 reboot_v257_20260628_trackA_broad_first20_spatial_prefix_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - after `v253` through `v256`, the narrow single-row spatial gates are either
+    plateaued or inert.
+  - the next bounded Track A attempt should widen back to a broader spatial
+    prefix family covering the residual `prob_13 / 14 / 19`-like band:
+    - still feature-only, no prob-number branching
+    - emphasize urgent large-area prefix packing with wall/corner placement
+    - avoid replaying old dense-chain, exact-slice, or anchor-block repair
+    - compare a broader spatial constructive candidate against trusted fallback
+- implementation_note:
+  - feature gate to encode in code before smoke:
+    `4 bays`, `240-300 blocks`, `w1` below the ultra-tight prob11/prob20 lanes,
+    low `proc_mean`, moderate-tight `slack_mean`, diffuse-to-mid
+    `pref_concentration`, and elevated area pressure.
+  - trusted fallback for same-run compare:
+    `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+  - expected target:
+    reduce first20 aggregate `T` by improving more than one of
+    `prob_13 / 14 / 19`, with no new regression on `prob_20` or Family B guard
+    rows.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain or a stable gain on more than one of
+    `prob_13 / 14 / 19`.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v257_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v247` context:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3777938`, `T 180 -> 180`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - first20 targeted aggregate:
+    - `T 1373 -> 1373`
+    - `T>0 count 7 -> 7`
+    - worst row `prob_13` stayed `T 516`
+  - interpretation:
+    - the widened gate correctly matched the intended `prob_13 / 14 / 19` band,
+      but the same-run fallback-first structure still prevented a promotable
+      gain.
+    - on `prob_13`, the spatial candidate actually ran and collapsed to
+      `T 23788`, so the trusted fallback was correctly retained.
+    - on `prob_14`, the fallback consumed too much of the 60s budget for the
+      spatial lane to run.
+    - on `prob_19`, the fallback landed below the activation threshold, so the
+      spatial lane never engaged.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v257` passed smoke cleanly, but every reported row matched trusted `v247`
+    exactly, so there was no first20 or Total `T` gain to justify promotion.
+
+## 2026-06-28 reboot_v258_20260628_trackA_prefallback_spatial_abort_guard_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v257` showed that the broader first20 spatial gate is plausible, but the
+    fallback-first execution order is blocking the experiment:
+    - the good rows never spend budget on the spatial lane
+    - the bad row (`prob_13`) spends budget but explodes on forced placements
+      before losing to fallback
+  - the next bounded Track A attempt should keep the same feature-only
+    `prob_13 / 14 / 19`-like gate, but invert the order:
+    - run a cheaper prefallback spatial prefix first
+    - stop the spatial lane early if forced placements spike or the partial
+      candidate drifts far above a safe `T` envelope
+    - then run trusted `v247` with the remaining budget and keep the better
+      feasible candidate by official `T`-first ordering
+  - this keeps the structural Track A-spatial direction while finally giving
+    `prob_14`-like rows real runtime for the constructive lane.
+- implementation_note:
+  - keep the same broad `prob_13 / 14 / 19`-like feature gate from `v257`.
+  - run a short prefallback spatial budget first, then pass only the remaining
+    time to trusted `v247`.
+  - spatial abort guard should trigger on severe forced-placement growth or on
+    a clearly collapsed final `T` / objective so that bad rows hand control
+    back to fallback quickly.
+  - expected target:
+    preserve accepted stability while giving `prob_14` and `prob_19` a real
+    chance to beat fallback before the trusted route consumes the budget.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain or a stable gain on more than one of
+    `prob_13 / 14 / 19`, with no regression on `prob_20`, `prob_33`,
+    `prob_38`, or `prob_40`.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v258_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v247` context:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3901754`, `T 180 -> 187`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - first20 targeted aggregate:
+    - `T 1373 -> 1380`
+    - `T>0 count 7 -> 7`
+    - worst row `prob_13` stayed `T 516`
+  - interpretation:
+    - the prefallback lane did run first on the intended rows, but all three
+      gated rows tripped the forced-placement abort after about `7.7-7.8s`.
+    - that gave `v247` only about `52s` of remaining budget, which was enough
+      to preserve `prob_13` and `prob_19` but not enough to keep the trusted
+      `prob_14 T 180` line.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v258` verified the prefallback execution-order hypothesis, but the
+    fallback-time haircut alone caused `prob_14` to regress from `T 180` to
+    `T 187` while the spatial lane never produced an offsetting win.
+
+## 2026-06-28 reboot_v259_20260628_trackA_prefallback_micro_probe_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v258` proved that a broad `8s` prefallback slice is too expensive because
+    `prob_14` is highly sensitive to fallback runtime.
+  - the next bounded Track A attempt should keep the same feature-only
+    `prob_13 / 14 / 19`-like gate but shrink the prefallback spatial slice into
+    a true micro-probe:
+    - cap the prefallback spatial time near `3-4s`
+    - restrict the expensive wall/corner search to a smaller urgent prefix
+    - abort even earlier on forced-placement growth
+    - preserve at least `55s+` for trusted `v247` on a `60s` call
+  - this tests whether Track A-spatial can still touch `prob_14`-like rows
+    without paying the runtime haircut that directly harmed the fallback path.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain or a stable gain on more than one of
+    `prob_13 / 14 / 19`, with no regression on `prob_20`, `prob_33`,
+    `prob_38`, or `prob_40`.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v259_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v247` context:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3883976`, `T 180 -> 186`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - first20 targeted aggregate:
+    - `T 1373 -> 1379`
+    - `T>0 count 7 -> 7`
+    - worst row `prob_13` stayed `T 516`
+  - interpretation:
+    - shrinking the prefallback spatial slice from `8s` to `4s` reduced the
+      runtime haircut, but did not remove it.
+    - the spatial micro-probe still produced catastrophically bad standalone
+      candidates on all three gated rows, while the fallback path on
+      `prob_14` remained sensitive enough to regress from `T 180` to `186`
+      even with about `58.7s` left.
+    - this indicates the blocker is not only bad spatial quality; even small
+      timelimit haircuts perturb the trusted fallback path on the critical row.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v259` confirmed that prefallback Track A-spatial probing is not viable in
+    its current form because the trusted fallback path itself is timelimit-
+    sensitive on `prob_14`, while the spatial candidate remains far worse than
+    fallback on all gated rows.
+
+## 2026-06-28 reboot_v260_20260628_trackA_intrafallback_spatial_hook_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v257` through `v259` together show two things:
+    - a separate Track A-spatial candidate can be feature-gated cleanly
+    - any separate prefallback slice perturbs the trusted `v247` path through
+      timelimit sensitivity on `prob_14`
+  - the next bounded Track A attempt should stop treating spatial placement as
+    a separate same-run candidate and instead inject a tiny spatial hook inside
+    the existing Family A path for the same `prob_13 / 14 / 19`-like band.
+  - target shape:
+    - keep full `v247` timelimit budget intact
+    - modify only one early constructive decision inside the gated Family A
+      path, such as upstream orientation choice or wall/corner-biased initial
+      placement for the largest urgent blocks
+    - preserve the downstream trusted repair chain unchanged
+  - this is still Track A-spatial, but it removes the fallback-budget haircut
+    failure mode exposed by `v258` and `v259`.
+- implementation_note:
+  - keep the trusted `v247` outer selector unchanged for prob11-like and
+    prob33-like lanes.
+  - only widen the default `v241` route by adding one tiny spatial-hook
+    candidate inside the first20 subgroup role portfolio.
+  - hook budget should stay sub-second on a `60s` call so the downstream
+    trusted chain remains effectively intact.
+  - expected target:
+    preserve `prob_14` fallback quality while testing whether a tiny
+    orientation / wall-corner-biased constructive hook can slip into the
+    candidate set without destabilizing the current BEST.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain or a stable gain on more than one of
+    `prob_13 / 14 / 19`, with no regression on `prob_20`, `prob_33`,
+    `prob_38`, or `prob_40`.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v260_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v247` context:
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - first20 targeted aggregate:
+    - `T 1373 -> 1374`
+    - `T>0 count 7 -> 7`
+    - worst row `prob_13` stayed `T 516`
+  - interpretation:
+    - the tiny intrafallback hook preserved global stability better than
+      `v258` and `v259`, but it still perturbed the sensitive `prob_14` route.
+    - on all three gated rows the spatial hook candidate itself aborted at the
+      tiny `0.2s` budget and never became competitive.
+    - even that sub-second hook was enough to leave the trusted role portfolio
+      at `prob_14 T 181` instead of the canonical `T 180`.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v260` showed that adding a separate spatial-hook candidate inside the
+    first20 role portfolio still perturbs the critical `prob_14` lane while
+    producing no offsetting gain on `prob_13` or `prob_19`.
+
+## 2026-06-28 reboot_v261_20260628_trackA_zero_overhead_spatial_tiebreak_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v257` through `v260` indicate that almost any extra candidate or extra
+    search time destabilizes the trusted `prob_14` lane, even when the added
+    spatial logic is tiny.
+  - the next bounded Track A attempt should therefore avoid adding any new
+    candidate or budgeted search at all.
+  - instead, inject a zero-overhead spatial tie-break directly into the
+    existing constructive path for the broad `prob_13 / 14 / 19`-like band:
+    - keep the same feature-only gate
+    - keep the full v247/v241 route and downstream repairs unchanged
+    - modify only a deterministic orientation / wall-corner preference tie-break
+      in the existing fast constructive surface
+  - this preserves the current runtime envelope while still testing the core
+    spatial-packing hypothesis.
+- implementation_note:
+  - do not add any new candidate arm and do not spend any new budget slice.
+  - keep the trusted `v247` outer selector and `v241` role portfolio shape.
+  - only replace the dense four-bay deep-chain reinsertion tie-break on the
+    broad spatial gate, using orientation-aware and wall/corner-biased ranking
+    inside the existing search loop.
+  - expected target:
+    preserve the canonical `prob_14` runtime envelope while testing whether the
+    same search budget can land on a slightly cleaner reinsertion outcome for
+    `prob_13 / 14 / 19`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain or a stable gain on more than one of
+    `prob_13 / 14 / 19`, with no regression on `prob_20`, `prob_33`,
+    `prob_38`, or `prob_40`.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v261_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical
+    `reports/ogc2026_reboot_v001/full_active_v247_baseline_hh_py_20260627_001/`:
+    - `prob_1`: objective `606628 -> 606628`, `T 8 -> 8`
+    - `prob_6`: objective `715812 -> 715812`, `T 7 -> 7`
+    - `prob_11`: objective `8364652 -> 8364652`, `T 351 -> 351`
+    - `prob_13`: objective `10197866 -> 10263753`, `T 516 -> 519`
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_25`: objective `1454484 -> 1454484`, `T 2089 -> 2089`
+    - `prob_27`: objective `75028700 -> 75028700`, `T 5456 -> 5456`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - first20 targeted aggregate:
+    - `T 1373 -> 1377`
+    - `T>0 count 7 -> 7`
+    - worst row stayed `prob_13`, but worsened `T 516 -> 519`
+  - interpretation:
+    - zero-overhead dense-chain tie-break was still too far downstream.
+    - it never improved `prob_19`, and it nudged both `prob_13` and `prob_14`
+      away from the trusted v247 line.
+    - this supports moving the spatial/orientation hypothesis upstream into the
+      fast constructive lane rather than the residual deep-chain lane.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v261` preserved runtime safety and smoke acceptance, but it regressed the
+    targeted first20 aggregate (`T 1373 -> 1377`) by worsening both
+    `prob_13` and `prob_14` while leaving `prob_19` unchanged. The hypothesis
+    remains plausible, but the insertion point was wrong.
+
+## 2026-06-28 reboot_v262_20260628_trackA_zero_overhead_fastpath_spatial_tiebreak_on_v247
+
+- parent_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v257` through `v261` suggest the remaining Track A signal is not best
+    accessed by adding spatial logic in the downstream deep-chain / residual
+    repair path.
+  - the next bounded candidate should keep the trusted v247 outer selector and
+    the v241 stable-fourbay repair chain unchanged, but inject spatial logic
+    into the fast constructive lane used by the broader `prob_13 / 14 / 19`-like
+    role portfolio.
+  - goal:
+    let a feature-gated spatial seed compete only as the fast constructive
+    candidate, then let the existing exact-slice specialist judge it under the
+    official T-first chooser.
+- implementation_note:
+  - keep `baseline_hh.py` wrapper untouched unless the candidate is promoted.
+  - keep the trusted `v247` outer routes for the prob11-like and prob33-like
+    specialist lanes.
+  - preserve the current stable-fourbay internal portfolio and downstream
+    bounded repairs from `v241`.
+  - add a broad first20 fastpath spatial constructive candidate that uses only
+    feature-based gating and includes at least:
+    - large-area / tight-slack ordering,
+    - multi-orientation evaluation,
+    - wall/corner and edge-anchored position preference,
+    - fragmentation-aware placement score,
+    - T-first comparison against the existing fast `v200` candidate.
+  - expected target:
+    reduce first20 Total T or first20 worst-row T on `prob_13 / 14 / 19`
+    without reopening runtime or Family B guard regressions.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 aggregate gain, or a stable T gain on at least one
+    of `prob_13 / 14 / 19`, with no regression on `prob_20`, `prob_33`,
+    `prob_38`, or `prob_40`.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v262_trackA_spatial_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus current-source recheck
+    `reports/ogc2026_reboot_v001/recheck_v247_current_source_20260628_001/`:
+    - `prob_11`: objective `9136031 -> 9136031`, `T 386 -> 386`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3777938 -> 3883976`, `T 180 -> 186`
+    - `prob_19`: objective `2147083 -> 2253753`, `T 147 -> 157`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+  - targeted interpretation:
+    - the spatial fastpath candidate itself was catastrophically weak on both
+      target rows where it ran:
+      - `prob_13`: `fast_spatial_constructive T 24516`, final selection stayed
+        `specialist_exact_on_primary T 516`
+      - `prob_14`: `fast_spatial_constructive T 22271`, final selection stayed
+        `primary_v218_chain T 186`
+    - even without being selected, the added fastpath spatial arm reopened the
+      sensitive `prob_14` and `prob_19` regressions.
+    - first20 targeted subset (`prob_11 / 13 / 14 / 19 / 20`) worsened
+      `T 1393 -> 1409`.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v262` kept smoke acceptance and did preserve `prob_13`, but the
+    feature-gated spatial constructive builder was far too weak to act as a
+    competitive fast candidate. The added arm still perturbed the broader
+    Track A lane, regressing `prob_14` and `prob_19` versus current-source
+    `v247`, so the candidate is rejected before full benchmark.
+
+## 2026-06-28 revalidation_current_source_v247
+
+- status: `revalidation`
+- active_wrapper:
+  - `ogc2026/baseline/baseline_hh.py`
+  - `ogc2026/baseline/alg_versions/ACTIVE_VERSION.md`
+  - both still point to
+    `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- trusted_evidence:
+  - canonical full:
+    `reports/ogc2026_reboot_v001/full_active_v247_baseline_hh_py_20260627_001/`
+- direct_v247_recheck_subset:
+  - evidence:
+    `reports/ogc2026_reboot_v001/recheck_v247_current_source_20260628_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - note:
+    - this subset run showed a temporary `prob_11` mismatch, but it did not
+      hold under the fresh full revalidation below and is therefore treated as
+      a noisy intermediate recovery artifact rather than the final trust state.
+- direct_v247_revalidation_full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/revalidate_v247_current_source_train40_20260628_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - aggregate result versus canonical active full evidence:
+    - Total Objective `569663537 -> 569681315`
+    - Avg Objective `14241588.425 -> 14242032.875`
+    - Total T `59512 -> 59513`
+    - Avg T `1487.800 -> 1487.825`
+    - Avg Runtime `32.00s -> 32.05s`
+    - Max Runtime `56.52s -> 56.34s`
+  - per-instance comparison:
+    - changed rows: `1`
+    - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+  - interpretation:
+    - current-source direct `v247` remains scoreable on all 40 rows and is
+      effectively stable.
+    - the only delta versus the canonical active full bundle is the known
+      wrapper-side `prob_14` exact-slice improvement.
+- active_wrapper_reverify:
+  - evidence:
+    `reports/ogc2026_reboot_v001/reverify_active_baseline_hh_py_20260628_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - comparison versus canonical active full evidence on the same rows:
+    - changed rows: `0`
+    - exact match on `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`,
+      `prob_33`, `prob_38`, `prob_40`
+  - interpretation:
+    - the current active wrapper `baseline_hh.py` still reproduces the trusted
+      canonical active line on the critical sampled rows, including
+      `prob_14 T=180`.
+- decision:
+  - label: `revalidated_active_trust`
+  - promotion: `active_best_confirmed`
+  - reason:
+    the recovery cycle found no active-wrapper drift. Direct current-source
+    `v247` is stable on full train40, and the active `baseline_hh.py` wrapper
+    exactly matches canonical evidence on the critical 8-row publish set.
+  - next_recovery_action:
+    resume structural candidate work from the trusted active `baseline_hh.py`
+    surface, but avoid standalone spatial builders and target a lighter inline
+    Track A constructive tie-break next.
+
+## 2026-06-28 reboot_v263_20260628_trackA_spatial_exact_wrapper_on_active_v247
+
+- parent_version: `baseline_hh.py active -> reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `accepted`
+- Track: `A`
+- hypothesis:
+  - `v262` showed that making the spatial builder part of the direct fast lane
+    still perturbs the fragile first20 route too early.
+  - the next bounded Track A attempt should preserve the full trusted active
+    wrapper result first, then use only leftover time for a post-fallback
+    spatial rescue candidate.
+  - on the broad `prob_13 / 14 / 19`-like feature gate:
+    - trusted active wrapper = exact fallback candidate
+    - bounded spatial constructive seed = optional rescue candidate
+    - exact latest-feasible slice on the spatial seed = specialist rescue
+    - final choice = official T-first comparison against the trusted fallback
+- implementation_note:
+  - load the current `baseline_hh.py` wrapper as the trusted fallback source and
+    do not change its path during the candidate run.
+  - only spend leftover wall-clock time after the trusted fallback completes.
+  - spatial rescue path must stay feature-gated and reuse:
+    - large-area / tight-slack ordering,
+    - multi-orientation evaluation,
+    - wall/corner / edge-anchored positions,
+    - fragmentation-aware score,
+    - T-first compare against the trusted fallback.
+  - expected target:
+    either match the trusted active line exactly, or improve one of
+    `prob_13 / 14 / 19` without reopening Family B guards.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require real `T` improvement on at least one of `prob_13 / 14 / 19` or on
+    the first20 aggregate, with no regression on the active wrapper guards.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v263_trackA_spatial_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus trusted active context:
+    - Total Objective `290700765 -> 290700765`
+    - Total T `32272 -> 32272`
+    - first20 targeted residual rows held flat:
+      `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+    - Family B guard rows held flat:
+      `prob_25`, `prob_27`, `prob_33`, `prob_38`, `prob_40`
+  - interpretation:
+    - the trusted active wrapper plus post-fallback spatial rescue architecture
+      was stable enough to pass the full targeted smoke with no row-quality
+      regression.
+    - but the spatial seed still failed to produce any same-run `T` gain on the
+      intended first20 residual rows, so the candidate needed a full-train40
+      ruling.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v263_train40_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus canonical active full evidence:
+    - Total Objective `569663537 -> 569663537`
+    - Avg Objective `14241588.425 -> 14241588.425`
+    - Total T `59512 -> 59512`
+    - Avg T `1487.800 -> 1487.800`
+    - Total L `105327.0 -> 105327.0`
+    - Avg L `2633.175 -> 2633.175`
+    - Total P `167747.0 -> 167747.0`
+    - Avg P `4193.675 -> 4193.675`
+    - Avg Runtime `31.999s -> 32.755s`
+    - Max Runtime `56.525s -> 59.432s`
+  - readable comparison:
+    - `40/40` rows changed only in `runtime_sec`; objective / `T` / `L` / `P`
+      / `accepted_for_score` were identical to the trusted active full bundle.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v263` successfully restored the exact trusted active solution surface and
+    proved the fallback-first Track A wrapper is safe. But it delivered no
+    quality gain at all on train40 and only increased runtime, so it is logged
+    as a non-promoted polish-only candidate.
+- next_structural_hypothesis:
+  - keep the exact trusted active wrapper as the first-class candidate, but the
+    next Track A-spatial attempt should let more than one deterministic spatial
+    specialist compete against it.
+  - specifically test a dual-seed portfolio:
+    - one `v250`-style orientation-heavy wall/corner constructive seed
+    - one `v259`-style urgent-prefix richer spatial seed
+    - optional exact latest-feasible slice on the better spatial seed
+  - keep final selection by official `T`-first ordering against the trusted
+    active wrapper, and require a real first20 gain before promotion.
+
+## 2026-06-28 reboot_v264_20260628_trackA_spatial_dualseed_exact_on_active_v247
+
+- parent_version: `baseline_hh.py active -> reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v263` proved that the exact trusted active wrapper can be preserved inside
+    a Track A portfolio, but a single post-fallback spatial rescue candidate is
+    too weak to beat that wrapper.
+  - the next bounded Track A attempt should keep the same exact trusted wrapper
+    first, then spend leftover time on two deterministic spatial specialists
+    that embody different constructive hypotheses:
+    - `v250`-style min-slack plus large-footprint orientation-heavy wall/corner
+      constructive seed
+    - `v259`-style richer urgent-prefix spatial seed with stronger early
+      wall/corner / fragmentation bias
+    - optional exact latest-feasible slice on whichever spatial seed is best
+      under official `T`-first ordering
+  - final selection still remains:
+    trusted active wrapper vs best spatial specialist vs exact spatial rescue,
+    compared by accepted-for-score feasibility, then `T`, then objective.
+- implementation_note:
+  - runtime branch must stay feature-only:
+    `blocks`, `bays`, slack statistics, processing statistics, footprint/area
+    pressure, feasible bay pressure, preference concentration, and `w1/w2/w3`
+    pressure.
+  - do not branch on instance name, prob number, file name, row index, or
+    training lookup tables.
+  - expected target:
+    improve at least one of `prob_13 / 14 / 19` or the first20 Total `T`
+    aggregate while holding `prob_20`, `prob_33`, `prob_38`, and `prob_40`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 `T` gain or targeted residual-row gain, with no
+    regression on the active wrapper guard rows.
+- smoke:
+  - first attempt:
+    - `reports/ogc2026_reboot_v001/smoke_v264_trackA_spatial_20260628_001/`
+    - execution completed all `12/12` rows, but result publication stopped on a
+      cumulative CSV schema mismatch.
+    - recovery action:
+      rerun with a fresh reboot cumulative CSV path and immutable run suffix.
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/smoke_v264_trackA_spatial_20260628_002/`
+  - candidate-side status:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus trusted active smoke context:
+    - Total Objective `290700765 -> 290718543`
+    - Total T `32272 -> 32273`
+    - changed quality row:
+      - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - all other quality rows on the targeted set were unchanged
+      (`prob_11`, `prob_13`, `prob_19`, `prob_20`, `prob_25`, `prob_27`,
+      `prob_33`, `prob_38`, `prob_40`, plus tier guards `prob_1`, `prob_6`)
+  - interpretation:
+    - the dual-seed portfolio stayed feasible and stable under the exact trusted
+      wrapper, but the extra spatial specialist still reopened the fragile
+      `prob_14` lane and produced no compensating first20 gain.
+    - under the heartbeat contract, the candidate still advanced to a full
+      train40 ruling because smoke acceptance remained `12/12`.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v264_train40_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus canonical active full evidence:
+    - Total Objective `569663537 -> 569681315`
+    - Avg Objective `14241588.425 -> 14242032.875`
+    - Total T `59512 -> 59513`
+    - Avg T `1487.800 -> 1487.825`
+    - Total L `105327.0 -> 105327.0`
+    - Avg L `2633.175 -> 2633.175`
+    - Total P `167747.0 -> 167747.0`
+    - Avg P `4193.675 -> 4193.675`
+    - Avg Runtime `31.999s -> 33.058s`
+    - Max Runtime `56.525s -> 56.450s`
+    - first20 Total T `1492 -> 1493`
+    - first20 T>0 count `13 -> 13`
+  - readable comparison:
+    - the only quality change on train40 was:
+      - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - all other `39/40` rows changed only in `runtime_sec`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    the dual-seed spatial portfolio did exactly what it was supposed to do from
+    a safety perspective: keep `40/40` accepted rows and leave almost the whole
+    active surface untouched. But it still could not create a real Track A
+    first20 win. Instead it reopened `prob_14`, increasing first20 Total `T`
+    by `+1` and worsening Total Objective by `+17778`, so it is rejected.
+- next_structural_hypothesis:
+  - stop spending more time on external post-fallback spatial wrappers that
+    merely compete against the trusted active line after it is already built.
+  - the next bounded Track A candidate should move one level earlier:
+    keep the trusted active architecture, but inject a lighter inline
+    orientation / wall-hugging tie-break into the exact constructive path for a
+    very small urgent prefix, so the spatial decision can influence the
+    placement that currently creates the `prob_14` bottleneck without paying
+    wrapper-overhead on all rows.
+
+## 2026-06-28 reboot_v265_20260628_trackA_inline_spatial_subtype_portfolio_on_v247
+
+- parent_version: `baseline_hh.py active -> reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v264` showed that external post-fallback spatial wrappers are too blunt:
+    they stay safe, but they still tend to reopen `prob_14` while failing to
+    create a durable first20 gain.
+  - the next bounded Track A attempt should move the spatial idea one level
+    earlier and keep it inside the existing trusted `v241` stable-fourbay role
+    portfolio rather than around the whole active wrapper.
+  - keep the `v247` feature routing exactly:
+    - `prob11`-like ultra-tight lane -> trusted `v245`
+    - `prob33`-like runtime lane -> trusted `v081`
+    - general case -> `v241`-style route, but with one extra spatial subtype
+      specialist candidate only inside the stable four-bay role portfolio
+  - spatial subtype specialist requirements:
+    - use only feature-gated `prob13like / prob19like` lanes
+    - keep `prob14like` off the spatial branch
+    - use area-first / tight-slack ordering, explicit orientation comparison,
+      wall/corner candidate positions, and fragmentation-aware score
+    - compare against the trusted internal fallback candidates by official
+      `T`-first ordering
+    - optionally apply exact latest-feasible slice on the spatial candidate
+- implementation_note:
+  - runtime branch remains feature-only; no instance-name or row-id routing.
+  - expected target:
+    hold `prob_14`, `prob_20`, `prob_33`, `prob_38`, and `prob_40` flat while
+    trying to improve `prob_13` or `prob_19`, or reduce first20 Total `T`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 `T` gain or targeted residual-row gain, with no
+    regression on the active wrapper guard rows.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v265_trackA_spatial_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=6/12`
+    - timeout `6`
+    - invalid/error `0`
+  - representative failures:
+    - `prob_6`: TIMEOUT, runtime `77.32s`
+    - `prob_20`: TIMEOUT, runtime `90.01s`
+    - `prob_25`: TIMEOUT, runtime `63.71s`
+    - `prob_27`: TIMEOUT, runtime `90.03s`
+    - `prob_38`: TIMEOUT, runtime `90.03s`
+    - `prob_40`: TIMEOUT, runtime `90.04s`
+  - quality signal on accepted rows:
+    - `prob_13`: unchanged
+    - `prob_19`: unchanged
+    - `prob_14`: regressed to objective `3901754`, `T 186`
+  - interpretation:
+    - the inline spatial subtype idea itself was not what caused the smoke
+      collapse.
+    - the runtime architecture was wrong: `v265` eagerly computed the `v200`
+      portfolio before deciding whether the row even belonged to the modified
+      stable-fourbay route, so many non-target rows paid a full extra solve and
+      hit the watchdog.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    reject immediately on smoke because timeout safety failed (`6/12`
+    timeouts). This is a runtime-architecture rejection, not a proof against
+    the narrower inline spatial subtype hypothesis itself.
+- next_structural_hypothesis:
+  - keep the same `prob13like / prob19like` inline spatial subtype idea, but
+    repair the route ordering so non-target rows return directly to trusted
+    `v241` without paying the `v200` precomputation cost first.
+
+## 2026-06-28 reboot_v266_20260628_trackA_inline_spatial_subtype_portfolio_rtfix_on_v247
+
+- parent_version: `baseline_hh.py active -> reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v265` failed because of route ordering, not because the narrowed inline
+    spatial subtype portfolio was inherently bad.
+  - the next bounded fix should preserve the same `prob13like / prob19like`
+    spatial candidate inside the stable-fourbay role portfolio, but move the
+    route gate earlier so non-target rows return straight to trusted `v241`
+    before any `v200` precomputation occurs.
+  - keep `prob14like` off the spatial branch.
+- implementation_note:
+  - runtime priority first:
+    no row outside the modified stable-fourbay lane should do extra work.
+  - expected target:
+    recover smoke acceptance `12/12` with timeout `0`, then reassess whether
+    the narrowed spatial subtype can improve `prob_13` or `prob_19` while
+    holding `prob_14`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 `T` gain or targeted residual-row gain, with no
+    regression on the active wrapper guard rows.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v266_trackA_spatial_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=12/12`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus trusted active smoke context:
+    - Total Objective `290700765 -> 290718543`
+    - Total T `32272 -> 32273`
+    - changed quality row:
+      - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - all other quality rows on the targeted set were unchanged
+  - interpretation:
+    - the runtime architecture fix worked: smoke acceptance recovered from
+      `6/12` to `12/12`.
+    - but the narrowed inline subtype portfolio still converged to the same bad
+      quality surface as `v264`: no gain on `prob_13` or `prob_19`, and
+      `prob_14` reopened again.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v266_train40_20260628_001/`
+  - candidate-side status:
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side summary versus canonical active full evidence:
+    - Total Objective `569663537 -> 569681315`
+    - Avg Objective `14241588.425 -> 14242032.875`
+    - Total T `59512 -> 59513`
+    - Avg T `1487.800 -> 1487.825`
+    - Total L `105327.0 -> 105327.0`
+    - Avg L `2633.175 -> 2633.175`
+    - Total P `167747.0 -> 167747.0`
+    - Avg P `4193.675 -> 4193.675`
+    - Avg Runtime `31.999s -> 33.516s`
+    - Max Runtime `56.525s -> 59.136s`
+    - first20 Total T `1492 -> 1493`
+  - readable comparison:
+    - the only quality change on train40 was again:
+      - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+    - all other `39/40` rows changed only in runtime
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v266` repaired the route-order timeout bug from `v265`, but the underlying
+    inline spatial subtype idea still failed its quality goal. It reproduced
+    the same `prob_14` regression as `v264`, worsened first20 Total `T` by
+    `+1`, and increased runtime with no compensating gain.
+- next_structural_hypothesis:
+  - stop wrapping `v252`-style spatial builders around the stable-fourbay
+    portfolio; they keep collapsing onto the same `prob_14` regression surface.
+  - the next Track A candidate should move even deeper into the primitive
+    operators:
+    inject a tiny orientation / wall-hugging / fragmentation tie-break directly
+    into the exact-slice or quantile-single-reinsert move generation for the
+    `prob13like / prob19like` tardy shortlist, while keeping the active
+    portfolio structure itself unchanged.
+
+## 2026-06-28 reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247
+
+- recovery_note:
+  - after promotion wiring, the active `baseline_hh.py` wrapper recheck exposed
+    a recursive fallback loop because `v267` preserved fallback via the active
+    wrapper path instead of the direct trusted `v247` source.
+  - before any accepted publish decision, rewire the fallback to direct trusted
+    `v247`, then rerun targeted smoke, full train40, and active wrapper recheck
+    under fresh evidence bundles so source hash and trusted evidence realign.
+
+- parent_version: `baseline_hh.py active -> reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v264` and `v266` suggest the problem is not the trusted active portfolio
+    shape itself; the problem is that whole spatial builders keep perturbing
+    the same fragile `prob_14` surface.
+  - the next bounded Track A attempt should preserve the exact trusted active
+    wrapper result first, then on a much narrower feature-only gate
+    (`prob13like / prob19like`) run a primitive-level spatial reinsertion on
+    only the top tardy shortlist blocks.
+  - required spatial elements in the primitive path:
+    - explicit orientation order on the moved block
+    - wall/corner / edge-anchored candidate position generation
+    - fragmentation-aware tie-break in the move key
+    - T-first compare back against the trusted active fallback
+  - keep `prob14like` off the new spatial primitive lane.
+- implementation_note:
+  - do not change active wrapper routing.
+  - do not branch on instance name, prob id, file name, or training lookup.
+  - expected target:
+    improve `prob_13` or `prob_19`, or reduce first20 Total `T`, while holding
+    `prob_14`, `prob_20`, `prob_33`, `prob_38`, and `prob_40`.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_25`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`, `prob_40`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real first20 `T` gain or targeted residual-row gain, with no
+    regression on the active wrapper guard rows.
+- recovery_and_revalidation:
+  - initial active publish recheck on `baseline_hh.py` exposed a recursive
+    fallback loop because the original `v267` fallback loaded the live active
+    wrapper path after promotion.
+  - the recovery fix froze the trusted `v247` wrapper surface into a dedicated
+    snapshot helper and rerouted `baseline_hh.py` to load `v267` through an
+    isolated module loader for the official active surface.
+  - failed recovery probes are kept only as local non-canonical diagnostics and
+    are not part of the promoted evidence bundle.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v267_trackA_spatial_fallbacksnapshot_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - targeted row signal versus prior active trusted `v247` context:
+    - `prob_13`: objective `10197866 -> 9876799`, `T 516 -> 498`
+    - `prob_14`: objective `3777938 -> 3777938`, `T 180 -> 180`
+    - `prob_19`: objective `2147083 -> 2008665`, `T 147 -> 134`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+    - `prob_40`: objective `5780789 -> 5780789`, `T 8429 -> 8429`
+- direct_source_full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v267_fallbacksnapshot_train40_20260628_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side aggregate versus prior active trusted `v247`:
+    - Total Objective `569663537 -> 569204052`
+    - Total T `59512 -> 59481`
+    - first20 Total T `1492 -> 1461`
+    - changed rows:
+      - `prob_13`: objective `10197866 -> 9876799`, `T 516 -> 498`
+      - `prob_19`: objective `2147083 -> 2008665`, `T 147 -> 134`
+    - worst regression: `none`
+- active_wrapper_full:
+  - canonical evidence:
+    `reports/ogc2026_reboot_v001/full_active_v267_baseline_hh_py_20260628_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - official active-surface aggregate versus prior active trusted `v247`:
+    - Total Objective `569663537 -> 569285579`
+    - Avg Objective `14241588.425 -> 14232139.475`
+    - Total T `59512 -> 59488`
+    - Avg T `1487.800 -> 1487.200`
+    - Total L `105327.0 -> 105272.0`
+    - Avg L `2633.175 -> 2631.800`
+    - Total P `167747.0 -> 167853.0`
+    - Avg P `4193.675 -> 4196.325`
+    - Avg Runtime `32.00s -> 33.09s`
+    - Max Runtime `56.52s -> 57.98s`
+    - Total T change: `-24`
+    - first20 Total T `1492 -> 1468`
+    - first20 T>0 count `13 -> 13`
+    - high-T tail (`T>=1000`) sum `56718 -> 56718`
+    - changed rows:
+      - `prob_13`: objective `10197866 -> 9876799`, `T 516 -> 498`
+      - `prob_14`: objective `3777938 -> 3795716`, `T 180 -> 181`
+      - `prob_19`: objective `2147083 -> 2072414`, `T 147 -> 140`
+- active_wrapper_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v267_baseline_hh_py_20260628_004/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - recheck guard rows all remained accepted under the active wrapper surface.
+  - narrow reruns showed small row-level jitter, so canonical trust remains
+    anchored to the full active wrapper 40-row bundle.
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active`
+  - reason:
+    after the wrapper-recursion recovery and active-surface revalidation, `v267`
+    preserved `accepted_for_score=40/40`, timeout `0`, invalid `0`, reduced
+    official active-surface Total `T` from `59512` to `59488`, reduced first20
+    Total `T` from `1492` to `1468`, and kept the high-T tail unchanged.
+    The only active-surface regression was the small `prob_14 T 180 -> 181`
+    tradeoff, which was outweighed by stronger gains on `prob_13` and
+    `prob_19`, so the recovered wrapper line is promoted as the current trusted
+    BEST.
+
+## 2026-06-27 reboot_v240_20260627_trackA_first20_subgroup_role_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - the narrow prob11-like role portfolio in `v239` was structurally sound but
+    too narrow; the remaining first20 T is concentrated in a broader
+    `4-bay / lowproc / diffuse / tight-slack` subgroup spanning
+    `prob_10 / 11 / 13 / 14 / 15 / 17 / 19`.
+  - widen the stable-fourbay role portfolio from the narrow prob11-like pocket
+    to that broader first20 subgroup:
+    - trusted fallback candidate = current `v218` stable-fourbay chain
+    - fast constructive candidate = direct `v200` surface
+    - specialist candidate = exact latest-feasible slice on fast surface
+    - bounded repair candidate = exact latest-feasible slice on primary chain
+  - keep the best feasible candidate by official `T`-first ordering and see
+    whether a slightly broader first20 gate opens a real `T` improvement on
+    `prob_13 / 14 / 19` without harming the existing `prob_11` recovery.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_10`, `prob_13`, `prob_15`, `prob_17`, `prob_20`
+  - pre-smoke gate:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on the first20 subgroup aggregate or on at
+    least one of `prob_11 / 13 / 14 / 19`, with no regression on
+    `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v240_target_20260627_001/`
+  - `accepted_for_score=20/20`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_10`: objective `1274865 -> 1274865`, `T 66 -> 66`
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10197866`, `T 526 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_15`: objective `844023 -> 844023`, `T 25 -> 25`
+    - `prob_17`: objective `338183 -> 338183`, `T 13 -> 13`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - widening the gate from the narrow prob11-like pocket to the broader
+      first20 subgroup finally produced a real probe-stage Track A signal:
+      `prob_13 T 526 -> 516` without opening any targeted guard regression.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v240_trackA_20260627_001/`
+  - candidate-side status:
+    - `accepted_for_score=14/14`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v218` context:
+    - `prob_1`: objective `606628 -> 606628`, `T 8 -> 8`
+    - `prob_6`: objective `715812 -> 715812`, `T 7 -> 7`
+    - `prob_10`: objective `1274865 -> 1274865`, `T 66 -> 66`
+    - `prob_11`: objective `8911291 -> 8565801`, `T 377 -> 360`
+    - `prob_13`: objective `10383916 -> 10197866`, `T 526 -> 516`
+    - `prob_14`: objective `3901754 -> 3689680`, `T 186 -> 180`
+    - `prob_15`: objective `844023 -> 844023`, `T 25 -> 25`
+    - `prob_17`: objective `338183 -> 338183`, `T 13 -> 13`
+    - `prob_19`: objective `2288003 -> 2147083`, `T 157 -> 147`
+    - `prob_20`: objective `8239778 -> 5199740`, `T 278 -> 164`
+    - `prob_24`: objective `2981583 -> 2981583`, `T 166 -> 166`
+    - `prob_27`: objective `76004970 -> 75028700`, `T 5527 -> 5456`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: timeout / invalid `-> accepted_for_score`, objective
+      `175601056 -> 151254848`, `T 12944 -> 11120`
+  - bundle note:
+    - the full smoke bundle summary is `accepted_for_score=27/28` only because
+      the comparison-side direct `v218` row timed out on `prob_38`; the
+      candidate itself passed all 14 smoke rows under time.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v240_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - aggregate result versus canonical
+    `reports/ogc2026_reboot_v001/full_reboot_v218_train40_20260627_001/`:
+    - Total Objective `570068514 -> 570704121`
+    - Avg Objective `14251712.850 -> 14267603.025`
+    - Total T `59532 -> 59559`
+    - Avg T `1488.300 -> 1488.975`
+    - Total L `105568.0 -> 105419.0`
+    - Avg L `2639.200 -> 2635.475`
+    - Total P `167700.0 -> 167527.0`
+    - Avg P `4192.500 -> 4188.175`
+    - Avg Runtime `32.40s -> 35.01s`
+    - Max Runtime `55.98s -> 57.30s`
+  - per-instance comparison versus canonical:
+    - changed rows: `2`
+    - improvement:
+      - `prob_13`: objective `10383916 -> 10197866`, `T 526 -> 516`
+    - regression:
+      - `prob_11`: objective `8565801 -> 9387458`, `T 360 -> 397`
+    - first20 Total T: `1512 -> 1539`
+    - first20 T>0 count: unchanged
+    - high-T tail (`T>=1000`) sum: unchanged
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v240` was the first broader Track A subgroup portfolio to show a clean
+    probe and smoke signal, including real `T` gains on `prob_13` and a
+    smoke-side recovery on `prob_11 / 14 / 19 / 20 / 38`. But the full train40
+    benchmark reopened a hidden-risk regression on `prob_11`, where the row
+    slipped from canonical `T 360` to `T 397`. That single regression more than
+    erased the `prob_13` gain, so the candidate failed the full promotion gate
+    and remains rejected.
+
+## 2026-06-27 reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `accepted`
+- Track: `A`
+- hypothesis:
+  - `v240` proved that the broader first20 `4-bay / lowproc / diffuse /
+    tight-slack` subgroup can generate real Track A improvements, but the same
+    widened gate also reopened the hidden-risk `prob_11`-like full-train40
+    regression.
+  - split that Family A surface into two explicit subtype lanes:
+    - `prob11-like ultra-tight four-bay lane`: preserve the trusted narrow
+      `v218` recovery route as the default specialist
+    - `prob13/14/19-like broader first20 lane`: keep the wider `v240`
+      role-based subgroup portfolio where the new `T` signal actually appeared
+  - select between those lanes by lightweight feature rules only, then keep the
+    same official `T`-first feasible chooser and trusted fallback behavior.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_10`, `prob_13`, `prob_15`, `prob_17`, `prob_20`
+  - pre-smoke gate:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require canonical-or-better `prob_11` recovery (`T <= 360`) while keeping
+    the broader subgroup gain on at least one of `prob_13 / 14 / 19`.
+  - require no regression on `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v241_target_20260627_001/`
+  - `accepted_for_score=20/20`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_10`: objective `1274865 -> 1274865`, `T 66 -> 66`
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10197866`, `T 526 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_15`: objective `844023 -> 844023`, `T 25 -> 25`
+    - `prob_17`: objective `338183 -> 338183`, `T 13 -> 13`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - splitting the ultra-tight prob11-like lane away from the broader first20
+      subgroup preserved the trusted `prob_11 T 360` recovery while keeping the
+      `prob_13 T 526 -> 516` Track A signal.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v241_trackA_20260627_001/`
+  - `accepted_for_score=14/14`
+  - timeout `0`
+  - invalid/error `0`
+  - representative and targeted smoke rows all stayed accepted under time:
+    - `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, `prob_17`, `prob_19`, `prob_20`, `prob_24`, `prob_27`,
+      `prob_33`, `prob_38`
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v241_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - aggregate result versus canonical
+    `reports/ogc2026_reboot_v001/full_reboot_v218_train40_20260627_001/`:
+    - Total Objective `570068514 -> 569882464`
+    - Avg Objective `14251712.850 -> 14247061.600`
+    - Total T `59532 -> 59522`
+    - Avg T `1488.300 -> 1488.050`
+    - Total L `105568.0 -> 105568.0`
+    - Avg L `2639.200 -> 2639.200`
+    - Total P `167700.0 -> 167700.0`
+    - Avg P `4192.500 -> 4192.500`
+    - Avg Runtime `32.40s -> 32.33s`
+    - Max Runtime `55.98s -> 56.03s`
+  - per-instance comparison versus canonical:
+    - changed rows: `1`
+    - improvement:
+      - `prob_13`: objective `10383916 -> 10197866`, `T 526 -> 516`
+    - regression: `none`
+    - first20 Total T: `1512 -> 1502`
+    - first20 T>0 count: `13 -> 13`
+    - high-T tail (`T>=1000`) sum: unchanged
+- official_publish_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v241_baseline_hh_py_20260627_001/`
+  - `accepted_for_score=18/18`
+  - timeout `0`
+  - invalid/error `0`
+  - matched direct `v241` on objective / `T` / `L` / `P` for:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+      `prob_20`, `prob_33`, `prob_38`, `prob_40`
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_best`
+  - reason:
+    `v241` kept the trusted prob11-like recovery lane intact, preserved the
+    Family B guards, and converted the earlier probe/smoke signal into a clean
+    full-train40 improvement. The accepted surface changes only one row versus
+    canonical `v218`, improving `prob_13 T 526 -> 516` with no regressions, so
+    it qualifies as the new trusted active BEST.
+
+## 2026-06-27 reboot_v242_20260627_trackA_prob13like_exact_prefix_role_on_v241
+
+- parent_version: `reboot_v241_20260627_trackA_split_prob11_guard_from_first20_subgroup_on_v218`
+- status: `polish-only`
+- Track: `A`
+- hypothesis:
+  - `v241` solved the hidden-risk `prob_11` reopening by freezing the
+    ultra-tight prob11-like lane, but the accepted full improvement is still
+    concentrated in one residual `prob_13`-like pocket.
+  - keep `v241` as the trusted fallback and current stable-fourbay role
+    portfolio, then add one more bounded candidate role only on the narrow
+    `250-block / 4-bay / high-w1 / ultra-tight-slack` subtype:
+    - prob13-like exact-prefix specialist on top of the selected `v241` lane
+  - do not open that extra role on the broader subgroup; the explicit goal is
+    to preserve the frozen `prob_11` lane and avoid `prob_14` spillover while
+    trying to lower `prob_13` further.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_10`, `prob_13`, `prob_15`, `prob_17`, `prob_20`
+  - pre-smoke gate:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require canonical-or-better `prob_11` recovery (`T <= 360`).
+  - require an additional `prob_13` or first20 `T` improvement versus `v241`,
+    with no regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v242_target_20260627_001/`
+  - `accepted_for_score=20/20`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v241` context:
+    - `prob_10`: objective `1274865 -> 1274865`, `T 66 -> 66`
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10197866 -> 10197866`, `T 516 -> 516`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_15`: objective `844023 -> 844023`, `T 25 -> 25`
+    - `prob_17`: objective `338183 -> 338183`, `T 13 -> 13`
+    - `prob_19`: objective `2147083 -> 2147083`, `T 147 -> 147`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the extra exact-prefix role was benchmark-safe on the narrow prob13-like
+      lane, but it did not move any targeted row at all versus trusted `v241`.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v242` added a real extra candidate role only for the narrow prob13-like
+    pocket, but the targeted probe collapsed exactly back to the accepted
+    `v241` surface on every row. Because there was no additional `T` signal at
+    probe stage, the candidate was not advanced to smoke or full benchmark.
+
+## 2026-06-27 reboot_v239_20260627_trackA_prob11like_role_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - recent Track A cycles changed seeds, but the accepted surface kept
+    collapsing back to canonical `v218`.
+  - instead of more seed replay, make the stable-fourbay route itself an
+    explicit role-based portfolio on the narrow prob11-like Family A pocket:
+    - trusted fallback candidate = current `v218` stable-fourbay chain
+    - fast constructive candidate = direct `v200` surface
+    - specialist candidate = exact latest-feasible slice on `v200`
+    - bounded repair candidate = exact latest-feasible slice on the full
+      `v218` stable-fourbay result
+  - choose the best feasible candidate by official `T`-first ordering without
+    changing the trusted fallback route.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on `prob_11` or first20 aggregate, with no
+    regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v237_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus the same-run direct `v218` context:
+    - `prob_11`: objective `8565801 -> 8565801`, `T 360 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - widening the upstream retry to the `v186 / v194 / v195` multiseed
+      portfolio did not open a better branch on the main prob11-like target or
+      any of the guard rows; the final selected surface exactly matched the
+      trusted canonical `v218` line.
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v237` was structurally broader than `v236`, but the targeted probe still
+    collapsed to the same canonical `v218` result on every row. Because there
+    was no `T` improvement signal at probe stage, the candidate was not
+    advanced to smoke or full benchmark.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v236_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - against the same-run direct `v218` rows, `v236` restored the trusted
+    canonical Track A surface:
+    - `prob_11`: objective `9387458 -> 8565801`, `T 397 -> 360`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3883976 -> 3795716`, `T 186 -> 181`
+    - `prob_20`: objective `8239778 -> 5199740`, `T 278 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: timeout / invalid `-> accepted_for_score`, objective
+      `175601056 -> 151254848`, `T 12944 -> 11120`
+  - interpretation:
+    - the bounded upstream retry lane did not create a new better-than-canonical
+      row, but it did recover the trusted `v218` direct surface when the plain
+      same-run `v218` route drifted.
+- smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v236_trackA_20260627_001/`
+  - `accepted_for_score=11/11`
+  - timeout `0`
+  - invalid/error `0`
+  - the representative tier smoke held the recovered canonical row values for
+    the targeted prob11-like pocket and the Family B guard rows.
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v236_train40_20260627_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - aggregate result exactly matched the trusted canonical `v218` full surface:
+    - Total Objective `570068514`
+    - Avg Objective `14251712.850`
+    - Total T `59532`
+    - Avg T `1488.300`
+    - Total L `105568.0`
+    - Avg L `2639.200`
+    - Total P `167700.0`
+    - Avg P `4192.500`
+  - per-instance comparison versus canonical
+    `reports/ogc2026_reboot_v001/full_reboot_v218_train40_20260627_001/`:
+    - changed rows: `0`
+    - first20 Total T: `1512 -> 1512`
+    - T>0 count: `33 -> 33`
+    - high-T tail (`T>=1000`) sum: unchanged
+  - runtime note:
+    - Avg Runtime `32.40s -> 32.10s`
+    - Max Runtime `55.98s -> 55.75s`
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v236` added a real upstream retry portfolio and successfully stabilized the
+    canonical direct `v218` surface under the targeted probe, smoke, and full
+    train40 runs. But because the accepted full scoring surface was exactly the
+    same as trusted `v218` on every row, it did not satisfy the promotion gate
+    for a new BEST.
+
+## 2026-06-27 reboot_v237_20260627_trackA_prob11like_multiseed_retry_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v236` showed that a single upstream retry lane can recover the trusted
+    canonical `v218` direct surface when the main path drifts, but a single
+    retry seed still collapsed to the same accepted full-train40 result.
+  - on the narrow prob11-like Family A subtype only, widen that upstream retry
+    into a small multiseed portfolio:
+    - `v186` warm repair seed
+    - `v194` four-bay inline seed
+    - `v195` window-reorder seed
+  - keep the trusted `v218` route as the primary candidate, but reserve a
+    bounded slice of time for those alternate upstream seeds and pass each
+    feasible seed through the same stable-fourbay chain before picking the
+    final best feasible candidate by official `T`-first ordering.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on `prob_11` or first20 aggregate, with no
+    regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v234_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 8918500`, `T 360 -> 376`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3777938`, `T 181 -> 180`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - the dual-arm midrepair kept the local prob14-like gain, but on the main
+      target row it pulled the branch away from the trusted `prob_11 T 360`
+      line and stopped at `T 376`.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v234` combined two local midrepair arms, but the interaction still harmed
+    the primary prob11-like target at probe stage. Because the target row
+    regressed before smoke, the candidate was stopped after the targeted probe.
+
+## 2026-06-27 reboot_v235_20260627_trackA_prob11like_window_seed_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - the recent diagnostics suggest the key drift is not the later midrepair arm
+    alone, but which seed reaches the window stage after the multiblock choice.
+  - on a narrow prob11-like subtype only, preserve both seed states through the
+    window stage:
+    - pre-multiblock seed
+    - post-multiblock seed
+  - run bounded window-reorder candidates from both seeds with split budget,
+    choose the better feasible seed by `T`-first ordering, then continue the
+    existing downstream stable-fourbay flow unchanged.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on `prob_11` or first20 aggregate, with no
+    regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v235_target_20260627_001/`
+  - `accepted_for_score=6/6`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows versus trusted canonical `v218` context:
+    - `prob_11`: objective `8565801 -> 9136031`, `T 360 -> 386`
+    - `prob_13`: objective `10383916 -> 10383916`, `T 526 -> 526`
+    - `prob_14`: objective `3795716 -> 3795716`, `T 181 -> 181`
+    - `prob_20`: objective `5199740 -> 5199740`, `T 164 -> 164`
+    - `prob_33`: objective `26172225 -> 26172225`, `T 3805 -> 3805`
+    - `prob_38`: objective `151254848 -> 151254848`, `T 11120 -> 11120`
+  - interpretation:
+    - keeping both pre/post-multiblock seeds alive through the window stage did
+      not stabilize the prob11-like pocket; it instead steered the target row
+      onto a worse `T 386` branch.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v235` moved the branching earlier as intended, but the extra seed
+    portfolio harmed the primary target row at probe stage. Because the
+    prob11-like target regressed before smoke, the candidate was stopped after
+    the targeted probe.
+
+## 2026-06-27 reboot_v236_20260627_trackA_prob11like_upstream_retry_portfolio_on_v218
+
+- parent_version: `reboot_v218_20260627_trackA_dense_fourbay_deep_chain_on_v217`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the recent diagnostics suggest the main `prob_11` drift starts upstream of
+    the later multiblock / window / midrepair chain, around the narrow
+    `v186 -> v194 -> v195 -> v200` seed formation path.
+  - on a narrow prob11-like Family A subtype only, keep the trusted `v218`
+    stable-fourbay line as the primary route, but explicitly reserve a small
+    retry budget for one alternate upstream seed rebuilt from `v194`.
+  - run the standard stable-fourbay chain first with a bounded retry reserve,
+    then use the reserved budget to rebuild a `v194` alternate seed and pass
+    it through the same stable-fourbay chain; keep the better feasible final
+    candidate by official `T`-first ordering.
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_38`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - pre-smoke gate:
+    `prob_11`, `prob_13`, `prob_14`, `prob_20`, `prob_33`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`.
+  - require a real `T` improvement on `prob_11` or first20 aggregate, with no
+    regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.

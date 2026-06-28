@@ -1,0 +1,43 @@
+{
+  "run_id": "smoke_v267_trackA_spatial_fallbacksnapshot_20260628_001",
+  "timestamp": "2026-06-28T11:34:53",
+  "summary": {
+    "total": 12,
+    "feasible": 12,
+    "accepted_for_score": 12,
+    "checker_feasible": 12,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 290028385.0,
+    "objective_avg": 24169032.083333332,
+    "obj1_sum": 32232.0,
+    "obj1_avg": 2686.0,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2819.4166666666665,
+    "obj3_avg": 5222.083333333333,
+    "runtime_sum": 508.301087,
+    "runtime_avg": 42.358423916666666,
+    "runtime_max": 56.404983
+  },
+  "algorithms": [
+    {
+      "name": "baseline_hh",
+      "version": "reboot_v267_fallbacksnapshot",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_25.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_38.json",
+    "train\\prob_40.json"
+  ]
+}

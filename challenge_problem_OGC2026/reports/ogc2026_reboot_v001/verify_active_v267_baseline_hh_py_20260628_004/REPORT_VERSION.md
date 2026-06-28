@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `verify_active_v267_baseline_hh_py_20260628_004`
+- algorithm_version: `baseline_hh.py -> reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247`
+- parent_algorithm_version: `reboot_v247_20260627_trackA_prob11plus_prob33_direct_selector_on_v241`
+- run_id: `verify_active_v267_baseline_hh_py_20260628_004`
+- timestamp: `2026-06-28T12:42:16`
+- git_branch: `hh_algorithm_loop`
+- git_head: `b2236bb3`
+- git_dirty: `True`
+- algorithm_sha256: `54554217a12ad9573cf5138d199da92b4a1df9a13fda67a35fe36142533d4688`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `8`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `212,453,434`
+- Avg Objective: `26,556,679.250`
+- Total T: `24,682`
+- Avg T: `3,085.250`
+- Total L: `28,163.0`
+- Avg L: `3,520.375`
+- Total P: `48,859.0`
+- Avg P: `6,107.375`
+- decision label: `accepted recheck`
+- promotion status: `targeted active wrapper publish recheck passed`
