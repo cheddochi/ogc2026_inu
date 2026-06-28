@@ -1,0 +1,49 @@
+{
+  "run_id": "compare_v267_direct_v280_publish_20260628_001",
+  "timestamp": "2026-06-28T21:41:10",
+  "summary": {
+    "total": 26,
+    "feasible": 26,
+    "accepted_for_score": 26,
+    "checker_feasible": 26,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 369098086.0,
+    "objective_avg": 14196080.23076923,
+    "obj1_sum": 32624.0,
+    "obj1_avg": 1254.7692307692307,
+    "obj1_max": 5456.0,
+    "obj2_avg": 2236.923076923077,
+    "obj3_avg": 4733.7307692307695,
+    "runtime_sum": 1074.955047,
+    "runtime_avg": 41.34442488461538,
+    "runtime_max": 58.994603
+  },
+  "algorithms": [
+    {
+      "name": "hh_v267_direct",
+      "version": "reboot_v267_direct",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v267_20260628_trackA_spatial_primitive_reinsert_on_active_v247.py"
+    },
+    {
+      "name": "hh_active",
+      "version": "baseline_hh_v280_cmp",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_9.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_24.json",
+    "train\\prob_27.json",
+    "train\\prob_33.json",
+    "train\\prob_36.json",
+    "train\\prob_39.json"
+  ]
+}

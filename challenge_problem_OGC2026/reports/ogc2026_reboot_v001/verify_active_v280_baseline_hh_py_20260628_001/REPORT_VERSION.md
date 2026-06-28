@@ -1,0 +1,26 @@
+# Report Version
+
+- report_version_id: `verify_active_v280_baseline_hh_py_20260628_001`
+- algorithm_version: `baseline_hh.py -> reboot_v280_20260628_baseline_surface_direct_import_v278`
+- parent_algorithm_version: `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- run_id: `verify_active_v280_baseline_hh_py_20260628_001`
+- timestamp: `2026-06-28T21:59:22`
+- git_branch: `hh_algorithm_loop`
+- git_head: `f20dec35`
+- git_dirty: `True`
+- algorithm_sha256: `6faf2d12c5762b7c633af7c0424fcf6c319d170db24d0e7974c8d9ccbc788c99`
+- checker_sha256: `9dfaa0ac5fa3e0f16fdfb0890e11b4cb64ea59b8edee029a9c4f13a2c52538b0`
+- official_limit/timelimit: `60.0`
+- accepted_for_score count: `40`
+- timeout count: `0`
+- invalid/error count: `0`
+- Total Objective: `568,931,012`
+- Avg Objective: `14,223,275.300`
+- Total T: `59,481`
+- Avg T: `1,487.025`
+- Total L: `104,780.0`
+- Avg L: `2,619.500`
+- Total P: `166,030.0`
+- Avg P: `4,150.750`
+- decision label: `accepted`
+- promotion status: `official baseline_hh active surface promoted; current-tree trusted BEST`
