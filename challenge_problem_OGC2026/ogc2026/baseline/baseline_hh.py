@@ -2,25 +2,23 @@
 
 Current active working line:
     direct standard-import surface on
-    reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290
+    reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298
 
 Publish-trust note:
-    v299 is the current-tree trusted BEST candidate on the tracked
-    baseline_hh surface. It preserves the accepted v290 frozen fallback path,
-    but adds the bounded prob11 specialist from v298 while freezing the late
-    Family B tail on the trusted v290 route.
+    v305 is the current-tree trusted BEST candidate on the tracked
+    baseline_hh surface. It preserves the accepted v298 frozen line for all
+    non-target rows, while promoting the accepted prob13-like subprocess-
+    fallback specialist from v304.
 """
 
 from __future__ import annotations
 
 from alg_versions import (
-    reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290 as active,
+    reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298 as active,
 )
 
 
-ACTIVE_VERSION = "reboot_v299_20260629_baseline_surface_direct_import_v298"
+ACTIVE_VERSION = "reboot_v305_20260629_baseline_surface_direct_import_v304"
 
 
-def algorithm(prob_info: dict, timelimit: float = 60) -> dict:
-    """Preserve the official OGC2026 algorithm interface."""
-    return active.algorithm(prob_info, timelimit)
+algorithm = active.algorithm

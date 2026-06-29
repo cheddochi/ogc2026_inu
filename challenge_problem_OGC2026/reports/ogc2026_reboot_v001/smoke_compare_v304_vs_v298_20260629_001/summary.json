@@ -1,0 +1,51 @@
+{
+  "run_id": "smoke_compare_v304_vs_v298_20260629_001",
+  "timestamp": "2026-06-29T20:51:14",
+  "summary": {
+    "total": 30,
+    "feasible": 30,
+    "accepted_for_score": 30,
+    "checker_feasible": 30,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 571683082.0,
+    "objective_avg": 19056102.733333334,
+    "obj1_sum": 63474.0,
+    "obj1_avg": 2115.8,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2561.8333333333335,
+    "obj3_avg": 5515.366666666667,
+    "runtime_sum": 1251.971602,
+    "runtime_avg": 41.732386733333335,
+    "runtime_max": 58.039914
+  },
+  "algorithms": [
+    {
+      "name": "hh_active",
+      "version": "v298_direct_smoke",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290.py"
+    },
+    {
+      "name": "hh",
+      "version": "v304_smoke",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_24.json",
+    "train\\prob_28.json",
+    "train\\prob_33.json",
+    "train\\prob_36.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}

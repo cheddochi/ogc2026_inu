@@ -16522,7 +16522,7 @@
 
 ### Wrapper publish recheck
 
-- status: `candidate`
+- status: `accepted`
 - wrapper_recheck_evidence:
   - `reports/ogc2026_reboot_v001/verify_active_v187_publish_20260625_001`
 - scoreability:
@@ -20437,6 +20437,416 @@
     the frozen fallback and look for a second specialist lane beyond prob11,
     most likely a prob14like or broader four-bay residual lane that can reduce
     first20 Total `T` further without touching the late Family B surface.
+
+## 2026-06-29 reboot_v300_20260629_trackA_prob14like_narrow_on_v298
+
+- parent_version:
+  `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - `v298` safely isolated the prob11like gain by freezing the late Family B
+    tail on trusted `v290`, so the next bounded cycle can keep that line
+    untouched and add a second narrow Family A specialist.
+  - target only the prob14like four-bay residual lane on top of the trusted
+    `v298` fallback and compare:
+    - trusted `v298` fallback
+    - narrow spatial primitive reinsertion
+    - narrow spatial plus tiny window reorder
+  - do not touch prob11like, prob13like, prob19like, or any late Family B row
+    unless the feature gate explicitly selects the prob14like lane.
+- feature_gate:
+  - narrow prob14like lane only:
+    - `4 bays`
+    - around `250 blocks`
+    - Family A tight slack but slightly looser than prob11
+    - higher area pressure than the prob11 lane
+  - fallback remains direct `v298`, so non-target rows keep the current trusted
+    line unchanged.
+- compare_against:
+  - trusted fallback:
+    `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- expected_metric_target:
+  - preserve accepted smoke on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - preserve the new `prob_11 T 342` gain
+  - reduce first20 Total `T` through a real prob14like specialist gain rather
+    than fallback drift
+- smoke_compare:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v300_vs_active_20260629_001/`
+  - `accepted_for_score=13/15`
+  - timeout `2`
+  - invalid/error `2`
+  - first20 targeted smoke comparison versus trusted active `v299/v298`:
+    - first20 Total `T`: `1384 -> 1379`
+    - first20 `T>0` count: `8 -> 8`
+    - `prob_11`: `T 341 -> 342`, objective `8131210 -> 8164735`
+    - `prob_14`: `T 187 -> 181`, objective `3901754 -> 3795716`
+    - `prob_19`: identical `T 123`
+    - `prob_20`: identical `T 164`
+  - Family B guard rows:
+    - `prob_36`: accepted preserved, identical `T 2010`
+    - `prob_38`: accepted preserved, identical `T 11120`
+    - `prob_39`: `accepted_for_score true -> false`, runtime `57.02s -> 64.89s`
+    - `prob_40`: `accepted_for_score true -> false`, runtime `56.99s -> 60.71s`,
+      `T 8429 -> 8622`
+  - interpretation:
+    - the explicit prob14like specialist did not earn the visible `prob_14`
+      gain; the run log shows the fallback candidate already reached `T 181`
+      and the narrow spatial branch accepted no better move.
+    - the candidate still opened runtime regressions on late Family B guard rows
+      before any beneficial local move landed, which means the extra subtype
+      feature extraction cost is too expensive to pay on non-target rows.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v300` failed the smoke gate with timeout/invalid rows on `prob_39` and
+    `prob_40`. The only Family A improvement signal came from fallback drift
+    rather than an accepted specialist move, so this candidate cannot be kept
+    even as a guarded training-best surface.
+  - next_hypothesis:
+    - build `reboot_v301_20260629_trackA_prob14like_cheap_prefilter_on_v298`
+      with a cheap Family A / prob14like prefilter ahead of the expensive
+      orientation-area subtype scan.
+    - only compute the heavy spatial subtype features after a narrow cheap gate
+      on `bays`, `blocks`, `w1`, `proc_mean`, and `slack_mean` passes, so late
+      Family B rows stay on direct trusted `v298` timing behavior.
+
+## 2026-06-29 reboot_v301_20260629_trackA_prob14like_cheap_prefilter_on_v298
+
+- parent_version:
+  `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v300` showed that paying the expensive orientation-area subtype scan on
+    non-target rows is enough to break the late Family B runtime guard, while
+    the visible `prob_14` improvement came from fallback drift before any local
+    specialist move was accepted.
+  - keep the trusted `v298` fallback exactly as-is, but add a cheap
+    prob14like prefilter ahead of the heavy subtype extraction so non-target
+    rows return to direct trusted timing behavior.
+  - only rows that pass the cheap Family A / prob14like envelope should pay the
+    extra spatial feature extraction and bounded specialist tail.
+- feature_gate:
+  - cheap prefilter before heavy spatial subtype extraction:
+    - `4 bays`
+    - around `250 blocks`
+    - `w1` in the prob14like band
+    - Family A tight slack profile from the cheap selector
+    - no expensive orientation-area scan unless the cheap gate passes
+- compare_against:
+  - trusted fallback:
+    `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- expected_metric_target:
+  - restore smoke accepted_for_score `15/15`, timeout `0`, invalid/error `0`
+  - preserve `prob_11 T 342`
+  - preserve `prob_39` / `prob_40` accepted runtime guard
+  - only continue to full benchmark if a real accepted prob14like or first20
+    `T` gain appears beyond plain fallback drift
+- smoke_compare:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v301_vs_active_20260629_001/`
+  - `accepted_for_score=13/15`
+  - timeout `2`
+  - invalid/error `2`
+  - first20 targeted smoke comparison versus active smoke surface:
+    - first20 Total `T`: `1404 -> 1379`
+    - first20 `T>0` count: `8 -> 8`
+    - `prob_11`: `T 367 -> 342`
+    - `prob_14`: unchanged `T 181`
+  - Family B guard rows:
+    - `prob_36`: accepted preserved
+    - `prob_38`: accepted preserved
+    - `prob_39`: `accepted_for_score true -> false`, runtime `57.43s -> 60.82s`
+    - `prob_40`: `accepted_for_score true -> false`, runtime `56.23s -> 60.59s`,
+      `T 8429 -> 8622`
+  - interpretation:
+    - the tighter prefilter reduced the runtime damage versus `v300`, but it
+      still reopened the late Family B cliff.
+    - the visible Family A gain was not a fresh prob14like specialist win; the
+      candidate mostly re-exposed the already known trusted prob11/prob14 line.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v301` still failed the smoke gate on `prob_39` and `prob_40`, so it
+    cannot be promoted or kept as a trusted training-best surface.
+
+## 2026-06-29 reboot_v302_20260629_trackA_prob14like_window_portfolio_on_v298
+
+- parent_version:
+  `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v300` / `v301` showed two things clearly:
+    - the visible `prob_14` signal came from the trusted `v298` fallback itself
+      rather than from an accepted spatial move
+    - wrapper-side subtype work is enough to reopen the late Family B runtime
+      cliff if non-target rows pay for it
+  - therefore the next bounded cycle should stop comparing against the
+    `baseline_hh.py` surface inside smoke and instead compare directly against
+    trusted `v298`, while restricting the specialist to an exact prob14like
+    metadata lane only.
+  - on that exact lane, compare at least three candidates:
+    - trusted `v298` fallback
+    - bounded `window-only` local reorder on the trusted fallback
+    - bounded `spatial -> window` chain, but only if the window-only arm does
+      not already dominate
+- feature_gate:
+  - exact prob14like metadata lane only:
+    - `4 bays`
+    - around `250 blocks`
+    - `w1` near the prob14 band
+    - short processing / tight slack Family A profile
+    - no specialist work on any other row
+- compare_against:
+  - trusted fallback:
+    `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- expected_metric_target:
+  - preserve accepted smoke on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - keep `prob_11 T 342`
+  - only advance if direct same-batch comparison against `v298` shows a real
+    accepted prob14like or first20 `T` gain
+- smoke_compare:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v302_vs_v298_20260629_001/`
+  - `accepted_for_score=14/15`
+  - timeout `1`
+  - invalid/error `1`
+  - direct same-batch comparison versus trusted `v298`:
+    - first20 Total `T`: `1379 -> 1379`
+    - first20 `T>0` count: `8 -> 8`
+    - `prob_11`: unchanged `T 342`
+    - `prob_14`: unchanged `T 181`
+    - `prob_19`: unchanged `T 123`
+    - `prob_20`: unchanged `T 164`
+  - Family B guard rows:
+    - `prob_36`: accepted preserved
+    - `prob_38`: accepted preserved
+    - `prob_39`: accepted preserved, runtime stayed under limit
+    - `prob_40`: `accepted_for_score true -> false`, runtime `56.34s -> 60.43s`,
+      `T 8429 -> 8622`
+  - direct target-row log:
+    - `prob_14` specialist trace ended with:
+      `trusted_active_fallback`, `window_only_prob14like`, and
+      `narrow_spatial_prob14like` all tied at `T 181`
+  - interpretation:
+    - this is the cleanest prob14like verdict so far: the exact metadata gate
+      successfully isolated the lane and protected `prob_39`, but the
+      specialist still produced no accepted improvement over direct trusted
+      `v298`.
+    - because `prob_40` still regressed to timeout and the target lane showed
+      zero `T` gain, the prob14like branch should be considered exhausted for
+      now.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v302` failed the smoke gate on `prob_40` and produced no direct Family A
+    gain over trusted `v298`.
+  - next_hypothesis:
+    - pivot the next bounded Track A cycle away from prob14like and toward a
+      new exact-gated prob13like or other residual Family A lane that still has
+      measurable direct headroom over `v298`.
+
+## 2026-06-29 reboot_v303_20260629_trackA_prob13like_exact_portfolio_on_v298
+
+- parent_version:
+  `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the prob14like lane is now exhausted: direct same-batch comparison against
+    trusted `v298` showed no accepted improvement at all.
+  - the next bounded cycle should pivot to the cleaner prob13like residual
+    lane, whose feature signature is narrower and whose earlier research history
+    pointed to exact-prefix / exact-slice style improvement.
+  - compare at least these direct `v298`-anchored candidates on that exact lane:
+    - trusted `v298` fallback
+    - exact-only candidate on the trusted fallback
+    - bounded spatial candidate
+    - bounded spatial -> exact candidate
+- feature_gate:
+  - exact prob13like lane only:
+    - `4 bays`
+    - around `250 blocks`
+    - high `w1`
+    - ultra-tight slack / high tight-slack ratio
+    - low preference concentration
+    - no specialist work on any other row
+- compare_against:
+  - trusted fallback:
+    `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- expected_metric_target:
+  - preserve accepted smoke on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - keep `prob_11 T 342`, `prob_14 T 181`, `prob_19 T 123`, `prob_20 T 164`
+  - only advance if direct same-batch comparison against `v298` shows a real
+    accepted `prob_13` or first20 `T` gain
+  - improve `prob_14` or first20 Total `T` without reopening the late-tail
+    guard surface
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`
+  - require first20 Total `T` improvement or a real `prob_14` gain, with no
+    regression on the trusted `prob_11` / Family B guard surface
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v303_vs_v298_20260629_001/`
+  - accepted_for_score:
+    - active `15/15`
+    - candidate `15/15`
+  - timeout:
+    - active `0`
+    - candidate `0`
+  - invalid/error:
+    - active `0`
+    - candidate `0`
+  - direct same-batch row deltas versus trusted `v298`:
+    - `prob_13`: objective `9695535 -> 9583645`, `T 488 -> 482`
+    - `prob_40`: objective `144846930 -> 148061721`, `T 8429 -> 8622`
+    - all other targeted smoke rows held their `T` values
+      (`prob_10`, `prob_11`, `prob_14`, `prob_19`, `prob_20`,
+      `prob_24`, `prob_28`, `prob_33`, `prob_36`, `prob_38`, `prob_39`,
+      plus tier guards `prob_1`, `prob_6`)
+  - aggregate interpretation:
+    - first20 targeted smoke Total `T` improved `1379 -> 1373`
+    - first20 targeted smoke avg `T` improved `172.375 -> 171.625`
+    - first20 targeted smoke `T>0` count held `8 -> 8`
+    - overall smoke Total `T` worsened by `+187` because the single
+      `prob_40` regression outweighed the `prob_13` gain
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v303` produced a real direct same-batch Family A gain on the intended
+    `prob13like` row (`prob_13 T 488 -> 482`) while keeping the rest of the
+    targeted first20 residual set flat. But Family B guard `prob_40` regressed
+    (`T 8429 -> 8622`), so the candidate cannot advance to full40 promotion.
+    Under the current heartbeat contract this is kept as training-best-only
+    evidence rather than discarded, because the Track A signal is real and
+    should be salvaged behind a stricter trusted fallback route.
+- next_hypothesis:
+  - keep the same exact `prob13like` specialist portfolio, but harden the
+    trusted fallback path for narrow 4-bay non-target rows by building the
+    preserved `v298` fallback through an isolated subprocess route instead of
+    a direct in-process call. The next cycle should only advance if that
+    stronger fallback freeze preserves the `prob_13` gain without reopening
+    `prob_40`.
+
+## 2026-06-29 reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298
+
+- parent_version:
+  `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v303` proved the narrow `prob13like` signal is real, but the preserved
+    fallback path was not isolated enough: the candidate improved `prob_13`
+    while reopening `prob_40`.
+  - the next bounded cycle should keep the same exact `prob13like` candidate
+    roles:
+    - trusted `v298` fallback
+    - exact-only candidate
+    - bounded spatial candidate
+    - bounded spatial -> exact candidate
+  - but for the whole narrow 4-bay lane, build the trusted `v298` fallback by
+    an isolated subprocess trampoline targeting the exact `v298` file, so late
+    Family B guard rows run through a route closer to the direct benchmark
+    surface.
+- feature_gate:
+  - same exact `prob13like` envelope as `v303`
+  - narrow 4-bay rows may pay the isolated fallback call
+  - all other rows return directly to trusted `v298`
+- compare_against:
+  - trusted fallback:
+    `reboot_v298_20260629_trackA_prob11_rescue_with_familyB_tail_freeze_on_v290`
+- expected_metric_target:
+  - preserve accepted smoke on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - keep the `prob_13` gain from `v303`
+  - only advance if direct same-batch comparison against `v298` shows
+    first20 Total `T` improvement with no Family B guard regression
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v304_vs_v298_20260629_001/`
+  - accepted_for_score:
+    - active `15/15`
+    - candidate `15/15`
+  - timeout:
+    - active `0`
+    - candidate `0`
+  - invalid/error:
+    - active `0`
+    - candidate `0`
+  - direct same-batch row deltas versus trusted `v298`:
+    - `prob_13`: objective `9695535 -> 9583645`, `T 488 -> 482`
+    - all other targeted smoke rows held their `T` values, including
+      Family B guard `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - aggregate interpretation:
+    - first20 targeted smoke Total `T` improved `1379 -> 1373`
+    - first20 targeted smoke avg `T` improved `172.375 -> 171.625`
+    - first20 targeted smoke `T>0` count held `8 -> 8`
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v304_vs_v298_train40_20260629_001/`
+  - candidate-side status:
+    - `accepted_for_score=40/40`
+    - timeout `0`
+    - invalid/error `0`
+  - same-batch full delta versus trusted `v298`:
+    - Total Objective `568437850 -> 568325960`
+    - Total T `59451 -> 59445`
+    - Avg T `1486.275 -> 1486.125`
+    - first20 Total T `1431 -> 1425`
+    - first20 avg T `71.55 -> 71.25`
+    - first20 T>0 count `12 -> 12`
+    - changed quality row:
+      - `prob_13`: objective `9695535 -> 9583645`, `T 488 -> 482`
+- publish_surface_recheck:
+  - failed_first_try:
+    - evidence:
+      `reports/ogc2026_reboot_v001/verify_active_v305_baseline_hh_py_20260629_001/`
+    - issue:
+      baseline surface routed through a tiny wrapper function and reopened the
+      `prob_39` runtime cliff (`57.42s -> 60.31s`, timeout).
+  - guard_recovery_probe:
+    - evidence:
+      `reports/ogc2026_reboot_v001/guard_recheck_v305_alias_prob31_38_39_40_20260629_001/`
+    - result:
+      direct alias export `algorithm = active.algorithm` restored accepted
+      runtime on `prob_31`, `prob_38`, `prob_39`, `prob_40`.
+  - canonical_recheck:
+    - evidence:
+      `reports/ogc2026_reboot_v001/verify_active_v305_baseline_hh_py_alias_20260629_002/`
+    - wrapper-side status:
+      - `accepted_for_score=40/40`
+      - timeout `0`
+      - invalid/error `0`
+    - wrapper matched direct `v304` quality row-for-row:
+      - Total Objective `568325960`
+      - Total T `59445`
+      - first20 Total T `1425`
+      - changed quality rows versus direct `v304`: none
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_surface`
+  - new_active_surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+  - reason:
+    `v304` converted the earlier training-only prob13-like signal into a
+    publish-safe accepted line. It preserved `accepted_for_score=40/40`,
+    timeout `0`, invalid/error `0`, improved Total `T` by `-6`, improved
+    first20 Total `T` by `-6`, and after thinning the active surface to a
+    direct alias export, the canonical wrapper recheck matched the promoted
+    direct candidate row-for-row.
 
 ## 2026-06-29 reboot_v292_20260629_trackA_frozen_v279_subprocess_split_specialists
 

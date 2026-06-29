@@ -1,0 +1,40 @@
+{
+  "run_id": "guard_recheck_v305_alias_prob31_38_39_40_20260629_001",
+  "timestamp": "2026-06-29T22:42:14",
+  "summary": {
+    "total": 8,
+    "feasible": 8,
+    "accepted_for_score": 8,
+    "checker_feasible": 8,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 489571700.0,
+    "objective_avg": 61196462.5,
+    "obj1_sum": 51610.0,
+    "obj1_avg": 6451.25,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2719.5,
+    "obj3_avg": 10386.0,
+    "runtime_sum": 450.641822,
+    "runtime_avg": 56.33022775,
+    "runtime_max": 57.587459
+  },
+  "algorithms": [
+    {
+      "name": "wrapper",
+      "version": "baseline_hh_v305_alias",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    },
+    {
+      "name": "direct",
+      "version": "v304_direct_guard",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_31.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
