@@ -1,0 +1,37 @@
+{
+  "run_id": "target_recheck_v290_prob38_20260629_001",
+  "timestamp": "2026-06-29T10:24:55",
+  "summary": {
+    "total": 2,
+    "feasible": 2,
+    "accepted_for_score": 2,
+    "checker_feasible": 2,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 302509696.0,
+    "objective_avg": 151254848.0,
+    "obj1_sum": 22240.0,
+    "obj1_avg": 11120.0,
+    "obj1_max": 11120.0,
+    "obj2_avg": 3894.0,
+    "obj3_avg": 9947.0,
+    "runtime_sum": 115.01334800000001,
+    "runtime_avg": 57.506674000000004,
+    "runtime_max": 57.780591
+  },
+  "algorithms": [
+    {
+      "name": "hh_active",
+      "version": "baseline_hh_v280_prob38_recheck",
+      "path": "ogc2026\\baseline\\baseline_hh.py"
+    },
+    {
+      "name": "hh",
+      "version": "v290_prob38_recheck",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v290_20260629_trackA_frozen_v278_subprocess_split_specialists.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_38.json"
+  ]
+}

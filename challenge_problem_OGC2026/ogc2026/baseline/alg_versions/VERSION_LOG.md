@@ -16428,7 +16428,7 @@
 ## 2026-06-25 reboot_v187_20260625_familyA_multiblock_warm_repair_on_v186 (in progress)
 
 - parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
-- status: `candidate`
+- status: `rejected`
 - Track: `A`
 - focus_family: `Family A T-zero multi-block warm repair`
 - target_subtype:
@@ -20301,6 +20301,954 @@
   - require accepted `40/40`, timeout `0`, invalid/error `0`.
   - require a real `T` improvement on `prob_11` or first20 aggregate, with no
     regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v283_vs_active_direct_20260629_001/`
+  - active control:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total `T 27494`
+    - first20 Total `T 1349`
+  - candidate `v283`:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total `T 27642`
+    - first20 Total `T 1327`
+  - same-batch targeted deltas versus active:
+    - `prob_13`: `T 498 -> 488`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_19`: `T 140 -> 128`
+    - `prob_36`: `T 2077 -> 2247`
+    - `prob_39`: `T 3521 -> 3521`, accepted preserved
+  - interpretation:
+    - the narrow gate did what it was meant to do on the Track A targets:
+      it improved `prob_13` and `prob_19` while leaving `prob_39` scoreable.
+    - however, same-batch smoke still showed a non-target `prob_36` regression,
+      so the candidate needed a full-train confirmation before any promotion.
+- full_revalidation:
+  - evidence:
+    `reports/ogc2026_reboot_v001/revalidate_v283_vs_active_train40_20260629_001/`
+  - active control:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568931012`
+    - Total `T 59481`
+    - first20 Total `T 1461`
+    - first20 `T>0 count 12`
+    - high-`T` tail sum `56718`
+  - candidate `v283`:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568709055`
+    - Total `T 59509`
+    - first20 Total `T 1444`
+    - first20 `T>0 count 12`
+    - high-`T` tail sum `56763`
+  - changed rows:
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_14`: `T 181 -> 180`, objective `3795716 -> 3782562`
+    - `prob_19`: `T 134 -> 128`, objective `2008665 -> 1950019`
+    - `prob_36`: `T 2010 -> 2055`, objective `1499988 -> 1531095`
+  - interpretation:
+    - `v283` achieved real Family A progress on the intended residual rows and
+      lowered first20 Total `T` by `17`.
+    - the candidate still lost on the main plateau objective for promotion:
+      overall Total `T` worsened by `28`, the high-`T` tail worsened by `45`,
+      and the objective gain was only about `0.039%`, well below the `0.3%`
+      polish threshold.
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v283` is a useful Track A signal because it improved `prob_13`,
+    `prob_14`, and `prob_19` in the same batch and reduced first20 Total `T`.
+    It is not a trusted BEST candidate because full-train same-batch Total `T`
+    still rose, the high-`T` tail got slightly worse, and `prob_36` regressed.
+- updated_next_structural_hypothesis:
+  - keep the narrow 4-bay Family A spatial gate, but move the next candidate
+    inside the active `v267`-line specialist boundary instead of delegating the
+    whole trusted active path first.
+  - aim the next step at `prob14like` specifically:
+    use a fallback-runtime-aware second move or richer shortlist only when
+    the base row finishes with real spare time, while freezing all non-target
+    4-bay rows more conservatively.
+
+## 2026-06-29 reboot_v284_20260629_trackA_fourbay_familyA_portfolio_on_active_v278
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v283` proved there is still a real Track A signal in the narrow 4-bay
+    Family A residual band: `prob_13`, `prob_14`, and `prob_19` all improved
+    in same-batch full revalidation.
+  - the next step should not be another single-hook variant. Instead, build a
+    true Family A specialist portfolio that compares multiple bounded
+    candidates on top of the trusted active fallback and only keeps the best
+    feasible result by official `T`-first ordering.
+  - target the same feature-gated 4-bay Family A band, but compare at least:
+    - trusted active fallback candidate
+    - narrow spatial primitive candidate
+    - warm tardy-repair candidate
+    - exact latest-feasible slice candidate
+  - keep Family B and non-target rows on the trusted active route.
+- feature_gate:
+  - Family A preconditions from `v186._matches_family_a_tightslack`
+  - narrow 4-bay residual band only
+  - subtype split by O(n) features only:
+    - `prob13like`
+    - `prob14like`
+    - `prob19like`
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - improve first20 Total `T` beyond `v283` while preserving guard scoreability
+  - seek additional gain on `prob_14` without losing the `prob_13` / `prob_19`
+    signal
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`
+  - require same-batch first20 Total `T` improvement and no accepted_for_score
+    loss on `prob_36`, `prob_38`, `prob_39`, or `prob_40`
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v285_vs_active_direct_20260629_001/`
+  - active control:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `335533263`
+    - Total `T 27430`
+    - first20 Total `T 1343`
+    - first20 `T>0 count 7`
+  - candidate `v285`:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `336010402`
+    - Total `T 28564`
+    - first20 Total `T 1322`
+    - first20 `T>0 count 7`
+  - changed rows:
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_19`: `T 134 -> 123`, objective `2008665 -> 1896684`
+    - `prob_36`: `T 2019 -> 3174`, objective `1506223 -> 2276607`
+  - Family B guard result:
+    - `prob_38`: `T 11120 -> 11120`
+    - `prob_39`: `T 3521 -> 3521`
+    - `prob_36`: same-batch severe regression again
+  - interpretation:
+    - the subtype split worked on the intended Track A rows: `prob13like` and
+      `prob19like` both improved in the same smoke.
+    - however, even after delegating non-target rows through the trusted active
+      `baseline_hh.py` surface, same-batch smoke still showed a large
+      `prob_36` regression. That means the candidate is still not promotion
+      safe on the required guard set.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v285` recovered the two useful Track A subtype signals together, but it
+    still failed the guard requirement because `prob_36` regressed too sharply
+    in same-batch smoke and smoke Total `T` rose by `1134`.
+- updated_next_structural_hypothesis:
+  - keep the recovered subtype signals as research assets:
+    - `prob13like` -> narrow spatial specialist
+    - `prob19like` -> warm-repair specialist
+  - do not combine them on the main active line until the guard-drift problem
+    is isolated.
+  - the next bounded cycle should move to a stricter Family A research wrapper
+    that only probes the target subtype family under a more conservative
+    runtime/guard policy, or else redesign the fallback boundary so untouched
+    non-target rows are provably identical to the trusted active surface.
+
+## 2026-06-29 reboot_v286_20260629_trackA_active_surface_direct_import_split_specialists
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v285` recovered the useful `prob13like` and `prob19like` signals, but
+    the non-target guard row `prob_36` still drifted sharply even when the
+    wrapper delegated through a separate loaded copy of `baseline_hh.py`.
+  - the next bounded cycle isolates that guard-drift risk by keeping the same
+    subtype specialists while changing only the fallback boundary:
+    untouched rows should flow through a standard-import `baseline_hh` surface
+    path rather than a separately spec-loaded copy.
+  - if the guard drift was introduced by duplicated module state or altered
+    import identity, this should preserve the subtype gains while restoring
+    `prob_36`-like rows to the trusted active behavior.
+- specialist_roles:
+  - trusted active surface via standard import `baseline_hh`
+  - `prob13like` narrow spatial/exact specialist
+  - `prob19like` bounded warm-repair specialist
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - keep `prob_13` and `prob_19` gains from `v285`
+  - restore `prob_36` guard behavior close to the trusted active same-batch line
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`
+  - require same-batch first20 Total `T` improvement and no large `prob_36`
+    guard regression
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v286_vs_active_direct_20260629_001/`
+  - active control:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `335527028`
+    - Total `T 27421`
+    - first20 Total `T 1343`
+    - first20 `T>0 count 7`
+  - candidate `v286`:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `336010402`
+    - Total `T 28564`
+    - first20 Total `T 1322`
+    - first20 `T>0 count 7`
+  - changed rows:
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_19`: `T 134 -> 123`, objective `2008665 -> 1896684`
+    - `prob_36`: `T 2010 -> 3174`, objective `1499988 -> 2276607`
+  - Family B guard result:
+    - `prob_38`: `T 11120 -> 11120`
+    - `prob_39`: `T 3521 -> 3521`
+    - `prob_36`: severe regression persisted
+  - interpretation:
+    - changing the fallback boundary from spec-loaded `baseline_hh` to
+      standard-import `baseline_hh` did not remove the same-batch `prob_36`
+      guard failure.
+    - the useful `prob13like` and `prob19like` subtype gains are real and
+      reproducible, but they still do not belong on the promotion line while
+      the guard drift remains unresolved.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v286` isolated one import-identity hypothesis and falsified it. The guard
+    regression on `prob_36` remained essentially unchanged, so the candidate
+    was rejected at smoke stage without a full revalidation.
+- updated_next_structural_hypothesis:
+  - treat the `prob13like` and `prob19like` gains as research-only subtype
+    signals for now.
+  - the next bounded cycle should focus on causally isolating the `prob_36`
+    drift with a stricter research wrapper or micro-probe, instead of trying to
+    promote a combined specialist line immediately.
+
+## 2026-06-29 reboot_v287_20260629_trackA_lazyimport_split_specialists_on_active_surface
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `rejected`
+- Track: `A`
+- causal_probe_note:
+  - repeated fresh-process probe on `prob_36` showed:
+    - trusted active `baseline_hh.py`: `T` varied around `2010~2573`
+    - `v286`: `T` degraded further to about `3174~3596`
+  - this suggests the guard failure is not only active-line variance; import
+    order / eager specialist module loading likely contaminates the fallback
+    behavior before the target subtype gate even fires.
+- hypothesis:
+  - keep the useful subtype signals:
+    - `prob13like` -> narrow spatial specialist
+    - `prob19like` -> warm-repair specialist
+  - but move every specialist import behind the subtype gate and behind the
+    active fallback call itself.
+  - non-target rows should return the trusted active surface without importing
+    the specialist modules at all.
+- specialist_roles:
+  - trusted active fallback candidate
+  - lazy-loaded `prob13like` spatial candidate
+  - lazy-loaded `prob19like` warm-repair candidate
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - keep the `prob_13` / `prob_19` gains from `v285` / `v286`
+  - materially reduce the `prob_36` guard regression versus eager-import wrappers
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v287_vs_active_direct_20260629_001/`
+  - active control:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `335868717`
+    - Total `T 27432`
+    - first20 Total `T 1354`
+    - first20 `T>0 count 7`
+  - candidate `v287`:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `336117177`
+    - Total `T 28637`
+    - first20 Total `T 1327`
+    - first20 `T>0 count 7`
+  - changed rows:
+    - `prob_6`: `T 8 -> 7`, objective `736411 -> 577115`
+    - `prob_11`: `T 355 -> 351`, objective `8448989 -> 8364652`
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_14`: `T 187 -> 181`, objective `3901754 -> 3795716`
+    - `prob_19`: `T 134 -> 128`, objective `2008665 -> 1950019`
+    - `prob_36`: `T 2010 -> 3242`, objective `1499988 -> 2322065`
+  - Family B guard result:
+    - `prob_38`: accepted preserved, `T 11120 -> 11120`
+    - `prob_39`: accepted preserved, `T 3521 -> 3521`
+    - `prob_36`: same-batch severe regression remained
+  - interpretation:
+    - the lazy-import split wrapper preserved the useful Family A gains and
+      improved five first20 rows in the same batch:
+      `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`.
+    - first20 Total `T` improved by `27` (`1354 -> 1327`) without changing the
+      first20 `T>0` count.
+    - however, the intended causal fix did not solve the runtime-risk guard:
+      `prob_36` still regressed sharply even though the `v287` specialist route
+      did not fire on that row.
+    - the `prob_36` log stayed on the active fallback route and still showed
+      `limited_concurrent built forced=29`, while the direct active control on
+      the same row showed `forced=0`.
+    - this means the guard drift is deeper than eager specialist import alone;
+      simply returning `baseline_hh.algorithm(...)` from inside a wrapper
+      module is already enough to perturb the fallback behavior on the Family B
+      guard row.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v287` satisfied the scoreability smoke gate and materially improved
+    first20 Total `T`, but it still failed the Family B T-first guard because
+    `prob_36` worsened by `+1232` T in the same batch (`2010 -> 3242`).
+    Smoke Total `T` rose by `1205` overall (`27432 -> 28637`), so the wrapper
+    was not eligible for full-train revalidation or promotion.
+- updated_next_structural_hypothesis:
+  - treat this as a fallback-boundary contamination problem, not a subtype
+    tuning problem.
+  - the next bounded Track A research candidate should preserve the useful
+    Family A subtype signals but isolate them behind a stricter execution
+    boundary, for example:
+    - build the trusted active candidate from a direct file trampoline or
+      subprocess-like isolation path instead of importing `baseline_hh` inside
+      the wrapper module
+    - only compare the isolated trusted active result against the
+      `prob13like` and `prob19like` specialists after the active candidate is
+      fully materialized
+  - keep all non-target rows, especially `prob_36`, `prob_38`, `prob_39`,
+      and `prob_40`, on the untouched trusted active route
+  - until that execution-boundary issue is solved, do not promote any wrapper
+    that calls the active surface from inside the same module context.
+
+## 2026-06-29 reboot_v288_20260629_trackA_subprocess_active_surface_split_specialists
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `training-best-only`
+- Track: `A`
+- experiment_note:
+  - `v287` preserved the useful `prob_13` / `prob_14` / `prob_19` signal but
+    still regressed `prob_36` badly even when the wrapper returned before any
+    specialist route fired.
+  - a nested child-process trampoline probe showed that running
+    `ogc2026/baseline/baseline_hh.py` through the same
+    `spec_from_file_location("ogc_candidate_algorithm", ...)` style used by the
+    benchmark harness adds only about `0.5~0.7s` of outer overhead on
+    representative rows.
+  - therefore the next structural hypothesis is that the trusted active surface
+    should be materialized through an isolated child-process boundary, then
+    compared against the preserved `prob13like` and `prob19like` specialists.
+- hypothesis:
+  - replace the in-module `import baseline_hh` fallback with a subprocess
+    trampoline that loads `baseline_hh.py` the same way the benchmark harness
+    does.
+  - keep the Track A split specialists from `v287`:
+    - `prob13like` -> narrow spatial specialist
+    - `prob19like` -> warm-repair specialist
+  - keep all non-target rows on the isolated trusted active result with no
+    specialist imports.
+- specialist_roles:
+  - isolated trusted active fallback candidate via child process
+  - lazy-loaded `prob13like` spatial candidate
+  - lazy-loaded `prob19like` warm-repair candidate
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - keep the first20 gains already shown by `v287`
+  - remove or materially reduce the `prob_36` guard regression seen in
+    `v285` / `v286` / `v287`
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v288_vs_active_direct_20260629_001/`
+  - active control:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `335431651`
+    - Total `T 27463`
+    - first20 Total `T 1342`
+    - first20 `T>0 count 7`
+  - candidate `v288`:
+    - accepted `13/13`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `335338952`
+    - Total `T 27362`
+    - first20 Total `T 1327`
+    - first20 `T>0 count 7`
+  - changed rows:
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_19`: `T 134 -> 128`, objective `2008665 -> 1950019`
+    - `prob_36`: `T 2102 -> 2019`, objective `1560921 -> 1506223`
+  - Family B guard result:
+    - `prob_36`: improved instead of regressing
+    - `prob_38`: accepted preserved, `T 11120 -> 11120`
+    - `prob_39`: accepted preserved, `T 3521 -> 3521`
+  - interpretation:
+    - the isolated subprocess fallback removed the same-batch `prob_36` guard
+      regression that blocked `v285`~`v287`.
+    - the preserved Track A specialists still improved `prob_13` and `prob_19`.
+- full_revalidation:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_revalidate_v288_vs_active_train40_20260629_001/`
+  - active control:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568931012`
+    - Total `T 59481`
+    - first20 Total `T 1461`
+    - first20 avg `T 73.05`
+    - first20 `T>0 count 12`
+  - candidate `v288`:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568637767`
+    - Total `T 59460`
+    - first20 Total `T 1440`
+    - first20 avg `T 72.00`
+    - first20 `T>0 count 12`
+  - changed rows:
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_19`: `T 134 -> 123`, objective `2008665 -> 1896684`
+  - interpretation:
+    - this was a real same-batch full improvement under the official
+      `accepted_for_score` gate.
+    - the candidate met the T-first promotion thresholds on the direct
+      candidate path.
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v289_baseline_hh_py_20260629_001/`
+  - result:
+    - accepted only `35/40`
+    - `prob_36`~`prob_40` timed out
+    - timeout count `5`
+  - root_cause:
+    - the child trampoline targeted `ogc2026/baseline/baseline_hh.py`
+      itself.
+    - once `baseline_hh.py` was switched to `v288` for publish-surface
+      recheck, the child fallback recursively re-entered the wrapper and hit
+      the batchrunner watchdog on the late Family B rows.
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v288` is algorithmically strong and publish-shape promising, but the
+    current implementation is not submission-safe because its fallback target
+    recurses through `baseline_hh.py` on the publish surface. The trusted
+    active line was restored to `v280`.
+- updated_next_structural_hypothesis:
+  - keep the same useful Track A split-specialist signal from `v288`.
+  - replace the recursive child fallback target with a frozen non-recursive
+    trusted file target, for example the accepted direct `v278` algorithm file
+    or an equivalent publish-safe snapshot module.
+  - preserve the subprocess boundary for Family B guard protection while making
+    the wrapper publish-surface safe.
+
+## 2026-06-29 reboot_v290_20260629_trackA_frozen_v278_subprocess_split_specialists
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `accepted`
+- Track: `A`
+- experiment_note:
+  - `v288` showed the right algorithmic signal:
+    same-batch smoke and full both improved first20 / Total `T`, and the
+    Family B guard row `prob_36` stopped regressing.
+  - the only promotion blocker was publish-surface recursion, because the child
+    trampoline targeted `baseline_hh.py` itself.
+- hypothesis:
+  - keep the exact `v288` structure and preserved `prob13like` /
+    `prob19like` specialists.
+  - replace the child fallback target with the frozen accepted direct
+    `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267.py`
+    file so the publish surface cannot recurse through `baseline_hh.py`.
+  - if the direct same-batch signal survives and the publish-surface recheck
+    stays scoreable, this should convert the `v288` training-best-only result
+    into an accepted BEST.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_revalidate_v290_vs_active_direct_20260629_001/`
+  - direct same-batch note:
+    - `v290` itself passed `13/13`, timeout `0`, invalid/error `0`
+    - the comparison control had a one-off `prob_38` timeout, so the smoke
+      summary bundle is not promotion-canonical by itself
+  - supporting guard recheck:
+    `reports/ogc2026_reboot_v001/target_recheck_v290_prob38_20260629_001/`
+  - representative changed rows from the smoke bundle:
+    - `prob_13`: `T 498 -> 488`
+    - `prob_19`: `T 134 -> 123`
+    - `prob_27`: `T 5527 -> 5456`
+    - `prob_36`: `T 2698 -> 2010`
+    - `prob_38`: active timeout row rechecked separately and both active /
+      `v290` passed with identical `T 11120`
+  - interpretation:
+    - the frozen fallback preserved the good `v288` signal while removing the
+      publish recursion risk.
+- full_revalidation:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_revalidate_v290_vs_active_train40_20260629_001/`
+  - active control:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568735904`
+    - Total `T 59498`
+    - first20 Total `T 1452`
+    - first20 avg `T 72.60`
+    - first20 `T>0 count 12`
+  - candidate `v290`:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568637767`
+    - Total `T 59460`
+    - first20 Total `T 1440`
+    - first20 avg `T 72.00`
+    - first20 `T>0 count 12`
+    - high-`T` tail (`T>=1000`) `56744 -> 56718`
+  - changed rows:
+    - `prob_11`: `T 342 -> 351`, objective `8151757 -> 8364652`
+    - `prob_13`: `T 498 -> 488`, objective `9876799 -> 9695535`
+    - `prob_19`: `T 134 -> 123`, objective `2008665 -> 1896684`
+    - `prob_36`: `T 2036 -> 2010`, objective `1517775 -> 1499988`
+  - interpretation:
+    - the accepted direct candidate path still improved Total `T`,
+      first20 Total `T`, and the guarded late-row behavior.
+    - the small `prob_11` regression did not offset the stronger combined gain
+      on `prob_13`, `prob_19`, and `prob_36`.
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v291_baseline_hh_py_20260629_001/`
+  - result:
+    - accepted `40/40`
+    - timeout `0`
+    - invalid/error `0`
+    - Total Objective `568637767`
+    - Total `T 59460`
+    - first20 Total `T 1440`
+    - first20 avg `T 72.00`
+    - first20 `T>0 count 12`
+    - Avg Runtime `32.97s`
+    - Max Runtime `59.32s`
+  - publish-surface status:
+    - the official `baseline_hh.py` surface matched the accepted `v290`
+      candidate result exactly.
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active`
+  - active_surface_version:
+    `reboot_v291_20260629_baseline_surface_direct_import_v290`
+  - reason:
+    `v290` converted the `v288` training-best-only signal into a publish-safe
+    accepted BEST by freezing the subprocess fallback target on direct `v278`.
+    It improved the trusted active line on Total `T`, first20 Total `T`, and
+    Family B guard behavior while preserving `accepted_for_score 40/40`.
+- canonical_evidence:
+  - active surface:
+    `reports/ogc2026_reboot_v001/verify_active_v291_baseline_hh_py_20260629_001/`
+  - same-batch direct full:
+    `reports/ogc2026_reboot_v001/full_revalidate_v290_vs_active_train40_20260629_001/`
+
+## 2026-06-29 reboot_v285_20260629_trackA_split_prob13_prob19_specialists_on_active_surface
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - `v283` showed the useful `prob13like` / `prob19like` signal, while `v284`
+    showed that forcing those rows through one shared 4-bay portfolio harms
+    robustness and leaks bad guard behavior.
+  - the next structural step is to split those residual Family A subtype
+    signals into separate specialists:
+    - `prob13like`: keep the narrow spatial/exact specialist
+    - `prob19like`: keep the warm-repair specialist
+    - `prob14like` and all other rows: stay on the trusted active surface
+  - delegate fallback through the trusted `baseline_hh.py` surface itself
+    rather than through a direct `v278` import, so the non-target route matches
+    the current trusted active entrypoint as closely as possible.
+- specialist_roles:
+  - trusted active fallback candidate
+  - `prob13like` spatial/orientation candidate
+  - `prob19like` bounded warm-repair candidate
+  - optional exact latest-feasible candidate inside the `prob13like` arm
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - recover the `prob_13` / `prob_19` signal together without the `prob_36`
+    smoke failure seen in `v284`
+  - keep non-target 4-bay rows on the trusted active surface
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`
+  - require same-batch first20 Total `T` improvement and no accepted_for_score
+    loss on `prob_36`, `prob_38`, `prob_39`, or `prob_40`
+
+## 2026-06-29 reboot_v283_20260629_trackA_prob14like_narrow_postfallback_on_active_v278
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the rejected `v282` signal was directionally useful on the intended
+    first20 rows, but the outer wrapper leaked overhead onto non-target rows
+    and produced a same-batch timeout on `prob_39`.
+  - the next structural move is a much narrower Track A-spatial hook:
+    only pay the extra post-fallback cost on a feature-gated 4-bay
+    Family A subtype band that includes the existing `prob13like`,
+    `prob19like`, and a new guarded `prob14like` row family.
+  - preserve the trusted active `v278` result as the fallback candidate,
+    then run only a tiny bounded spatial primitive reinsertion with
+    wall/corner-hugging candidate positions, orientation comparison, and
+    fragmentation-aware scoring on those narrow subtype rows.
+  - disable the extra exact-slice follow-up under the standard 60s tier so
+    the candidate cannot spend hidden runtime budget on near-cliff rows.
+- feature_gate:
+  - Family A preconditions from `v186._matches_family_a_tightslack`
+  - 4-bay band only
+  - subtype-specific gates from O(n) features only:
+    - blocks
+    - bays
+    - `w1`
+    - `proc_mean`
+    - `slack_mean`
+    - `tight_slack_ratio`
+    - `pref_concentration`
+    - `pref_pressure`
+    - `max_area_ratio`
+    - `p90_area_ratio`
+- spatial_elements_in_code_path:
+  - orientation comparison over multiple block rotations
+  - wall/corner-hugging candidate position generation
+  - fragmentation-aware spatial score
+  - slack-aware tardy shortlist selection
+  - T-first comparison against the trusted active fallback
+- fallback_to_compare:
+  - current trusted active `baseline_hh.py` / `v280 -> v278`
+- expected_metric_target:
+  - preserve accepted `40/40`, timeout `0`, invalid `0`
+  - reduce first20 Total `T` versus the trusted active line
+  - improve one or more of `prob_13`, `prob_14`, `prob_19`
+  - keep `prob_36` / `prob_39` runtime behavior unchanged by leaving them on
+    the direct trusted active path
+- planned_smoke_set:
+  - tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_14`, `prob_19`, `prob_24`,
+    `prob_27`, `prob_33`, `prob_39`
+  - targeted Track A additions:
+    `prob_13`, `prob_20`
+  - Family B / runtime guard additions:
+    `prob_36`, `prob_38`
+- promotion_gate:
+  - require accepted `40/40`, timeout `0`, invalid/error `0`
+  - require same-batch Total `T` improvement or first20 Total `T` improvement
+  - reject immediately if the narrow wrapper changes `prob_36` / `prob_39`
+    runtime class or accepted_for_score status
+
+## 2026-06-28 reboot_v281_20260628_trackA_spatial_orientation_seed_on_active_v278
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `candidate`
+- Track: `A`
+- hypothesis:
+  - the trusted active `v280` / direct `v278` line is accepted and stable, but
+    first20 Total T is still `1461`, not near-zero.
+  - the remaining Family A rows (`prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`) may be blocked upstream by initial spatial packing and
+    orientation choices rather than by later warm repair alone.
+  - add one bounded Track A-spatial lane ahead of the trusted active fallback:
+    - large-area / tight-slack constructive seed
+    - explicit multi-orientation comparison
+    - wall/corner/bottom-left candidate generation
+    - fragmentation-style remaining-space score
+    - official `T`-first compare against the trusted active `v278` fallback
+- feature_gate:
+  - runtime gating must remain feature-only and must not use instance ids.
+  - start with a narrow Family A spatial gate around:
+    - `4` bays
+    - roughly `240..320` blocks
+    - high `w1`
+    - low mean slack
+    - high tight-slack ratio
+    - lower preference concentration / pressure
+    - meaningful footprint pressure / feasible-bay pressure
+- fallback_compare:
+  - keep the current trusted active candidate logic as the fallback baseline:
+    `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- expected_target:
+  - reduce first20 Total T below trusted active `1461`
+  - or reduce first20 `T>0` count below `12`
+  - without regressing Family B guard rows or introducing timeout risk
+- planned_smoke_set:
+  - cross-tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`, `prob_39`
+- promotion_gate:
+  - require accepted targeted smoke with timeout `0`, invalid/error `0`.
+  - require a real first20 `T` improvement signal on at least one residual row
+    or the first20 aggregate before full benchmark.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v281_train12_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - comparison versus trusted active
+    `verify_active_v280_baseline_hh_py_20260628_001` on the same rows:
+    - `prob_11`: `T 351 -> 386`, objective `8364652 -> 9136031`
+    - `prob_13`: `T 498 -> 498`, objective unchanged
+    - `prob_14`: `T 181 -> 187`, objective `3795716 -> 3901754`
+    - `prob_19`: `T 134 -> 140`, objective `2008665 -> 2072414`
+    - all Family B guard rows in the smoke set stayed flat on `T`
+    - smoke aggregate delta on the 12 rows:
+      - Total `T`: `+47`
+      - Total objective: `+941166`
+- interpretation:
+  - the bounded Track A-spatial lane did not create a new win over the trusted
+    active `60s` line.
+  - the main failure mode is budget theft from the trusted fallback:
+    - on `prob_13` and `prob_19`, the inner `v267` spatial chain improved the
+      reduced-budget fallback it saw inside the run, but that reduced-budget
+      fallback was already weaker than the trusted full-budget active result.
+    - on `prob_11` and `prob_14`, the active fallback itself dropped to a worse
+      line after the upfront spatial spend, and the candidate did not recover
+      the loss.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v281` passed the smoke safety gate, but it regressed the core first20
+    target rows against the trusted active benchmark. Because the Track
+    A-spatial lane spent budget before the trusted fallback and produced
+    `T +47` on the 12-row smoke, the candidate stops before full benchmark.
+- next_structural_hypothesis:
+  - keep the trusted active `v280` / `v278` line intact and avoid pre-spending
+    time before that fallback reaches its stable branch.
+  - next Track A-spatial cycle should test one of these bounded directions:
+    - post-fallback opportunistic spatial move that only runs after the trusted
+      active solution is already built and only if spare time remains
+    - intrafallback spatial hook inside the accepted Family A branch so the
+      fallback keeps its full timelimit and the spatial idea competes on equal
+      budget
+
+## 2026-06-28 reboot_v282_20260628_trackA_postfallback_spatial_hook_on_active_v278
+
+- parent_version:
+  `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- status: `training-best-only`
+- Track: `A`
+- hypothesis:
+  - `v281` showed the main failure mode was not raw spatial logic alone, but
+    pre-spending time before the trusted active fallback reached its strongest
+    branch.
+  - keep the trusted active `v280` / `v278` fallback on full budget first, then
+    run a bounded spatial post-pass only if spare time remains.
+  - reuse the narrower Track A spatial ingredients only after the accepted
+    fallback exists:
+    - orientation-aware block reinsertion
+    - edge/corner/bottom-left positions
+    - fragmentation-aware placement scoring
+    - official `T`-first compare against the already-built trusted fallback
+- feature_gate:
+  - runtime gating must remain feature-only and must not use instance ids.
+  - only run the post-pass when:
+    - trusted fallback is feasible
+    - fallback `T > 0`
+    - Family A tight-slack features match
+    - a narrow spatial subtype gate matches
+    - enough spare time remains after the trusted fallback finishes
+- fallback_compare:
+  - keep the current trusted active candidate logic as the fallback baseline:
+    `reboot_v278_20260628_trackA_coarse_gate_lazy_prob20_plus_lowproc_replay_on_active_v267`
+- expected_target:
+  - hold the trusted fallback line on `prob_11`, `prob_14`, and `prob_20`
+  - capture leftover-time gains on residual rows such as `prob_13` or
+    `prob_19`
+  - improve first20 Total `T` or first20 `T>0` count without touching Family B
+    guard rows
+- planned_smoke_set:
+  - cross-tier representatives:
+    `prob_1`, `prob_6`, `prob_11`, `prob_13`, `prob_14`, `prob_19`,
+    `prob_20`, `prob_24`, `prob_27`, `prob_33`, `prob_38`, `prob_39`
+- promotion_gate:
+  - require accepted targeted smoke with timeout `0`, invalid/error `0`.
+  - require a real first20 `T` improvement signal on at least one residual row
+    or the first20 aggregate before full benchmark.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_reboot_v282_train12_20260628_001/`
+  - `accepted_for_score=12/12`
+  - timeout `0`
+  - invalid/error `0`
+  - comparison versus trusted active
+    `verify_active_v280_baseline_hh_py_20260628_001` on the same rows:
+    - `prob_13`: `T 498 -> 483`, objective `9876799 -> 9603064`
+    - `prob_14`: `T 181 -> 180`, objective `3795716 -> 3777938`
+    - `prob_19`: `T 134 -> 123`, objective `2008665 -> 1896684`
+    - `prob_11`, `prob_20`, and Family B guard rows stayed flat on `T`
+    - smoke aggregate delta on the 12 rows:
+      - Total `T`: `-27`
+      - Total objective: `-403494`
+- full_benchmark:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_reboot_v282_train40_20260628_001/`
+  - `accepted_for_score=40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - train40 comparison versus trusted active
+    `verify_active_v280_baseline_hh_py_20260628_001`:
+    - Total objective: `568931012 -> 568662051` (`-268961`)
+    - Total `T`: `59481 -> 59632` (`+151`)
+    - first20 Total `T`: `1461 -> 1435` (`-26`)
+    - first20 `T>0` count: `12 -> 12`
+    - worst regression:
+      - `prob_36`: `T 2010 -> 2187`, objective `1499988 -> 1616743`
+    - best improvements:
+      - `prob_13`: `T 498 -> 483`
+      - `prob_19`: `T 134 -> 123`
+- interpretation:
+  - the post-fallback hook fixed the `v281` budget-theft failure and produced a
+    real Family A gain on the targeted rows without harming the smoke guards.
+  - however, the full run still is not promotable because the global `T` metric
+    moved the wrong way:
+    - first20 improved
+    - overall Total `T` worsened by `151`
+    - the dominant blocker was a non-target `prob_36` regression on a row where
+      the hook did not activate, so the candidate does not offer a stable
+      train40 `T` improvement.
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v282` is useful evidence that a leftover-time Track A spatial post-pass can
+    reduce first20 residual tardiness, but it did not beat the trusted active
+    line on train40 `T`. Because `prob_36` regressed enough to push Total `T`
+    from `59481` to `59632`, the candidate is kept as training-best-only and
+    baseline promotion is blocked.
+- next_structural_hypothesis:
+  - keep the post-fallback idea, but move the spatial hook inside the accepted
+    active Family A branch so the trusted fallback and the candidate share the
+    same deterministic branch formation before any extra spatial move runs.
+  - add a non-target guard for rows that do not match the Track A subtype gate,
+    especially the high-variance `prob_36`-like band, so the next Track A
+    spatial candidate cannot drift on non-target Family B / runtime-cliff rows.
+- active_recheck_note:
+  - evidence:
+    `reports/ogc2026_reboot_v001/recheck_active_v280_target4_20260628_001/`
+  - targeted rerun of the active trusted wrapper showed that the current active
+    line is stable on `prob_13`, `prob_19`, and `prob_39`, but `prob_36`
+    drifted versus the canonical trusted full evidence:
+    - canonical trusted full: `prob_36 T 2010`
+    - target recheck: `prob_36 T 2102`
+  - interpretation:
+    - this does not invalidate the accepted trusted BEST, but it means future
+      candidate promotion should prefer same-batch control comparisons on the
+      high-variance `prob_36`-like band.
+- same_batch_revalidation:
+  - evidence:
+    `reports/ogc2026_reboot_v001/revalidate_v282_vs_active_train40_20260628_001/`
+  - setup:
+    - `hh_active:baseline_hh.py`
+    - `hh:v282_revalidate`
+    - same train40 batch, same official `60s` limit
+  - active control:
+    - accepted `40/40`
+    - timeout `0`
+    - Total `T 59506`
+  - `v282_revalidate`:
+    - accepted `39/40`
+    - timeout `1`
+    - timed-out row:
+      - `prob_39`: checker-feasible but runtime `60.076219s`, therefore not
+        accepted_for_score
+    - raw Total `T 59814`
+  - same-batch deltas on key rows:
+    - `prob_13`: `T 498 -> 483`
+    - `prob_19`: `T 134 -> 123`
+    - `prob_36`: `T 2036 -> 2369`
+    - `prob_39`: same `T 3521`, but `v282` timed out
+- same_batch_interpretation:
+  - the same-batch control confirms the residual first20 improvement signal on
+    `prob_13` and `prob_19`, but it also confirms two promotion blockers:
+    - a large non-target regression on `prob_36`
+    - a hard official timeout on `prob_39`
+  - because accepted_for_score dropped from `40/40` to `39/40`, `v282` is not
+    promotable under the official contract.
+- updated_next_structural_hypothesis:
+  - keep the post-fallback / intrafallback Track A-spatial direction, but only
+    under a stricter runtime guard that fully disables the extra spatial lane
+    on long-tail runtime-risk rows.
+  - for the next bounded cycle:
+    - add a feature-only `prob_39` / runtime-cliff guard via processing/slack /
+      preference-pressure features and spare-time threshold
+    - add a non-target `prob_36`-like guard so the extra spatial lane cannot
+      perturb the accepted base line on that subtype
+    - prefer an intrafallback hook inside the accepted Family A branch instead
+      of an outer wrapper pass
 
 ## 2026-06-28 reboot_v268_20260628_trackA_residual_spatial_portfolio_on_active_v267
 
