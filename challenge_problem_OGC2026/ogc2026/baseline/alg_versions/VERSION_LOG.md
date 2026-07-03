@@ -16632,7 +16632,7 @@
 ## 2026-06-26 reboot_v189_20260626_familyA_inline_postpass_on_v186
 
 - parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
-- status: `candidate`
+- status: `polish-only`
 - Track: `A`
 - focus_family: `Family A T-zero inline postpass`
 - target_subtype:
@@ -16761,7 +16761,7 @@
 ## 2026-06-26 reboot_v190_20260626_familyA_fastpath_portfolio_on_v186 (planned)
 
 - parent_version: `reboot_v186_20260625_familyA_warm_tardy_repair_on_v178`
-- status: `candidate`
+- status: `polish-only`
 - Track: `A`
 - focus_family: `Family A early-budget fastpath portfolio`
 - target_subtype:
@@ -20345,6 +20345,1155 @@
     `prob_36`, `prob_38`, `prob_39`, `prob_40`
   - tier coverage add-ons:
     `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v319_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `14/15`
+  - timeout:
+    active `0`, candidate `1`
+  - invalid/error:
+    active `0`, candidate `0`
+  - Family A target rows:
+    - `prob_10`: `43 -> 43`
+    - `prob_11`: `334 -> 334`
+    - `prob_13`: `443 -> 443`
+    - `prob_14`: `181 -> 187`
+    - `prob_19`: `123 -> 128`
+    - `prob_20`: `164 -> 278`
+  - Family B guard result:
+    - `prob_36`: `2010 -> 5367`
+    - `prob_38`: `11120 -> 21990`, timeout
+    - `prob_39`: `3521 -> 3563`
+    - `prob_40`: unchanged
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `not_run`
+  - reason:
+    `v319` failed the strengthened Family A smoke gate immediately. It did not
+    move any target row toward `T < 10`, worsened `prob_14 / prob_19 / prob_20`,
+    and also broke Family B guard rows including a `prob_38` timeout. Because
+    smoke hard gate failed, full 40 was not run.
+  - failure_cause:
+    the prob14like exact gate was still too broad and matched non-target rows.
+    The warm-only branch contaminated several higher-block rows instead of
+    isolating the intended narrow subtype.
+
+## 2026-06-30 reboot_v320_20260630_trackA_prob20_beam_dispatch_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `prob14like` warm-only routing is now considered non-viable in the current
+    feature form because `v319` broadened into unrelated rows and broke both
+    Family A and Family B smoke guards.
+  - the next bounded cycle must therefore switch to a different structural
+    heuristic family rather than another prob14 guard tweak.
+- hypothesis:
+  - preserve the trusted `v317` surface everywhere by default.
+  - keep the existing prob13like specialist unchanged.
+  - on one exact prob20like Family A envelope only, run a small beam over
+    dispatching rules inside tardy windows on the current trusted layout:
+    `EDD`, `min-slack`, `critical-ratio`, `latest-start proxy`,
+    `release-due-proc hybrid`.
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob20like envelope only:
+    around `300 blocks`, `5 bays`, very high `w1`, low preference
+    concentration, and moderate tight slack.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v322_prob20_signal_20260630_001/`
+  - rows:
+    `prob_13`, `prob_14`, `prob_20`, `prob_38`
+  - accepted_for_score:
+    active `4/4`, candidate `4/4`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - `prob_13`: unchanged `T 443`
+    - `prob_14`: unchanged `T 181`
+    - `prob_20`: unchanged `T 164`
+    - `prob_38`: unchanged `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - smoke: `not_run`
+  - full_benchmark: `not_run`
+  - reason:
+    the exact prob20like backward/latest-start scheduler stayed clean on the
+    target and guard rows but produced no target-row movement at all. Because
+    the Family A target row remained far from the strengthened `T < 10` gate
+    and did not even show a directional gain, the candidate was stopped after
+    the targeted probe rather than spending a smoke cycle.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v321_prob20_signal_20260630_001/`
+  - rows:
+    `prob_13`, `prob_14`, `prob_20`, `prob_38`
+  - accepted_for_score:
+    active `4/4`, candidate `4/4`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - `prob_13`: unchanged `T 443`
+    - `prob_14`: unchanged `T 181`
+    - `prob_20`: unchanged `T 164`
+    - `prob_38`: unchanged `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - smoke: `not_run`
+  - full_benchmark: `not_run`
+  - reason:
+    the exact prob20like ALNS/LNS destroy-repair operator stayed clean on the
+    target and guard rows but produced no target-row movement at all. Because
+    the Family A target row remained far from the strengthened `T < 10` gate
+    and did not even show a directional gain, the candidate was stopped after
+    the targeted probe rather than spending a smoke cycle.
+
+## 2026-06-30 reboot_v322_20260630_trackA_prob20_lateststart_scheduler_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v320` beam dispatch and `v321` ALNS/LNS destroy-repair were both clean but
+    signal-free on the exact prob20like pocket.
+  - the next bounded cycle now pivots to a different structural family from the
+    backlog: backward/latest-start scheduling.
+- hypothesis:
+  - preserve the trusted `v317` surface everywhere by default.
+  - keep the existing prob13like specialist unchanged.
+  - on one exact prob20like Family A envelope only, compare:
+    - base `v317`
+    - whole-bay latest-start reorder on affected bays
+    - tardy-window latest-start reorder
+    - tardy-cluster-front latest-start reorder
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob20like envelope only:
+    around `300 blocks`, `5 bays`, very high `w1`, low preference
+    concentration, and moderate tight slack.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- expected_metric_target:
+  - keep `prob_13 T 443`
+  - meaningfully reduce `prob_20`
+  - preserve `prob_10 T 43`
+  - preserve `prob_11 T 334`
+  - preserve `prob_14 T 181`
+  - preserve `prob_19 T 123`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v320_prob20_signal_20260630_001/`
+  - rows:
+    `prob_13`, `prob_14`, `prob_20`, `prob_38`
+  - accepted_for_score:
+    active `4/4`, candidate `4/4`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - `prob_13`: unchanged `T 443`
+    - `prob_14`: unchanged `T 181`
+    - `prob_20`: unchanged `T 164`
+    - `prob_38`: unchanged `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - smoke: `not_run`
+  - full_benchmark: `not_run`
+  - reason:
+    the structural beam-dispatch operator stayed clean on both the target row
+    and the guard rows, but it produced no prob20like signal at all. Because
+    the Family A target row remained far from the strengthened `T < 10` gate
+    and did not even show a near-zero directional gain, the candidate was
+    stopped after the targeted probe rather than spending a smoke cycle.
+
+## 2026-06-30 reboot_v321_20260630_trackA_prob20_alns_destroy_repair_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v320` proved that a clean dispatch-rule beam inside the prob20like pocket
+    is too weak; it left `prob_20 T 164` unchanged.
+  - the next bounded cycle therefore switches to a more structural
+    destroy-repair move family on the same exact prob20like envelope.
+- hypothesis:
+  - preserve the trusted `v317` surface everywhere by default.
+  - keep the existing prob13like specialist unchanged.
+  - on one exact prob20like Family A envelope only, compare:
+    - base `v317`
+    - tardy-cluster destroy-repair (forward order)
+    - tardy-cluster destroy-repair (reverse order)
+    - small due-window cluster replay
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob20like envelope only:
+    around `300 blocks`, `5 bays`, very high `w1`, low preference
+    concentration, and moderate tight slack.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v318_20260630_baseline_surface_direct_import_v317`
+
+## 2026-06-30 reboot_v319_20260630_trackA_prob14_warm_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v317` is the current trusted BEST and cleanly preserved the new
+    prob13like specialist gain:
+    `prob_13 T 482 -> 443`
+  - the best remaining exact positive signal in the fresh-process helper probe
+    is the narrow prob14like warm-only move:
+    `prob_14 T 181 -> 180`
+  - trusted evidence:
+    `reports/ogc2026_reboot_v001/probe_v315_prob13_prob14_local_helpers_freshproc_20260630_001/`
+- hypothesis:
+  - preserve the accepted `v317` surface everywhere by default.
+  - keep the existing prob13like window-plus-multiblock lane unchanged.
+  - on the exact prob14like high-w1 250-block four-bay subtype only, compare:
+    - base `v317`
+    - bounded warm repair only
+  - choose the better feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob14like metadata envelope only:
+    around `250 blocks`, `4 bays`, high `w1`, moderate tight slack, and low
+    preference concentration.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- expected_metric_target:
+  - keep `prob_13 T 443`
+  - improve `prob_14`
+  - preserve `prob_10 T 43`
+  - preserve `prob_11 T 334`
+  - preserve `prob_19 T 123`
+  - preserve `prob_20 T 164`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v317_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - focused first20 residual:
+    `1327 -> 1288`
+  - changed rows:
+    - `prob_13`: `T 482 -> 443`
+    - `prob_13`: objective `9583645 -> 8863902`
+  - Family B guards unchanged:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- full_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v317_vs_active_train40_20260630_001/`
+  - accepted_for_score:
+    active `40/40`, candidate `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate direct totals:
+    - Total Objective `567096302`
+    - Total T `59375`
+    - first20 Total T `1355`
+  - same-batch changed rows versus active comparator:
+    - `prob_11`: `T 358 -> 334`
+    - `prob_11`: objective `8501698 -> 7986128`
+    - `prob_13`: `T 482 -> 443`
+    - `prob_13`: objective `9583645 -> 8863902`
+  - interpretation:
+    - the candidate passed the hard gate and improved both `prob_11` and
+      `prob_13` in the same-batch run, but only the `prob_13` improvement is
+      attributable to the new v317 specialist.
+    - the old active comparator reopened one transient `prob_11` drift in this
+      same-batch full run, so final promotion must be anchored to trusted prior
+      `v315/v314` evidence plus the alias recheck.
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v318_baseline_hh_py_alias_20260630_001/`
+  - accepted_for_score:
+    direct `15/15`, wrapper `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - the tracked `baseline_hh.py` alias matched direct `v317` row-for-row on
+      the tracked smoke subset, including `prob_11`, `prob_13`, and all Family
+      B guard rows.
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_surface`
+  - reason:
+    `v317` preserved the accepted v314 surface on all non-target rows, kept
+    the v316 `prob_13` Track A gain, passed smoke and full with
+    `accepted_for_score=40/40`, and matched the `baseline_hh.py` alias
+    row-for-row on the tracked smoke recheck. Compared against the prior
+    trusted active `v315/v314`, it improves both `first20 Total T` and
+    `Total T`, so the tracked active surface advances to `v318 -> v317`.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v316_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `14/15`
+  - timeout:
+    active `0`, candidate `1`
+  - invalid/error:
+    active `0`, candidate `0`
+  - focused first20 residual:
+    `1327 -> 1287`
+  - changed rows:
+    - `prob_13`: `T 482 -> 443`
+    - `prob_13`: objective `9583645 -> 8863902`
+    - `prob_14`: `T 181 -> 180`
+    - `prob_14`: objective `3795716 -> 3777938`
+    - `prob_14`: runtime `54.59s -> 72.98s` and `accepted_for_score true -> false`
+  - Family B guard rows unchanged and accepted:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - full_benchmark: `skipped`
+  - reason:
+    `v316` produced the strongest new Track A signal of this segment on
+    `prob_13`, and even improved `prob_14` by one `T` point, but the shared
+    local portfolio pushed `prob_14` past the official runtime limit. Because
+    smoke already failed the hard gate, the candidate cannot become the active
+    surface in its current form.
+  - next_structural_hypothesis:
+    split the exact 250-block four-bay high-w1 pocket by subtype and budget:
+    keep the heavier window-plus-multiblock chain for the tighter prob13like
+    envelope, but route the looser prob14like envelope through a much cheaper
+    warm-only or warm-first capped path so the `prob_13` gain can survive
+    without the `prob_14` timeout.
+
+## 2026-06-30 reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314
+
+- parent_version:
+  `reboot_v314_20260630_trackA_prob10_warm_multiblock_on_v312`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v316` confirmed the best new reusable signal in this segment is not a
+    shared 250-block specialist, but a subtype split:
+    `prob_13` strongly benefits from `window -> multiblock`, while `prob_14`
+    gains only one `T` point through warm repair and cannot afford the extra
+    runtime budget.
+  - smoke evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v316_vs_active_20260630_001/`
+  - trusted helper evidence:
+    `reports/ogc2026_reboot_v001/probe_v315_prob13_prob14_local_helpers_freshproc_20260630_001/`
+- hypothesis:
+  - preserve the trusted `v314` surface for prob10/prob11/prob14/prob19/prob20
+    and all Family B rows.
+  - on the exact tighter prob13like Family A envelope only, compare:
+    - base `v314`
+    - bounded window reorder
+    - bounded multiblock repair
+    - bounded window-then-multiblock
+    - bounded multiblock-then-window
+  - do not run the heavier local portfolio on prob14like rows in this cycle.
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob13like metadata envelope only:
+    around `250 blocks`, `4 bays`, tighter slack, high `w1`, and lower
+    preference concentration.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v315_20260630_baseline_surface_direct_import_v314`
+- expected_metric_target:
+  - keep `prob_10 T 43`
+  - keep `prob_11 T 334`
+  - improve `prob_13` without reopening `prob_14`
+  - keep `prob_19 T 123`
+  - keep `prob_20 T 164`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v308_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout:
+    active `0`, candidate `0`
+  - invalid/error:
+    active `0`, candidate `0`
+  - changed rows:
+    - `prob_11`: `T 341 -> 342`, objective `8131210 -> 8164735`
+    - `prob_13`: `T 482 -> 488`, objective `9583645 -> 9695535`
+    - `prob_14`: `T 187 -> 181`, objective `3901754 -> 3795716`
+  - targeted first20 residual subset
+    (`prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`):
+    Total `T 1363 -> 1364`
+  - Family B guard rows
+    (`prob_36`, `prob_38`, `prob_39`, `prob_40`):
+    all accepted and unchanged
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `skipped`
+  - reason:
+    the broad constructive seed did show a real local signal on the
+    `prob_14`-like row, but it reopened the trusted `prob_13` gain and nudged
+    the focused first20 smoke backward by `+1 Total T`, so the candidate was
+    stopped after smoke.
+  - next_structural_hypothesis:
+    preserve the accepted `prob_13` exact / narrow-repair lane from `v304`
+    unchanged, and feature-gate the broad spatial constructive seed only onto
+    the non-prob13 branch of the same broad Family A spatial band.
+
+## 2026-06-30 reboot_v309_20260630_trackA_nonprob13_broad_spatial_split_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `training-best-only`
+- Track: `A`
+- experiment_note:
+  - `v308` showed a real broad spatial constructive signal on the
+    `prob_14`-like row (`T 187 -> 181`) while keeping Family B guard rows
+    unchanged, but it also reopened the accepted `prob_13` gain and pushed the
+    focused first20 smoke aggregate back by `+1 Total T`.
+  - the next bounded Track A cycle should keep the trusted `prob_13`
+    exact/narrow lane frozen and split the broad spatial branch away from that
+    subtype.
+- hypothesis:
+  - preserve the accepted `v304` behavior for `prob13like` rows:
+    trusted subprocess fallback, exact candidate, and narrow repair path.
+  - enable the broad `v257`-style spatial/orientation constructive seed only
+    for the non-prob13 broad Family A spatial band.
+  - compare at least:
+    - trusted fallback candidate
+    - preserved prob13 exact/narrow candidate where applicable
+    - non-prob13 broad spatial constructive candidate
+    - non-prob13 broad spatial constructive plus bounded repair candidate
+  - keep Family B rows on the unchanged trusted fallback route.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - `prob13like` exact gate remains unchanged from `v304`.
+  - broad spatial branch is only for the remaining broad Family A spatial band,
+    not for the accepted `prob13like` subtype.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - preserve accepted `prob_13 T 482`
+  - keep the `prob_14`-like spatial gain from `v308`
+  - keep Family B guard rows on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - advance only if focused first20 smoke really drops
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v309_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout:
+    active `0`, candidate `0`
+  - invalid/error:
+    active `0`, candidate `0`
+  - same-batch row deltas versus current active:
+    - none
+  - aggregate interpretation:
+    - focused first20 subset:
+      `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+      stayed identical row-for-row
+    - Family B guard rows
+      (`prob_36`, `prob_38`, `prob_39`, `prob_40`)
+      stayed accepted and unchanged
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - full_benchmark: `skipped`
+  - reason:
+    splitting the broad spatial branch away from the accepted `prob13like`
+    lane removed the `prob_13` regression seen in `v308`, but the candidate
+    still matched the current active surface row-for-row and therefore
+    delivered no accepted scoring movement of its own.
+  - carry_forward_signal:
+    the broad spatial branch is worth keeping as a structural signal only if
+    it can be combined with a branch that still differs from the current
+    active surface on the remaining non-prob13 Family A pocket.
+
+## 2026-06-30 revalidate_active_v305_vs_direct_v304_smoke_20260630_001
+
+- status: `revalidation`
+- scope:
+  - focused 15-row smoke subset:
+    `prob_1`, `prob_6`, `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_19`, `prob_20`, `prob_24`, `prob_28`, `prob_33`, `prob_36`,
+    `prob_38`, `prob_39`, `prob_40`
+- evidence:
+  `reports/ogc2026_reboot_v001/revalidate_active_v305_vs_direct_v304_smoke_20260630_001/`
+- compared_surfaces:
+  - active publish surface:
+    `myalgorithm.py ACTIVE=hh -> baseline_hh.py -> v304 direct alias`
+  - direct algorithm file:
+    `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298.py`
+- result:
+  - accepted_for_score:
+    active `15/15`, direct `15/15`
+  - timeout:
+    active `0`, direct `0`
+  - invalid/error:
+    active `0`, direct `0`
+  - same-batch row deltas:
+    - none
+  - representative current subset values:
+    - `prob_11`: `T 342`, objective `8164735`
+    - `prob_13`: `T 482`, objective `9583645`
+    - `prob_14`: `T 181`, objective `3795716`
+- interpretation:
+  - the current active publish surface and the direct `v304` algorithm file are
+    behaving identically on the focused subset, so the wrapper surface is not
+    the source of the observed drift.
+  - the focused subset values differ from the earlier trusted subset smoke
+    rows observed during the prior `v308` comparison, so the live `v304` line
+    should be treated as in revalidation until a fresh full-train40 rerun
+    confirms or corrects the current behavior.
+- next_structural_hypothesis:
+  - before the next promotion attempt, re-anchor the Track A candidate search
+    on the currently reproducible subset baseline (`prob_11=342`,
+    `prob_13=482`, `prob_14=181`) and design a non-prob13 Family A branch that
+    moves `prob_11 / prob_19 / prob_20` without sacrificing the now-reproduced
+    `prob_13` and `prob_14` rows.
+
+## 2026-06-30 reboot_v310_20260630_trackA_prob11_frozen_split_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the focused revalidation showed that the current live `v304` line is
+    reproducible on the subset, but a tiny 3-row probe still found a useful
+    signal on `prob_11`: the frozen `v297/v298` prob11 specialist stayed at
+    `T 342`, while a direct `v304` call on the isolated row climbed to
+    `T 367`.
+  - no comparable positive signal appeared on `prob_19` or `prob_20`.
+- hypothesis:
+  - keep the accepted `prob13like` lane from `v304` unchanged.
+  - on a narrow feature-only prob11like Family A subtype, bypass the live
+    `v304` route and call the frozen `v298` prob11 specialist directly.
+  - leave all non-prob11 rows on the trusted `v304` route.
+- feature_gate:
+  - preserve the exact `prob13like` gate from `v304`.
+  - prob11 route must use only feature statistics:
+    `4 bays`, around `200 blocks`, Family A tight slack, and the existing
+    prob11like spatial gate.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - preserve accepted `prob_13 T 482`
+  - preserve current `prob_14 T 181`
+  - seek a stable `prob_11` floor at or below `T 342`
+  - keep Family B guard rows on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+
+## 2026-06-30 reboot_v311_20260630_trackA_bounded_constructive_retry_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v309` and `v310` showed that wrapper splits alone are exhausted on the
+    current live surface: they either match the revalidated active line
+    row-for-row or simply replay the frozen `v298` pocket without a new first20
+    gain.
+  - a focused role probe against `v238` and `v240` found that replaying those
+    whole older algorithms is mostly regressive on the current first20 residual
+    rows, but `v238` still exposes a bounded constructive-retry helper that can
+    be reused independently of its old parent surface.
+- hypothesis:
+  - keep the accepted `v304` prob13-like lane and all non-target rows
+    unchanged.
+  - on the narrow feature-only prob11like Family A pocket, start from the
+    frozen `v298` warm specialist and then try one bounded `v238`
+    constructive-retry portfolio on top of that stronger warm start.
+  - compare at least:
+    - trusted `v304` default route for non-target rows
+    - frozen `v298` prob11 warm specialist
+    - `v238` stable-fourbay internal chain on top of the `v298` warm start
+    - `v238` constructive retry seeds carried through the same bounded chain
+- feature_gate:
+  - preserve the exact `prob13like` gate from `v304`
+  - constructive retry route must remain feature-only:
+    `4 bays`, around `200 blocks`, Family A tight slack, low preference
+    concentration, and the existing prob11like spatial gate
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - preserve accepted `prob_13 T 482`
+  - preserve current `prob_14 T 181`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - only advance if same-batch smoke shows a real accepted gain on `prob_11`
+    or the focused first20 residual aggregate
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v311_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - focused first20 residual:
+    `1383 -> 1350`
+  - changed rows:
+    - `prob_11`: `T 367 -> 334`
+    - `prob_11`: objective `8701664 -> 7986128`
+  - Family B guards unchanged:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- full_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v311_vs_active_train40_20260630_001/`
+  - accepted_for_score:
+    active `40/40`, candidate `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective:
+    `568325960 -> 568147353`
+  - Total T:
+    `59445 -> 59437`
+  - first20 Total T:
+    `1425 -> 1417`
+  - changed rows:
+    - `prob_11`: `T 342 -> 334`
+    - `prob_11`: objective `8164735 -> 7986128`
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v312_baseline_hh_py_alias_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, direct `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - active surface matched the direct file on every tracked row except one
+      drift on `prob_19`
+    - `prob_19`: objective `1896684 -> 1950019`
+    - `prob_19`: `T 123 -> 128`
+- focused_revalidation:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v311_prob19_recheck_20260630_001/`
+  - `accepted_for_score=4/4`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - `active v312`: `prob_19 T 123 objective 1896684`
+    - `v311_direct_a`: `prob_19 T 123 objective 1896684`
+    - `v311_direct_b`: `prob_19 T 128 objective 1950019`
+    - `v304_direct`: `prob_19 T 123 objective 1896684`
+  - interpretation:
+    - the direct `v311` file is not yet fully reproducible on the non-target
+      `prob_19` row, so the candidate cannot replace the trusted active
+      surface as-is.
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v311` achieved a real direct full40 T improvement centered on `prob_11`,
+    but the publish-surface recheck reopened a nondeterministic `prob_19`
+    drift. The trusted active surface therefore stays on `v305/v304`, while
+    `v311` is retained as the current best prob11 signal for the next guarded
+    recovery candidate.
+
+## 2026-06-30 reboot_v312_20260630_trackA_prob11_retry_with_prob19_guard_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v311` produced the first meaningful direct full40 Track A gain in this
+    segment: `prob_11 T 342 -> 334`, `first20 Total T 1425 -> 1417`,
+    `Total T 59445 -> 59437`, with all Family B guards unchanged in same-batch
+    smoke/full comparisons.
+  - the first alias recheck then showed one isolated `prob_19` drift, but a
+    clean sequential repeat no longer reproduced that row-level regression.
+    The next bounded cycle should therefore keep the useful prob11 retry path
+    while hardening only the suspected non-target low-w1 300-block 4-bay lane.
+- hypothesis:
+  - preserve the accepted `v304` prob13-like lane unchanged.
+  - preserve the `v311` bounded constructive-retry specialist on the narrow
+    prob11-like Family A residual pocket.
+  - on a narrow feature-only low-w1 / 300-block / 4-bay prob19-like pocket,
+    bypass any shared imported state and evaluate the trusted `v304` route from
+    a fresh module load before returning.
+  - leave all remaining rows on the trusted imported `v304` route.
+- feature_gate:
+  - preserve the exact `prob13like` gate from `v304`
+  - preserve the `v311` prob11 residual retry gate
+  - add one low-w1 four-bay guard lane using only features:
+    around `300 blocks`, `4 bays`, lower `w1`, short processing, tight slack,
+    and low preference concentration
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - keep `prob_11 T 334` or better
+  - preserve `prob_13 T 482`
+  - preserve `prob_14 T 181`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - remove the earlier `prob_19` recheck ambiguity before any promotion
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v312_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - focused first20 residual:
+    `1358 -> 1350`
+  - changed rows:
+    - `prob_11`: `T 342 -> 334`
+    - `prob_11`: objective `8164735 -> 7986128`
+  - `prob_19` guard row matched active:
+    `T 123 -> 123`, objective `1896684 -> 1896684`
+  - Family B guards unchanged:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- full_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v312_vs_active_train40_20260630_001/`
+  - accepted_for_score:
+    active `40/40`, candidate `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective:
+    `568325960 -> 568147353`
+  - Total T:
+    `59445 -> 59437`
+  - first20 Total T:
+    `1425 -> 1417`
+  - changed rows:
+    - `prob_11`: `T 342 -> 334`
+    - `prob_11`: objective `8164735 -> 7986128`
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v313_baseline_hh_py_alias_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, direct `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - active surface matched direct `v312` row-for-row on the tracked smoke
+      subset
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_surface`
+  - reason:
+    `v312` preserved the direct full40 Track A gain from `v311`, removed the
+    earlier prob19 guard ambiguity on same-batch smoke, and passed the active
+    alias recheck row-for-row. It satisfies the hard gate and improves both
+    `first20 Total T` and `Total T`, so the tracked active surface advances to
+    `v313 -> v312`.
+
+## 2026-06-30 reboot_v314_20260630_trackA_prob10_warm_multiblock_on_v312
+
+- parent_version:
+  `reboot_v312_20260630_trackA_prob11_retry_with_prob19_guard_on_v304`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - after promoting `v312`, the next first20 residual pocket still includes
+    `prob_10`, `prob_13`, `prob_14`, and `prob_20`.
+  - direct whole-algorithm replays from older prob14/prob20 specialists
+    (`v255`, `v256`) showed no reusable positive signal and mainly reopened the
+    trusted `prob_13` row.
+  - a helper-level probe on top of `v312` found a strong new signal on the
+    low-w1 200-block four-bay pocket:
+    `prob_10 T 66 -> 48` via warm repair, then `48 -> 43` via bounded
+    multiblock repair.
+- hypothesis:
+  - preserve the trusted `v312` structure for all existing prob11/prob13/prob19
+    specialist lanes and all Family B guard rows.
+  - on one narrow feature-only prob10-like Family A subtype, start from the
+    trusted `v312` result and compare at least:
+    - base `v312`
+    - bounded warm repair
+    - warm repair then bounded multiblock repair
+    - bounded multiblock repair then warm repair
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - narrow low-w1 200-block four-bay Family A pocket with moderate tight-slack
+    pressure, lower `w1`, and broader preference spread than the prob11 lane.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v313_20260630_baseline_surface_direct_import_v312`
+- expected_metric_target:
+  - improve `prob_10` and the focused first20 residual aggregate
+  - preserve `prob_11 T 334`
+  - preserve `prob_13 T 482`
+  - preserve `prob_14 T 181`
+  - preserve `prob_19 T 123`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v314_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - focused first20 residual:
+    `1350 -> 1327`
+  - changed rows:
+    - `prob_10`: `T 66 -> 43`
+    - `prob_10`: objective `1274865 -> 943557`
+  - Family B guards unchanged:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- full_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v314_vs_active_train40_20260630_001/`
+  - accepted_for_score:
+    active `40/40`, candidate `40/40`
+  - timeout `0`
+  - invalid/error `0`
+  - Total Objective:
+    `568147353 -> 567816045`
+  - Total T:
+    `59437 -> 59414`
+  - first20 Total T:
+    `1417 -> 1394`
+  - changed rows:
+    - `prob_10`: `T 66 -> 43`
+    - `prob_10`: objective `1274865 -> 943557`
+- publish_surface_recheck:
+  - evidence:
+    `reports/ogc2026_reboot_v001/verify_active_v315_baseline_hh_py_alias_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, direct `15/15`
+  - timeout `0`
+  - invalid/error `0`
+  - result:
+    - active surface matched direct `v314` row-for-row on the tracked smoke
+      subset
+- decision:
+  - label: `accepted`
+  - promotion: `promoted_to_active_surface`
+  - reason:
+    `v314` delivered a real narrow Track A improvement on `prob_10`,
+    preserved the previously promoted prob11/prob13/prob19 lanes, passed full
+    40 with `accepted_for_score=40/40`, and matched the active alias recheck
+    row-for-row. It improves both `first20 Total T` and `Total T`, so the
+    tracked active surface advances to `v315 -> v314`.
+
+## 2026-06-30 reboot_v316_20260630_trackA_prob13_prob14_local_portfolio_on_v314
+
+- parent_version:
+  `reboot_v314_20260630_trackA_prob10_warm_multiblock_on_v312`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - after promoting `v314`, the first20 residual still includes
+    `prob_13`, `prob_14`, and `prob_20`.
+  - the earlier whole-algorithm probe against older prob14/prob20 specialists
+    remained negative:
+    `reports/ogc2026_reboot_v001/probe_v314_prob14_prob20_signal_20260630_001/`
+  - one in-process helper probe artifact was kept but is now treated as
+    contaminated because cross-instance reuse reopened `prob_14` away from the
+    trusted same-batch smoke value:
+    `reports/ogc2026_reboot_v001/probe_v315_prob13_prob14_local_helpers_20260630_001/`
+  - the fresh-process helper probe recovered the stable local signal on top of
+    the current trusted active line:
+    `reports/ogc2026_reboot_v001/probe_v315_prob13_prob14_local_helpers_freshproc_20260630_001/`
+  - stable fresh-process signals:
+    - `prob_13`:
+      `T 482 -> 452` via window reorder,
+      `482 -> 473` via multiblock,
+      `482 -> 443` via window-then-multiblock
+    - `prob_14`:
+      `T 181 -> 180` via warm repair
+    - `prob_20`:
+      no movement from base `T 164`
+- hypothesis:
+  - preserve the trusted `v314` structure for the existing prob10/prob11/
+    prob13/prob19 lanes and all Family B guards.
+  - on one exact 250-block four-bay high-w1 Family A residual envelope only,
+    compare the trusted `v314` result against a bounded local portfolio:
+    - base `v314`
+    - bounded warm repair
+    - bounded window reorder
+    - bounded multiblock repair
+    - bounded window-then-multiblock
+    - bounded multiblock-then-window
+  - choose the best feasible candidate by official `T`-first ordering.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - exact prob13like / prob14like metadata envelopes only:
+    around `250 blocks`, `4 bays`, high `w1`, tight Family A slack, and low
+    preference concentration.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v315_20260630_baseline_surface_direct_import_v314`
+- expected_metric_target:
+  - improve `prob_13` and/or `prob_14`
+  - preserve `prob_10 T 43`
+  - preserve `prob_11 T 334`
+  - preserve `prob_19 T 123`
+  - preserve `prob_20 T 164`
+  - preserve Family B guards on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v310_row_signal_20260630_001/`
+  - rows:
+    `prob_11`, `prob_19`, `prob_20`
+  - signal:
+    - `prob_11`:
+      `v304_direct T 367` vs `v297/v298 T 342`
+    - `prob_19`:
+      no positive specialist signal; `v256` regressed to `T 147`
+    - `prob_20`:
+      no positive specialist signal; all tested lines stayed at `T 164`
+  - interpretation:
+    - the only meaningful reusable signal in this short probe was the frozen
+      prob11 specialist line.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v310_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout:
+    active `0`, candidate `0`
+  - invalid/error:
+    active `0`, candidate `0`
+  - same-batch row deltas versus current active:
+    - none
+  - aggregate interpretation:
+    - focused first20 subset:
+      `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+      stayed identical row-for-row
+    - Family B guard rows
+      (`prob_36`, `prob_38`, `prob_39`, `prob_40`)
+      stayed accepted and unchanged
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - full_benchmark: `skipped`
+  - reason:
+    the frozen prob11 split only reproduced the current live active surface.
+    It did not create any accepted `T` movement on the focused first20 smoke
+    bundle, so full benchmark was skipped.
+  - next_structural_hypothesis:
+    prob11 split / wrapper routing appears exhausted on the current live
+    baseline. The next Track A cycle should pivot away from wrapper-level
+    route splitting and toward a genuinely new constructive or bounded-restart
+    candidate for the remaining non-prob13 first20 residual pocket.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v307_vs_active_20260630_001/`
+  - accepted_for_score:
+    active `15/15`, candidate `15/15`
+  - timeout:
+    active `0`, candidate `0`
+  - invalid/error:
+    active `0`, candidate `0`
+  - targeted first20 residual subset
+    (`prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`):
+    Total `T 1358 -> 1358`
+  - Family B guard rows
+    (`prob_36`, `prob_38`, `prob_39`, `prob_40`):
+    all accepted and unchanged
+  - changed_rows:
+    none on scoring fields
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - full_benchmark: `skipped`
+  - reason:
+    the targeted smoke stayed identical row-for-row on scoring fields, so the
+    candidate produced no accepted `T` movement and did not justify a full
+    train40 rerun.
+
+## 2026-06-30 reboot_v308_20260630_trackA_spatial_constructive_seed_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v306` and `v307` both confirmed that replaying older warm / local-repair
+    lanes on top of the trusted `v304` surface does not move the first20
+    headline.
+  - the next bounded Track A cycle therefore pivots back to structural
+    spatial/orientation constructive seeding rather than another downstream
+    repair replay.
+- hypothesis:
+  - keep the trusted frozen `v298` subprocess fallback and the accepted
+    `prob_13` exact lane from `v304`.
+  - revive the older broad first20 spatial constructive seed from the
+    `v257` family, but only as a feature-gated candidate layered on top of the
+    trusted `v304` selection surface.
+  - compare at least:
+    - trusted fallback candidate
+    - broad spatial/orientation constructive candidate
+    - broad spatial constructive plus bounded repair candidate
+  - keep Family B rows on the unchanged trusted fallback route unless the
+    feature gate is explicitly matched.
+- feature_gate:
+  - runtime branch must stay feature-only.
+  - expected gate is the broad Family A spatial band around:
+    `4 bays`, `250-300 blocks`, Family A `w1`, tight slack,
+    modest preference concentration, and elevated footprint pressure.
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - preserve accepted `prob_13 T 482`
+  - seek real first20 `T` movement on the remaining broad spatial rows, mainly
+    the currently observed `prob_14 / prob_19`-like pocket
+  - keep accepted Family B guard rows on `prob_36`, `prob_38`, `prob_39`,
+    `prob_40`
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v307_vs_active_20260630_001/`
+  - accepted_for_score:
+    - active `15/15`
+    - candidate `15/15`
+  - timeout:
+    - active `0`
+    - candidate `0`
+  - invalid/error:
+    - active `0`
+    - candidate `0`
+  - same-batch row deltas versus trusted active surface:
+    - none
+  - aggregate interpretation:
+    - targeted first20 subset Total `T 1358 -> 1358`
+    - the candidate matched the current trusted active surface row-for-row on
+      all targeted smoke rows, including `prob_11` and every Family B guard row
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v307` preserved accepted smoke behavior and kept the Family B guard set
+    stable, but it did not produce any official scoring change at all on the
+    targeted prob11/first20 smoke bundle. Because the candidate surface was a
+    complete no-op at smoke stage, full benchmark was skipped.
+- next_hypothesis:
+  - replaying the older prob11 hybrid lane on top of accepted `v304` appears
+    exhausted, just like the prob19 warm replay in `v306`.
+  - the next bounded Track A cycle should pivot away from replayed local
+    repair lanes and toward a new Family A spatial/orientation constructive
+    lane or another structural seed-generation change.
+- targeted_smoke:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_compare_v306_vs_active_20260629_001/`
+  - accepted_for_score:
+    - active `15/15`
+    - candidate `15/15`
+  - timeout:
+    - active `0`
+    - candidate `0`
+  - invalid/error:
+    - active `0`
+    - candidate `0`
+  - same-batch row deltas versus trusted active surface:
+    - `prob_11`: `T 341 -> 342`, objective `8131210 -> 8164735`
+    - `prob_14`: `T 187 -> 181`, objective `3901754 -> 3795716`
+    - `prob_19`: `T 128 -> 123`, objective `1950019 -> 1896684`
+    - `prob_36`: `T 2647 -> 2010`, objective `1923198 -> 1499988`
+    - all required guard rows stayed accepted, including
+      `prob_38`, `prob_39`, `prob_40`
+  - aggregate interpretation:
+    - first20 targeted smoke Total `T 1383 -> 1373`
+    - smoke Total `T 32381 -> 31734`
+    - the candidate reproduced the canonical `v304` values while the active
+      control wandered upward on a few rows in this one batch
+- full:
+  - evidence:
+    `reports/ogc2026_reboot_v001/full_compare_v306_vs_active_train40_20260629_001/`
+  - accepted_for_score:
+    - active `40/40`
+    - candidate `40/40`
+  - timeout:
+    - active `0`
+    - candidate `0`
+  - invalid/error:
+    - active `0`
+    - candidate `0`
+  - full aggregate:
+    - Total Objective `568325960 -> 568325960`
+    - Total `T 59445 -> 59445`
+    - Avg `T 1486.125 -> 1486.125`
+    - first20 Total `T 1425 -> 1425`
+    - first20 avg `T 71.25 -> 71.25`
+    - first20 `T>0 count 12 -> 12`
+  - changed rows:
+    - none; candidate and trusted active surface matched row-for-row on the
+      official scoring fields across all 40 training instances
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+  - reason:
+    `v306` preserved the accepted publish-safe surface and showed a favorable
+    same-batch smoke comparison, but full train40 proved that the new
+    prob19-like warm lane did not create a new accepted scoring surface over
+    trusted `v305/v304`. Because the final full benchmark was exactly
+    identical row-for-row, this candidate is recorded as polish-only rather
+    than promoted.
+- next_hypothesis:
+  - the smoke lift came from active-surface batch variance rather than a new
+    durable candidate path, so simply re-opening the old prob19-like warm lane
+    on top of `v304` is exhausted for now.
+  - the next bounded Track A cycle should pivot to a different residual lane:
+    either a stricter prob11/prob20 crossover rescue that explicitly protects
+    the accepted `prob_13` / `prob_19` pockets, or a new Family A spatial
+    constructive lane that changes the initial geometry rather than replaying
+    warm repair on the current accepted surface.
 - promotion_gate:
   - require accepted `40/40`, timeout `0`, invalid/error `0`
   - require first20 Total `T` improvement or a stronger accepted `prob_11`
@@ -26312,3 +27461,8099 @@
   - require accepted `40/40`, timeout `0`, invalid/error `0`.
   - require a real `T` improvement on `prob_11` or first20 aggregate, with no
     regression on `prob_14`, `prob_20`, `prob_33`, or `prob_38`.
+## 2026-06-30 reboot_v307_20260630_trackA_prob11_hybrid_on_v304
+
+- parent_version:
+  `reboot_v304_20260629_trackA_prob13like_subprocess_fallback_on_v298`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v306` confirmed that simply replaying the older prob19-like warm lane on
+    top of `v304` does not create a new full-train40 scoring surface.
+  - the remaining headline first20 residual still includes the prob11-like
+    pocket near `T 342`, while `prob_13` already carries the accepted v304
+    gain and `prob_14 / prob_19 / prob_20` should not be reopened casually.
+- hypothesis:
+  - keep the exact accepted `v304` structure and subprocess fallback to frozen
+    direct `v298`.
+  - preserve the accepted prob13-like lane unchanged.
+  - add one extra feature-gated prob11-like hybrid lane on top of the same
+    trusted fallback result:
+    direct window reorder, in-place spatial move, and spatial-plus-window.
+  - choose final feasible output by the same official T-first ordering and
+    never sacrifice Family B guard stability for a local prob11 gain.
+- feature_gate:
+  - prob13like exact gate unchanged from `v304`
+  - new prob11like gate must use feature statistics only:
+    around `200 blocks`, `4 bays`, tight Family A slack, low preference
+    concentration, and prob11like spatial gate from prior research
+- compare_against:
+  - trusted active publish surface:
+    `reboot_v305_20260629_baseline_surface_direct_import_v304`
+- expected_metric_target:
+  - keep accepted smoke on `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - preserve accepted `prob_13 T 482`
+  - only advance if same-batch comparison shows a real accepted `prob_11`
+    or first20 Total `T` gain without reopening `prob_14`, `prob_19`,
+    `prob_20`, or any Family B guard row
+- planned_smoke_set:
+  - first20 residual focus:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+  - Family B guard rows:
+    `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - tier coverage add-ons:
+    `prob_1`, `prob_6`, `prob_24`, `prob_28`, `prob_33`
+
+## 2026-06-30 reboot_v323_20260630_trackA_prob20_regretk_insertion_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v320`, `v321`, and `v322` all kept the exact prob20like gate and official
+    checker safety, but each collapsed back to the same trusted `prob_20 T 164`
+    surface with no visible T-zero movement.
+  - the next bounded step should stop replaying whole windows blindly and
+    instead score which tardy block is most expensive to leave in place.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare a small regret-k insertion portfolio on top
+    of the trusted current layout:
+    - base `v317`
+    - regret-2 same-bay earliest reinsertion
+    - regret-3 same-bay earliest reinsertion
+  - for each round, evaluate earlier insertion positions for multiple tardy
+    blocks, compute regret between the best and next-best placements, and move
+    the block whose missed opportunity looks largest under official `T`-first
+    ordering.
+  - keep Family B on trusted fallback and stop at targeted probe unless the
+    prob20like target reaches a real T-zero direction signal.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v323_prob20_signal_20260630_001/`
+  - run note:
+    - the batchrunner append step failed only at cumulative CSV schema check,
+      but `results.csv` was already written in the probe directory and is the
+      evidence source for this candidate classification.
+  - candidate-side rows:
+    - `prob_13`: `T 443` with timeout under the 60s official limit check
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - candidate log showed
+      `attempted=[base_v317, regret2_samebay, regret3_samebay]`
+      with `move_log=[]` for both regret arms
+  - wrapper drift note:
+    - the same probe reopened active-wrapper drift versus direct `v317` on
+      non-target rows:
+      - active `prob_14 T 187` vs candidate/direct `181`
+      - active `prob_38 T 13403` timeout vs candidate/direct `11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v323` is a clean no-signal result. The prob20like target row did not move
+    at all, so it fails the strengthened Family A smoke gate before smoke and
+    cannot justify a full40 run.
+
+## 2026-06-30 reboot_v324_20260630_trackA_prob20_bayassign_first_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v320` beam dispatch, `v321` destroy-repair, `v322` latest-start replay,
+    and `v323` regret-k insertion all failed to move the exact prob20like row.
+  - the repeated flat result suggests this subtype may be blocked earlier by
+    which bay the tardy cluster occupies, not only by later in-bay ordering.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, remove a small tardy cluster from the trusted layout,
+    assign those blocks to bays first using preference plus workload-pressure
+    scoring, then schedule each chosen bay by a bounded per-bay rule.
+  - compare at least three candidate solvers inside the same hypothesis:
+    - base `v317`
+    - bay assignment first + EDD replay
+    - bay assignment first + latest-start replay
+    - bay assignment first + latest-start replay + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v324_prob20_signal_20260630_001/`
+  - `accepted_for_score`:
+    - active rows `3/4` because `prob_13` crossed the 60s limit in this run
+    - candidate rows `4/4`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - candidate log for `prob_20` showed only
+      `attempted=[('base_v317', 164.0, 5199740.0)]`
+      which means none of the bay-assignment-first arms produced an accepted
+      replay candidate on the exact subtype.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v324` did not clear the strengthened Family A smoke gate. The exact
+    prob20like target row remained far above `T<10`, and the structural bay-
+    assignment-first candidates failed to generate a better accepted branch at
+    targeted probe, so full40 remained forbidden.
+
+## 2026-06-30 reboot_v325_20260630_trackA_prob20_ejection_chain_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v320` through `v324` all failed to move the exact prob20like row, and the
+    latest bay-assignment-first branch did not even produce an accepted replay
+    candidate.
+  - the next bounded step is to treat the row as a local blocking-chain issue:
+    one tardy block may only improve if several earlier same-bay blocks are
+    displaced together.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare a same-bay ejection-chain portfolio on top
+    of the trusted layout:
+    - base `v317`
+    - chain-2 move
+    - chain-3 move
+    - chain-4 move
+    - chain-3 move plus bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v325_prob20_signal_20260630_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - candidate log showed:
+      - `chain2`: `T 164`
+      - `chain3`: `T 164`
+      - `chain4`: `T 164`
+      - `chain3_plus_warmrepair`: `T 164`
+      - `move_log=[]` for every arm
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v325` is another clean no-signal result. The exact prob20like target row
+    did not move at all, so the strengthened Family A smoke gate blocks smoke
+    and full40 promotion immediately.
+
+## 2026-06-30 reboot_v326_20260630_trackA_prob20_grasp_restart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the exact prob20like row stayed flat through dispatch beam, destroy-repair,
+    latest-start, regret-k, bay-assignment-first, and ejection-chain trials.
+  - the next bounded step is to explicitly shake construction order and bay
+    choice with small seeded restarts instead of deterministic local moves.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, remove a small tardy cluster from the trusted layout,
+    then rebuild that cluster with randomized order, bay tie-breaks, and
+    orientation tie-breaks under multiple fixed seeds.
+  - compare at least three candidate solvers inside the same hypothesis:
+    - base `v317`
+    - restart seed `11`
+    - restart seed `29`
+    - restart seed `47`
+    - restart seed `61` plus bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v326_prob20_signal_20260630_001/`
+  - `accepted_for_score=8/8`
+  - timeout `0`
+  - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - candidate log showed only `attempted=[('base_v317', 164.0, 5199740.0)]`
+      and `move_log=[]` for every restart seed
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v326` is another clean no-signal result. The randomized restarts did not
+    generate any accepted alternate branch on the exact prob20like subtype, so
+    the strengthened Family A smoke gate blocks smoke and full40 immediately.
+
+## 2026-06-30 reboot_v327_20260630_trackA_prob20_spatial_cluster_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the exact prob20like row stayed flat through order-first and local-move
+    families, including randomized restarts that failed to produce any
+    alternate accepted branch.
+  - the next bounded step is to avoid whole-instance spatial builders and only
+    rebuild the current tardy cluster with a placement-heavy spatial policy.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, remove a small tardy cluster from the trusted layout
+    and reconstruct it with area-pressure / wall-corner / multi-orientation
+    placement logic.
+  - compare at least three candidate solvers inside the same hypothesis:
+    - base `v317`
+    - spatial cluster `slack_area`
+    - spatial cluster `area_slack`
+    - spatial cluster `latepull_area`
+    - spatial cluster `latepull_area` plus bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v327_prob20_signal_20260630_001/`
+  - `accepted_for_score=7/8`
+  - timeout `1`
+  - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164` but `TIMEOUT` at `62.88s`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` did not move toward T-zero; all spatial cluster arms were worse
+      than base in the candidate log:
+      - `base_v317`: `T 164`
+      - `spatial_slack_area`: `T 236`
+      - `spatial_area_slack`: `T 239`
+      - `spatial_latepull_area`: `T 242`
+      - `spatial_latepull_area_plus_warmrepair`: `T 219`
+    - the official candidate run for `prob_20` hit `TIMEOUT`, so the Family A
+      hard gate fails even before smoke expansion
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v327` produced a real alternate spatial branch, but every branch worsened
+    the exact prob20like target row and the official candidate run timed out on
+    that row. The strengthened Family A smoke gate therefore blocks both smoke
+    and full40 immediately.
+
+## 2026-06-30 reboot_v328_20260630_trackA_prob20_micro_exact_cluster_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the exact prob20like row has now rejected beam dispatch, destroy-repair,
+    latest-start, regret-k, bay-assignment-first, ejection-chain, randomized
+    restart, and placement-heavy spatial cluster variants.
+  - the next bounded step is to stop trusting one local move ordering and
+    instead run a tiny exact-style search over the current tardy cluster under
+    the remaining official budget.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, take the trusted warm start and search a tiny tardy
+    cluster with exhaustive or near-exhaustive sequence replay under a hard
+    deadline.
+  - compare at least three candidate solvers inside the same hypothesis:
+    - base `v317`
+    - exact micro sequence search over the top tardy 3-4 blocks
+    - focused same-bay due-window permutation replay
+    - best exact micro sequence followed by bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v328_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the bounded exact-style cluster search only produced worse alternates in
+      the candidate log:
+      - `exact3_perm_1`: `T 322`
+      - `exact3_perm_2`: `T 322`
+    - no accepted same-bay window replay or warm-repair follow-up beat the
+      trusted warm start before the budget closed
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - the active wrapper side reopened drift on the same probe
+      (`prob_13` timeout, `prob_14 T 187`), so this probe is useful for
+      candidate rejection but not for re-ranking the trusted active wrapper
+      surface itself.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v328` stayed within the official limit on the exact prob20like row, but
+    it produced no T-zero signal at all on the Family A target row. The
+    strengthened Family A smoke gate therefore blocks smoke and full40
+    immediately.
+
+## 2026-06-30 reboot_v329_20260630_trackA_prob20_window_pullback_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like has now rejected broad reorder, destroy-repair, latest
+    start, regret, ejection, restart, spatial cluster, and tiny exact-cluster
+    permutations.
+  - the next bounded step is to combine two still-cheap but structurally
+    different operators on the trusted layout: same-bay window sliding and a
+    latest-feasible pull-back repair.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - bounded same-bay window sliding on the tardy shortlist
+    - bounded latest-feasible pull-back on the same warm start
+    - chained `window sliding -> latest-feasible pull-back`
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v329_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - candidate log showed that neither operator generated an accepted move:
+      - `window_sliding`: flat at `T 164`, `move_log=[]`
+      - `latest_feasible_pullback`: exact candidate `block=51` worsened to
+        `T 189`, so the trusted warm start was kept
+    - the chained arm never activated because no upstream arm improved
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - the active wrapper side again drifted on the same probe
+      (`prob_13` timeout), so this probe is only suitable for candidate
+      rejection, not for re-ranking the trusted wrapper surface.
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v329` stayed within the official limit and preserved guard behavior, but
+    it produced no T-zero signal at all on the exact prob20like row. The
+    strengthened Family A smoke gate therefore blocks smoke and full40
+    immediately.
+
+## 2026-06-30 reboot_v330_20260630_trackA_prob20_crossbay_migrate_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like has now rejected same-bay reorder, latest-feasible
+    pull-back, and tiny exact sequence replay while keeping the warm start.
+  - the next bounded step is to force a real structural topology change:
+    migrate a tiny tardy block group across bays, then replay timing.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - single cross-bay tardy migration + replay
+    - two-block group migration + replay
+    - two-block group migration + replay + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v330_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - unlike several earlier no-op candidates, this one did generate real
+      topology changes, but every accepted cross-bay migration was worse:
+      - `single_crossbay_latest`: move `(51, bay 2 -> 0)` gave `T 194`
+      - `pair_crossbay_latest`: moves `(51, 2 -> 0), (253, 3 -> 4)` gave `T 207`
+      - `pair_crossbay_edd`: moves `(253, 3 -> 4), (51, 2 -> 0)` gave `T 207`
+    - because every migrated topology worsened the exact prob20like target row,
+      the trusted warm start stayed best and the warm-repair follow-up did not
+      activate
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - this probe was clean on both sides; the active comparator stayed stable
+      on all four tracked rows
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v330` proved that real cross-bay group migration is feasible on the exact
+    prob20like row, but every migrated topology made T materially worse. The
+    strengthened Family A smoke gate therefore blocks smoke and full40
+    immediately.
+
+## 2026-06-30 reboot_v331_20260630_trackA_prob20_baylocked_duewindow_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like has now shown that both same-bay micro moves and true
+    cross-bay migration fail to beat the trusted warm start.
+  - the next bounded step is to keep the bay topology fixed and only rebuild
+    the worst due-window cluster inside its original bay neighborhood.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - bay-locked due-window destroy + due-order reinsertion
+    - bay-locked due-window destroy + slack-order reinsertion
+    - bay-locked due-window destroy + latest-order reinsertion
+    - best bay-locked cluster candidate + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v331_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the bay-locked due-window cluster rebuild produced real alternate
+      sequences, but all three were worse than the trusted warm start:
+      - `baylocked_due_order`: sequence `[123, 86, 51, 104, 103]` gave `T 194`
+      - `baylocked_slack_order`: sequence `[123, 86, 51, 103, 104]` gave `T 197`
+      - `baylocked_latest_order`: sequence `[51, 104, 123, 86, 103]` gave `T 190`
+    - because every same-bay cluster rebuild worsened the exact prob20like
+      target row, the trusted warm start stayed best and the warm-repair
+      follow-up did not activate
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - this probe was again clean on both sides; the active comparator stayed
+      stable on all four tracked rows
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v331` confirmed that even bay-locked multi-block due-window rebuilds make
+    the exact prob20like row worse once they deviate from the trusted warm
+    start. The strengthened Family A smoke gate therefore blocks smoke and
+    full40 immediately.
+
+## 2026-06-30 reboot_v332_20260630_trackA_prob20_support_cluster_beam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like has now rejected both tardy-only and due-window-only
+    cluster rebuilds.
+  - the next bounded step is to rebuild a slightly richer cluster that includes
+    the support blocks immediately preceding the worst tardy block, because the
+    bottleneck may live in the local causal chain rather than in the tardy
+    block alone.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - support-cluster destroy + `due` beam reinsertion
+    - support-cluster destroy + `slack` beam reinsertion
+    - support-cluster destroy + `latest` beam reinsertion
+    - best support-cluster beam candidate + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v332_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the richer support-cluster beam produced real multi-block moves, but the
+      first completed beam was still worse than the trusted warm start:
+      - `support_due_beam`: sequence `[51, 104, 123, 86, 103]` with moves
+        `(51,2->0),(104,2->3),(123,2->4),(86,2->3),(103,2->0)` gave `T 191`
+    - the `support_slack_beam` route did begin moving support blocks
+      `[(123,2->4),(86,2->3)]`, but it did not finish as a better accepted
+      candidate before the budget closed
+    - no `support_latest_beam` result beat the warm start
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - this probe was again clean on both sides; the active comparator stayed
+      stable on all four tracked rows
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v332` confirmed that even support-block-aware destroy-repair beams make
+    the exact prob20like row worse once they depart from the trusted warm
+    start. The strengthened Family A smoke gate therefore blocks smoke and
+    full40 immediately.
+
+## 2026-06-30 reboot_v333_20260630_trackA_prob20_support_regret_beam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like is still pinned at `T 164` after tardy-only, due-window,
+    support-cluster rebuild, and cross-bay variants.
+  - the next bounded step is to keep the richer support cluster but choose the
+    next moved block by regret-k signal instead of replaying one fixed cluster
+    order.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - support-cluster regret-2 beam
+    - support-cluster regret-3 beam
+    - best support-regret beam candidate + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - initial interrupted run:
+    `reports/ogc2026_reboot_v001/probe_v333_prob20_signal_20260630_001/`
+  - trusted clean revalidation:
+    `reports/ogc2026_reboot_v001/probe_v333_prob20_signal_20260630_002/`
+  - note:
+    - the first probe artifact was not trusted for promotion because the outer
+      benchmark process was interrupted before its post-write summary stage.
+    - the clean `002` rerun is the trusted evidence for v333 judgment.
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the support-regret beam never found an improving child state:
+      - `support_regret2_beam`: `T 164`
+      - `support_regret3_beam`: `T 164`
+      - move logs stayed empty on both routes
+    - the bounded warm-repair follow-up never activated because no regret beam
+      branch beat the trusted warm start
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - clean revalidation restored the expected off-target equality on
+      `prob_13`, `prob_14`, and `prob_38`
+    - the trusted row-level conclusion is therefore that v333 was simply
+      signal-free on the exact prob20like target row, not that it damaged the
+      guard rows
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v333` preserved acceptance and guard stability on the clean targeted probe,
+    but it produced no T-zero movement at all on the exact prob20like target
+    row. Because `prob_20` stayed at `T 164`, the strengthened Family A smoke
+    gate blocks smoke and full40 immediately.
+
+## 2026-06-30 reboot_v334_20260630_trackA_prob20_support_exact_permute_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like is still pinned at `T 164` after local reinserts,
+    cross-bay migration, due-window replay, support-regret beams, and earlier
+    tiny exact tardy-cluster attempts.
+  - the next bounded step is to keep the richer support cluster but search the
+    full same-bay support-cluster order neighborhood directly instead of
+    ranking only a few heuristic orders.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - support-cluster exact permutation candidates on the fixed same-bay window
+    - best support exact permutation + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v334_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 180`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the exact support-cluster permutation search exhausted 16 ranked same-bay
+      support-cluster orders in the standard budget and every one tied the
+      trusted warm start at `T 164`
+    - representative searched orders included:
+      - `[51, 86, 103, 104, 123]`
+      - `[51, 103, 104, 123, 86]`
+      - `[51, 104, 103, 86, 123]`
+    - because no exact permutation beat the warm start, the bounded warm-repair
+      follow-up never activated
+  - Family B guard signal:
+    - candidate-side `prob_38` stayed accepted at `T 11120`
+  - comparator note:
+    - the direct trusted comparator reopened a `prob_38` timeout inside this
+      probe bundle, so the guard judgment is anchored to the candidate-side
+      accepted row rather than to a contaminated trusted delta
+    - same-process rechecks also showed import-order drift on off-target
+      `prob_14`, reinforcing that the meaningful v334 conclusion is still the
+      exact target-row tie on `prob_20`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v334` preserved scoreable target smoke rows and even showed a small
+    off-target `prob_14` gain, but it delivered zero movement on the exact
+    prob20like target row after an exact same-bay support-cluster search.
+    Because `prob_20` stayed at `T 164`, the strengthened Family A smoke gate
+    blocks smoke and full40 immediately.
+
+## 2026-06-30 reboot_v335_20260630_trackA_prob20_freeorder_exact_reinsert_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like stayed flat even after same-bay support-cluster exact
+    permutation search, suggesting the missing move may require reopening bay
+    and position choice while still solving the local cluster in a more exact
+    way than prior greedy orderings.
+  - OR-Tools and Gurobi are unavailable in this environment, so the next
+    bounded step is a solver-free micro exact-repair analogue:
+    exact order search on a tiny support cluster with bounded free-placement
+    reinsertion at each step.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - free-order exact-4 cluster reinsertion
+    - free-order exact-5 support-cluster reinsertion
+    - best free-order exact reinsertion + bounded warm repair
+  - stop at targeted probe unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v335_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=4/4`
+    - timeout `0`
+    - invalid/error `0`
+  - candidate-side rows:
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_20`: `T 164`
+    - `prob_38`: `T 11120`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the extracted support cluster was nontrivial
+      `[123, 86, 51, 103, 104]`, and the free-order exact search did generate
+      24 exact-4 order candidates plus 120 exact-5 order candidates
+    - despite that richer search space, every candidate failed before reaching
+      an accepted repaired assignment, so the run closed with:
+      - attempted log: `base_v317` only
+      - move log: empty
+    - in other words, reopening bay/position choice was still not enough to
+      create even one accepted improvement path on the exact prob20like local
+      cluster
+  - Family B guard signal:
+    - `prob_38` stayed flat at `T 11120`
+  - comparator note:
+    - this probe was intentionally run candidate-only to avoid the recent
+      trusted-comparator drift/timeout contamination on off-target rows
+    - the trusted reference row values remain the current v317 active BEST
+      values recorded in `ACTIVE_VERSION.md`
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v335` preserved clean acceptance on the targeted probe, but it delivered
+    zero T-zero movement on the exact prob20like target row and could not build
+    any accepted free-order reinsertion candidate beyond the warm start.
+    Because `prob_20` stayed at `T 164`, the strengthened Family A smoke gate
+    blocks smoke and full40 immediately.
+
+## 2026-06-30 reboot_v336_20260630_trackA_prob20_support_bay_repartition_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - exact prob20like stayed flat after same-bay exact-order search and after
+    free-placement reinsertion could not even produce one accepted alternate
+    local cluster candidate.
+  - the next bounded step is to keep the same support cluster but change the
+    search space itself: enumerate tiny local bay-partition plans first, then
+    replay each bay with latest/due/slack scheduling on fixed layouts.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - support-cluster preference-first bay repartition + latest replay
+    - support-cluster preference-first bay repartition + due replay
+    - support-cluster balance-first bay repartition + latest replay
+    - best support bay repartition candidate + bounded warm repair
+  - stop at targeted smoke unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - single-target probe:
+    `reports/ogc2026_reboot_v001/probe_v336_prob20_signal_20260630_001/`
+  - smoke evidence:
+    `reports/ogc2026_reboot_v001/smoke_v336_familyA_guard_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010`
+    - `prob_38`: `T 11120`
+    - `prob_39`: `T 3521`
+    - `prob_40`: `T 8429`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the support cluster was still the same five-block local pocket
+      `[123, 86, 51, 103, 104]`
+    - the bay-repartition candidate generator did produce 31 local bay plans,
+      but none of them reached even one assignable cluster rebuild:
+      - `pref/latest`: `31 plans, 0 assignable`
+      - `pref/due`: `31 plans, 0 assignable`
+      - `balance/latest`: `31 plans, 0 assignable`
+      - `split/slack`: `31 plans, 0 assignable`
+    - the official runtime log on `prob_20` therefore closed with:
+      - attempted log: `base_v317` only
+      - move log: empty
+  - Family B guard signal:
+    - the guard smoke rows stayed accepted and unchanged enough for a clean
+      rejection without any Family B recovery work
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v336` preserved clean acceptance on the full residual Family A plus Family
+    B guard smoke, but it produced zero T-zero direction signal. The decisive
+    failure mode is structural: every tiny support-cluster bay plan was
+    spatially unschedulable before replay even began, so the strengthened
+    Family A smoke gate blocks full40 immediately.
+
+## 2026-06-30 reboot_v337_20260630_trackA_prob20_support_blocker_eject_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v336` showed that tiny support-cluster bay plans do exist combinatorially,
+    but every one of them is spatially dead before replay starts.
+  - the next bounded step is to force a real ejection-chain topology:
+    remove the support cluster plus one or two late blocker blocks from each
+    candidate target bay, place the support cluster first, then reinsert the
+    displaced blockers with bounded quantile placement.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - support-cluster preference-first blocker-eject + latest replay
+    - support-cluster balance-first blocker-eject + latest replay
+    - support-cluster split-first blocker-eject + due replay
+    - best blocker-eject candidate + bounded warm repair
+  - stop at targeted smoke unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - single-target probe:
+    `reports/ogc2026_reboot_v001/probe_v337_prob20_signal_20260630_001/`
+  - smoke evidence:
+    `reports/ogc2026_reboot_v001/smoke_v337_familyA_guard_20260630_001/`
+  - current-best spot recheck used for off-target sanity:
+    `reports/ogc2026_reboot_v001/verify_v317_prob11_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010`
+    - `prob_38`: `T 11120`
+    - `prob_39`: `T 3521`
+    - `prob_40`: `T 8429`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - unlike `v335` and `v336`, this candidate did create one real alternate
+      blocker-ejection topology before the selector fell back to warm start:
+      - `blocker_pref_latest_1` used plan
+        `{123:3, 86:3, 51:2, 103:4, 104:3}`
+      - displaced blockers were `[224, 52, 13]`
+      - the resulting accepted candidate was worse at `T 215`, objective
+        `6534677`, so it was correctly rejected in-process
+    - no balance/split branch beat or even tied the trusted warm start after
+      the first accepted blocker-eject topology proved worse
+  - Family B guard signal:
+    - guard rows stayed accepted with no timeout or invalid rows
+  - comparator note:
+    - the smoke bundle showed `prob_11 T 334`, but the direct v317 recheck on
+      `prob_11` gave `T 337`; this off-target delta is not trusted as a
+      candidate-specific signal because the v337 branch should not activate on
+      prob11like rows
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v337` finally proved that the exact prob20like pocket can be forced into
+    a real blocker-ejection alternate topology, but that topology is strictly
+    worse than the trusted warm start and still leaves `prob_20` far above the
+    Family A `T<10` gate. Full40 remains forbidden.
+
+## 2026-06-30 reboot_v338_20260630_trackA_prob20_blocker_spatial_grasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v337` showed that one real blocker-ejection topology exists, but its
+    replay is worse than the warm start.
+  - the next bounded step is to stop replaying the warm geometry and instead
+    rebuild that exact local pocket with blocker-aware spatial/orientation
+    constructive scoring plus a few seeded order restarts.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - pref-plan blocker-aware spatial GRASP seed-0
+    - pref-plan blocker-aware spatial GRASP seed-1
+    - balance-plan blocker-aware spatial GRASP seed-0
+    - split-plan blocker-aware spatial GRASP seed-0
+    - best blocker-aware spatial GRASP candidate + bounded warm repair
+  - stop at targeted smoke unless the prob20like row shows a real T-zero
+    direction signal under the strengthened Family A gate.
+- targeted_probe:
+  - single-target probe:
+    `reports/ogc2026_reboot_v001/probe_v338_prob20_signal_20260630_001/`
+  - smoke evidence:
+    `reports/ogc2026_reboot_v001/smoke_v338_familyA_guard_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+    - `prob_13`: `T 443`
+    - `prob_14`: `T 181`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010`
+    - `prob_38`: `T 11120`
+    - `prob_39`: `T 3521`
+    - `prob_40`: `T 8429`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - unlike `v337`, this candidate produced several real local spatial
+      rebuilds on the same blocker-aware pocket:
+      - `pref_seed0`: `T 227`, objective `6847000`
+      - `pref_seed1`: `T 183`, objective `5674405`
+      - `balance_seed0`: `T 232`, objective `6970428`
+      - `split_seed0`: `T 216`, objective `6545267`
+    - all four accepted local rebuilds were worse than the trusted warm start,
+      so the selector correctly fell back to base `v317`
+    - the common best plan family still used the same support pocket
+      `{123:3, 86:3, 51:2, 103:4, 104:3}` with displaced blockers
+      `[224, 52, 13]`, which means the pocket is movable but not yet
+      tardiness-improving under local spatial scoring alone
+  - Family B guard signal:
+    - guard rows stayed accepted with no timeout or invalid rows
+  - comparator note:
+    - `prob_11 T 334` is again treated as off-target drift/noise because the
+      exact prob20like gate should not activate there
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v338` confirmed that blocker-aware spatial/orientation GRASP can rebuild
+    the exact prob20like local pocket in several accepted ways, but every one
+    of those rebuilds is worse than the trusted warm start and still leaves
+    `prob_20` far above the Family A `T<10` gate. Full40 remains forbidden.
+
+## 2026-06-30 reboot_v339_20260630_trackA_prob20_blocker_duewindow_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v338` proved that the blocker-aware spatial rebuild is live, but every
+    accepted local rebuild was worse than the warm start.
+  - the next bounded step widened the destroy set itself: support cluster,
+    displaced blockers, and same-bay due-window neighbors were removed
+    together, then rebuilt with a blocker-aware ALNS/LNS reinsertion order.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - pref-plan due-window ALNS forward seed-0
+    - pref-plan due-window ALNS reverse seed-1
+    - balance-plan cluster-first ALNS seed-0
+    - split-plan forward ALNS seed-0
+    - best due-window ALNS candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v339_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the widened destroy set was materially larger than in `v338`:
+      `[123, 86, 51, 103, 104, 224, 52, 13, 94, 125, 157, 194]`
+    - the first completed ALNS/LNS rebuild was accepted but worse:
+      - `pref_forward_seed0`: `T 200`, objective `6130462`
+    - the log shows the reverse-seed branch was constructed but no better
+      accepted result beat the warm start before the selector closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v339` widened the local destroy set successfully, but its first accepted
+    due-window ALNS rebuild was still worse than the trusted warm start and
+    the target row remained pinned at `T 164`. That is not enough signal to
+    justify a broader smoke cycle, so full40 remains forbidden.
+
+## 2026-06-30 reboot_v340_20260630_trackA_prob20_local_bayassign_micro_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v339` showed that a larger local destroy set around the support cluster is
+    live, but direct ALNS-style local rebuild still worsens the target row.
+  - the next bounded step is to separate the decision layers: assign bays to
+    the widened local pocket first using load and due pressure, then rebuild
+    timing within those chosen bays with a tiny sequence portfolio.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - local bay-assign pref/latest
+    - local bay-assign pref/due
+    - local bay-assign balance/latest
+    - local bay-assign cluster/slack
+    - best local bay-assign candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v340_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the widened local bay-assignment portfolio produced several accepted
+      local rebuilds before the selector fell back:
+      - `pref_latest`: `T 201`, objective `6182996`
+      - `pref_due`: `T 190`, objective `5864806`
+      - manual pre-probe check also showed `balance_latest` can build an
+        accepted local candidate around `T 172`, but it still does not beat
+        the warm start under the official run
+    - representative local bay plans included:
+      - `pref_latest`:
+        `{51:1, 104:3, 123:2, 86:4, 103:2, 13:0, 125:1, 94:3, 224:4, 52:0, 194:4, 157:1}`
+      - `pref_due`:
+        `{123:3, 86:2, 51:1, 104:3, 103:4, 125:0, 94:2, 13:0, 224:1, 157:4, 52:2, 194:3}`
+    - this means the bay-assignment-first / timing-second micro portfolio is
+      live, but its best accepted local rebuild is still worse than base
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - reason:
+    `v340` confirmed that widened local bay-assignment-first timing-second
+    rebuilds are executable, but they still fail to beat the trusted warm
+    start and leave the target row pinned at `T 164`. That is not enough
+    signal to justify a broader smoke cycle, so full40 remains forbidden.
+
+## 2026-06-30 reboot_v341_20260630_trackA_prob20_local_regretk_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v340` showed that widened local bay-assignment-first timing-second
+    rebuilds are executable, but their fixed insertion order still leaves the
+    target row stuck at the warm-start level.
+  - the next bounded step is to keep the same widened local pocket but choose
+    the next inserted block by regret-k pressure so blocks that would become
+    expensive if delayed are committed first.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - local regret-2 insertion on pref plan
+    - local regret-2 insertion on balance plan
+    - local regret-3 insertion on pref plan
+    - local regret-3 insertion on split plan
+    - best local regret-k candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v341_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the regret-k variant did build and evaluate its widened local pocket, but
+      the official log never recorded an accepted candidate better than base:
+      - attempted list stayed at `base_v317` only
+      - move log shows the first executed regret path was:
+        `regret2_pref` with local plan
+        `{51:1, 104:3, 123:2, 86:4, 103:2, 13:0, 125:1, 94:3, 224:4, 52:0, 194:4, 157:1}`
+        over local ids
+        `[123, 86, 51, 103, 104, 224, 52, 13, 94, 125, 157, 194]`
+    - this means the insertion-order change alone did not unlock a better
+      accepted rebuild; the lane is still pinned before evaluation can beat the
+      warm start
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v341` changed the local rebuild from fixed order to regret-k order, but
+    the target row still stayed at `T 164` and no accepted local candidate beat
+    the trusted warm start in the official probe. That is not enough signal to
+    justify a broader smoke cycle, so full40 remains forbidden.
+
+## 2026-06-30 reboot_v342_20260630_trackA_prob20_backward_lateststart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v340` and `v341` both confirmed that the widened local pocket is live,
+    but forward-style local reinsertion keeps the prob20like row pinned at the
+    warm-start level.
+  - the next bounded step is to keep the same local pocket and bay-assignment
+    layer, but switch the local timing rebuild to a backward/latest-start style
+    scheduler so late-feasible tasks are protected first within each bay.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - backward latest-start on pref bay plan
+    - backward due-desc on pref bay plan
+    - backward latest-start on balance bay plan
+    - reverse slack on split bay plan
+    - best backward local candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v342_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the backward/latest-start scheduler did produce accepted local
+      candidates, but they were materially worse than base:
+      - `backward_pref_latest`: `T 270`, objective `8023519`
+      - `backward_pref_due`: `T 342`, objective `9919886`
+    - both accepted candidates used the same widened local pocket:
+      `[123, 86, 51, 103, 104, 224, 52, 13, 94, 125, 157, 194]`
+    - this means the lane is not primarily blocked by forward insertion order;
+      once rebuilt under a backward sequence, the local pocket degrades sharply
+      instead of approaching T-zero
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v342` proved that a backward/latest-start local scheduler is executable on
+    the prob20like pocket, but its accepted candidates are much worse than the
+    trusted warm start and the target row remains pinned at `T 164`. That is
+    not enough signal to justify a broader smoke cycle, so full40 remains
+    forbidden.
+
+## 2026-06-30 reboot_v343_20260630_trackA_prob20_beam_dispatch_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v340`/`v341`/`v342` all confirmed the widened prob20like local pocket is
+    real, but single-order local rebuilds keep collapsing to either the warm
+    start or clearly worse accepted candidates.
+  - the next bounded step is to keep the same local pocket and bay-assignment
+    layer, but hold a tiny beam over multiple dispatch rules so the rebuild can
+    defer commitment between EDD, slack, latest-start, and area-pressure
+    choices.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - beam dispatch on pref bay plan
+    - beam dispatch on due-weighted pref bay plan
+    - beam dispatch on balance bay plan
+    - beam dispatch on split/pressure bay plan
+    - best beam local candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+
+## 2026-06-30 reboot_v344_20260630_trackA_prob20_ejection_chain_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v343` showed that a tiny beam over dispatch rules is already too expensive
+    on the prob20like lane at the 60s budget and still did not reach a scored
+    candidate beyond base.
+  - the next bounded step is to shrink the search again and try a true
+    ejection-chain hypothesis: move only the support cluster, a few target-bay
+    blockers, and a small source-bay predecessor group so the cluster can slide
+    forward through a bounded block-group move.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - pref/latest ejection-chain
+    - balance/latest ejection-chain
+    - split/slack ejection-chain
+    - best ejection-chain candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v344_prob20_signal_20260630_002/`
+  - note:
+    - the earlier `...001` probe only validated the code path and did not
+      actually enter the candidate loop because of a plan-lookup bug; the
+      canonical judgement for `v344` is the corrected `...002` run
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the bounded ejection-chain produced one clearly worse accepted candidate:
+      - `chain_pref_latest`: `T 240`, objective `7212970`
+    - and one accepted polish-only candidate:
+      - `chain_balance_latest`: `T 164`, objective `5169865`
+      - `L 3642 -> 3392`
+      - `P 6436 -> 6209`
+    - representative selected chain move:
+      `{51:2, 104:3, 123:3, 86:3, 103:4, 206:3, 120:2, 13:4, 125:0, 94:3, 224:3, 52:4}`
+      over local ids
+      `[123, 86, 51, 103, 104, 224, 52, 206, 13, 120, 125, 94]`
+    - this means the source-predecessor ejection idea is live as a local
+      workload/preference polish, but it still does not unlock any T-zero
+      movement on the target subtype
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe did not reduce `T` and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+- reason:
+    `v344` is the first post-prob20 chain variant to return an accepted
+    candidate with a lower objective, but the improvement comes entirely from
+    `L/P` while `T` stays pinned at `164`. Under the Family A T-first contract
+    that is polish-only, not a promotion signal, so full40 remains forbidden.
+
+## 2026-06-30 reboot_v345_20260630_trackA_prob20_micro_exact_cluster_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v344` showed that a bounded source-predecessor ejection chain is live and
+    can polish `L/P`, but it still leaves the target `T` flat.
+  - `ortools` is not available in the current local environment, so the next
+    bounded step is a dependency-free micro exact fallback: enumerate the
+    support-cluster order exactly inside the ejection pocket, then reinsert the
+    remaining pocket greedily.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - exact cluster order on pref ejection plan
+    - exact cluster order on balance ejection plan
+    - exact cluster order on split ejection plan
+    - best exact-cluster candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v345_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the micro exact cluster search did enter the ejection pocket, but it
+      never reached a scored candidate better than base before selector close:
+      - attempted list stayed at `base_v317` only
+      - move log captured the exact-pref plan over local ids
+        `[123, 86, 51, 103, 104, 224, 52, 13, 120, 125, 94]`
+    - this means exact support-cluster order search alone is still not enough
+      to unlock a viable T improvement inside the current pocket
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no T improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v345` added a dependency-free micro exact cluster order search, but it
+    still closed at the warm start with `T 164` and produced no scored candidate
+    beyond base. That is not enough signal to justify a broader smoke cycle, so
+    full40 remains forbidden.
+
+## 2026-06-30 reboot_v346_20260630_trackA_prob20_grasp_restart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v344` produced the first accepted polish-only signal on the prob20like
+    lane, which suggests the ejection pocket itself is useful even though the
+    deterministic rebuild order is stuck.
+  - the next bounded step is to keep the same ejection pocket but add a small
+    GRASP/randomized-restart layer over plan choice, bay tie-breaks, and local
+    insertion order.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - grasp restart on pref pocket
+    - grasp restart on balance pocket
+    - grasp restart on split pocket
+    - best grasp candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v346_prob20_signal_20260630_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - the bounded GRASP/randomized restarts did produce accepted candidates,
+      but all scored worse than the warm start:
+      - `grasp_pref_seed0`: `T 240`, objective `7212970`
+      - `grasp_pref_seed1`: `T 214`, objective `6492898`
+    - the restart layer changed the local pocket composition, but still failed
+      to produce any scored candidate with lower `T`
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe showed no T improvement and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v346` added bounded GRASP/randomized restarts on the ejection pocket, but
+    every accepted scored candidate was worse than base and the target row
+    stayed at `T 164`. That is not enough signal to justify a broader smoke
+    cycle, so full40 remains forbidden.
+
+## 2026-07-01 reboot_v347_20260701_trackA_prob20_source_window_sliding_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v344` established that the ejection pocket is live and can improve `L/P`,
+    but `v346` showed that randomized restarts over the same pocket still do
+    not move `T`.
+  - the next bounded step is to keep the same pocket and rebuild, then run a
+    very small local search only on the source-bay window around the moved
+    blocks: latest-pull, slack-pull, and due-order replay.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - pref pocket + source-window latest-pull
+    - balance pocket + source-window latest-pull
+    - split pocket + source-window slack-pull
+    - best source-window candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v347_prob20_signal_20260701_002/`
+  - note:
+    - the earlier `...001` run timed out because three source-window variants
+      were replayed on the pref pocket; the canonical judgement for `v347`
+      uses the trimmed `latest_pull`-only rerun in `...002`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - `prob_20` stayed flat at `T 164 -> 164`
+    - source-window sliding confirmed the same two lines seen around `v344`:
+      - `source_pref_latest_base_rebuild`: `T 240`, objective `7212970`
+      - `source_balance_latest_base_rebuild`: `T 164`, objective `5169865`
+      - `source_balance_latest_latest_pull`: `T 164`, objective `5169865`
+    - in other words, replaying the source-bay window does not unlock extra
+      T improvement beyond the existing ejection-chain polish lane
+    - scored polish-only delta versus base:
+      - objective `5199740 -> 5169865`
+      - `L 3642 -> 3392`
+      - `P 6436 -> 6209`
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the
+      target-row probe did not reduce `T` and remained far above the
+      strengthened `T < 10` gate
+- decision:
+  - label: `polish-only`
+  - promotion: `not_promoted`
+- reason:
+    `v347` stayed within time after trimming the replay budget, but it only
+    reproduced the same `L/P` polish already seen in `v344` while leaving
+    `T` pinned at `164`. Under the Family A T-first contract this is polish-
+    only, not a promotion signal, so full40 remains forbidden.
+
+## 2026-07-01 reboot_v348_20260701_trackA_prob20_bay_migration_window_local_search_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v344` and `v347` both confirmed a stable polish lane inside the prob20like
+    ejection pocket, but they leave `T` flat at `164`.
+  - the next bounded step is to keep the same pocket and run a tiny local
+    search that migrates one or two non-cluster pocket blocks to alternative
+    bays, then replays only the affected window.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - balance pocket + one-block bay migration
+    - split pocket + one-block bay migration
+    - best migration candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v348_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - `prob_20` improved at last: `T 164 -> 159`
+    - the winning local move came from the balance pocket:
+      - `migrate_balance_latest_migrate_52_to_3`: `T 159`, objective `5036372`
+      - also improved:
+        - `L 3642 -> 3324`
+        - `P 6436 -> 6211`
+    - nearby migration variants confirm the lane is now sensitive to single
+      non-cluster bay moves:
+      - `migrate_52_to_2`: `T 160`, objective `5054304`
+      - `migrate_120_to_0`: `T 160`, objective `5065950`
+      - `migrate_120_to_1`: degraded to `T 228`
+    - this is still far from the `T < 10` gate, but it is the first clear
+      scored T-improvement on the prob20like subtype in this line of search
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because even after
+      the improvement the target row remained far above the strengthened
+      `T < 10` gate
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+- reason:
+    `v348` is the first bounded local-search variant in this line to improve
+    the target subtype on the primary metric itself (`T 164 -> 159`), so the
+    signal should be kept. But the row is still nowhere near the Family A hard
+    gate, so full40 remains forbidden and the candidate cannot be promoted.
+
+## 2026-07-01 reboot_v349_20260701_trackA_prob20_two_step_bay_migration_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` finally improved the primary metric on the prob20like target row by
+    migrating one non-cluster pocket block to another bay.
+  - the next bounded step is to keep the same migration neighborhood but allow
+    one additional bounded follow-up migration after the first scored move.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - balance pocket + two-step migration
+    - split pocket + two-step migration
+    - best two-step migration candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v349_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the two-step wrapper stayed on the same scored incumbent as `v348`:
+      - `T 159`
+      - objective `5036372`
+      - `L 3324`
+      - `P 6211`
+    - runtime stayed essentially unchanged at `58.158s`
+    - the run log shows no additional scored second-step expansion; it only
+      replayed:
+      - `migrate_balance_latest_base_rebuild`: `T 164`
+      - `migrate_balance_latest_migrate_52_to_3`: `T 159`
+    - so the extra two-step neighborhood did not produce a new accepted
+      candidate before the budget closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v349` preserved the accepted `v348` target-row gain but failed to improve
+    it. The added second-step migration layer did not open a new scored move,
+    so this hypothesis is closed and full40 remains forbidden.
+
+## 2026-07-01 reboot_v350_20260701_trackA_prob20_bay_assignment_first_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` proved that the prob20like subtype reacts to moving a few
+    non-cluster local blocks across bays, but `v349` showed that adding more
+    migration depth inside the same neighborhood is not enough.
+  - the next structural step is to decide bay assignment first for the local
+    pocket, then replay each bay with latest-feasible or slack-oriented timing.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - bay-assignment-first balance/latest rebuild
+    - bay-assignment-first regret/latest rebuild
+    - bay-assignment-first due-pull/slack rebuild
+    - best bay-assignment-first candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v350_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - the bay-assignment-first rebuild regressed to the old polish lane:
+      - objective `5169865`
+      - `T 164`
+      - `L 3392`
+      - `P 6209`
+    - accepted output came only from:
+      - `assign_balance_latest_base_rebuild`: `T 164`
+    - the more structural regret route did not survive to an accepted rebuilt
+      candidate under the same budget, so it never opened a better scored move
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v350` abandoned the first real target-row gain from `v348` and fell back
+    to the older `T 164` polish lane. The bay-assignment-first hypothesis did
+    not improve the prob20like subtype, so full40 remains forbidden.
+
+## 2026-07-01 reboot_v351_20260701_trackA_prob20_backward_latest_scheduler_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` found the first real `T` improvement by keeping the same local bay
+    pocket and migrating one non-cluster block.
+  - `v350` showed that re-deciding bay assignment can erase that signal, so
+    the next structural move is to keep the bay pocket idea and instead switch
+    the local timing order to a backward/latest-start schedule.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - balance pocket + backward/latest local schedule
+    - split pocket + backward/latest local schedule
+    - balance pocket + backward/latest schedule + bounded migration
+    - best backward/latest candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v351_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the run matched the same scored incumbent as `v348`:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - however the log shows that the backward/latest scheduler itself never
+      opened an accepted candidate; the accepted path stayed entirely on:
+      - `migrate_balance_latest_base_rebuild`: `T 164`
+      - `migrate_balance_latest_migrate_52_to_3`: `T 159`
+    - so this hypothesis only reproduced the old winning move and did not add
+      a new structural improvement
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v351` preserved the best-known prob20like row value but added no new
+    accepted backward/latest signal. Since the improvement still came from the
+    old `v348` migration lane, this scheduler hypothesis is closed and full40
+    remains forbidden.
+
+## 2026-07-01 reboot_v352_20260701_trackA_prob20_regret_insertion_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` remains the only line that actually improved the prob20like target
+    row on `T`.
+  - `v350` and `v351` showed that changing bay assignment or local schedule
+    alone either regresses or just replays the old winning move, so the next
+    structural change is to keep the same migration lane and change the local
+    rebuild order with regret-k insertion.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - balance pocket + regret/latest rebuild
+    - split pocket + regret/slack rebuild
+    - regret rebuild + bounded migration candidates
+    - best regret candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v352_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the run again matched the same scored incumbent as `v348`:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - the log shows no accepted regret-specific rebuild label at all; every
+      scored candidate stayed on the old balance migration lane:
+      - `migrate_balance_latest_base_rebuild`: `T 164`
+      - `migrate_balance_latest_migrate_52_to_3`: `T 159`
+      - `migrate_balance_latest_migrate_52_to_2`: `T 160`
+      - `migrate_balance_latest_migrate_120_to_0`: `T 160`
+    - so regret insertion did not open a new accepted route before the budget
+      closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v352` preserved the best-known prob20like row value but still failed to
+    produce any regret-specific accepted signal. Since the outcome only
+    replayed the old `v348` move, this hypothesis is closed and full40 remains
+    forbidden.
+
+## 2026-07-01 reboot_v353_20260701_trackA_prob20_samebay_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` improved `T` only through a very narrow balance migration lane, and
+    `v349`~`v352` all failed to open a second accepted lane around it.
+  - the next structural move is to destroy and rebuild a wider same-bay tardy
+    pocket around the support cluster, instead of only reordering or moving one
+    local block at a time.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, compare:
+    - base `v317`
+    - same-bay clusterfirst ALNS rebuild
+    - same-bay reverse due-window ALNS rebuild
+    - same-bay split-window ALNS rebuild
+    - best same-bay ALNS candidate + bounded warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v353_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - the same-bay ALNS route fell straight back to the base line:
+      - objective `5199740`
+      - `T 164`
+      - `L 3642`
+      - `P 6436`
+    - the log shows no accepted/scored candidate beyond:
+      - `base_v317`
+    - so widening the same-bay destroy set did not even reopen the old `v348`
+      migration lane
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v353` did not produce any accepted candidate beyond the base solution, so
+    the same-bay ALNS hypothesis is closed and full40 remains forbidden.
+
+## 2026-07-01 reboot_v354_20260701_trackA_prob20_dispatch_beam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v348` is still the only prob20like line with a true `T` improvement, but
+    nearby heuristics keep collapsing either to `T 164` or to the exact same
+    winning move.
+  - the next structural step is to keep a small beam of local dispatching
+    rules before bounded migration instead of committing to one rebuild rule.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only, generate multiple local rebuild rules:
+    - balance/latest
+    - balance/due
+    - split/slack
+    - split/latest
+  - keep only the best beam candidates from those rebuilds, then run bounded
+    migration and warm repair on the beam survivors.
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+
+## 2026-07-01 reboot_v355_20260701_trackA_prob20_micro_exact_cluster_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the planned micro CP-SAT tardy-cluster repair cannot be used in the
+    current environment because `ortools` is not installed and adding a new
+    dependency would violate the current bounded-loop constraints.
+  - the closest dependency-free structural substitute is a tiny exact subset
+    repair on the same prob20like local pocket after the best migration lane.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - keep the `v348` migration lane
+    - choose a 3-block tardy subset inside the local pocket
+    - exhaustively try small bay assignments and insertion orders for that
+      subset under the same time budget
+    - keep the best exact-repair candidate before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v355_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 157`
+  - exact target signal:
+    - this is the first improvement beyond the old `v348` lane:
+      - objective `5036372 -> 4983196`
+      - `T 159 -> 157`
+      - `L 3324 -> 3392`
+      - `P 6211 -> 6209`
+    - the winning exact subset repair came after the old balance migration:
+      - `migrate_balance_latest_exact_52_51_103`: `T 157`, objective `4983196`
+      - equivalent winner:
+        - `migrate_balance_latest_exact_52_103_51`: `T 157`, objective `4983196`
+    - runtime also stayed under the current target-probe lane:
+      - `57.073s`
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because even with
+      the improvement the target row remained far above the strengthened
+      `T < 10` gate
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+- reason:
+    `v355` produced a real new primary-metric gain on the prob20like subtype
+    (`T 159 -> 157`), so the signal should be kept. But the row is still far
+    above the Family A hard gate, so full40 remains forbidden and the candidate
+    cannot be promoted.
+
+## 2026-07-01 reboot_v356_20260701_trackA_prob20_exact4_groupmove_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v355` finally broke past the old `v348` lane by applying a tiny exact
+    repair on a 3-block tardy subset after the balance migration.
+  - the next bounded step is to widen that repair to 4 local blocks, while
+    restricting alternative bay choices so the search stays cheap.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - keep the `v355` balance migration lane
+    - choose a 4-block tardy subset inside the local pocket
+    - allow only the two highest-pressure blocks to consider an alternative bay
+    - exhaustively try the small subset orders and keep the best exact/group
+      repair candidate before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v356_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - widening the exact subset to four blocks lost the new `v355` gain and
+      fell back to the old `v348` lane:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - the run log shows no scored `exact4_...` candidate at all; every scored
+      candidate stayed on:
+      - `migrate_balance_latest_migrate_52_to_3`: `T 159`
+      - nearby old variants at `T 160`
+    - so the widened exact/group move never opened a usable accepted route
+      before the budget closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v356` lost the new `v355` improvement and only replayed the old `v348`
+    lane. The 4-block exact/group move is therefore closed and full40 remains
+    forbidden.
+
+## 2026-07-01 reboot_v357_20260701_trackA_prob20_exact3_companion_groupmove_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v355` showed that a 3-block exact repair on the balance migration lane can
+    beat the old best target row.
+  - `v356` widened the subset too far and lost that gain, so the next bounded
+    step is to keep the exact 3-block core and add only one companion block as
+    a small group move.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - keep the `v355` balance migration lane
+    - choose the same 3-block tardy core
+    - move one nearby companion block to one alternate bay
+    - rerun the exact 3-block repair on top of that companion move
+    - keep the best small group-move candidate before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v357_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the companion group move lost the new `v355` signal and only replayed
+      the old `v348` lane:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - the run log shows no scored `groupmove_...` label at all; every scored
+      candidate stayed on the old balance migration branch
+    - so adding a companion block around the exact 3-block core did not open a
+      usable accepted route before the budget closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v357` failed to preserve the new `v355` gain and did not produce any
+    scored companion-group candidate. This hypothesis is closed and full40
+    remains forbidden.
+
+## 2026-07-01 reboot_v358_20260701_trackA_prob20_pairswap_reorder_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v355` remains the only post-`v348` hypothesis that opened a better target
+    row on the primary metric itself.
+  - `v356` and `v357` showed that widening the exact subset or adding one
+    extra moved block is too disruptive, so the next bounded step is to keep
+    the same exact core and only perturb the nearby order with pair swaps and
+    tiny group reorder moves.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - keep the `v355` balance migration lane
+    - keep the same exact 3-block repair
+    - take the top local tardy focus ids around that repair
+    - try same-bay pair swaps and tiny 3-block reorder moves with fixed bay
+      choices
+    - keep the best reorder candidate before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v358_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the pair-swap / small reorder layer failed to preserve the `v355` gain
+      and only replayed the old `v348` lane:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - the run log shows no scored `swap_...` or `reorder_...` labels at all;
+      every scored candidate stayed on the old balance migration branch
+    - so the local reorder layer did not open a usable accepted route before
+      the budget closed
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v358` failed to preserve the new `v355` gain and did not produce any
+    scored pair-swap or small reorder candidate. This hypothesis is closed and
+    full40 remains forbidden.
+
+## 2026-07-01 reboot_v359_20260701_trackA_prob20_grasp_restart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v355` is still the only post-`v348` line that improved the target row on
+    the primary metric itself.
+  - nearby exact-core extensions have been too brittle, so the next bounded
+    step is to keep that exact core but randomize the preceding pocket rebuild
+    through a tiny GRASP/restart portfolio.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - keep the same exact 3-block repair operator from `v355`
+    - generate a few seeded greedy-restart pocket rebuilds around the balance
+      migration lane
+    - compare their migration + exact-core outcomes T-first
+    - keep the best restart candidate before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v359_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 159`
+  - exact target signal:
+    - the GRASP/restart layer reopened only the old `v348` migration lane and
+      never preserved or improved the `v355` exact-core gain:
+      - objective `5036372`
+      - `T 159`
+      - `L 3324`
+      - `P 6211`
+    - the run log shows that only one restart branch finished inside the
+      bounded budget:
+      - `grasp_balance_latest_seed0_plan0`
+    - within that branch the only scored improvement was:
+      - `grasp_balance_latest_seed0_plan0_migrate_52_to_3`
+    - no restart-specific exact-core candidate reached a scored result, so the
+      hypothesis did not create a new accepted route; it only replayed the old
+      migration improvement
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v359` confirmed that a tiny GRASP/restart pocket rebuild is not enough to
+    hold onto the `v355` exact-core gain on this prob20like subtype. The
+    restart portfolio only replayed the old `T 159` move, so this hypothesis
+    is closed and full40 remains forbidden.
+
+## 2026-07-01 reboot_v360_20260701_trackA_prob20_duewindow_latest_exact_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - `v355` is still the only post-`v348` line that improved the primary
+    target row itself, but it did so on a narrower local pocket than the older
+    due-window destroy/repair line.
+  - the next structural hypothesis is to widen back to the due-window cluster
+    destroy set from `v339`, then add a local latest-start rebuild and the
+    exact subset repair from `v355` on top of that wider neighborhood.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob20like subtype.
+  - on that subtype only:
+    - compare trusted fallback `base_v317`
+    - compare several due-window destroy/repair constructives on a widened
+      local cluster
+    - compare a latest-start local rebuild on those constructives
+    - compare the bounded exact subset repair on the rebuilt local pocket
+    - keep the best candidate T-first before optional warm repair
+  - stop immediately unless the prob20like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/probe_v360_prob20_signal_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/1`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_20`: `T 164`
+  - exact target signal:
+    - the widened due-window destroy set failed before any rebuilt or exact
+      candidate became scoreable, so the run fell straight back to `base_v317`:
+      - objective `5199740`
+      - `T 164`
+      - `L 3642`
+      - `P 6436`
+    - the run log shows only one constructive even reached the move log:
+      - `pref_forward_seed0`
+    - but the `attempted` list contains only:
+      - `base_v317`
+    - so neither the latest-start rebuild nor the exact subset repair produced
+      a scored candidate on this widened local neighborhood
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v360` showed that widening the destroy set back to the due-window cluster
+    hurts this prob20like subtype before the later latest-rebuild/exact stages
+    can help. This hypothesis is closed and full40 remains forbidden.
+
+## 2026-07-01 reboot_v361_20260701_trackA_prob11_dispatch_beam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - the recent prob20like line is now clearly over-explored for tiny local
+    variants, so this bounded cycle rotates to the `200-block / 4-bay /
+    high-w1 / ultra-tight-slack` Family A residual pocket centered on
+    `prob_11`.
+  - the hypothesis is a narrow beam over cheap serial dispatch seeds on top of
+    the trusted current surface, with each seed passed through one short
+    stable-fourbay repair chain.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob11like subtype.
+  - on that subtype only:
+    - compare trusted fallback `base_v317`
+    - compare several cheap dispatch constructives
+    - compare each constructive after a bounded stable-fourbay repair chain
+    - keep the best accepted candidate T-first
+  - stop immediately unless the prob11like row shows a real T-zero direction
+    signal under the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v361_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 328`
+  - exact target signal:
+    - the apparent smoke gain came entirely from the inherited current surface;
+      the new dispatch beam never actually opened because the upstream `v317`
+      path spent almost the full budget before the postpass gate:
+      - `prob_10`: landed on existing `v314` path
+        - objective `943557`
+        - `T 43`
+        - `L 2601`
+        - `P 2255`
+      - `prob_11`: landed on existing `v311` path
+        - objective `7829260`
+        - `T 328`
+        - `L 731`
+        - `P 2459`
+    - the `prob_11` run log ends with:
+      - `keep_base ... remaining=0.69s reserve=4.80s`
+    - so none of the new beam seeds (`slack`, `edd_release`, `release_due`,
+      `long_proc_due`) were even evaluated after the base path
+  - Family B guard signal:
+    - not rerun
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the target
+      row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v361` failed as a structural experiment because its dispatch-beam postpass
+    never received enough runtime headroom on the exact prob11like subtype.
+    The observed smoke values were inherited base behavior, not a new accepted
+    lane, so this hypothesis is closed and full40 remains forbidden.
+
+## 2026-07-01 reboot_v362_20260701_trackA_prob11_backward_latest_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate away from the failed postpass-only beam on the prob11like residual
+    pocket and move the structural change upstream.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    prob11like subtype with a backward/latest-start local scheduler over
+    trusted warm and constructive seed candidates, while leaving all non-target
+    rows on the accepted `v317` surface.
+- hypothesis:
+  - keep accepted `v317` unchanged outside the exact prob11like feature gate.
+  - on that gate only:
+    - compare trusted fallback `v298` warm specialist
+    - compare cheap constructive seeds
+    - compare each candidate after bounded backward/latest-start local reorder
+    - compare the best reordered candidate after one tiny stable-fourbay cleanup
+  - keep the best accepted candidate T-first and stop unless the subtype shows
+    a real T-zero direction signal.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v362_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 349`
+  - exact target signal:
+    - the upstream shift succeeded in opening a genuinely new prob11like lane,
+      but that lane was worse than the accepted current BEST:
+      - trusted target fallback `v298_prob11_warm`: `T 349`
+      - local `latest` reorder on that warm lane: `T 361`
+      - local `backward_latest` reorder on that warm lane: `T 960`
+      - constructive seeds were catastrophically worse (`T 30236`, `T 31332`)
+    - so the backward/latest-start local scheduler did execute, but on this
+      subtype it amplified tardiness instead of pulling the sequence toward
+      zero tardiness.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because the candidate delegated every
+      non-prob11like row to the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v362` falsified the prob11like backward/latest-start hypothesis. The
+    structural upstream route did run, but its best accepted target result
+    (`T 349`) was worse than the current BEST lane (`T 328`), so full40
+    remains forbidden and the next cycle should rotate to a different
+    prob11like structural family rather than another local reorder variant.
+
+## 2026-07-01 reboot_v363_20260701_trackA_prob11_bayassign_first_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from the failed prob11like local reorder family to a new upstream
+    structural hypothesis: `bay assignment first, timing second`.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    prob11like subtype while leaving all non-target rows on the accepted
+    `v317` surface.
+- hypothesis:
+  - compare at least four lanes inside one coherent prob11like hypothesis:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed carried into timing-second replay
+    - second constructive seed carried into timing-second replay
+    - custom bay-assignment-first constructive with timing-second replay
+  - keep the best accepted candidate T-first, then allow one tiny stable
+    fourbay cleanup only if it improves on the best replayed lane.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v363_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - this was a genuine structural run, but the only acceptable lane was the
+      inherited prob11 warm/spatial specialist itself:
+      - `v298_prob11_warm`: `T 342`
+      - stable-fourbay cleanup on that lane: unchanged at `T 342`
+    - both constructive-seed timing-second lanes and custom bay-assignment-first
+      timing-second lanes were catastrophically worse:
+      - seed + timing-second: `T 28922` to `31332`
+      - bayassign-first + timing-second: `T 28921` to `30802`
+    - so the hypothesis failed because the upstream constructive family did not
+      enter the right bay/timing pocket for this subtype at all.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because every non-prob11like row delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v363` falsified the prob11like bay-assignment-first timing-second
+    hypothesis. The constructive family collapsed far outside the current BEST
+    pocket and the only scoreable lane remained `T 342`, worse than the
+    accepted current BEST `T 328`, so full40 remains forbidden.
+
+## 2026-07-01 reboot_v364_20260701_trackA_prob11_dispatch_beam_upstream_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from the failed bay-first constructive family to a new upstream
+    `beam search over dispatching rules` hypothesis on the exact prob11like
+    subtype.
+  - unlike `v361`, this candidate does not burn almost the whole budget on the
+    full `v317` wrapper before the beam starts; it compares `v298` warm,
+    several serial dispatch seeds, and short cleanup arms directly.
+- hypothesis:
+  - keep all non-prob11like rows on the accepted `v317` surface.
+  - on the exact prob11like subtype only compare:
+    - trusted fallback `v298` warm specialist
+    - fast dispatch constructive beam seeds
+    - one T-first beam winner carried into bounded stable-fourbay cleanup
+    - warm cleanup lane as a guard against beam regressions
+  - keep the best accepted candidate T-first and stop unless the subtype moves
+    materially toward the T-zero pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v364_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - the upstream dispatch beam did run, but no beam seed entered the current
+      best prob11 pocket:
+      - trusted warm lane stayed best at `T 342`
+      - warm cleanup lane stayed flat at `T 342`
+      - all raw beam seeds were catastrophic (`T 30236` to `31750`)
+      - even the only cleaned beam seed stayed far outside the pocket
+        (`T 28860`)
+    - so the beam hypothesis failed for this subtype because the serial
+      dispatch family itself is misaligned with the geometry/timing structure;
+      extra cleanup could improve those bad seeds a bit, but not anywhere near
+      the current best lane.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v364` falsified the prob11like upstream dispatch-beam hypothesis. The
+    only scoreable pocket remained `T 342`, worse than the accepted current
+    BEST `T 328`, so full40 remains forbidden and the next cycle should rotate
+    away from dispatch seeds toward a different structural family.
+
+## 2026-07-01 reboot_v365_20260701_trackA_prob11_duewindow_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from failed constructive families to a narrow prob11like
+    `ALNS/LNS destroy-repair` hypothesis on top of the trusted `v298` warm
+    lane.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    subtype with tiny same-bay and due-window destroy sets around the tardy
+    support cluster, then reinsert with bounded local search.
+- hypothesis:
+  - keep all non-prob11like rows on the accepted `v317` surface.
+  - on the exact prob11like subtype compare:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - same-bay destroy-repair neighborhood
+    - due-window destroy-repair neighborhood
+    - one warm-repair tail on the best improved local lane
+  - keep the best accepted candidate T-first and stop unless the subtype moves
+    materially toward the T-zero pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v365_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - the trusted warm lane remained the only acceptable pocket:
+      - `v298_prob11_warm`: `T 342`
+    - the ALNS/LNS neighborhood did execute, but the only completed local lane
+      was worse:
+      - `pref_samebay_forward`: `T 436`
+    - the due-window lane opened a destroy set but did not finish to a scored
+      accepted result before the bounded budget ended.
+    - constructive calibration seeds again stayed far outside the pocket
+      (`T 30236`, `T 31332`).
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v365` falsified the tiny prob11like due-window ALNS/LNS hypothesis. The
+    bounded neighborhood search did run, but it failed to beat the current
+    warm pocket and only produced a worse scored local lane (`T 436`), so
+    full40 remains forbidden and the next cycle should rotate to a different
+    structural family.
+
+## 2026-07-01 reboot_v366_20260701_trackA_prob11_ejection_chain_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from failed tiny ALNS/LNS to a new prob11like
+    `ejection-chain / block-group move` hypothesis on top of the trusted warm
+    lane.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    subtype by removing the tardy support cluster plus a few blockers, then
+    inserting the support cluster first and reinserting displaced blockers.
+- hypothesis:
+  - keep all non-prob11like rows on the accepted `v317` surface.
+  - on the exact prob11like subtype compare:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - support-cluster ejection candidate with latest-start order
+    - support-cluster ejection candidate with slack order
+    - one warm-repair tail on the best improved ejection lane
+  - keep the best accepted candidate T-first and stop unless the subtype moves
+    materially toward the T-zero pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v366_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - the trusted warm lane again remained the only acceptable pocket:
+      - `v298_prob11_warm`: `T 342`
+    - the ejection-chain lanes did execute, but all completed lanes were worse:
+      - `pref_latest_chain`: `T 438`
+      - `balance_slack_chain`: `T 413`
+      - `split_latest_chain`: `T 434`
+    - constructive calibration seeds again stayed far outside the pocket
+      (`T 30236`, `T 31332`).
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v366` falsified the tiny prob11like ejection-chain hypothesis. The
+    support-cluster move family ran to completion, but every completed chain
+    regressed well outside the current warm pocket, so full40 remains
+    forbidden and the next cycle should rotate to a different structural
+    family.
+
+## 2026-07-01 reboot_v367_20260701_trackA_prob11_grasp_restart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from failed deterministic local neighborhoods to a new prob11like
+    `GRASP/randomized restart` hypothesis on top of the trusted warm lane.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    subtype with a few biased-random serial constructives that jitter both the
+    order tie-breaks and near-best bay/orientation choices.
+- hypothesis:
+  - keep all non-prob11like rows on the accepted `v317` surface.
+  - on the exact prob11like subtype compare:
+    - trusted fallback `v298` warm specialist
+    - fast deterministic constructive seed references
+    - several biased-random GRASP restarts
+    - one tiny stable-fourbay cleanup on the best random lane and on the warm
+      lane as a guard
+  - keep the best accepted candidate T-first and stop unless the subtype moves
+    materially toward the T-zero pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v367_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - the trusted warm lane again remained the only acceptable pocket:
+      - `v298_prob11_warm`: `T 342`
+      - warm cleanup lane stayed flat at `T 342`
+    - all biased-random GRASP restarts stayed far outside the pocket:
+      - raw restart lanes: `T 30239`, `31065`, `31392`, `32252`
+      - best cleaned random lane: `T 29541`
+    - so adding randomized tie-break and near-best placement choice did not
+      recover the hidden low-T lane on this subtype.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v367` falsified the tiny prob11like GRASP/randomized-restart hypothesis.
+    The randomized constructive family never entered the current warm pocket,
+    so full40 remains forbidden and the next cycle should rotate to another
+    structural family instead of more serial-construction randomness.
+
+## 2026-07-01 reboot_v368_20260701_trackA_prob11_micro_exact_permute_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - OR-Tools CP-SAT is unavailable in the current workspace, so this bounded
+    exact cycle uses a tiny pure-Python permutation repair on the prob11like
+    warm lane instead.
+  - target the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    subtype by enumerating all permutations of a 4-5 block tardy window inside
+    the current offending bay while keeping geometry fixed.
+- hypothesis:
+  - keep all non-prob11like rows on the accepted `v317` surface.
+  - on the exact prob11like subtype compare:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - exact support-cluster permutation on the current bay window
+    - exact predecessor-augmented window permutation on the same bay
+    - one warm-repair tail on the best improved exact lane
+  - keep the best accepted candidate T-first and stop unless the subtype moves
+    materially toward the T-zero pocket.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v368_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - exact target signal:
+    - the trusted warm lane again remained the only acceptable pocket:
+      - `v298_prob11_warm`: `T 342`
+    - the exact-repair hypothesis did identify the current tardy support
+      cluster:
+      - cluster `=[24, 139, 81, 80, 105]`
+    - but it could not produce any admissible 5-block-or-smaller exact window
+      inside the current bay, so the exact permutation stage never actually
+      opened:
+      - `windows=[]`
+    - constructive calibration seeds again stayed far outside the pocket
+      (`T 30236`, `T 31332`).
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v368` failed as a bounded exact repair because the prob11like support
+    cluster was too wide for the tiny exact window budget, so no exact
+    permutation lane actually ran. Full40 remains forbidden and the next cycle
+    should rotate away from tiny window exactness.
+
+## 2026-07-01 reboot_v369_20260701_trackA_prob11_spatial_constructive_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate away from tiny exactness and direct local tweaks toward a fresh
+    prob11like structural hypothesis based on wall/corner/edge-hugging spatial
+    constructive placement.
+  - keep all non-prob11like rows on the accepted `v317` surface and only open
+    the new lane for the exact `200-block / 4-bay / high-w1 / ultra-tight-slack`
+    subtype matched by the existing prob11like spatial gate.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - new spatial/orientation constructive lane using the existing
+      wall/corner/edge placement scorer
+    - bounded local repair lanes on top of the constructive output
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move decisively toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v369_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - structural signal:
+    - the candidate missed the strengthened gate immediately because the
+      targeted prob11like row regressed versus the current trusted best pocket.
+    - crucially, the new spatial constructive lane never opened under the
+      official 60s budget:
+      - `v298` inner warm/hybrid fallback consumed almost the full runtime and
+        finished at `T 367`
+      - `v369` then logged:
+        `keep_warm ... remaining=5.14s reserve=4.80s`
+      - so the new wall/corner/edge constructive branch had no admissible
+        4s+ budget and was skipped entirely.
+    - this means the hypothesis was not falsified on quality alone; it failed
+      on execution order and runtime headroom.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v369` did not earn a real prob11like structural test under the official
+    budget because the fallback-first flow starved the new constructive lane.
+    Full40 remains forbidden and the next cycle should switch to a different
+    structural family instead of merely reordering this same spatial branch.
+
+## 2026-07-01 reboot_v370_20260701_trackA_prob11_regretk_insertion_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to a fresh structural family for the exact prob11like subtype:
+    regret-k insertion on the trusted warm layout rather than another fixed
+    window or fallback-starved constructive branch.
+  - target the `200-block / 4-bay / high-w1 / ultra-tight-slack` subtype with
+    same-bay reinsertions that prioritize tardy blocks whose second-best
+    position is much worse than their best position.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - same-bay `regret-2` insertion portfolio
+    - same-bay `regret-3` insertion portfolio
+    - one bounded warm-repair tail on top of the best regret lane
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v370_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the target row matched the current warm pocket but did not cross the
+      strengthened gate.
+    - crucially, the new regret-k family added no accepted moves at all:
+      - `regret2_samebay`: `move_log=[]`
+      - `regret3_samebay`: `move_log=[]`
+    - the trusted `v298` internal warm/spatial chain still supplied the only
+      useful improvement, landing at `T 342`.
+    - fast constructive calibration lanes remained far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v370` falsified the prob11like regret-k insertion hypothesis: on the
+    trusted warm layout there was no profitable same-bay regret move to accept,
+    so the candidate simply matched the existing `T 342` pocket. Full40
+    remains forbidden and the next cycle should rotate to a different
+    structural family.
+
+## 2026-07-01 reboot_v371_20260701_trackA_prob11_pairswap_groupreorder_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to a fresh bounded local-search family on the exact prob11like
+    subtype: same-bay pair swaps and tiny 3-block reorder moves on top of the
+    trusted warm layout.
+  - keep the hypothesis coherent: explore only small order perturbations near
+    the tardy shortlist rather than mixing another upstream constructive or
+    exact micro-solver.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - best-of-round same-bay pair-swap local search
+    - best-of-round tiny 3-block group-reorder local search
+    - one bounded warm-repair tail on the best improved local lane
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v371_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the target row again matched the current warm pocket but did not cross
+      the strengthened gate.
+    - the new local-search family added no accepted move at all:
+      - `pair_swap`: `None`
+      - `group_reorder`: `None`
+    - the trusted `v298` internal warm/spatial chain remained the sole source
+      of useful signal, again landing at `T 342`.
+    - fast constructive calibration lanes stayed far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v371` falsified the prob11like pair-swap plus tiny group-reorder
+    hypothesis: there was no improving same-bay local move to accept on top of
+    the trusted warm layout, so the candidate simply matched the existing
+    `T 342` pocket. Full40 remains forbidden and the next cycle should rotate
+    to another structural family.
+
+## 2026-07-01 reboot_v372_20260701_trackA_prob11_window_pullback_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to a fresh bounded local-search family on the exact prob11like
+    subtype: same-bay window sliding plus latest-feasible pull-back on the
+    trusted warm pocket.
+  - keep the hypothesis coherent by exploring only timing/order pull-back
+    operators around the warm layout instead of reopening constructive seeds or
+    larger chain moves.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - bounded same-bay window sliding on the warm layout
+    - bounded latest-feasible pull-back on the same warm layout
+    - chained `window sliding -> latest-feasible pull-back`
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v372_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the target row again matched the current warm pocket but did not cross
+      the strengthened gate.
+    - the new pull-back family produced no accepted move:
+      - `window_sliding`: `[]`
+      - `latest_feasible_pullback`: `[]`
+    - a bounded latest-feasible candidate did open once on block `3`, but it
+      only matched the current pocket and did not improve it:
+      - `exact_latest_feasible_candidate ... block=3 ... T=342`
+    - fast constructive calibration lanes again stayed far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v372` falsified the prob11like window-sliding plus latest-feasible
+    pull-back hypothesis: both operators only revalidated the existing
+    `T 342` pocket and did not create a new improving line. Full40 remains
+    forbidden and the next cycle should rotate to another structural family.
+
+## 2026-07-01 reboot_v373_20260701_trackA_prob11_baymigration_blocker_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to a fresh prob11like structural family after the same-bay local
+    search lines stalled: bounded cross-bay migration with blocker
+    reassignment on top of the trusted warm pocket.
+  - focus the hypothesis on the observed residual mismatch where top tardy
+    blocks sit away from their strongest bay, and try short blocker-first or
+    blocker-after sequences that may open the preferred bay-time window.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm specialist
+    - fast constructive seed references for calibration
+    - single-block cross-bay migration on the top tardy mismatch blocks
+    - blocker reassignment plus target migration sequences
+    - one bounded migration-plus-window polish arm if migration opens a better
+      pocket
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v373_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 359`
+  - structural signal:
+    - the migration lane did find one accepted cross-bay move:
+      - `migration_81`: block `81` from bay `2 -> 3`
+    - that move improved the candidate's own warm line only marginally:
+      - `base_T 367 -> best_T 359`
+    - but it still failed to preserve, let alone beat, the current trusted
+      prob11 pocket from the earlier smoke line:
+      - current pocket reference: `T 342`
+    - blocker-first reassignment did not unlock the target bay window:
+      - `migration_45`: `T 415`
+      - `migration_45_81`: incomplete / no accepted second move
+    - fast constructive calibration lanes again stayed far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v373` falsified the prob11like bay-migration plus blocker-reassignment
+    hypothesis. A single cross-bay move was feasible, but it only recovered the
+    candidate's own degraded warm lane from `T 367` to `T 359` and still sat
+    well above the trusted `T 342` pocket, while blocker-first reassignment did
+    not open a stronger sequence. Full40 remains forbidden and the next cycle
+    should rotate to another structural family.
+
+## 2026-07-01 reboot_v374_20260701_trackA_prob11_support_repartition_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to a fresh structural family on the exact prob11like subtype:
+    reuse the support-cluster bay repartition and blocker-eject skeleton from
+    the stronger prob20 experiments, but narrow it onto the prob11 warm tardy
+    pocket.
+  - use the best currently known prob11 local pocket as the warm start and ask
+    whether moving a tiny support cluster together beats one-block migration.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed references for calibration
+    - support-bay repartition candidates on the warm tardy cluster
+    - support blocker-eject candidates on the same cluster
+    - one bounded warm-repair tail if a support move creates a better pocket
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v374_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the candidate cleanly preserved the currently best-known prob11 pocket:
+      - `base_T 342 -> best_T 342`
+    - but the new support-cluster family did not actually open any candidate
+      move on this subtype:
+      - `move_log=[]`
+      - no repartition candidate
+      - no blocker-eject candidate
+    - fast constructive calibration lanes remained far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+    - the useful signal still came entirely from the inherited warm/spatial
+      chain below `v372`:
+      - `v298 prob11_spatial_move` on block `193` to `T 342`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v374` falsified the prob11like support-bay repartition plus blocker-eject
+    hypothesis for this exact subtype. The warm pocket at `T 342` was preserved
+    but the support-cluster search generated no actionable candidate at all,
+    which suggests the residual is not a movable support cluster but a much
+    smaller critical tardy set. Full40 remains forbidden and the next cycle
+    should rotate to a micro exact repair family on that tiny tardy cluster.
+
+## 2026-07-01 reboot_v375_20260701_trackA_prob11_tardywindow_exact_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate from support-cluster search to an exact tardy-window hypothesis on
+    the exact prob11like subtype.
+  - use the best currently known local warm pocket as the seed, then enumerate
+    tiny tardy-centered windows of size `3..5` around the current late blocks
+    instead of insisting on a larger support cluster.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed references for calibration
+    - exact 3-block tardy-centered window permutations
+    - exact 4-5 block tardy-centered window permutations
+    - one bounded warm-repair tail if an exact lane opens a lower-T pocket
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v375_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the exact tardy-window stage now did open multiple concrete windows:
+      - bay2 `wide5`: `[24, 139, 81, 80, 105]`
+      - bay1 `wide5`: `[87, 188, 154, 66, 27]`
+      - bay0 `wide5`: `[158, 110, 118, 165, 182]`
+      - plus compact/right4 variants around the same late set
+    - despite opening those exact windows, none beat the inherited warm pocket:
+      - `best=v372_prob11_warm_pocket`
+      - `T 342`
+    - fast constructive calibration lanes again stayed far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+    - the useful signal still came entirely from the inherited upstream move:
+      - `v298 prob11_spatial_move` on block `193` to `T 342`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v375` falsified the prob11like tardy-window exactness hypothesis. Unlike
+    earlier exact attempts, the tiny windows did open and were fully explored,
+    but none improved beyond the inherited `T 342` warm pocket. This points
+    away from local window order and toward the upstream anchored placement
+    decision that creates block `193` and the surrounding late pattern. Full40
+    remains forbidden and the next cycle should rotate to an upstream anchored
+    latest-start or dispatch-beam family around that tiny critical set.
+
+## 2026-07-01 reboot_v376_20260701_trackA_prob11_upstream_anchor_hybrid_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate away from local exact windows and move the structural change
+    upstream around the known prob11 critical pocket.
+  - compare the inherited warm pocket against dispatch-beam serial seeds and
+    backward/latest local-id reorder passes on those upstream candidates.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed references for calibration
+    - upstream dispatch-beam serial seeds
+    - backward/latest reorder passes on the warm lane and top beam lanes
+    - one bounded stable cleanup on the best upstream lane
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v376_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm pocket stayed best throughout:
+      - `best=v372_prob11_warm_pocket`
+      - `T 342`
+    - upstream dispatch-beam serial seeds were decisively off-subtype and never
+      approached the known pocket:
+      - `slack_tardiness_beam_seed`: `T 30236`
+      - `edd_release_preference_beam_seed`: `T 31332`
+      - `release_due_balance_beam_seed`: `T 31750`
+      - `long_proc_finish_beam_seed`: `T 31065`
+      - `workload_objective_beam_seed`: `T 31004`
+    - no reorder or cleanup lane beat the inherited pocket, so the whole
+      upstream hybrid collapsed back to the warm baseline.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v376` falsified the prob11like upstream anchored latest-start and
+    dispatch-beam hypothesis. The inherited warm pocket at `T 342` was stable,
+    but all upstream serial beam seeds were drastically off-distribution and no
+    backward/latest reorder lane improved the pocket. Full40 remains forbidden
+    and the next cycle should rotate to an anchored GRASP or destroy-repair
+    family that preserves the known block193 move while varying only local
+    tie-break structure around it.
+
+## 2026-07-01 reboot_v377_20260701_trackA_prob11_anchor_grasp_destroy_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate to an anchored local-randomized family on the exact prob11like
+    subtype: preserve the known good block193 move from the warm pocket and
+    vary only the surrounding tardy neighborhood.
+  - combine a tiny destroy-repair neighborhood with a biased randomized
+    reinsertion order so the candidate can explore tie-break structure without
+    reopening the whole upstream constructive.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed references for calibration
+    - same-bay anchored destroy-repair around block193
+    - due-window anchored destroy-repair around block193
+    - one bounded randomized cleanup on the best anchored lane
+  - keep the best accepted candidate T-first and reject immediately if the
+    target row does not move materially toward the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v377_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 338`
+  - structural signal:
+    - this was the first anchored local-randomized family to beat the inherited
+      prob11 pocket, albeit only slightly:
+      - `base_T 342 -> best_T 338`
+    - the improving neighborhood was stable across two order variants:
+      - `samebay_anchor_forward_s0`: `T 338`
+      - `samebay_anchor_clusterfirst_s3`: `T 338`
+    - the shared improving local set was:
+      - `[134, 172, 193, 22, 137]`
+    - the due-window anchored branch did not improve and the broad constructive
+      seed references again stayed far outside the pocket:
+      - `T 30236`
+      - `T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v377` produced a real but still insufficient prob11like signal. The
+    anchored destroy-repair family improved `T 342 -> 338`, which is useful as
+    a neighborhood clue, but it remains far above the strengthened `T < 10`
+    gate and therefore still forbids full40. The next cycle should keep the
+    same anchored neighborhood and escalate to a stronger ejection-chain or
+    exact block-group move family on `[134, 172, 193, 22, 137]`.
+
+## 2026-07-01 reboot_v378_20260701_trackA_prob11_anchor_groupmove_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface as the default route and preserve the
+    improving `v377` anchored warm lane as the only prob11like entry point.
+  - escalate from anchored GRASP to a stronger exact block-group family:
+    freeze the anchor block and run exact 4-block / exact 3-block plus
+    companion group moves only on the same anchored local neighborhood.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v377` anchored warm lane
+    - fast constructive seed references for calibration
+    - exact4 anchored block-group repair with the anchor held fixed
+    - exact3 plus companion group move on the same anchored pocket
+    - one bounded familyA warm repair cleanup on the best improving lane
+  - reject immediately if the target row still fails the strengthened
+    `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v378_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the intended anchored exact/groupmove phase never actually opened.
+    - nested warm-start timing collapsed back to the inherited warm lane:
+      - `reboot_v377 keep_warm`
+      - `remaining=3.46s`
+      - `reserve=4.80s`
+      - `T 342`
+    - the outer `v378` lane therefore also exited before the exact/groupmove
+      candidates ran:
+      - `reboot_v378 keep_warm`
+      - `remaining=2.46s`
+      - `reserve=4.80s`
+      - `T 342`
+    - net effect: the promising `v377` local signal at `T 338` was not
+      reproduced because the nested warm stack consumed the search budget
+      before the new structural move family fired.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v378` did not clear the strengthened Family A gate and must be rejected
+    without full40. The exact block-group hypothesis itself was not given a
+    fair shot because the nested `v377` warm path exhausted the usable budget,
+    so the candidate simply inherited the old `T 342` warm lane. The next
+    cycle should keep the prob11like anchored pocket but rotate to a
+    budget-partitioned backward/latest-start micro-repair that avoids nested
+    warm-stack overhead.
+
+## 2026-07-01 reboot_v379_20260701_trackA_prob11_retry_lateststart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - rotate away from nested warm-stack overhead and start from the stronger
+    prob11 constructive-retry pocket already observed in `v311`.
+  - compare a small backward/latest-start micro-repair family directly on the
+    constructive-retry shortlist, with both bay-locked and any-bay reinsertion.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive retry on top of `v298`
+    - bay-locked backward/latest-start micro-repair on the retry shortlist
+    - any-bay backward/latest-start micro-repair on the retry shortlist
+    - one bounded latest-feasible cleanup on the best improving lane
+  - reject immediately if the target row still fails the strengthened
+    `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v379_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+  - structural signal:
+    - the stronger constructive-retry pocket was reproduced cleanly:
+      - `v298 warm 342 -> v238 constructive retry 334`
+    - however the new backward/latest-start micro-repair phase did not open:
+      - `remaining=4.64s`
+      - `reserve=4.80s`
+      - `best=v238_constructive_retry_on_v298`
+    - the residual pocket is now better understood as a constructive-retry
+      subtype centered on the earlier `v212` signal:
+      - `block 81` single move created the `T 334` pocket
+      - follow-on tardy repair and dense chain phases did not improve further
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v379` improved the target row relative to the live trusted BEST by
+    replaying the known constructive-retry pocket (`342 -> 334`), but it still
+    failed the strengthened Family A gate and therefore cannot run full40. The
+    new latest-start micro-repair phase again failed to get budget after the
+    stronger warm lane finished, so the useful takeaway is not the micro-repair
+    itself but the subtype clue: the residual now looks like a tiny
+    constructive-retry / block81-led tardy cluster that should next be attacked
+    with a small exact repair operator rather than another nested heuristic
+    stack.
+
+## 2026-07-01 reboot_v380_20260701_trackA_prob11_exact_tardycluster_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the stronger `v311` constructive-retry pocket, but stop trying to
+    spend the leftover budget on another warm-stack heuristic.
+  - use a dependency-free exact tardy-cluster repair on the tiny block81-led
+    residual cluster because `ortools` is unavailable locally.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive retry on top of `v298`
+    - exact tardy-cluster repair on the retry shortlist
+    - exact tardy-cluster + companion group move
+    - one bounded latest-feasible cleanup on the best improving lane
+  - deliberately lower the endgame reserve so the exact repair phase actually
+    opens, then reject immediately if the target row still fails the
+    strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v380_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+  - structural signal:
+    - the stronger constructive-retry pocket stayed intact:
+      - `v298 warm 342 -> v238 constructive retry 334`
+    - the exact tardy-cluster phase did open, but it still produced no scored
+      candidate beyond the retry pocket:
+      - attempted list stopped at `v238_constructive_retry_on_v298`
+      - move log confirmed the opened cluster:
+        `[3, 105, 118, 39, 154]`
+    - this explains why no extra improvement appeared: the opened tardy
+      shortlist drifted away from the causal constructive-retry move block.
+      The known `block 81` signal from `v212` was not even present in the exact
+      repair cluster, so the exact search was solving the wrong local subset.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - broader residual/guard smoke was intentionally skipped because the exact
+      target row remained far above the strengthened `T < 10` gate
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v380` confirmed that a dependency-free exact tardy-cluster search is
+    executable within budget, but it also showed that the currently exposed
+    tardy shortlist is not the same as the causal constructive-retry cluster.
+    The row stayed at `T 334`, so full40 remains forbidden. The next cycle
+    should stop following the visible tardy shortlist and instead build an
+    explicit causal predecessor/ejection cluster around the known `block 81`
+    move that created the `334` pocket.
+
+## 2026-07-01 reboot_v381_20260701_trackA_prob11_block81_causal_groupmove_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - stop following visible tardy shortlists and instead hard-code the causal
+    neighborhoods around the known `block 81` retry move.
+  - compare explicit predecessor/groupmove repairs on the source bay2 window
+    and target bay3 window exposed by the `warm -> retry` transition.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive retry on top of `v298`
+    - explicit source-side exact group move around `[24,139,81,80]`
+    - explicit target-side exact group move around `[123,61,81,153,79]`
+    - cross-bay companion move between those windows plus exact local rebuild
+    - one bounded latest-feasible cleanup on the best improving lane
+  - keep the `block 81` anchor signal explicit and reject immediately if the
+    target row still fails the strengthened `T < 10` gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v381_prob10_prob11_20260701_002/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+  - structural signal:
+    - the constructive-retry pocket again held:
+      - `v298 warm 342 -> v238 constructive retry 334`
+    - the causal cluster was correctly exposed this time:
+      - source window `[24, 139, 81, 80]`
+      - target window `[123, 61, 81, 153, 79]`
+    - but even with the explicit `block 81` causal signal, the only local
+      branch that actually opened was the source-side exact window, and it
+      still produced no scored candidate beyond the retry pocket:
+      - attempted list ended at `v238_constructive_retry_on_v298`
+      - move log recorded only `source_window_exact`
+    - this strongly suggests the next missing degree of freedom is not which
+      cluster to search, but the reinsertion priority/order across that causal
+      cluster.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the first `_001` rerun hit a helper import exception and was discarded
+      in favor of the corrected `_002` evidence above
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v381` finally searched the right causal neighborhood, but it still failed
+    to beat the `334` constructive-retry pocket and remains far above the
+    strengthened Family A gate. Full40 stays forbidden. The next cycle should
+    rotate away from exact local rebuilds and instead try a regret-k insertion
+    style repair on the same block81-led causal predecessor cluster.
+
+## 2026-07-01 reboot_v382_20260701_trackA_prob11_block81_regretk_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - reuse the validated block81 causal source/target windows from `v381`, but
+    rotate the repair phase away from exact/groupmove and into regret-k
+    reinsertion over that same predecessor cluster.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive retry on top of `v298`
+    - union-cluster regret-k reinsertion with source->target bay bias
+    - union-cluster regret-k reinsertion with target->source bay bias
+    - target-window regret-k reinsertion with target-biased bay order
+    - one bounded latest-feasible cleanup on the best improving lane
+  - if the target row still cannot break below the strengthened `T < 10` gate,
+    reject immediately and move to the next structural backlog item.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v382_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 335`
+  - structural signal:
+    - the run never recovered the stronger `334` constructive-retry pocket.
+      On this pass, the upstream retry lane itself settled at `335`.
+    - the causal windows also collapsed toward the same source-led cluster:
+      - source window `[24, 139, 81, 80]`
+      - target window `[24, 139, 81, 80, 153]`
+      - union cluster `[24, 139, 81, 80, 153]`
+    - the regret-k repair opened only one partial lane and then failed before a
+      full candidate could be scored:
+      - inserted prefix `[153, 81, 24]`
+      - attempted list ended at `union_regret_source_target_failed`
+    - this is a stronger sign that the missing degree of freedom is upstream
+      dispatch/order generation rather than another local reinsertion tweak on
+      the same partial cluster.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - strengthened Family A gate still failed, so full40 remained forbidden
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v382` preserved acceptance but failed the real goal. The target row stayed
+    at `T 335`, above both the strengthened `T < 10` gate and the prior `334`
+    constructive-retry pocket. Full40 stays forbidden. The next cycle should
+    move away from local reinsertion and try a beam search over dispatching
+    rules for the prob11like unstable block81 predecessor-cluster subtype.
+
+## 2026-07-01 reboot_v383_20260701_trackA_prob11_block81_clusterbeam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - unlike earlier failed dispatch-beam candidates, do not start from whole-row
+    serial constructives. Reuse the validated block81 causal source/target
+    cluster and run the beam only inside that local pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - `v238` constructive-retry lane on top of `v298`
+    - cluster-only dispatch beam with `EDD`
+    - cluster-only dispatch beam with `min-slack`
+    - cluster-only dispatch beam with `critical-ratio`
+    - cluster-only dispatch beam with `release/due/proc hybrid`
+    - cluster-only dispatch beam with `area-pressure`
+    - one bounded latest-feasible cleanup on the best improving lane
+  - if the local beam still cannot improve the block81-led pocket enough to
+    hit the strengthened Family A gate, reject immediately and rotate again.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v383_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 321`
+  - structural signal:
+    - numerically this was the strongest current-source prob11 smoke pocket in
+      the recent block81 line:
+      - `v298 warm 341 -> v238 constructive retry 321`
+    - but the actual new local beam hypothesis did **not** produce that gain.
+      The best label stayed the inherited upstream retry lane itself:
+      - `best=v238_constructive_retry_on_v298`
+    - the block81 local cluster beam only opened a tiny prefix and never built
+      a scored lane beyond the inherited retry pocket:
+      - source window `[24, 139, 81, 80]`
+      - target window `[153, 73, 81, 79, 37]`
+      - union cluster `[24, 139, 81, 80, 153, 73, 79, 37]`
+      - local beam progress stopped at prefix `[73]`
+      - attempted list ended at `union_beam_edd_failed`
+    - so this cycle is useful mainly because it exposed a stronger unstable
+      upstream constructive-retry pocket, not because the new dispatch-rule
+      beam itself worked.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - strengthened Family A gate still failed, so full40 remained forbidden
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v383` produced the best recent current-source target value (`T 321`), but
+    that gain came from the inherited upstream retry lane rather than the new
+    local cluster-beam hypothesis. Since the actual heuristic under test did
+    not open a scored lane of its own and the target row remains far above the
+    strengthened `T < 10` gate, full40 stays forbidden. The next cycle should
+    rotate to an explicit `GRASP/randomized restart` family that tries to
+    stabilize and exploit the newly re-exposed `321` upstream pocket on the
+    prob11like block81/73/153 subtype.
+
+## 2026-07-01 reboot_v384_20260701_trackA_prob11_block81_clustergrasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - reuse the validated block81 causal windows and the newly re-exposed
+    `block81/73/153` upstream pocket, but rotate from failed local beam order
+    to an anchored GRASP/randomized-restart family inside that same cluster.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive-retry lane on top of `v298`
+    - union-cluster randomized restart with target-first anchor bias
+    - union-cluster randomized restart with due/slack bias
+    - target-window randomized restart with workload bias
+    - target-window randomized restart with reverse-tail bias
+    - one bounded latest-feasible cleanup on the best improving lane
+  - keep the best accepted candidate T-first and reject immediately if the
+    randomized family still cannot turn the `321` pocket into a true
+    strengthened-gate signal.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v384_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+  - structural signal:
+    - the stronger `321` pocket from the previous cycle did not reproduce.
+      This run fell back to the older inherited retry pocket:
+      - `v298 warm 342 -> v238 constructive retry 334`
+    - the randomized family did open a genuine lane, but it was badly wrong:
+      - `union_grasp_targetfirst_s7`: `T 532`
+    - the second restart arm never completed a scoreable rebuild:
+      - `union_grasp_duebias_s13_failed`
+      - partial order `[81, 61, 123]`
+    - taken together, this says the prob11like `321` pocket is an unstable
+      upstream constructive artifact, and random local tie-break variation on
+      the same block81 cluster is not enough to stabilize it.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - strengthened Family A gate still failed, so full40 remained forbidden
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v384` falsified the anchored GRASP/randomized-restart hypothesis for the
+    prob11like block81/73/153 subtype. The best target value returned to
+    `T 334`, the only genuinely new restart lane regressed sharply to `T 532`,
+    and the target row remains far above the strengthened `T < 10` gate. Full40
+    stays forbidden. The next cycle should rotate to an explicit `ALNS/LNS
+    destroy-repair` family on the prob11like block81/123/61/153 due-window
+    cluster subtype.
+
+## 2026-07-01 reboot_v385_20260701_trackA_prob11_retry_duewindow_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - unlike the older broad warm-lane ALNS, anchor this destroy-repair cycle on
+    the stronger `v238` constructive-retry pocket and apply LNS only to the
+    actual retry-side block81 due-window cluster.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - `v238` constructive-retry lane on top of `v298`
+    - retry-target due-window ALNS with preference plan
+    - retry-target due-window ALNS with balance plan
+    - retry-target same-bay ALNS with split plan
+    - retry-target due-window ALNS with reverse local order
+    - one bounded warm-repair tail on the best improving lane
+  - if the target-window destroy-repair family still cannot beat the retry
+    pocket enough to hit the strengthened Family A gate, reject immediately and
+    rotate again.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v385_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`
+  - structural signal:
+    - numerically the run simply held the inherited retry pocket:
+      - `v298 warm 342 -> v238 constructive retry 334`
+    - the new retry-target ALNS/LNS phase never opened at all under the 60s
+      budget:
+      - final log:
+        `keep_best ... remaining=4.58s reserve=4.80s best=v238_constructive_retry_on_v298`
+    - so this cycle does **not** falsify due-window destroy-repair on quality;
+      it falsifies the scheduling shape of “postpass ALNS after full retry”
+      because the stronger retry chain consumed the entire admissible search
+      headroom before the destroy-repair stage.
+    - the same log also re-exposed the useful upstream multiblock shortlist
+      around the retry pocket:
+      - single moves tried around `[3]`, `[105]`, `[118]`, `[81]`
+      - mixed attempts around `[3,105]`, `[105,3]`, `[3,118]`, `[3,105,118]`
+      - only the explicit `81 -> bay3` move held the `334` pocket
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - strengthened Family A gate still failed, so full40 remained forbidden
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v385` failed as a bounded improvement cycle because the retry-target ALNS
+    stage never opened under the available headroom; the candidate simply
+    returned the inherited `T 334` retry pocket. Since the target row remains
+    far above the strengthened `T < 10` gate, full40 stays forbidden. The next
+    cycle should rotate to an explicit upstream `ejection-chain / block-group
+    move` family on the prob11like multiblock shortlist subtype around
+    `block81/105/3/118`.
+
+## 2026-07-01 reboot_v386_20260701_trackA_prob11_retry_shortlist_eject_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - unlike the failed postpass ALNS candidate, explicitly reserve headroom for
+    a shortlist ejection-chain phase by capping the retry-construction window
+    before the local block-group move starts.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - capped `v238` constructive-retry lane on top of `v298`
+    - shortlist ejection-chain with preference plan
+    - shortlist ejection-chain with balance plan
+    - shortlist ejection-chain with split plan
+    - one bounded warm-repair tail on the best improving lane
+  - derive the local move set from the actual retry-side tardy shortlist rather
+    than a broad warm support cluster, then reject immediately if the target row
+    still fails the strengthened Family A gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v386_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/2`
+    - timeout `1`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 334`, but `accepted_for_score=false`
+  - structural signal:
+    - even after capping the retry lane, the candidate still consumed the full
+      wall-clock window before the shortlist ejection phase could open:
+      - final log:
+        `keep_best ... remaining=0.00s reserve=4.80s best=v238_constructive_retry_capped_on_v298`
+    - so this candidate did not actually test the shortlist ejection family;
+      it only reproduced the inherited retry pocket:
+      - `v298 warm 342 -> capped retry 334`
+    - the useful subtype clue remains the retry-side multiblock shortlist
+      exposed by the log:
+      - singletons around `[3]`, `[105]`, `[118]`, `[81]`
+      - pairs/triples around `[3,105]`, `[105,3]`, `[3,118]`, `[3,105,118]`
+      - only the explicit `81 -> bay3` move held the `334` pocket
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - `prob_11` exceeded the official limit at `61.208746s`, so this candidate
+      failed the scoreable contract before any full40 consideration
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v386` failed the strengthened smoke gate immediately because it produced a
+    timeout on `prob_11` (`accepted_for_score=1/2`). The shortlist
+    ejection-chain hypothesis never actually opened under budget, so full40 is
+    forbidden. The next cycle should rotate to a new structural family rather
+    than another hidden-headroom postpass, specifically a retry-shortlist
+    `bay assignment first, timing second` experiment on the
+    `block81/105/3/118` subtype.
+
+## 2026-07-01 reboot_v387_20260701_trackA_prob11_retry_shortlist_bayassign_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate away from hidden-headroom postpasses and attack the actual
+    retry-side shortlist directly with a new structural family:
+    `bay assignment first, timing second`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed references for calibration
+    - capped `v238` constructive-retry lane on top of `v298`
+    - retry-shortlist bay-assignment-first plans with preference/balance/split
+      bay projections
+    - timing-second replay on the touched bays using latest/slack ordering
+    - one bounded warm-repair tail on the best improving shortlist lane
+  - derive the cluster from the actual retry-side tardy shortlist, keep the
+    support blocks fixed, and only reassign the shortlist itself before the
+    timing replay.
+  - reject immediately if the target row still fails the strengthened Family A
+    gate.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v387_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=1/2`
+    - timeout `1`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 341`, but `accepted_for_score=false`
+  - structural signal:
+    - the candidate again failed before the new shortlist bay-assignment-first
+      family could open:
+      - final log:
+        `keep_best ... remaining=0.00s reserve=4.80s best=v238_constructive_retry_capped_on_v298`
+    - so this cycle did not actually test the shortlist bay-first replay; it
+      only reproduced the capped retry pocket:
+      - `v298 warm 367 -> capped retry 341`
+    - the current blocker is now explicit across multiple cycles: the prob11like
+      retry-side `block81/105/3/118` subtype is still dominated by upstream
+      retry runtime, not by the quality of the local repair family.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - `prob_11` exceeded the official limit at `68.955196s`, so full40 remains
+      forbidden immediately
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v385` | `prob11like block81/123/61/153` | due-window ALNS/LNS | phase never opened; retry consumed headroom |
+  | `v386` | `prob11like block81/105/3/118` | shortlist ejection-chain | phase never opened; timeout at `61.208746s` |
+  | `v387` | `prob11like block81/105/3/118` | shortlist bay-assign first, timing second | phase never opened; timeout at `68.955196s` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v387` failed the strengthened smoke gate immediately because `prob_11`
+    again exceeded the official limit and the new bay-assignment-first phase
+    never opened. The important conclusion is structural: on the current
+    prob11like retry-shortlist subtype, hidden-headroom local families are not
+    being falsified on quality yet; they are being blocked by upstream retry
+    runtime. The next bounded cycle should therefore rotate to a new structural
+    family that moves the repair earlier, specifically a micro exact tardy-
+    cluster repair on the `block81/105/3/118` shortlist before the full retry
+    chain expands.
+
+## 2026-07-01 reboot_v388_20260701_trackA_prob11_front_exact_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate away from retry-first runtime-heavy loops and move the repair
+    earlier: build a small base pool (`v298` warm + two constructive seeds),
+    then spend the bounded budget on an explicit anchor-81 micro exact repair
+    over the `block81/105/3/118` shortlist.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded micro exact repair on explicit 3-block anchor subsets
+    - one bounded warm-repair tail on the best improving exact lane
+  - if this earlier exact repair still cannot materially move the prob11like
+    pocket, reject immediately and rotate to the next new structural family.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v388_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 339`
+  - structural signal:
+    - the earlier-front exact cycle did stay within budget, but the new exact
+      family still failed to open any scored candidate:
+      - move log only recorded the explicit shortlist and one subset launch:
+        - `v298_prob11_warm_cluster = [81, 105, 3, 118]`
+        - `v298_prob11_warm_anchor_81_105_3`
+    - the best accepted row came entirely from the inherited warm lane:
+      - `v298_prob11_warm = T 339, objective 8094925`
+    - both cheap constructive seeds were wildly off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - so this cycle does separate the runtime issue from the local-family issue:
+      the front-loaded exact family stayed scoreable, but it still did not open
+      a useful exact repair on the explicit `block81/105/3/118` shortlist.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - despite the clean runtime, the strengthened Family A gate still fails by
+      a very large margin, so full40 remains forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v385` | `prob11like block81/123/61/153` | due-window ALNS/LNS | phase never opened; retry consumed headroom |
+  | `v386` | `prob11like block81/105/3/118` | shortlist ejection-chain | phase never opened; timeout at `61.208746s` |
+  | `v387` | `prob11like block81/105/3/118` | shortlist bay-assign first, timing second | phase never opened; timeout at `68.955196s` |
+  | `v388` | `prob11like block81/105/3/118` | front-loaded micro exact tardy-cluster repair | stayed scoreable, but exact subset still produced no scored candidate; inherited warm lane won at `T 339` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v388` is useful evidence but still fails the strengthened Family A gate.
+    The new front-loaded exact family finally separated runtime from search
+    shape, yet it still produced no scored local repair on the explicit
+    retry-shortlist subtype. Since the accepted result is only the inherited
+    warm lane at `T 339`, full40 remains forbidden. The next bounded cycle
+    should rotate to a new structural family again, specifically a front-loaded
+    `backward/latest-start scheduler` targeting the same
+    `prob11like block81/105/3/118 retry-shortlist subtype`.
+
+## 2026-07-01 reboot_v389_20260701_trackA_prob11_front_lateststart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front exactness to a new front-loaded structural family:
+    apply a narrow backward/latest-start scheduler directly on the explicit
+    retry-shortlist `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit shortlist backward/latest-start local replay
+    - explicit shortlist forward latest-start local replay
+  - explicit shortlist slack local replay
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the new scheduling phase is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v389_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the front-loaded backward/latest-start family did execute cleanly on the
+      explicit shortlist:
+      - cluster `=[81, 105, 3, 118]`
+      - `v298_prob11_warm_backward_latest = T 475`
+      - `v298_prob11_warm_latest = T 354`
+      - `v298_prob11_warm_slack = T 530`
+    - both constructive seeds again remained wildly off-target even after the
+      local replay:
+      - `slack_tardiness_seed_latest = T 29096`
+      - `edd_release_preference_seed_latest = T 30423`
+    - so this cycle cleanly falsifies the narrow latest-start scheduler on this
+      subtype: the phase opened, stayed scoreable, and still lost to the
+      inherited warm lane.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - despite the clean runtime, the strengthened Family A gate still fails by
+      a very large margin, so full40 remains forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v386` | `prob11like block81/105/3/118` | shortlist ejection-chain | phase never opened; timeout at `61.208746s` |
+  | `v387` | `prob11like block81/105/3/118` | shortlist bay-assign first, timing second | phase never opened; timeout at `68.955196s` |
+  | `v388` | `prob11like block81/105/3/118` | front-loaded micro exact tardy-cluster repair | stayed scoreable, but exact subset still produced no scored candidate; inherited warm lane won at `T 339` |
+  | `v389` | `prob11like block81/105/3/118` | front-loaded backward/latest-start scheduler | phase opened and stayed scoreable, but every latest-start variant lost to the inherited warm lane; best stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v389` is a clean negative result. Unlike the earlier hidden-headroom
+    failures, the backward/latest-start family really did execute on the
+    explicit retry-shortlist subtype, but every variant was worse than the
+    inherited warm lane. Since the target row remains at `T 342`, full40 stays
+    forbidden. The next bounded cycle should rotate to a new structural family
+    again, specifically a front-loaded `beam search over dispatching rules`
+    targeting the same `prob11like block81/105/3/118 retry-shortlist subtype`.
+
+## 2026-07-01 reboot_v390_20260701_trackA_prob11_front_dispatchbeam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed latest-start replay to a new front-loaded structural
+    family: apply a narrow dispatch-rule beam directly on the explicit
+    retry-shortlist `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit shortlist dispatch-rule beam with `EDD`
+    - explicit shortlist dispatch-rule beam with `min-slack`
+    - explicit shortlist dispatch-rule beam with `critical-ratio`
+    - explicit shortlist dispatch-rule beam with `release/due/proc hybrid`
+  - explicit shortlist dispatch-rule beam with `area-pressure`
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the beam family is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v390_prob10_prob11_20260701_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the front-loaded dispatch beam executed cleanly on the explicit shortlist:
+      - cluster `=[81, 105, 3, 118]`
+      - `v298_prob11_warm_edd = T 421`
+      - `v298_prob11_warm_min_slack = T 530`
+      - `v298_prob11_warm_critical_ratio = T 530`
+      - `v298_prob11_warm_release_due_proc = T 354`
+      - `v298_prob11_warm_area_pressure = T 530`
+    - both constructive seeds again remained far off-target even after the beam
+      replay:
+      - `slack_tardiness_seed_edd = T 29092`
+      - `edd_release_preference_seed_edd = T 30414`
+    - this is another clean falsification: the narrow dispatch-rule beam really
+      opened on the target subtype, stayed scoreable, and still lost to the
+      inherited warm lane.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - despite the clean runtime, the strengthened Family A gate still fails by
+      a very large margin, so full40 remains forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v387` | `prob11like block81/105/3/118` | shortlist bay-assign first, timing second | phase never opened; timeout at `68.955196s` |
+  | `v388` | `prob11like block81/105/3/118` | front-loaded micro exact tardy-cluster repair | stayed scoreable, but exact subset still produced no scored candidate; inherited warm lane won at `T 339` |
+  | `v389` | `prob11like block81/105/3/118` | front-loaded backward/latest-start scheduler | phase opened and stayed scoreable, but every latest-start variant lost; best stayed `T 342` |
+  | `v390` | `prob11like block81/105/3/118` | front-loaded dispatch-rule beam | phase opened and stayed scoreable, but every dispatch variant lost; best stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v390` is another clean negative result. The explicit shortlist dispatch
+    beam really executed on the target subtype, but every rule family was worse
+    than the inherited warm lane, so the accepted result stayed at `T 342`.
+    Full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family again, specifically a front-loaded `regret-k insertion`
+    targeting the same `prob11like block81/105/3/118 retry-shortlist subtype`.
+
+## 2026-07-02 reboot_v391_20260702_trackA_prob11_front_regretk_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front-loaded dispatch beam to a new front-loaded
+    structural family: run explicit-shortlist regret-k reinsertion directly on
+    `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit shortlist regret-k with forward bay bias
+    - explicit shortlist regret-k with reverse bay bias
+    - explicit shortlist regret-k on the core trio
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the regret family is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v391_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - structural signal:
+    - the front-loaded regret family opened on the explicit shortlist
+      `=[81, 105, 3, 118]`, but it stalled immediately:
+      - `v298_prob11_warm_front_regret_forward` only inserted `[118]`
+      - the candidate never completed a scored full-cluster reinsertion
+      - the warm lane stayed best at `T 367`
+    - both constructive seeds again remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - this is another clean falsification: the explicit-shortlist regret family
+      did start, but it could not open a complete scored candidate on the
+      target subtype.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v388` | `prob11like block81/105/3/118` | front-loaded micro exact tardy-cluster repair | stayed scoreable, but exact subset still produced no scored candidate; inherited warm lane won at `T 339` |
+  | `v389` | `prob11like block81/105/3/118` | front-loaded backward/latest-start scheduler | phase opened and stayed scoreable, but every latest-start variant lost; best stayed `T 342` |
+  | `v390` | `prob11like block81/105/3/118` | front-loaded dispatch-rule beam | phase opened and stayed scoreable, but every dispatch variant lost; best stayed `T 342` |
+  | `v391` | `prob11like block81/105/3/118` | front-loaded regret-k insertion | phase opened on the explicit shortlist, but only partial insert `[118]` completed; no scored full-cluster candidate, warm lane stayed `T 367` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v391` kept scoreability, but the explicit-shortlist regret family stalled
+    before completing a full-cluster reinsertion and never produced a scored
+    improving candidate. Since `prob_11` remains far above the `T<10` gate,
+    full40 remains forbidden. The next bounded cycle should rotate again to a
+    new structural family, specifically a front-loaded `ejection-chain / block
+    group move` targeting the same `prob11like block81/105/3/118
+    retry-shortlist subtype`.
+
+## 2026-07-02 reboot_v392_20260702_trackA_prob11_front_ejectionchain_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `planned`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front-loaded regret insertion to a new front-loaded
+    structural family: explicit-shortlist ejection-chain / block-group move on
+    `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit focus single-block chain pulls
+    - explicit same-bay block-group span pull
+    - tardy-pocket chain pulls
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the chain/group family is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v392_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm lane itself was already at `T 342` on this rerun
+    - the new ejection-chain / block-group family opened cleanly but accepted no
+      move at all:
+      - `focus_chain12 = []`
+      - `focus_chain34 = []`
+      - `focus_group_span = []`
+      - `tardy_chain123 = []`
+    - this is still a falsification of the new family: the better score came
+      from the rerun warm lane, not from the added structural heuristic.
+    - both constructive seeds again remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - despite the lower warm-lane rerun, the strengthened Family A gate still
+      fails badly, so full40 remains forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v389` | `prob11like block81/105/3/118` | front-loaded backward/latest-start scheduler | phase opened and stayed scoreable, but every latest-start variant lost; best stayed `T 342` |
+  | `v390` | `prob11like block81/105/3/118` | front-loaded dispatch-rule beam | phase opened and stayed scoreable, but every dispatch variant lost; best stayed `T 342` |
+  | `v391` | `prob11like block81/105/3/118` | front-loaded regret-k insertion | phase opened on the explicit shortlist, but only partial insert `[118]` completed; no scored full-cluster candidate, warm lane stayed `T 367` |
+  | `v392` | `prob11like block81/105/3/118` | front-loaded ejection-chain / block-group move | phase opened cleanly, but accepted no move at all; rerun warm lane itself was `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v392` stayed scoreable and the rerun warm lane happened to land at `T
+    342`, but the added ejection-chain family produced no accepted move and no
+    attributable improvement. Since the target row still fails the `T<10`
+    gate by a wide margin, full40 remains forbidden. The next bounded cycle
+    should rotate again to a new structural family, specifically a front-loaded
+    `ALNS/LNS destroy-repair` targeting the same `prob11like
+    block81/105/3/118 retry-shortlist subtype`.
+
+## 2026-07-02 reboot_v393_20260702_trackA_prob11_front_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `planned`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front-loaded ejection-chain to a new front-loaded
+    structural family: explicit-shortlist ALNS/LNS destroy-repair on
+    `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit cluster destroy-repair with forward reinsert order
+    - explicit cluster destroy-repair with reverse reinsert order
+    - tardy-pocket destroy-repair with cluster-first order
+    - due-window destroy-repair replay on the local bay pocket
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the ALNS/LNS family is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v393_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm lane was again `T 342`
+    - the front-loaded ALNS family really opened on a widened explicit destroy
+      set, but the first scored candidate was materially worse:
+      - `explicit_forward = T 419`
+      - `explicit_reverse_failed`
+    - the destroy sets were large enough to qualify as a real structural probe:
+      - explicit destroy `=[139, 81, 80, 105, 1, 3, 44, 110, 118, 165]`
+      - tardy destroy `=[1, 3, 44, 80, 105, 110, 118, 165, 139, 81]`
+    - this is another clean falsification: ALNS/LNS did open on the target
+      subtype, but its first realized repair degraded sharply and never beat
+      the inherited warm lane.
+    - both constructive seeds again remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v390` | `prob11like block81/105/3/118` | front-loaded dispatch-rule beam | phase opened and stayed scoreable, but every dispatch variant lost; best stayed `T 342` |
+  | `v391` | `prob11like block81/105/3/118` | front-loaded regret-k insertion | phase opened on the explicit shortlist, but only partial insert `[118]` completed; no scored full-cluster candidate, warm lane stayed `T 367` |
+  | `v392` | `prob11like block81/105/3/118` | front-loaded ejection-chain / block-group move | phase opened cleanly, but accepted no move at all; rerun warm lane itself was `T 342` |
+  | `v393` | `prob11like block81/105/3/118` | front-loaded ALNS/LNS destroy-repair | phase opened on widened explicit destroy sets, but `explicit_forward` degraded to `T 419` and `explicit_reverse` failed; warm lane stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v393` kept scoreability, but its destroy-repair family produced a clearly
+    worse realized candidate and never improved on the inherited warm lane.
+    Since the target row remains far above the `T<10` gate, full40 remains
+    forbidden. The next bounded cycle should rotate again to a new structural
+    family, specifically a front-loaded `bay assignment first, timing second`
+    targeting the same `prob11like block81/105/3/118 multi-bay tardy-pocket
+    subtype`.
+
+## 2026-07-02 reboot_v394_20260702_trackA_prob11_front_bayassign_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `planned`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front-loaded ALNS to a new front-loaded structural
+    family: local `bay assignment first, timing second` on the explicit
+    `block81/105/3/118` tardy pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - local bay-plan `pref_latest`
+    - local bay-plan `balance_latest`
+    - local bay-plan `cluster_slack`
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the bay-first family is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v394_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm lane was again `T 342`
+    - the bay-first family really opened and produced explicit local bay plans:
+      - `pref_latest` scored and degraded to `T 370`
+      - `balance_latest_failed`
+      - `cluster_slack_failed`
+    - the local pocket was concrete enough to count as a real structural probe:
+      - explicit cluster `=[81, 105, 3, 118, 39, 154]`
+      - local ids `=[139, 81, 80, 105, 1, 3, 44, 110, 118, 165]`
+    - this is another clean falsification: bay assignment first did open on the
+      target subtype, but the only realized candidate was materially worse than
+      the inherited warm lane.
+    - both constructive seeds again remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v391` | `prob11like block81/105/3/118` | front-loaded regret-k insertion | phase opened on the explicit shortlist, but only partial insert `[118]` completed; no scored full-cluster candidate, warm lane stayed `T 367` |
+  | `v392` | `prob11like block81/105/3/118` | front-loaded ejection-chain / block-group move | phase opened cleanly, but accepted no move at all; rerun warm lane itself was `T 342` |
+  | `v393` | `prob11like block81/105/3/118` | front-loaded ALNS/LNS destroy-repair | phase opened on widened explicit destroy sets, but `explicit_forward` degraded to `T 419` and `explicit_reverse` failed; warm lane stayed `T 342` |
+  | `v394` | `prob11like block81/105/3/118` | front-loaded bay assignment first, timing second | phase opened with explicit local bay plans, but `pref_latest` degraded to `T 370` and the other plans failed; warm lane stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v394` kept scoreability, but its bay-first family produced one realized
+    candidate that was materially worse than the inherited warm lane and the
+    other plans never closed. Since the target row remains far above the
+    `T<10` gate, full40 remains forbidden. The next bounded cycle should
+    rotate again to a new structural family, specifically a front-loaded
+    `GRASP/randomized restart` targeting the same `prob11like
+    block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v395_20260702_trackA_prob11_front_grasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `planned`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed front-loaded bay-first to a new front-loaded structural
+    family: GRASP/randomized restart only inside the explicit tardy pocket
+    around `block81/105/3/118`.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - local pocket GRASP with due-bias order
+    - local pocket GRASP with workload-bias order
+    - local pocket GRASP with reverse-tail order
+    - local pocket GRASP with target-first order
+  - one bounded warm-repair tail on the best improving lane
+  - keep the warm start if the randomized local pocket is worse.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v395_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm lane was again `T 342`
+    - the local-pocket GRASP family really opened and produced scored
+      randomized candidates, but both were worse than the inherited warm lane:
+      - `grasp_duebias_s7 = T 378`
+      - `grasp_workload_s13 = T 372`
+      - `grasp_reverse_s29_failed`
+    - this is another clean falsification: the randomized local pocket did
+      explore alternative scored sequences, but none improved the target row.
+    - both constructive seeds again remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v392` | `prob11like block81/105/3/118` | front-loaded ejection-chain / block-group move | phase opened cleanly, but accepted no move at all; rerun warm lane itself was `T 342` |
+  | `v393` | `prob11like block81/105/3/118` | front-loaded ALNS/LNS destroy-repair | phase opened on widened explicit destroy sets, but `explicit_forward` degraded to `T 419` and `explicit_reverse` failed; warm lane stayed `T 342` |
+  | `v394` | `prob11like block81/105/3/118` | front-loaded bay assignment first, timing second | phase opened with explicit local bay plans, but `pref_latest` degraded to `T 370` and the other plans failed; warm lane stayed `T 342` |
+  | `v395` | `prob11like block81/105/3/118` | front-loaded GRASP/randomized restart | phase opened and produced scored randomized pocket candidates, but they degraded to `T 378` and `T 372`; warm lane stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v395` kept scoreability and produced real randomized pocket candidates,
+    but every realized GRASP sequence was still worse than the inherited warm
+    lane. Since the target row remains far above the `T<10` gate, full40
+    remains forbidden. The next bounded cycle should rotate again to a new
+    structural family, specifically a front-loaded `micro CP-SAT/MIP repair`
+    targeting the same `prob11like block81/105/3/118 multi-bay tardy-pocket
+    subtype`.
+
+## 2026-07-02 reboot_v396_20260702_trackA_prob11_front_microexact_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed randomized pocket GRASP to a new front-loaded
+    structural family: dependency-free micro exact repair on the explicit
+    `block81/105/3/118` tardy pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded free-order exact4 reinsertion on the explicit pocket
+    - front-loaded exact3 fallback reinsertion on the same pocket
+  - front-loaded same-bay window permutation replay around anchor `81`
+  - one bounded latest-feasible cleanup / warm-repair tail on the best
+      improving lane
+  - if the explicit pocket still cannot beat the inherited warm lane or reach
+    the strengthened `T<10` gate on the target row, reject immediately and do
+    not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v396_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - structural signal:
+    - the inherited warm lane was itself `T 367`, so the target row regressed
+      back above the better `T 342`/`339` warm reruns seen in earlier cycles.
+    - the new free-order micro exact family did not close any scored candidate
+      at all on the explicit pocket:
+      - move log only recorded the explicit shortlist
+        `=[81, 105, 3, 118, 55, 73]`
+      - no `freeorder_exact4_*` or `freeorder_exact3_*` candidate ever reached
+        the attempted list
+    - the only realized structural branch was the same-bay window replay
+      around anchor `81`, and every scored replay tied the inherited warm lane:
+      - `v298_prob11_warm_bay_window_perm_1 = T 367`
+      - `v298_prob11_warm_bay_window_perm_2 = T 367`
+      - `v298_prob11_warm_bay_window_perm_3 = T 367`
+      - `v298_prob11_warm_bay_window_perm_4 = T 367`
+      - `v298_prob11_warm_bay_window_perm_5 = T 367`
+      - `v298_prob11_warm_bay_window_perm_6 = T 367`
+    - both constructive seeds remained far off-target and were skipped from
+      local search as non-competitive:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - this is another clean falsification: the dependency-free micro exact
+      family stayed scoreable, but the exact pocket never closed while the
+      fallback window permutations were completely neutral.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v393` | `prob11like block81/105/3/118` | front-loaded ALNS/LNS destroy-repair | phase opened on widened explicit destroy sets, but `explicit_forward` degraded to `T 419` and `explicit_reverse` failed; warm lane stayed `T 342` |
+  | `v394` | `prob11like block81/105/3/118` | front-loaded bay assignment first, timing second | phase opened with explicit local bay plans, but `pref_latest` degraded to `T 370` and the other plans failed; warm lane stayed `T 342` |
+  | `v395` | `prob11like block81/105/3/118` | front-loaded GRASP/randomized restart | phase opened and produced scored randomized pocket candidates, but they degraded to `T 378` and `T 372`; warm lane stayed `T 342` |
+  | `v396` | `prob11like block81/105/3/118` | front-loaded dependency-free micro exact repair | explicit free-order exact pocket never closed a scored candidate, and the only realized same-bay window permutations tied the inherited warm lane at `T 367` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v396` kept scoreability, but it failed the strengthened Family A gate in
+    the most direct way: the explicit free-order micro exact pocket never
+    produced a scored candidate, and every realized same-bay replay was
+    perfectly neutral against the inherited warm lane. Since the target row is
+    still far above `T<10`, full40 remains forbidden. The next bounded cycle
+    should rotate again to a different structural family, specifically a
+    front-loaded `beam search over dispatching rules` targeting the same
+    `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v397_20260702_trackA_prob11_front_beamdispatch_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from failed dependency-free micro exact repair to a new
+    front-loaded structural family: a tiny beam over dispatching rules on the
+    explicit `block81/105/3/118` tardy pocket plus the current top tardy
+    companions.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded beam search over dispatching rules:
+      - `EDD`
+      - `min-slack`
+      - `critical-ratio`
+      - `release/due/proc hybrid`
+      - `area-pressure`
+    - one bounded latest-feasible cleanup / warm-repair tail on the best
+      improving beam lane
+  - if the dispatch beam still cannot materially move the target row toward
+    `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v397_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the inherited warm lane itself reran at `T 342`, matching the better
+      warm reruns seen before.
+    - the explicit beam family did enter the right pocket, but it never
+      produced a single scored branch:
+      - pocket `=[81, 105, 3, 118, 39, 154]`
+      - no `beam_edd_*`, `beam_min_slack_*`, `beam_critical_ratio_*`,
+        `beam_release_due_proc_*`, or `beam_area_pressure_*` candidate ever
+        appeared in the attempted list
+    - both constructive seeds again remained far off-target and were skipped
+      from local search as non-competitive:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - this is another clean falsification: even when the warm lane is back at
+      `T 342`, the front-loaded dispatch beam still cannot open a useful local
+      branch on the explicit tardy pocket.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v394` | `prob11like block81/105/3/118` | front-loaded bay assignment first, timing second | phase opened with explicit local bay plans, but `pref_latest` degraded to `T 370` and the other plans failed; warm lane stayed `T 342` |
+  | `v395` | `prob11like block81/105/3/118` | front-loaded GRASP/randomized restart | phase opened and produced scored randomized pocket candidates, but they degraded to `T 378` and `T 372`; warm lane stayed `T 342` |
+  | `v396` | `prob11like block81/105/3/118` | front-loaded dependency-free micro exact repair | explicit free-order exact pocket never closed a scored candidate, and the only realized same-bay window permutations tied the inherited warm lane at `T 367` |
+  | `v397` | `prob11like block81/105/3/118` | front-loaded beam search over dispatching rules | the explicit pocket was identified, but the dispatch beam never closed a single scored branch; inherited warm lane stayed `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v397` kept scoreability and recovered the target row to `T 342`, but that
+    value came entirely from the inherited warm lane. The new beam family did
+    not generate any scored branch at all, so there is still no evidence of a
+    structural move toward `T<10`. Full40 remains forbidden. The next bounded
+    cycle should rotate again to a different structural family, specifically a
+    front-loaded `local search: pair swap / 2-opt-like reorder / small block-
+    group reorder` targeting the same `prob11like block81/105/3/118 multi-bay
+    tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v398_20260702_trackA_prob11_front_multibay_localsearch_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate from the failed dispatch beam to a new front-loaded structural
+    family: explicit multi-bay pocket local search on `block81/105/3/118`
+    using pair swaps, 2-opt-like reversals, and small group reorders.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded multi-bay pocket local search:
+      - adjacent / anchored pair swaps
+      - 2-opt-like subsequence reversals
+      - small block-group reorder / rotate moves
+    - one bounded latest-feasible cleanup / warm-repair tail on the best
+      improving lane
+  - if the explicit pocket still cannot materially move the target row toward
+    `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v398_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 354`
+  - structural signal:
+    - the inherited warm lane itself reran worse at `T 354`.
+    - the explicit multi-bay local-search family did identify the right pocket,
+      but it never closed a single scored branch:
+      - pocket `=[81, 105, 3, 118, 153, 39]`
+      - no `pairswap_*`, `twoopt_*`, `rotate_*`, or `groupmove_*` candidate
+        ever appeared in the attempted list
+    - both constructive seeds again remained far off-target and were skipped
+      from local search as non-competitive:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - this is another clean falsification: even with an explicit multi-bay
+      pocket and reinsertion-based local perturbations, the front-loaded local
+      search never opened a usable accepted branch.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v395` | `prob11like block81/105/3/118` | front-loaded GRASP/randomized restart | phase opened and produced scored randomized pocket candidates, but they degraded to `T 378` and `T 372`; warm lane stayed `T 342` |
+  | `v396` | `prob11like block81/105/3/118` | front-loaded dependency-free micro exact repair | explicit free-order exact pocket never closed a scored candidate, and the only realized same-bay window permutations tied the inherited warm lane at `T 367` |
+  | `v397` | `prob11like block81/105/3/118` | front-loaded beam search over dispatching rules | the explicit pocket was identified, but the dispatch beam never closed a single scored branch; inherited warm lane stayed `T 342` |
+  | `v398` | `prob11like block81/105/3/118` | front-loaded multi-bay local search (pair swap / 2-opt / group reorder) | the explicit pocket was identified, but no scored local-search branch ever closed; inherited warm lane itself reran at `T 354` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v398` kept scoreability, but it failed the strengthened Family A gate just
+    as directly as the recent beam and micro-exact cycles: the explicit
+    local-search family never generated any scored branch at all, and the
+    target row stayed far above `T<10`. Full40 remains forbidden. The next
+    bounded cycle should rotate again to a different structural family,
+    specifically a front-loaded `spatial/orientation constructive` targeting
+    the same `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v399_20260702_trackA_prob11_front_spatial_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - revisit the spatial/orientation constructive family, but fix the known
+    execution-order failure from `v369`: open the spatial branch first with a
+    bounded budget, then compare it against the warm lane with the remaining
+    official headroom.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded wall/corner/edge-hugging spatial constructive lane
+    - bounded spatial move continuation on that constructive output
+    - bounded warm-repair tail on the best improving spatial lane
+  - if the front-loaded spatial lane now really executes and still fails to
+    move the target row materially toward `T<10`, reject immediately and do
+    not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v399_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+  - structural signal:
+    - this time the front-loaded spatial family really executed, so the old
+      `v369` starvation explanation is now gone.
+    - the global spatial constructive lane was still nowhere near the trusted
+      warm lane:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+      - `front_spatial_constructive = T 20692`
+      - `front_spatial_move = T 20119`
+      - `front_spatial_warmrepair = T 19567`
+      - `v298_prob11_warm_tail = T 386`
+    - the spatial continuation kept improving its own bad branch, but it
+      stayed orders of magnitude above the residual pocket target; the lane is
+      still too global and never reaches the actual late warm-start regime.
+    - compared with the better recent warm reruns (`T 342` in `v397`), the
+      tail-only warm replay here came back slightly worse at `T 386`, so the
+      front-loaded spatial spend did not uncover any compensating gain.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v396` | `prob11like block81/105/3/118` | front-loaded dependency-free micro exact repair | explicit free-order exact pocket never closed a scored candidate, and the only realized same-bay window permutations tied the inherited warm lane at `T 367` |
+  | `v397` | `prob11like block81/105/3/118` | front-loaded beam search over dispatching rules | the explicit pocket was identified, but the dispatch beam never closed a single scored branch; inherited warm lane stayed `T 342` |
+  | `v398` | `prob11like block81/105/3/118` | front-loaded multi-bay local search (pair swap / 2-opt / group reorder) | the explicit pocket was identified, but no scored local-search branch ever closed; inherited warm lane itself reran at `T 354` |
+  | `v399` | `prob11like block81/105/3/118` | front-loaded spatial/orientation constructive with spatial-move tail | the spatial lane finally executed, but even after local continuation it stayed at `T 19567`; only the inherited warm tail remained scoreable at `T 386` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v399` cleanly falsifies the remaining spatial/orientation hypothesis on
+    this subtype. The branch no longer starved behind the warm route; it ran
+    first, improved itself, and still never got remotely close to the trusted
+    warm regime. That means this family is not a hidden `T<10` path for the
+    current `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+    Full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: a bounded `micro CP-SAT tardy-cluster repair` on the
+    trusted warm start for the same subtype.
+
+## 2026-07-02 reboot_v400_20260702_trackA_prob11_front_multiblock_pullback_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - `ortools` is unavailable in the current workspace, so instead of stopping
+    on the blocked micro-CP-SAT idea, rotate within the same bounded cycle to
+    a different unexhausted structural family from the backlog:
+    small block-group reorder plus latest-feasible pull-back directly on the
+    trusted warm pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - front-loaded cross-bay multiblock sequence repair on the warm pocket
+    - bounded latest-feasible pull-back on the best multiblock lane
+    - bounded warm-repair tail on the best improving lane
+  - if this warm-regime block-group reorder still cannot move the target row
+    materially toward `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v400_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - structural signal:
+    - this cycle unexpectedly revalidated the inherited `v298` warm pocket at
+      `T 367`, improving over the immediately previous `v399` rerun but still
+      staying far above the hard gate.
+    - the new multiblock + pull-back family itself added no extra gain on top
+      of that warm lane:
+      - `v298_prob11_warm = T 367`
+      - `multiblock_pullback = T 367`
+      - `move_log = [('multiblock_pullback', [])]`
+    - the bounded latest-feasible candidate did open once on block `55`, but
+      it degraded and was rejected:
+      - `exact_latest_feasible_candidate ... block=55 ... T=391`
+    - both constructive seed references again remained far outside the real
+      warm regime:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - the blocked `micro CP-SAT` branch is now explicitly explained by the
+      current workspace state: `ortools` is unavailable, so this run rotated
+      immediately to a solver-free warm-regime structural family instead of
+      stalling.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v397` | `prob11like block81/105/3/118` | front-loaded beam search over dispatching rules | the explicit pocket was identified, but the dispatch beam never closed a single scored branch; inherited warm lane stayed `T 342` |
+  | `v398` | `prob11like block81/105/3/118` | front-loaded multi-bay local search (pair swap / 2-opt / group reorder) | the explicit pocket was identified, but no scored local-search branch ever closed; inherited warm lane itself reran at `T 354` |
+  | `v399` | `prob11like block81/105/3/118` | front-loaded spatial/orientation constructive with spatial-move tail | the spatial lane finally executed, but even after local continuation it stayed at `T 19567`; only the inherited warm tail remained scoreable at `T 386` |
+  | `v400` | `prob11like block81/105/3/118` | front-loaded warm-regime multiblock sequence repair plus latest-feasible pull-back | the warm lane itself reran at `T 367`, but the new multiblock/pull-back family added no improving move at all; only a degrading pull-back on block `55` was observed |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v400` is a useful narrowing result but still a clean gate failure. It
+    confirms that small block-group reorder plus latest-feasible pull-back can
+    stay inside the warm regime, yet on this subtype it still cannot generate
+    any new improving move beyond the inherited `T 367` pocket. Full40
+    remains forbidden. The next bounded cycle should rotate again to a new
+    structural family: `bay migration / support repartition` targeting the
+    same `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v401_20260702_trackA_prob11_anchor_support_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - recycle the only clear positive local signal on this subtype, the
+    anchored local-randomized pocket from `v377`, but do not merely replay it:
+    use that anchored pocket as the base for a new structural family,
+    support-cluster repartition / blocker-eject around the anchor-derived
+    local set rather than the generic warm support cluster.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - anchored local-randomized destroy-repair pocket
+    - anchored support repartition on that pocket
+    - anchored blocker-eject on that same local pocket
+    - bounded warm-repair tail on the best improving lane
+  - if anchored support moves still cannot beat the known `v377`-style local
+    pocket materially toward `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v401_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 338`
+  - structural signal:
+    - this cycle recovered the best known signal on the subtype:
+      - `base_T 342 -> best_T 338`
+    - but the gain came entirely from the anchored local-randomized pocket
+      already seen in `v377`, not from the new anchored support family:
+      - `samebay_anchor_forward_s0 = T 338`
+      - no `anchor_support_*` or `anchor_blocker_*` attempt ever appeared
+      - move log only contained the anchor-stage local sets
+    - the anchor-derived local support cluster was identified as:
+      - `[193, 39, 118, 3, 81]`
+    - the winning anchor neighborhood remained:
+      - `[134, 172, 193, 22, 137]`
+    - so this is not a new breakthrough; it is a clean revalidation that the
+      anchored pocket is still the only meaningful local signal and that the
+      attached support repartition / blocker-eject layer did not open at all.
+    - constructive calibration lanes again stayed far outside the warm regime:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v398` | `prob11like block81/105/3/118` | front-loaded multi-bay local search (pair swap / 2-opt / group reorder) | the explicit pocket was identified, but no scored local-search branch ever closed; inherited warm lane itself reran at `T 354` |
+  | `v399` | `prob11like block81/105/3/118` | front-loaded spatial/orientation constructive with spatial-move tail | the spatial lane finally executed, but even after local continuation it stayed at `T 19567`; only the inherited warm tail remained scoreable at `T 386` |
+  | `v400` | `prob11like block81/105/3/118` | front-loaded warm-regime multiblock sequence repair plus latest-feasible pull-back | the warm lane itself reran at `T 367`, but the new multiblock/pull-back family added no improving move at all; only a degrading pull-back on block `55` was observed |
+  | `v401` | `prob11like block81/105/3/118` | anchored support repartition / blocker-eject on anchor-derived local pocket | the anchored stage revalidated `T 338`, but the new support layer never opened any candidate at all, so no gain beyond the inherited `v377` anchor pocket was achieved |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v401` is useful because it confirms the anchored pocket remains the only
+    repeatable positive signal on this subtype, but it still fails the hard
+    Family A gate directly and adds no new support-migration gain of its own.
+    Full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `anchored due-window ALNS / destroy-repair` targeting
+    the same `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v402_20260702_trackA_prob11_anchor_duewindow_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - reuse the only repeatable positive local signal, the `v377` anchored
+    pocket, then rotate away from the support family that never opened in
+    `v401` to a fresh structural family: anchored due-window ALNS /
+    destroy-repair on top of that pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - anchored local-randomized destroy-repair pocket
+    - anchored due-window destroy-repair with forward / reverse / cluster-first
+      reinsertion
+    - anchored due-window replay / pull-back on the best improving lane
+    - bounded warm-repair tail on the best improving lane
+  - if this anchored due-window family still cannot beat the known `T 338`
+    pocket materially toward `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v402_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 338`
+  - structural signal:
+    - this cycle again revalidated the best known anchored local signal:
+      - `base_T 342 -> best_T 338`
+      - `samebay_anchor_forward_s0 = T 338`
+    - unlike `v401`, the anchored due-window local neighborhood was at least
+      materialized explicitly:
+      - `anchor_duewindow_ids = [193, 39, 118, 3, 81, 66]`
+      - `anchor_duewindow_local_ids = [172, 193, 137, 151, 39, 186, 110, 118, 165, 1, 3, 44, 139, 81, 80, 154, 66, 27]`
+    - but the new due-window ALNS / replay layer still failed to close any new
+      scored candidate:
+      - no `anchor_duewindow_forward`
+      - no `anchor_duewindow_reverse`
+      - no `anchor_duewindow_clusterfirst`
+      - no `anchor_duewindow_replay`
+    - the only post-anchor line that appeared was a neutral warm-repair tail:
+      - `anchor_duewindow_plus_warmrepair = T 338`
+    - so the due-window family opened enough to define the neighborhood but not
+      enough to produce a new accepted move beyond the inherited anchor pocket.
+    - constructive calibration lanes remained far off-distribution:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v399` | `prob11like block81/105/3/118` | front-loaded spatial/orientation constructive with spatial-move tail | the spatial lane finally executed, but even after local continuation it stayed at `T 19567`; only the inherited warm tail remained scoreable at `T 386` |
+  | `v400` | `prob11like block81/105/3/118` | front-loaded warm-regime multiblock sequence repair plus latest-feasible pull-back | the warm lane itself reran at `T 367`, but the new multiblock/pull-back family added no improving move at all; only a degrading pull-back on block `55` was observed |
+  | `v401` | `prob11like block81/105/3/118` | anchored support repartition / blocker-eject on anchor-derived local pocket | the anchored stage revalidated `T 338`, but the new support layer never opened any candidate at all, so no gain beyond the inherited `v377` anchor pocket was achieved |
+  | `v402` | `prob11like block81/105/3/118` | anchored due-window ALNS / destroy-repair on anchor-derived local pocket | the anchored stage again revalidated `T 338`, and the due-window neighborhood was materialized, but no due-window ALNS or replay candidate ever closed; only a neutral warm-repair tail remained |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v402` is another clean gate failure. It confirms that even after we
+    explicitly widen the anchored due-window neighborhood around block `193`,
+    the only repeatable quality signal still comes from the old anchored
+    local-randomized pocket itself. No new due-window ALNS candidate closed,
+    so there is still no structural path toward `T<10`. Full40 remains
+    forbidden. The next bounded cycle should rotate to a new structural
+    family: `anchored ejection-chain / block-group move` targeting the same
+    `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v403_20260702_trackA_prob11_anchor_groupmove_front_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - preserve the only repeatable positive signal, the anchored pocket from
+    `v377`/`v402`, but remove the nested warm-starvation pattern that made
+    `v378` inconclusive.
+  - run the anchored pocket first in-process, then open a fresh structural
+    family on top of that anchored result: anchored ejection-chain /
+    exact block-group move with companion migration.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v372` warm pocket
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - anchored local-randomized pocket
+    - anchored exact-4 subset repair
+    - anchored exact-3 subset repair
+    - anchored companion groupmove / migration
+    - bounded warm-repair tail on the best improving lane
+  - unlike `v378`, the groupmove phase should now actually execute because we
+    are not spending headroom inside nested `v377.algorithm`.
+  - if the anchored groupmove family still cannot drive the targeted subtype
+    to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v403_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 350`
+  - structural signal:
+    - this cycle did not actually reach the new anchored groupmove family on
+      the target subtype.
+    - on `prob_11`, the inherited warm chain alone consumed the budget:
+      - `v298_prob11_warm = T 350`
+      - `v372 best_T = 350`
+      - `reboot_v403 keep_warm ... remaining=3.61s reserve=4.80s`
+    - so neither the anchor pocket helper nor the anchored exact/groupmove
+      phase opened even once.
+    - this means the `v378` nested-starvation bug was only part of the story;
+      even without nested `v377.algorithm`, the `v372 -> v298` warm lane still
+      leaves no headroom on the standard 60s budget for this subtype.
+    - constructive calibration lanes again remained far off-distribution:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v401` | `prob11like block81/105/3/118` | anchored support repartition / blocker-eject on anchor-derived local pocket | the anchored stage revalidated `T 338`, but the new support layer never opened any candidate at all, so no gain beyond the inherited `v377` anchor pocket was achieved |
+  | `v402` | `prob11like block81/105/3/118` | anchored due-window ALNS / destroy-repair on anchor-derived local pocket | the anchored stage again revalidated `T 338`, and the due-window neighborhood was materialized, but no due-window ALNS or replay candidate ever closed; only a neutral warm-repair tail remained |
+  | `v403` | `prob11like block81/105/3/118` | front-opened anchored ejection-chain / exact block-group move | the new phase never opened at all because `v372 -> v298` warm consumed the standard 60s headroom first; the candidate exited at `keep_warm` with `remaining=3.61s < reserve=4.80s` and stayed at `T 350` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v403` is a clean gate failure. It answers an important structural
+    question: removing nested `v377` was not enough, because the inherited
+    `v372 -> v298` warm chain itself already exhausts the budget before any
+    anchored groupmove search can start on this subtype. Since the target row
+    remains far above `T<10` and no new candidate phase executed, full40 is
+    forbidden. The next bounded cycle should rotate to a new structural
+    family that does not depend on the expensive warm lane first:
+    `front-loaded beam search over dispatching rules` targeting the same
+    `prob11like block81/105/3/118 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v404_20260702_trackA_prob11_bayplan_dispatchbeam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - stay within the beam-search backlog, but avoid repeating the two known
+    failure shapes:
+    - `v390`: scoreable dispatch reorder only, but all variants lost
+    - `v397`: partial dispatch beam became too brittle and closed no branch
+  - new structural hypothesis: run a scoreable explicit-shortlist beam where
+    dispatch rule and bay-assignment plan are searched together on the
+    block81/105/3/118 tardy pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+  - multi-bay dispatch beam on the explicit tardy pocket using:
+      - balance bay plan
+      - split bay plan
+      - preference bay plan
+      - dispatch rules `EDD`, `min-slack`, `critical-ratio`,
+        `release/due/proc`, `area-pressure`
+    - bounded warm-repair tail on the best improving lane
+  - if the beam closes scoreable branches but still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v404_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 339`
+  - structural signal:
+    - the target row improved versus the earlier `T 342/350` warm reruns, but
+      the gain came entirely from the inherited `v298` warm lane itself:
+      - `prob11_direct_window = T 348`
+      - `prob11_spatial_window = T 348`
+      - `prob11_spatial_warm_rescue = T 339`
+    - the new `v404` bay-plan dispatch beam still failed to close a single
+      scored branch:
+      - attempted list stopped at the calibration seeds
+      - move log only recorded the explicit pocket:
+        `[81, 105, 3, 118, 39, 154]`
+    - so this cycle slightly sharpened the subtype signal by exposing
+      `block153` as part of the inherited rescue path, but the new beam family
+      again added no accepted move of its own.
+    - constructive calibration lanes remained far off-distribution:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v402` | `prob11like block81/105/3/118` | anchored due-window ALNS / destroy-repair on anchor-derived local pocket | the anchored stage again revalidated `T 338`, and the due-window neighborhood was materialized, but no due-window ALNS or replay candidate ever closed; only a neutral warm-repair tail remained |
+  | `v403` | `prob11like block81/105/3/118` | front-opened anchored ejection-chain / exact block-group move | the new phase never opened at all because `v372 -> v298` warm consumed the standard 60s headroom first; the candidate exited at `keep_warm` with `remaining=3.61s < reserve=4.80s` and stayed at `T 350` |
+  | `v404` | `prob11like block81/105/3/118/153` | front-loaded beam search over dispatch rules plus bay plans | the target row improved to `T 339`, but only through the inherited `v298` rescue on block `153`; the new bay-plan dispatch beam still closed no scored branch at all |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v404` is still a hard gate failure. It matters because it updates the
+    working subtype picture: the best current warm rescue on this prob11like
+    pocket now clearly runs through `block153`, not just the older
+    `81/105/3/118` pocket. But the new beam family again produced no accepted
+    branch of its own, so there is still no structural path toward `T<10`.
+    Full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `GRASP/randomized restart` targeting the same
+    `prob11like block81/105/3/118/153 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v405_20260702_trackA_prob11_rescue_pocket_grasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - stay within the GRASP/randomized-restart backlog, but rotate away from the
+    older `v395` pocket that still assumed the main signal lived only around
+    `81/105/3/118`.
+  - new structural hypothesis: run GRASP/randomized reinsertion on the
+    enlarged warm-rescue neighborhood that explicitly includes `block153` and
+    uses a bay-plan bias taken from local balance/split/preference plans.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+  - warm-rescue-pocket GRASP restarts with:
+      - target-first / due-bias / workload-bias / reverse-tail orderings
+      - balance / split / preference local bay-plan biases
+      - randomized top-k placement choice per block
+    - bounded warm-repair tail on the best improving lane
+  - if the rescue-pocket GRASP still cannot drive the targeted subtype to
+    `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v405_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - this cycle falsified the enlarged rescue-pocket GRASP hypothesis.
+    - the target row fell back to the older warm floor:
+      - `v298_prob11_warm = T 342`
+      - no `block153` rescue remained active in this rerun
+    - the new GRASP phase did open and built a real enlarged pocket:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - `stay_targetfirst_s7` inserted a long sequence:
+        `[81, 153, 105, 118, 193, 3, 22, 172, 151, 165, 1, 79]`
+    - but even that first restart failed to close a feasible scored candidate:
+      - `stay_targetfirst_s7_failed`
+    - so the enlarged rescue neighborhood is now explicit, but randomized
+      restart still cannot turn it into a better accepted solution.
+    - constructive calibration lanes remained far off-distribution:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v403` | `prob11like block81/105/3/118` | front-opened anchored ejection-chain / exact block-group move | the new phase never opened at all because `v372 -> v298` warm consumed the standard 60s headroom first; the candidate exited at `keep_warm` with `remaining=3.61s < reserve=4.80s` and stayed at `T 350` |
+  | `v404` | `prob11like block81/105/3/118/153` | front-loaded beam search over dispatch rules plus bay plans | the target row improved to `T 339`, but only through the inherited `v298` rescue on block `153`; the new bay-plan dispatch beam still closed no scored branch at all |
+  | `v405` | `prob11like block81/105/3/118/153/193` | enlarged rescue-pocket GRASP/randomized restart | the enlarged rescue neighborhood was explicitly rebuilt, but the first restart still failed to close a feasible scored candidate and the row regressed to the older warm floor `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v405` is another hard gate failure. It sharpened our picture of the
+    prob11like subtype by making the enlarged rescue neighborhood explicit,
+    but even that richer randomized-restart pocket did not produce a single
+    accepted move better than the inherited warm lane. Since the target row is
+    still far above `T<10`, full40 remains forbidden. The next bounded cycle
+    should rotate to a new structural family: `ALNS/LNS destroy-repair`
+    targeting the same `prob11like block81/105/3/118/153/193 multi-bay
+    tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v406_20260702_trackA_prob11_rescue_pocket_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - stay within the ALNS/LNS backlog, but rotate away from the older explicit
+    shortlist and anchor-only neighborhoods.
+  - new structural hypothesis: destroy and repair the enlarged warm-rescue
+    neighborhood `81/105/3/118/153/193` plus its local same-bay support band,
+    while comparing stay/preference/balance local bay biases and multiple
+    reinsertion orders.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+  - rescue-pocket ALNS/LNS destroy-repair with:
+      - stay / preference / balance local bay bias
+      - forward / reverse / cluster-first reinsertion
+      - due-window replay around `153` / `193` on the best candidate
+    - bounded warm-repair tail on the best improving lane
+  - if the rescue-pocket ALNS still cannot drive the targeted subtype to
+    `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v406_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - this cycle falsified the enlarged rescue-pocket ALNS/LNS hypothesis.
+    - the target row stayed flat at the inherited warm floor:
+      - `v298_prob11_warm = T 342`
+    - the enlarged destroy neighborhood did open explicitly:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - first ALNS reinsertion attempt:
+        `stay_forward = [39, 193, 118, 3, 81, 153, 154, 105, 22, 172, 186, 151]`
+    - but even that first destroy-repair lane failed to close a scored
+      candidate:
+      - `stay_forward_failed`
+    - so the larger neighborhood is now explicit for both GRASP and ALNS, and
+      both families still fail before they can produce a better accepted move.
+    - constructive calibration lanes remained far off-distribution:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v404` | `prob11like block81/105/3/118/153` | front-loaded beam search over dispatch rules plus bay plans | the target row improved to `T 339`, but only through the inherited `v298` rescue on block `153`; the new bay-plan dispatch beam still closed no scored branch at all |
+  | `v405` | `prob11like block81/105/3/118/153/193` | enlarged rescue-pocket GRASP/randomized restart | the enlarged rescue neighborhood was explicitly rebuilt, but the first restart still failed to close a feasible scored candidate and the row regressed to the older warm floor `T 342` |
+  | `v406` | `prob11like block81/105/3/118/153/193` | enlarged rescue-pocket ALNS/LNS destroy-repair | the enlarged destroy-repair neighborhood opened explicitly, but even the first `stay_forward` lane failed before producing a scored candidate, so the row stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v406` is another hard gate failure. It confirms that simply enlarging the
+    prob11like destroy neighborhood is not enough: both randomized restart and
+    destroy-repair now fail on the same explicit `81/105/3/118/153/193` rescue
+    pocket before they can produce a better accepted move. Since the target row
+    remains far above `T<10`, full40 remains forbidden. The next bounded cycle
+    should rotate to a new structural family: `micro CP-SAT/MIP tardy-cluster
+    repair` targeting the same `prob11like block81/105/3/118/153/193
+    multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v407_20260702_trackA_prob11_rescue_cluster_micro_mip_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `planned`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - follow the `micro CP-SAT/MIP tardy-cluster repair` hypothesis, but do it
+    as a no-install fallback because `ortools` is not available in this
+    workspace and installing dependencies is out of scope.
+  - new structural hypothesis: apply tiny exact/MIP-style repair directly on
+    the explicit rescue cluster around `153/193/81/105/3/118` using explicit
+    bay windows and tiny exact subset repair under local bay plans.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - explicit rescue-window permutation repair
+    - tiny exact subset repair on rescue-cluster local ids
+    - bounded warm-repair tail on the best improving lane
+  - if the micro MIP-style rescue repair still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+
+## 2026-07-02 reboot_v408_20260702_trackA_prob11_rescue_pocket_lateststart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate back to the `backward/latest-start scheduler` backlog item, but do
+    it on the enlarged rescue pocket that recent cycles exposed rather than
+    replaying the old `81/105/3/118` shortlist.
+  - new structural hypothesis: compare trusted warm and constructive seed
+    routes, then apply rescue-pocket bay-plan-first timing-second rebuild plus
+    fixed-bay backward/latest-start local sequence replay on the explicit
+    `81/105/3/118/153/193` neighborhood and its local support band.
+- hypothesis:
+  - compare on the target subtype:
+    - trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - rescue-pocket bay-plan-first rebuild with backward/latest/slack
+      reinsertion orders
+    - rescue-pocket fixed-bay backward/latest/slack local sequence replay
+    - bounded warm-repair tail on the best improving lane
+  - if the rescue-pocket latest-start family still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v408_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - structural signal:
+    - this cycle falsified the enlarged rescue-pocket latest-start hypothesis
+      at the current runtime surface.
+    - the direct trusted warm lane itself finished at:
+      - `v298_prob11_warm = T 367`
+    - the rescue pocket was explicitly exposed:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 55, 73]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 55, 73, 139, 80, 1, 44]`
+    - but no rescue-pocket latest-start branch reached the attempted list at
+      all; the runtime log closed with only:
+      - `v298_prob11_warm = T 367`
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - so, after the inherited `v298` warm consumed the standard 60s headroom,
+      the new bay-plan-first / fixed-bay latest-start phase never actually
+      opened on a scored candidate.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v405` | `prob11like block81/105/3/118/153/193` | enlarged rescue-pocket GRASP/randomized restart | the enlarged rescue neighborhood was explicitly rebuilt, but the first restart still failed to close a feasible scored candidate and the row regressed to the older warm floor `T 342` |
+  | `v406` | `prob11like block81/105/3/118/153/193` | enlarged rescue-pocket ALNS/LNS destroy-repair | the enlarged destroy-repair neighborhood opened explicitly, but even the first `stay_forward` lane failed before producing a scored candidate, so the row stayed flat at `T 342` |
+  | `v407` | `prob11like block81/105/3/118/153/193` | rescue-cluster micro MIP-style window/subset repair | explicit rescue-window and tiny exact subset operators did run, but their best closed windows stayed worse than warm, e.g. `rescue_window_b2_139,81,80 = T 376`, so no improvement survived |
+  | `v408` | `prob11like block81/105/3/118/153/193/55/73` | rescue-pocket bay-plan-first backward/latest-start scheduler | the new phase exposed the enlarged rescue pocket but never reached a scored latest-start branch before the inherited `v298` warm exhausted the standard 60s headroom; only warm plus calibration seeds were logged and the row finished at `T 367` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v408` is another hard gate failure. It confirms that the rescue-pocket
+    latest-start family is not just weak on this subtype; under the current
+    runtime surface it cannot even open before the inherited `v298` warm route
+    consumes the headroom. Since the target row remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `regret-k insertion` targeting the same `prob11like
+    block81/105/3/118/153/193 multi-bay tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v409_20260702_trackA_prob11_rescue_pocket_regretk_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `regret-k insertion` backlog item again, but do not replay
+    the old explicit-shortlist `81/105/3/118` line.
+  - new structural hypothesis: reserve a bounded local-search budget up front,
+    build a protected warm lane, and run regret-k reinsertion on the enlarged
+    rescue pocket `81/105/3/118/153/193` plus its nearest local support band
+    under stay/preference/balance bay plans.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - rescue-pocket regret-2 reinsertion with stay/preference bay bias
+    - rescue-pocket regret-3 reinsertion with balance bay bias
+    - bounded warm-repair tail on the best improving lane
+  - if the rescue-pocket regret family still cannot drive the targeted subtype
+    to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v409_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 351`
+  - structural signal:
+    - this cycle did recover a better protected warm floor than the recent
+      direct-warm reruns:
+      - `v298_prob11_protected_warm = T 351`
+    - but the new regret-k family itself still did not close a scored full
+      rescue-pocket candidate.
+    - the enlarged rescue neighborhood opened as:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `cluster_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+    - the only explicit regret progress was a short inserted prefix:
+      - `stay_regret2 = [193, 39]`
+      - and the attempted list still ended at `stay_regret2_failed`
+    - so the measurable gain came from protecting local-search headroom for the
+      inherited warm route, not from the rescue-pocket regret-k reinsertion
+      itself.
+    - constructive calibration lanes remained far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v407` | `prob11like block81/105/3/118/153/193` | rescue-cluster micro MIP-style window/subset repair | explicit rescue-window and tiny exact subset operators ran, but their best closed windows stayed worse than warm, e.g. `rescue_window_b2_139,81,80 = T 376`, so no improvement survived |
+  | `v408` | `prob11like block81/105/3/118/153/193/55/73` | rescue-pocket bay-plan-first backward/latest-start scheduler | the enlarged rescue pocket was exposed, but no scored latest-start branch opened before the inherited warm route exhausted headroom; only warm plus calibration seeds were logged and the row finished at `T 367` |
+  | `v409` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket regret-k insertion | the protected warm lane improved the row to `T 351`, but the new regret family still stalled after prefix `[193, 39]` and never produced a scored full-pocket reinsertion |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v409` is still a hard gate failure. It is useful because it shows that a
+    protected local-search reserve can lift the inherited warm floor to `T 351`
+    on this subtype, but the actual rescue-pocket regret-k hypothesis still
+    failed to complete a scored candidate of its own. Since `prob_11` remains
+    far above `T<10`, full40 remains forbidden. The next bounded cycle should
+    rotate to a new structural family: `beam search over dispatching rules`
+    targeting the same `prob11like block81/105/3/118/153/193/39/154 multi-bay
+    tardy-pocket subtype`, this time with protected reserve so the beam can
+    actually open.
+
+## 2026-07-02 reboot_v410_20260702_trackA_prob11_rescue_pocket_dispatchbeam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `beam search over dispatching rules` backlog item again, but
+    avoid the old narrow shortlist and avoid letting the inherited warm route
+    consume the whole 60s wall.
+  - new structural hypothesis: reserve a bounded beam budget up front, build a
+    protected warm lane, then run dispatch-rule beam plus bay-plan search on
+    the enlarged rescue pocket `81/105/3/118/153/193/39/154`.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - rescue-pocket dispatch beam with `EDD`, `min-slack`,
+      `critical-ratio`, `release/due/proc hybrid`, `area-pressure`
+    - stay / preference / balance bay plans on the same pocket
+    - bounded warm-repair tail on the best improving lane
+  - if the protected rescue-pocket beam still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v410_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - this cycle improved the protected warm floor further:
+      - `v298_prob11_protected_warm = T 342`
+    - inside the inherited protected warm lane, the best upstream label was:
+      - `prob11_spatial_move = T 342`
+    - the enlarged rescue pocket was explicitly exposed:
+      - `pocket = [81, 105, 3, 118, 153, 193, 39, 154]`
+    - but the new dispatch-beam family still never produced a scored branch of
+      its own; the attempted list ended with only:
+      - `v298_prob11_protected_warm = T 342`
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - so, even after protecting beam headroom, the rescue-pocket dispatch beam
+      remained too brittle to close a candidate on this subtype.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v408` | `prob11like block81/105/3/118/153/193/55/73` | rescue-pocket bay-plan-first backward/latest-start scheduler | the enlarged rescue pocket was exposed, but no scored latest-start branch opened before the inherited warm route exhausted headroom; only warm plus calibration seeds were logged and the row finished at `T 367` |
+  | `v409` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket regret-k insertion | the protected warm lane improved the row to `T 351`, but the new regret family still stalled after prefix `[193, 39]` and never produced a scored full-pocket reinsertion |
+  | `v410` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket dispatch beam | the protected warm lane improved the row to `T 342`, but the new beam family never logged a single scored branch of its own even after pocket exposure and reserved headroom |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v410` is still a hard gate failure. It is useful because it confirms that
+    protected reserve can materially improve the inherited warm floor on this
+    subtype, now down to `T 342`, but the actual rescue-pocket dispatch beam
+    still cannot close a scored candidate of its own. Since `prob_11` remains
+    far above `T<10`, full40 remains forbidden. The next bounded cycle should
+    rotate to a new structural family: `ejection-chain / block group move`
+    targeting the same `prob11like block81/105/3/118/153/193/39/154 multi-bay
+    tardy-pocket subtype`.
+
+## 2026-07-02 reboot_v411_20260702_trackA_prob11_rescue_pocket_ejection_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `ejection-chain / block group move` backlog item again, but
+    do it on the protected warm floor and on the enlarged rescue pocket rather
+    than the old narrow shortlist.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then apply same-bay chain pulls, local group-span
+    moves, and tiny exact group repair on the enlarged
+    `81/105/3/118/153/193/39/154` pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - rescue-pocket same-bay chain pulls
+    - rescue-pocket block-group span pulls
+    - rescue-pocket tiny exact group repair
+    - bounded warm-repair tail on the best improving lane
+  - if the protected rescue-pocket chain/group family still cannot drive the
+    targeted subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v411_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor stayed at the same improved value as the prior
+      protected-beam cycle:
+      - `v298_prob11_protected_warm = T 342`
+    - the enlarged rescue pocket was explicitly exposed:
+      - `rescue_pocket = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `tardy_focus = [3, 105, 118, 81]`
+    - the new chain family did execute and stayed scoreable, but it accepted no
+      move at all:
+      - `pocket_chain12 = []`
+      - `pocket_chain34 = []`
+      - both result lines stayed at `T 342`
+    - the tiny exact-group phase did not reach any improving scored candidate
+      before the run closed, so the best label remained the protected warm lane.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v409` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket regret-k insertion | the protected warm lane improved the row to `T 351`, but the new regret family stalled after prefix `[193, 39]` and never produced a scored full-pocket reinsertion |
+  | `v410` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket dispatch beam | the protected warm lane improved the row to `T 342`, but the new beam family never logged a single scored branch of its own even after pocket exposure and reserved headroom |
+  | `v411` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ejection-chain / block-group move | the protected warm lane held at `T 342`, the chain families executed, but both `pocket_chain12` and `pocket_chain34` accepted no move and the best label stayed warm |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v411` is still a hard gate failure. It confirms that, on the current
+    enlarged rescue pocket, protected reserve can preserve the improved warm
+    floor but neither dispatch-beam nor ejection/group moves can yet produce a
+    scored candidate of their own. Since `prob_11` remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `GRASP/randomized restart` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, now using the protected warm floor as the launch point.
+
+## 2026-07-02 reboot_v412_20260702_trackA_prob11_protected_grasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate back to the `GRASP/randomized restart` backlog item, but unlike the
+    earlier rescue-pocket GRASP run, start from the improved protected warm
+    floor that now reaches `T 342`.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then run rescue-pocket GRASP/randomized reinsertion on
+    `81/105/3/118/153/193/39/154` with stay/preference/balance/split plan
+    variants and multiple order biases.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected rescue-pocket GRASP with target-first / due-bias /
+      workload-bias / reverse-tail orders
+    - bounded warm-repair tail on the best improving lane
+  - if the protected rescue-pocket GRASP still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v412_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor remained at the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - unlike the prior beam/ejection cycles, the GRASP phase did reopen a full
+      explicit restart order on the enlarged rescue pocket:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - first restart order:
+        `[81, 153, 105, 118, 193, 3, 22, 172, 151, 165, 1, 79]`
+    - but even that reopened restart still failed before a scored candidate
+      could close:
+      - `stay_targetfirst_s7_failed`
+    - so this cycle confirms that protected reserve is enough to relaunch the
+      enlarged GRASP sequence, but not enough to convert it into a better
+      accepted solution.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v410` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket dispatch beam | the protected warm lane improved the row to `T 342`, but the new beam family never logged a single scored branch of its own even after pocket exposure and reserved headroom |
+  | `v411` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ejection-chain / block-group move | the protected warm lane held at `T 342`, the chain families executed, but both `pocket_chain12` and `pocket_chain34` accepted no move and the best label stayed warm |
+  | `v412` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket GRASP/randomized restart | the protected warm lane held at `T 342`, the enlarged GRASP restart order reopened, but the first full restart still failed before closing a scored candidate: `stay_targetfirst_s7_failed` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v412` is still a hard gate failure. It is useful because it shows that the
+    protected warm floor plus enlarged rescue pocket is enough to reopen the
+    full GRASP restart order, but not enough to convert that restart into a
+    better accepted candidate. Since `prob_11` remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `ALNS/LNS destroy-repair` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, now using the protected warm floor as the launch point.
+
+## 2026-07-02 reboot_v413_20260702_trackA_prob11_protected_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `ALNS/LNS destroy-repair` backlog item again, but start from
+    the protected warm floor that now reliably reaches `T 342`.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then apply rescue-pocket destroy-repair on
+    `81/105/3/118/153/193/39/154` plus its local support band with stay /
+    preference / balance plans and multiple reinsertion orders.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected rescue-pocket ALNS/LNS destroy-repair with forward /
+      cluster-first / reverse reinsertion
+    - bounded warm-repair tail on the best improving lane
+  - if the protected rescue-pocket ALNS still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v413_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - the protected ALNS phase reopened the explicit destroy order on the
+      enlarged rescue neighborhood:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - first destroy-repair order:
+        `[39, 193, 118, 3, 81, 153, 154, 105, 22, 172, 186, 151]`
+    - but exactly like the earlier unprotected rescue-pocket ALNS run, the
+      first lane still failed before a scored candidate could close:
+      - `stay_forward_failed`
+    - so protected reserve is enough to reopen the destroy order, but not
+      enough to convert the ALNS/LNS family into an accepted improvement.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v411` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ejection-chain / block-group move | the protected warm lane held at `T 342`, the chain families executed, but both `pocket_chain12` and `pocket_chain34` accepted no move and the best label stayed warm |
+  | `v412` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket GRASP/randomized restart | the protected warm lane held at `T 342`, the enlarged GRASP restart order reopened, but the first full restart still failed before closing a scored candidate: `stay_targetfirst_s7_failed` |
+  | `v413` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ALNS/LNS destroy-repair | the protected warm lane held at `T 342`, the enlarged ALNS destroy order reopened, but the first `stay_forward` lane still failed before closing a scored candidate |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v413` is still a hard gate failure. It confirms that the protected warm
+    floor is now stable at `T 342`, and that both GRASP and ALNS can reopen
+    full enlarged rescue-pocket orders on top of it, but neither family can
+    yet close a scored candidate. Since `prob_11` remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `bay assignment first, timing second` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, now using the protected warm floor as the launch point.
+
+## 2026-07-02 reboot_v414_20260702_trackA_prob11_protected_bayassign_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `bay assignment first, timing second` backlog item again,
+    but start from the protected warm floor that now reliably reaches `T 342`.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then repartition the enlarged
+    `81/105/3/118/153/193/39/154` rescue pocket across bays before replaying
+    latest/slack-biased local sequences.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected rescue-pocket bay assignment first / timing second with stay /
+      preference / balance / split bay plans and regret-latest / latest /
+      slack sequence rebuilds
+    - bounded warm-repair tail on the best improving lane
+  - if the protected bay-assignment-first phase still cannot drive the
+    targeted subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v414_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 363`
+  - structural signal:
+    - the protected warm floor did not hold at the recent local best:
+      - `v298_prob11_protected_warm = T 363`
+      - this is worse than the current trusted local floor `T 342`
+    - the new bay-plan family did open explicit rescue-pocket repartitions:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 69, 41, 110, 165, 138, 45, 151, 186, 188, 66]`
+      - first repartition lane:
+        `stay_regret_latest_bay_plan = {3:1, 39:2, 41:0, 45:3, 66:2, 69:2, 80:0, 81:0, 105:3, 110:1, 118:2, 138:0, ...}`
+      - second repartition lane:
+        `preference_pref_due_bay_plan = {3:3, 39:2, 41:3, 45:0, 66:1, 69:0, 80:3, 81:2, 105:2, 110:1, 118:1, 138:0, ...}`
+    - but the opened bay-assignment-first lanes were materially worse than
+      warm:
+      - `stay_regret_latest = T 466`
+      - `stay_regret_latest_replay = T 462`
+      - `preference_pref_due_failed`
+    - so this cycle confirms that protected bay repartition does reopen new
+      multi-bay plans, but on the current subtype it destabilizes the warm
+      floor instead of closing an improving accepted candidate.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v412` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket GRASP/randomized restart | the protected warm lane held at `T 342`, the enlarged GRASP restart order reopened, but the first full restart still failed before closing a scored candidate: `stay_targetfirst_s7_failed` |
+  | `v413` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ALNS/LNS destroy-repair | the protected warm lane held at `T 342`, the enlarged ALNS destroy order reopened, but the first `stay_forward` lane still failed before closing a scored candidate |
+  | `v414` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket bay assignment first, timing second | the new bay repartition family reopened explicit multi-bay plans, but the best opened lane degraded sharply (`T 466/462`) and the protected warm baseline itself sat at `T 363`, so no improving accepted candidate closed |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v414` is still a hard gate failure. It is informative because it confirms
+    that the protected rescue pocket can now open explicit multi-bay
+    repartition plans, but on this subtype those plans are actively worse than
+    the warm floor. Since `prob_11` remains far above `T<10`, full40 remains
+    forbidden. The next bounded cycle should rotate to a different structural
+    family: `spatial/orientation constructive` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, now using the protected warm launch point but changing placement
+    order rather than bay repartition.
+
+## 2026-07-02 reboot_v415_20260702_trackA_prob11_protected_local_spatial_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `spatial/orientation constructive` backlog item again, but
+    avoid the failed global-front spatial branch and instead reuse a local
+    blocker-aware spatial/orientation rebuild on the enlarged rescue pocket.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then reconstruct the
+    `81/105/3/118/153/193/39/154` rescue pocket plus support band with local
+    wall/corner/fragmentation-aware bay/orientation insertion.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected local rescue-pocket spatial/orientation constructive with
+      stay / preference / balance / split plans and seeded local rebuild order
+    - bounded warm-repair tail on the best improving lane
+  - if the protected local spatial phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v415_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor recovered to the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - the useful score still came entirely from the inherited protected warm
+      chain:
+      - `prob11_spatial_move` on block `193` to `T 342`
+      - `prob11_spatial_window = T 342`
+      - `prob11_spatial_warm_rescue = T 342`
+    - the new local rescue-pocket spatial/orientation family did reopen
+      explicit local plans:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - `stay_pref_seed0` plan:
+        `{81:2, 105:2, 3:1, 118:0, 153:3, 193:1, 39:3, 154:1}`
+      - `preference_pref_seed0` plan:
+        `{81:0, 105:0, 3:0, 118:0, 153:2, 193:0, 39:3, 154:1}`
+    - but every local spatial lane failed before closing any accepted
+      candidate:
+      - `stay_pref_seed0_failed`
+      - `stay_pref_seed1_failed`
+      - `preference_pref_seed0_failed`
+      - `balance_seed0_failed`
+      - `split_seed0_failed`
+    - so this cycle confirms that local spatial/orientation rebuild is able to
+      open the enlarged rescue pocket cleanly, but under the current subtype it
+      never reaches a scoreable reconstructed layout; only the inherited warm
+      spatial move remains alive.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v413` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket ALNS/LNS destroy-repair | the protected warm lane held at `T 342`, the enlarged ALNS destroy order reopened, but the first `stay_forward` lane still failed before closing a scored candidate |
+  | `v414` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket bay assignment first, timing second | the new bay repartition family reopened explicit multi-bay plans, but the best opened lane degraded sharply (`T 466/462`) and the protected warm baseline itself sat at `T 363`, so no improving accepted candidate closed |
+  | `v415` | `prob11like block81/105/3/118/153/193/39/154` | protected local rescue-pocket spatial/orientation constructive | the local spatial family reopened multiple enlarged rescue-pocket plans, but every seeded local rebuild failed before producing a scoreable candidate; only the inherited protected warm spatial move stayed alive at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v415` is still a hard gate failure. It is useful because it shows the
+    difference between global and local spatial families clearly: the local
+    rescue-pocket spatial plans do open, but none of them can close a scoreable
+    layout on this subtype. Since `prob_11` remains far above `T<10`, full40
+    remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `protected local search pair swap / small block-group
+    reorder` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, now using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v416_20260702_trackA_prob11_protected_pairswap_groupreorder_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `local search` backlog item again, but keep the search fully
+    on top of the recovered protected warm floor.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, then run same-bay pair swaps and tiny 3-block group
+    reorders only on the enlarged
+    `81/105/3/118/153/193/39/154` rescue pocket plus its support band.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected rescue-pocket same-bay pair swap / group reorder local search
+    - bounded warm-repair tail on the best improving lane
+  - if the protected local-search phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v416_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor remained at the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - the useful score again came entirely from the inherited protected warm
+      chain:
+      - `prob11_spatial_move` on block `193` to `T 342`
+    - the new local-search family did open on the enlarged rescue pocket:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+    - but even the first same-bay pair-swap round found no improving local
+      candidate at all:
+      - `protected_pairswap_groupreorder = T 342`
+      - `move_log = [('pair_swap', None)]`
+    - so this cycle confirms that, on the current warm layout, tiny same-bay
+      sequence perturbations around the enlarged rescue pocket are too weak to
+      change the selected carry state.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v414` | `prob11like block81/105/3/118/153/193/39/154` | protected-headroom rescue-pocket bay assignment first, timing second | the new bay repartition family reopened explicit multi-bay plans, but the best opened lane degraded sharply (`T 466/462`) and the protected warm baseline itself sat at `T 363`, so no improving accepted candidate closed |
+  | `v415` | `prob11like block81/105/3/118/153/193/39/154` | protected local rescue-pocket spatial/orientation constructive | the local spatial family reopened multiple enlarged rescue-pocket plans, but every seeded local rebuild failed before producing a scoreable candidate; only the inherited protected warm spatial move stayed alive at `T 342` |
+  | `v416` | `prob11like block81/105/3/118/153/193/39/154` | protected rescue-pocket same-bay pair swap / group reorder local search | the local-search phase opened on the enlarged rescue pocket, but even the first pair-swap round found no improving candidate at all (`move_log pair_swap=None`), so the carried result stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v416` is still a hard gate failure. It clarifies that once the warm floor
+    is at `T 342`, tiny same-bay reorder moves are not strong enough to change
+    the state on this subtype. Since `prob_11` remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `protected due-window / latest-feasible pull-back local
+    search` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v417_20260702_trackA_prob11_protected_duewindow_pullback_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `due-window / latest-feasible pull-back local search`
+    backlog item, but keep the phase shallower than the rejected anchored ALNS
+    family.
+  - new structural hypothesis: reserve local-search headroom up front, build a
+    protected warm lane, explicitly materialize the anchor due-window pocket
+    around the recovered warm state, then try only due-window replay plus
+    latest-feasible pull-back on that pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected anchor due-window replay on the recovered pocket
+    - protected latest-feasible pull-back on warm / replay candidate
+    - bounded warm-repair tail on the best improving lane
+  - if the protected due-window / pull-back phase still cannot drive the
+    targeted subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v417_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor remained at the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - the anchor due-window neighborhood was explicitly materialized on the
+      recovered warm state:
+      - `anchor_duewindow_ids = [193, 39, 118, 3, 81, 66]`
+      - `anchor_duewindow_local_ids = [172, 193, 22, 151, 39, 186, 110, 118, 165, 1, 3, 44, 139, 81, 80, 154, 66, 27]`
+    - but every due-window replay branch worsened immediately:
+      - `anchor_duewindow_replay = T 376`
+      - `duewindow_replay_193 = T 376`
+      - `duewindow_replay_39 = T 376`
+    - the latest-feasible pull-back phase did execute, but it found no actual
+      improving move on top of the warm state:
+      - `warm_latest_feasible_pullback = T 342`
+      - `move_log warm_latest_feasible_pullback = []`
+    - so this cycle confirms that on the current protected warm layout the
+      anchor due-window replay family is directionally wrong, and the exact
+      pull-back slice is too weak to move the state.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v415` | `prob11like block81/105/3/118/153/193/39/154` | protected local rescue-pocket spatial/orientation constructive | the local spatial family reopened multiple enlarged rescue-pocket plans, but every seeded local rebuild failed before producing a scoreable candidate; only the inherited protected warm spatial move stayed alive at `T 342` |
+  | `v416` | `prob11like block81/105/3/118/153/193/39/154` | protected rescue-pocket same-bay pair swap / group reorder local search | the local-search phase opened on the enlarged rescue pocket, but even the first pair-swap round found no improving candidate at all (`move_log pair_swap=None`), so the carried result stayed flat at `T 342` |
+  | `v417` | `prob11like block81/105/3/118/153/193/39/154` | protected anchor due-window replay plus latest-feasible pull-back local search | the anchor due-window neighborhood was materialized, but every replay branch worsened to `T 376`, and the exact latest-feasible pull-back executed with no improving move at all (`[]`), so the carried result stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v417` is still a hard gate failure. It shows that on the current warm
+    layout the due-window replay family is actively counterproductive, while
+    the exact pull-back slice is too weak to change the state. Since `prob_11`
+    remains far above `T<10`, full40 remains forbidden. The next bounded cycle
+    should rotate to a new structural family: `protected micro CP-SAT/MIP
+    tardy-cluster repair` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v418_20260702_trackA_prob11_protected_micro_mip_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to the `micro CP-SAT/MIP tardy-cluster repair` backlog item, but
+    stay no-install by reusing the existing tiny exact subset repair operator
+    already present in the repo.
+  - new structural hypothesis: protect the recovered `T 342` warm lane, widen
+    the tardy pocket to the explicit `81/105/3/118/153/193/39/154` rescue
+    neighborhood, then compare multiple tiny exact subset repairs under stay /
+    preference / split bay plans and keep warm if none beats the current floor.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - protected enlarged tardy-cluster exact subset repair under multiple bay
+      plans and sequence rules
+    - bounded warm-repair tail on the best improving exact lane
+  - if the protected micro exact repair phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v418_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor remained at the current best local value:
+      - `v298_prob11_protected_warm = T 342`
+    - the enlarged rescue pocket was materialized again:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `local_ids = [81, 105, 3, 118, 153, 193, 39, 154, 139, 80, 1, 44, 110, 165, 61, 79, 172, 22, 151, 186, 188, 66]`
+      - `subset_labels = ['anchor_core', 'anchor_support', 'anchor_bridge', 'anchor_release', 'focus_head', 'focus_tail']`
+    - but the no-install micro exact repair phase failed to close even a single
+      scoreable candidate beyond the protected warm lane, so the final attempt
+      table never advanced past the two constructive calibration seeds:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+      - no exact subset candidate appeared in the scored attempt log
+    - so this cycle confirms that, on the current warm layout, the enlarged
+      tardy-cluster exact subset family is still too brittle to even produce an
+      accepted competing repair candidate on this subtype.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v416` | `prob11like block81/105/3/118/153/193/39/154` | protected rescue-pocket same-bay pair swap / group reorder local search | the local-search phase opened on the enlarged rescue pocket, but even the first pair-swap round found no improving candidate at all (`move_log pair_swap=None`), so the carried result stayed flat at `T 342` |
+  | `v417` | `prob11like block81/105/3/118/153/193/39/154` | protected anchor due-window replay plus latest-feasible pull-back local search | the anchor due-window neighborhood was materialized, but every replay branch worsened to `T 376`, and the exact latest-feasible pull-back executed with no improving move at all (`[]`), so the carried result stayed flat at `T 342` |
+  | `v418` | `prob11like block81/105/3/118/153/193/39/154` | protected micro CP-SAT/MIP style exact subset repair on enlarged tardy pocket | the enlarged rescue pocket and six exact-subset families were opened, but the no-install exact repair phase failed to close even one scored candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v418` is still a hard gate failure. It shows that on the current warm
+    layout, tiny exact subset repair on the enlarged tardy pocket is too
+    brittle to produce a competing accepted candidate at all. Since `prob_11`
+    remains far above `T<10`, full40 remains forbidden. The next bounded cycle
+    should rotate to a new structural family: `protected ejection-chain /
+    block-group move` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v419_20260702_trackA_prob11_predecessor_ejection_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to a predecessor-aware `ejection-chain / block-group move`
+    hypothesis instead of the already-failed same-bay chain or brittle tiny
+    exact subset family.
+  - new structural hypothesis: protect the recovered warm lane, choose an
+    explicit rescue cluster inside `81/105/3/118/153/193/39/154`, add
+    source-bay predecessors plus incoming-bay blockers, then rebuild that
+    multi-bay local pocket under stay / preference / split plans and search
+    companion migration/groupmove repairs on top of that rebuilt pocket.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware multi-bay ejection/local rebuild under multiple bay
+      plans
+    - companion migration / groupmove on the rebuilt local pocket
+    - bounded warm-repair tail on the best improving lane
+  - if the protected predecessor-ejection phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v419_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local best:
+      - `v298_prob11_protected_warm = T 342`
+    - the predecessor-aware pocket did materially open this time:
+      - `focus_ids = [81, 105, 3, 118, 153, 193, 39, 154]`
+      - `cluster = [153, 193, 81, 105, 3]`
+      - `stay_local_ids = [153, 193, 81, 105, 3, 118, 39, 154, 46, 1, 162, 97, 61, 123, 196]`
+      - `stay_blockers = [46, 1, 162, 97]`
+      - `stay_predecessors = [61, 123, 196]`
+    - but even with that wider causal pocket identified, the multi-bay
+      predecessor-ejection rebuild still failed to close a single scoreable
+      candidate; the attempt table never advanced beyond the protected warm
+      lane plus the two constructive calibration seeds.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+    - so this cycle confirms that the residual is not simply an unopened
+      predecessor/blocker chain on top of the current warm layout.
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v417` | `prob11like block81/105/3/118/153/193/39/154` | protected anchor due-window replay plus latest-feasible pull-back local search | the anchor due-window neighborhood was materialized, but every replay branch worsened to `T 376`, and the exact latest-feasible pull-back executed with no improving move at all (`[]`), so the carried result stayed flat at `T 342` |
+  | `v418` | `prob11like block81/105/3/118/153/193/39/154` | protected micro CP-SAT/MIP style exact subset repair on enlarged tardy pocket | the enlarged rescue pocket and six exact-subset families were opened, but the no-install exact repair phase failed to close even one scored candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+  | `v419` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware multi-bay ejection / block-group rebuild | the widened causal pocket with blockers and predecessors was identified, but the rebuild layer still failed to produce even one scoreable candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v419` is still a hard gate failure. It shows that even once the causal
+    predecessor/blocker pocket is opened explicitly, the current ejection /
+    block-group rebuild family still cannot produce a competing accepted
+    candidate on this subtype. Since `prob_11` remains far above `T<10`,
+    full40 remains forbidden. The next bounded cycle should rotate to a new
+    structural family: `protected regret-k insertion` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v420_20260702_trackA_prob11_predecessor_regret_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to `protected regret-k insertion`, but do not replay the already
+    falsified same-bay or explicit-shortlist variants.
+  - new structural hypothesis: reuse the predecessor/blocker causal pocket
+    opened by `v419`, then run completion-first regret-k reinsertion over that
+    multi-bay local pocket under several bay plans so the phase can actually
+    finish a scored rebuilt candidate instead of stalling on a short prefix.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware local-pocket regret-2 / regret-3 reinsertion under
+      multiple bay plans
+    - bounded warm-repair tail on the best improving regret lane
+  - if the protected predecessor-regret phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v420_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local best:
+      - `v298_prob11_protected_warm = T 342`
+    - the predecessor/blocker causal pocket was reused as intended:
+      - `stay_pocket = [153, 193, 81, 105, 3, 118, 39, 154, 46, 1, 162, 97, 61, 123, 196]`
+      - `stay_blockers = [46, 1, 162, 97]`
+      - `stay_predecessors = [61, 123, 196]`
+    - unlike prior regret variants, the regret-2 lane did complete a scored
+      reinsertion over the causal cluster:
+      - `stay_cluster_focus_regret2 = [153, 81, 3, 193, 105]`
+      - scored result `T 357`
+    - but that completed regret route was still directionally worse than the
+      protected warm lane, and regret-3 stalled almost immediately:
+      - `stay_cluster_focus_regret3 = [153]`
+      - `stay_cluster_focus_regret3_failed`
+    - so this cycle clarifies that completion-first regret ordering is
+      executable on the causal pocket, but its forward reinsertion bias still
+      pushes the subtype away from the `T 342` floor instead of below it.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v418` | `prob11like block81/105/3/118/153/193/39/154` | protected micro CP-SAT/MIP style exact subset repair on enlarged tardy pocket | the enlarged rescue pocket and six exact-subset families were opened, but the no-install exact repair phase failed to close even one scored candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+  | `v419` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware multi-bay ejection / block-group rebuild | the widened causal pocket with blockers and predecessors was identified, but the rebuild layer still failed to produce even one scoreable candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+  | `v420` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware completion-first regret-k reinsertion | regret-2 finally completed a scored causal-pocket reinsertion, but it landed at `T 357` and regret-3 stalled after prefix `[153]`, so the family is executable yet directionally worse than the protected warm floor |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v420` is still a hard gate failure. It is useful because it shows the
+    causal-pocket regret family can finish a scored candidate, but the forward
+    reinsertion direction is wrong: the completed route worsened to `T 357`
+    instead of improving below the `T 342` floor. Since `prob_11` remains far
+    above `T<10`, full40 remains forbidden. The next bounded cycle should
+    rotate to a new structural family: `protected beam search over dispatching
+    rules` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v421_20260702_trackA_prob11_predecessor_beam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to `protected beam search over dispatching rules`, but do not replay
+    the already-failed explicit-shortlist or rescue-pocket beam variants that
+    never closed branches of their own.
+  - new structural hypothesis: reuse the predecessor/blocker causal pocket that
+    `v420` proved executable, then run a scoreable local beam over dispatch
+    rules inside that causal pocket under stay / preference / balance / split
+    bay plans so the beam closes complete scored branches rather than only
+    partial prefixes.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware local dispatch beam under multiple bay plans and pocket
+      variants
+    - bounded warm-repair tail on the best improving beam lane
+  - if the protected predecessor-beam phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v421_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local best:
+      - `v298_prob11_protected_warm = T 342`
+    - the predecessor/blocker causal pocket was reopened exactly as intended:
+      - `stay_pocket = [153, 193, 81, 105, 3, 118, 39, 154, 46, 1, 162, 97, 61, 123, 196]`
+      - `stay_blockers = [46, 1, 162, 97]`
+      - `stay_predecessors = [61, 123, 196]`
+    - but unlike `v420`, the dispatch-beam layer again failed to close even one
+      scored branch of its own: the attempted table never advanced past the
+      protected warm lane plus the two constructive calibration seeds.
+    - this means the causal pocket is not enough by itself; the local
+      dispatch-rule beam still stalls before producing a complete scoreable
+      rebuilt candidate on this subtype.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v419` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware multi-bay ejection / block-group rebuild | the widened causal pocket with blockers and predecessors was identified, but the rebuild layer still failed to produce even one scoreable candidate beyond the protected warm lane, so the carried result stayed flat at `T 342` |
+  | `v420` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware completion-first regret-k reinsertion | regret-2 finally completed a scored causal-pocket reinsertion, but it landed at `T 357` and regret-3 stalled after prefix `[153]`, so the family is executable yet directionally worse than the protected warm floor |
+  | `v421` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware local dispatch beam | the causal pocket reopened cleanly, but the beam layer still closed no scored branch at all, so the carried result stayed flat at `T 342` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v421` is still a hard gate failure. It shows that even once we localize
+    the dispatch beam onto the causal predecessor/blocker pocket, the beam
+    still stalls before producing a scoreable rebuilt candidate. Since
+    `prob_11` remains far above `T<10`, full40 remains forbidden. The next
+    bounded cycle should rotate to a new structural family: `protected
+    backward/latest-start scheduler` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v422_20260702_trackA_prob11_predecessor_lateststart_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to `protected backward/latest-start scheduler`, but do not reuse the
+    earlier explicit-shortlist latest-start lane that was too narrow, and do
+    not reuse the rescue-pocket latest-start lane that failed to close stable
+    scored branches.
+  - new structural hypothesis: reuse the predecessor/blocker causal pocket that
+    `v420` proved executable, then force scoreable full candidates by
+    re-inserting each pocket variant onto chosen bays in backward/latest-start
+    order and replaying fixed-bay local sequences under the same ordering.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware causal-pocket backward/latest-start scheduler under
+      stay / preference / balance / split bay plans
+    - bounded warm-repair tail on the best improving latest-start lane
+  - if the protected predecessor-latest-start phase still cannot drive the
+    targeted subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v422_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local best:
+      - `v298_prob11_protected_warm = T 342`
+    - unlike `v421`, the latest-start family did close scored rebuilt
+      candidates of its own on the causal predecessor/blocker pocket:
+      - `stay_cluster_focus_backward_latest = T 347`
+      - `stay_cluster_focus_latest = T 343`
+      - `stay_cluster_focus_slack = T 343`
+      - `stay_cluster_blockers_backward_latest = T 381`
+      - `stay_cluster_blockers_latest = T 369`
+    - but every closed branch still stayed worse than the protected warm floor,
+      and replaying those branches widened tardiness sharply:
+      - `stay_cluster_focus_backward_latest_replay = T 655`
+      - `stay_cluster_focus_latest_replay = T 409`
+      - `stay_cluster_focus_slack_replay = T 647`
+    - this means the predecessor-aware latest-start direction is now
+      executable, but timing-only reordering is still insufficient; the local
+      bay assignment itself likely needs to change before latest-start can
+      reduce the `T 342` floor.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v420` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware completion-first regret-k reinsertion | regret-2 completed a scored causal-pocket reinsertion but worsened to `T 357`, so forward reinsertion direction was executable yet wrong |
+  | `v421` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware local dispatch beam | the causal pocket reopened cleanly, but the beam layer closed no scored rebuilt branch at all, so the carried result stayed flat at `T 342` |
+  | `v422` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware backward/latest-start scheduler | the causal pocket finally produced multiple scored latest-start branches, but the best branch still worsened to `T 343~347` and replay variants blew up further, so timing-only reorder remains weaker than the protected warm floor |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v422` is still a hard gate failure. It is useful because it shows the
+    predecessor-aware latest-start family now closes complete scored candidates,
+    but timing-only reordering still cannot beat the protected `T 342` warm
+    floor, much less reach `T<10`. Since `prob_11` remains far above the hard
+    gate, full40 remains forbidden. The next bounded cycle should rotate to a
+    new structural family: `bay assignment first, timing second` targeting the
+    same `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v423_20260702_trackA_prob11_predecessor_bayassign_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate back to `bay assignment first, timing second`, but do not reopen the
+    broad rescue-pocket repartition from `v414`.
+  - new structural hypothesis: reuse the predecessor/blocker causal pocket that
+    `v420/v422` proved executable, repartition only that pocket across bays,
+    then rebuild and replay in latest/backward-latest/slack order so bay choice
+    changes before timing changes.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware causal-pocket bay assignment first / timing second
+      under stay / preference / balance / split bay plans
+    - bounded warm-repair tail on the best improving repartition lane
+  - if the predecessor-aware bay-assignment-first phase still cannot drive the
+    targeted subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v423_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local best:
+      - `v298_prob11_protected_warm = T 342`
+    - the predecessor-aware bay-plan phase did open a concrete causal-pocket
+      repartition:
+      - `stay_bay_plan = {1:0, 3:2, 39:1, 46:1, 61:2, 81:3, 97:0, 105:3, 118:1, 123:3, 153:0, 154:3, ...}`
+    - but despite opening that repartition, the scored branch family collapsed
+      back to the same ineffective lanes already seen in the timing-only run:
+      - `stay_cluster_focus_latest = T 343`
+      - `stay_cluster_focus_backward_latest = T 347`
+      - `stay_cluster_focus_slack = T 343`
+      - `stay_cluster_blockers_latest = T 369`
+      - replay variants again blew up to `T 409 / 647 / 655 / 785`
+    - in other words, causal-pocket bay reassignment as implemented here did
+      not create a new improving search direction; it effectively folded back
+      onto the same local basin as `v422`.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure |
+  | --- | --- | --- | --- |
+  | `v421` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware local dispatch beam | the causal pocket reopened cleanly, but the beam layer closed no scored branch at all, so the carried result stayed flat at `T 342` |
+  | `v422` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware backward/latest-start scheduler | the causal pocket finally produced scored branches, but the best lane still worsened to `T 343~347`, so timing-only reorder stayed weaker than the warm floor |
+  | `v423` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware bay assignment first, timing second | a concrete causal-pocket bay repartition opened, but its scored branches collapsed to the same `T 343~347` basin as `v422`, so bay reassignment did not unlock a new improving direction |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v423` is still a hard gate failure. It is useful because it shows that
+    even with a concrete causal-pocket bay repartition, this subtype still
+    collapses back onto the same `T 342` local basin. Since `prob_11` remains
+    far above `T<10`, full40 remains forbidden. The next bounded cycle should
+    rotate to a new structural family: `predecessor-aware GRASP/randomized
+    restart` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the recovered `T 342` warm floor as the launch point.
+
+## 2026-07-02 reboot_v424_20260702_trackA_prob11_predecessor_grasp_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate back to `GRASP/randomized restart`, but do not reopen the broad
+    rescue-pocket restart from `v412`.
+  - new structural hypothesis: reuse the predecessor/blocker causal pocket that
+    `v420/v422` proved executable, then run randomized reinsertion only on
+    those pocket variants so scoreable candidate closure is easier than on the
+    wide rescue neighborhood.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware causal-pocket GRASP/randomized restart under stay /
+      preference / balance / split bay plans
+    - bounded warm-repair tail on the best improving restart lane
+  - if the predecessor-aware GRASP phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v424_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 325`
+  - structural signal:
+    - the protected warm floor again held at the current local baseline:
+      - `v298_prob11_protected_warm = T 342`
+    - unlike the broad rescue-pocket GRASP from `v412`, the smaller
+      predecessor/blocker causal pocket did close multiple scored restart
+      candidates:
+      - `stay_cluster_focus_targetfirst_s7 = T 364`
+      - `stay_cluster_focus_duebias_s13 = T 331`
+      - `stay_cluster_focus_workload_s29 = T 325`
+    - best improving restart order:
+      - label: `stay_cluster_focus_workload_s29`
+      - insertion order: `[153, 3, 105, 193, 81]`
+    - this is the first bounded cycle in the current line that materially
+      improved the prob11like subtype beyond the long-standing local floor:
+      - `prob_11 T 342 -> 325`
+      - objective `8164735 -> 7774906`
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - despite the clear subtype gain, the strengthened Family A gate still
+      fails badly because the target row is nowhere near `T<10`, so full40
+      remains forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v422` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware backward/latest-start scheduler | scored branches finally closed, but the best lane still worsened to `T 343~347`, so timing-only reorder stayed weaker than the warm floor |
+  | `v423` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware bay assignment first, timing second | a concrete causal-pocket bay repartition opened, but its scored branches collapsed to the same `T 343~347` basin as `v422` |
+  | `v424` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware GRASP/randomized restart | first meaningful subtype gain in this line: causal-pocket workload-biased restart closed a scored candidate at `T 325`, but the row remains far above the `T<10` hard gate so full40 is still forbidden |
+- decision:
+  - label: `training-best-only`
+  - promotion: `not_promoted`
+- reason:
+    `v424` is the first meaningful positive signal on the current prob11like
+    line and should be kept as training-best-only evidence, but it is still a
+    hard gate failure for promotion because the target row remains at `T 325`,
+    far above `T<10`. Full40 therefore remains forbidden. The next bounded
+    cycle should rotate to a new structural family: `predecessor-aware
+    ALNS/LNS destroy-repair` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, using the `v424` signal as guidance but not promoting it.
+
+## 2026-07-03 reboot_v429_20260703_trackA_prob11_seeded_dispatchbeam_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v317` surface and the protected `v298` warm lane.
+  - reuse the reproducible compact predecessor workload seed, then run a small
+    beam search over dispatch rules only on the compact pocket instead of using
+    replay, pull-back, or ejection.
+- target:
+  - exact same Family A `prob11like compact cluster_focus predecessor pocket`
+    with beam-local ids = cluster `153/193/81/105/3` plus one blocker and one
+    predecessor representative.
+- comparison set:
+  - trusted protected warm fallback
+  - two cheap constructive seeds
+  - reproducible workload-biased predecessor seed
+  - seeded compact-pocket dispatch beam over
+    `EDD / min-slack / critical-ratio / release-due-proc / area-pressure`
+  - bounded warm-repair tail on the best beam candidate
+- hard gate:
+  - smoke only first; if the Family A target row does not hit `T < 10`, do not
+    run full40.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v429_prob10_prob11_20260703_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 328`
+  - structural signal:
+    - the reproducible workload seed held again:
+      - protected warm `T 342`
+      - `stay_cluster_focus_workload_s29 = T 328`
+    - the compact beam pocket was assembled as intended:
+      - `beam_local_ids = [153, 193, 81, 105, 3, 46, 61]`
+    - but the dispatch-beam phase failed to produce any scored candidate at all
+      before the budget closed, so no `seeded_dispatchbeam_*` attempt ever
+      appeared in the scored list.
+    - on this subtype the compact beam was therefore too constrained or too
+      expensive relative to the remaining headroom; it did not open even a
+      single accepted comparison beyond the workload seed.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v427` | `prob11like compact cluster_focus predecessor pocket` | seeded predecessor-aware ejection-chain / block-group move | seed reproduced to `T 328`, but added no further scored improvement |
+  | `v428` | same subtype | blocker/predecessor due-window replay plus latest-feasible pull-back on seeded solution | replay worsened to `T 361`, and pull-back only rediscovered `T 328` |
+  | `v429` | same subtype | seeded compact-pocket beam search over dispatch rules | workload seed reproduced to `T 328`, but the beam phase produced no scored candidate at all |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `not_run`
+  - reason:
+    `v429` is still a hard gate failure. The seeded workload branch remains the
+    only useful local direction on this subtype, and the compact dispatch beam
+    did not generate a single accepted comparison beyond that seed. Since the
+    smoke target row remained far above `T<10`, full40 remained forbidden.
+- next_structural_hypothesis:
+  - rotate to `seeded compact-pocket regret-k insertion`
+    targeting the same `prob11like compact cluster_focus predecessor pocket`,
+    using the reproducible workload seed as warm start and explicitly ranking
+    reinsertion choices by tardiness regret inside the compact local set.
+
+## 2026-07-03 reboot_v428_20260703_trackA_prob11_blocker_pullback_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v317` surface and the protected `v298` warm lane.
+  - reuse the reproducible compact predecessor workload seed, then explicitly
+    replay blocker/predecessor due windows and apply latest-feasible pull-back
+    on that seeded solution instead of moving bay order.
+- target:
+  - exact same Family A `prob11like compact cluster_focus predecessor pocket`
+    around cluster `153/193/81/105/3`, blockers `46/1/162/97`,
+    predecessors `61/123/196`.
+- comparison set:
+  - trusted protected warm fallback
+  - two cheap constructive seeds
+  - reproducible workload-biased predecessor seed
+  - blocker/predecessor due-window replay candidates on that seed
+  - latest-feasible pull-back on the best replayed seeded solution
+- hard gate:
+  - smoke only first; if the Family A target row does not hit `T < 10`, do not
+    run full40.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v428_prob10_prob11_20260703_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 328`
+  - structural signal:
+    - the reproducible workload seed held exactly as in `v427`:
+      - protected warm `T 342`
+      - `stay_cluster_focus_workload_s29 = T 328`
+    - blocker/predecessor due-window replay was actively harmful:
+      - `seed_duewindow_46 = T 361`
+      - `seed_duewindow_1 = T 361`
+      - `seed_duewindow_61 = T 361`
+      - `seed_duewindow_123 = T 361`
+    - latest-feasible pull-back did run on the seeded candidate, but only
+      rediscovered the same `T 328` lane rather than improving it:
+      - `exact_latest_feasible_candidate block=3 -> T 328`
+      - `seed_blocker_pullback = T 328`
+      - `seed_blocker_pullback_warmrepair = T 328`
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v427` | `prob11like compact cluster_focus predecessor pocket` | seeded predecessor-aware ejection-chain / block-group move | seed reproduced to `T 328`, but added no further scored improvement |
+  | `v428` | same subtype | blocker/predecessor due-window replay plus latest-feasible pull-back on seeded solution | due-window replay worsened to `T 361`, and pull-back only rediscovered the same `T 328` lane without improving it |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `not_run`
+  - reason:
+    `v428` is still a hard gate failure. The seeded workload branch remains the
+    only useful local direction on this subtype, and the new blocker-aware
+    replay/pull-back phase added no additional gain beyond `T 328`. Since the
+    smoke target row failed far above `T<10`, full40 remained forbidden.
+- next_structural_hypothesis:
+  - rotate to `seeded compact-pocket beam search over dispatching rules`
+    targeting the same `prob11like compact cluster_focus predecessor pocket`,
+    with the reproducible workload seed as warm start and a beam over
+    `EDD / min-slack / critical-ratio / release-due-proc hybrid` local orders.
+
+## 2026-07-03 reboot_v427_20260703_trackA_prob11_predecessor_seeded_ejection_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v317` surface and the protected `v298` warm lane.
+  - preserve more warm-start headroom so the `v424` cluster-focus workload seed
+    can reproduce, then apply predecessor-aware ejection-chain and block-group
+    moves only on top of that seed instead of rebuilding the whole pocket.
+- target:
+  - exact same Family A `prob11like compact cluster_focus predecessor pocket`
+    around `153/193/81/105/3` with predecessor group `61/123/196` and blocker
+    group `46/1/162/97`.
+- comparison set:
+  - trusted protected warm fallback
+  - two cheap constructive seeds
+  - seeded `v424`-style workload restart candidate
+  - predecessor-aware ejection-chain / block-group move candidates on that seed
+- hard gate:
+  - smoke only first; if the Family A target row does not hit `T < 10`, do not
+    run full40.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v427_prob10_prob11_20260703_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 328`
+  - structural signal:
+    - the extra warm headroom did restore the intended seed conditions:
+      - protected warm returned to `T 342`
+      - focus pocket matched the productive `v424` shape again:
+        `focus_ids=[81,105,3,118,153,193,39,154]`
+      - the workload-biased predecessor seed reproduced almost all of the
+        earlier gain:
+        `stay_cluster_focus_workload_s29 = T 328`
+    - this confirms the `v424` signal was real and warm-budget-sensitive.
+    - however, the new seeded ejection-chain / block-group phase produced no
+      scored candidate beyond the seed itself before the budget closed, so the
+      best result remained the seed and did not improve further.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v424` | `prob11like compact cluster_focus predecessor pocket` | predecessor-aware GRASP/randomized restart | strongest signal so far, reaching `T 325` |
+  | `v426` | same subtype with drifting warm seed | GRASP-seeded micro exact trio repair | warm drifted to `T 397` and the exact second phase never produced a scored candidate |
+  | `v427` | same subtype with restored warm seed | seeded predecessor-aware ejection-chain / block-group move | warm stabilized at `T 342` and the workload seed recovered to `T 328`, but the ejection phase added no further scored improvement |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `not_run`
+  - reason:
+    `v427` is still a hard gate failure. It usefully confirms that the compact
+    predecessor-pocket workload seed is reproducible when the warm lane is
+    given enough headroom, but `prob_11` remains far above `T<10` and the new
+    ejection phase did not improve beyond the seeded `T 328` candidate. Since
+    the smoke target row failed, full40 remained forbidden.
+- next_structural_hypothesis:
+  - rotate to `blocker-aware latest-feasible pull-back / window sliding`
+    targeting the same
+    `prob11like compact cluster_focus predecessor pocket`, seeded from the
+    reproducible workload order `[153, 3, 105, 193, 81]`, and explicitly try
+    to pull blocker/predecessor completions backward in time rather than
+    moving their bay order.
+
+## 2026-07-03 reboot_v426_20260703_trackA_prob11_predecessor_microexact_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `rejected`
+- Track: `A`
+- hypothesis:
+  - keep the trusted `v317` surface and the protected `v298` warm lane.
+  - reproduce only the productive `v424` predecessor GRASP branch
+    `stay_cluster_focus_workload_s29`, then apply a tiny exact trio repair on
+    the resulting insertion order instead of another broad neighborhood search.
+- target:
+  - exact same Family A `prob11like` predecessor / blocker subtype around
+    `81/105/3/118/153/193/39/154`, with the strongest prior signal on the
+    `cluster_focus` pocket and workload-biased insertion order.
+- comparison set:
+  - trusted protected warm fallback
+  - two cheap constructive seeds
+  - predecessor GRASP variants
+  - micro exact trio repair on top of the productive workload seed
+- hard gate:
+  - smoke only first; if the Family A target row does not hit `T < 10`, do not
+    run full40.
+- smoke_result:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v426_prob10_prob11_20260703_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 362`
+  - structural signal:
+    - the intended reproduction of the `v424` seed did not happen.
+    - the protected warm lane itself reopened a weaker local basin:
+      - `v298_prob11_protected_warm = T 397`
+    - the resulting causal pocket also drifted away from the earlier
+      `39/154`-bearing pocket:
+      - focus ids:
+        `[81, 105, 3, 118, 153, 193, 55, 18]`
+      - cluster-focus workload insertion order still formed:
+        `[153, 3, 105, 193, 81]`
+      - but its scored value regressed to `T 362`
+    - the best scored branch was actually a non-workload restart:
+      - `stay_cluster_focus_targetfirst_s7 = T 362`
+      - `stay_cluster_focus_workload_s29 = T 362`
+      - `stay_cluster_focus_duebias_s13 = T 406`
+    - no exact trio candidates survived into the scored attempt list before the
+      search budget closed, so this bounded cycle produced no evidence that the
+      micro-exact second phase can rescue the subtype once the warm seed drifts.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v424` | `prob11like compact cluster_focus predecessor pocket` | predecessor-aware GRASP/randomized restart | first real positive signal in this line, reaching `prob_11 T 325` with workload-biased order `[153, 3, 105, 193, 81]` |
+  | `v425` | `prob11like compact cluster_focus predecessor pocket` | predecessor-aware ALNS/LNS destroy-repair | stayed above warm (`T 347` best) and could not reproduce the `v424` signal |
+  | `v426` | `prob11like compact cluster_focus predecessor pocket with drifting warm seed` | GRASP-seeded micro exact trio repair | warm reopened at `T 397`, the pocket drifted to include `55/18`, and the exact phase never produced a scored candidate before budget closed, so the branch regressed to `T 362` |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+  - full_benchmark: `not_run`
+  - reason:
+    `v426` failed the strengthened Family A smoke gate immediately. The target
+    row remained far above `T<10`, regressed versus the `v424` training-best
+    signal, and did not even complete a scored exact-repair phase. Because the
+    targeted smoke row failed, full40 remained forbidden.
+- next_structural_hypothesis:
+  - rotate away from micro-exact repair and try a new structural family:
+    `predecessor-aware ejection-chain / block-group move` seeded from the
+    exact `v424` workload order, targeting the same
+    `prob11like compact cluster_focus predecessor pocket` but explicitly moving
+    one blocker/predecessor group ahead of the tardy cluster instead of
+    re-solving only the cluster itself.
+
+## 2026-07-02 reboot_v425_20260702_trackA_prob11_predecessor_alns_on_v317
+
+- parent_version:
+  `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: `candidate`
+- Track: `A`
+- experiment_note:
+  - keep the accepted `v317` surface everywhere except the exact prob11like
+    residual subtype.
+  - rotate to `predecessor-aware ALNS/LNS destroy-repair`, but do not reopen
+    the broad rescue-pocket ALNS from `v413`.
+  - new structural hypothesis: reuse the smaller predecessor/blocker causal
+    pocket that `v424` already proved productive, then apply destroy-repair on
+    only those pocket variants so the search stays inside the productive local
+    basin instead of failing on the wide rescue neighborhood.
+- hypothesis:
+  - compare on the target subtype:
+    - protected trusted fallback `v298` warm lane
+    - fast constructive seed for calibration
+    - T-zero constructive seed for calibration
+    - predecessor-aware causal-pocket ALNS/LNS destroy-repair under stay /
+      preference / balance plans
+    - bounded warm-repair tail on the best improving ALNS lane
+  - if the predecessor-aware ALNS phase still cannot drive the targeted
+    subtype to `T<10`, reject immediately and do not run full40.
+- targeted_probe:
+  - evidence:
+    `reports/ogc2026_reboot_v001/smoke_v425_prob10_prob11_20260702_001/`
+  - candidate-side acceptance on tracked rows:
+    - `accepted_for_score=2/2`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A target rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - structural signal:
+    - the protected warm floor again held at the current local baseline:
+      - `v298_prob11_protected_warm = T 342`
+    - the smaller predecessor-aware ALNS did close scored candidates on the
+      same productive `cluster_focus` pocket, so it is cleaner than the old
+      broad rescue-pocket ALNS:
+      - `stay_forward_cluster_focus = T 347`
+      - `stay_clusterfirst_cluster_focus = T 347`
+    - but unlike `v424`, none of those destroy-repair lanes reproduced the
+      workload-biased GRASP gain; all scored ALNS branches stayed above warm
+      and the due-window replay tails did not recover the gap.
+    - wider blocker variants were even worse or failed:
+      - `stay_forward_cluster_blockers = T 404`
+      - `stay_clusterfirst_cluster_blockers_failed`
+    - so the signal is now clearer: the productive direction is not generic
+      destroy-repair on this pocket, but the specific `v424` restart order
+      around the compact `cluster_focus` subset.
+    - constructive calibration lanes again stayed far off-target:
+      - `slack_tardiness_seed = T 30236`
+      - `edd_release_preference_seed = T 31332`
+  - Family B guard signal:
+    - not rerun
+    - unchanged by construction because all non-prob11like rows delegated to
+      the accepted `v317` surface
+  - smoke note:
+    - the strengthened Family A gate still fails badly, so full40 remains
+      forbidden
+- failure_matrix:
+  | version | subtype | heuristic | observed failure or signal |
+  | --- | --- | --- | --- |
+  | `v423` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware bay assignment first, timing second | a concrete causal-pocket bay repartition opened, but its scored branches collapsed to the same `T 343~347` basin as `v422` |
+  | `v424` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware GRASP/randomized restart | first meaningful subtype gain in this line: workload-biased restart on the compact `cluster_focus` pocket reached `T 325` |
+  | `v425` | `prob11like block81/105/3/118/153/193/39/154` | protected predecessor-aware ALNS/LNS destroy-repair | the smaller causal-pocket ALNS closed scored candidates, but all of them stayed above warm (`T 347` best), so it could not reproduce the `v424` signal |
+- decision:
+  - label: `rejected`
+  - promotion: `not_promoted`
+- reason:
+    `v425` is still a hard gate failure. It is informative because it shows the
+    productive signal from `v424` is not reproduced by generic destroy-repair
+    on the same pocket. Since `prob_11` returns to `T 342`, full40 remains
+    forbidden. The next bounded cycle should rotate to a new structural family:
+    `micro CP-SAT/MIP repair` targeting the same
+    `prob11like block81/105/3/118/153/193/39/154 multi-bay tardy-pocket
+    subtype`, seeded from the `v424 stay_cluster_focus_workload_s29` order.
+## 2026-07-03 reboot_v430_20260703_trackA_prob11_seeded_regretk_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v429` confirmed that the productive lane is still the seeded
+    `stay_cluster_focus_workload_s29` reconstruction, but its compact
+    dispatch beam produced no scored candidates at all on the target subtype.
+  - the next structural move is to keep the exact same compact seed and replace
+    the beam with seeded compact-pocket regret-k reinsertion so every cycle
+    explicitly re-inserts a scored candidate rather than depending on a beam
+    frontier surviving to evaluation.
+- target Family A subtype:
+  - `prob11like compact cluster_focus predecessor pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first seeded constructive (`stay_cluster_focus_workload_s29`)
+  - bounded repair / local search (`seeded compact-pocket regret-k`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v430_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+- diagnostic notes:
+  - the protected warm lane itself reopened from the recent `342` floor back to
+    `T 386`, so this branch lost the stable starting point before the seeded
+    regret phase even began.
+  - the seeded workload reconstruction also degraded to `T 395`.
+  - the regret phase stalled immediately after a single local insertion
+    (`seeded_cluster_focus_regret2 -> [81]`) and produced no scored candidate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v427` | `prob11like compact cluster_focus predecessor pocket` | seeded predecessor-aware ejection-chain / block-group move | seed reproduced to `T 328`, but added no further scored improvement |
+  | `v428` | same subtype | blocker/predecessor due-window replay plus latest-feasible pull-back | replay worsened to `T 361`, and pull-back only rediscovered `T 328` |
+  | `v429` | same subtype | seeded compact-pocket dispatch beam | workload seed reproduced to `T 328`, but the beam phase produced no scored candidate |
+  | `v430` | `prob11like drifting warm / alternate blocker-chain pocket` | seeded compact-pocket regret-k insertion | protected warm reopened to `T 386`, workload seed drifted to `T 395`, and regret stalled after a single insertion |
+- decision:
+  - `v430` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - move off the compact seed-repair line and try
+    `bay assignment first, timing second + backward/latest-start scheduler`
+    on the `prob11like drifting warm / alternate blocker-chain pocket`
+    so the subtype is addressed upstream at bay pressure allocation rather than
+    by late local reinsertion.
+## 2026-07-03 reboot_v431_20260703_trackA_prob11_altchain_bayassign_latest_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - after `v430`, the compact seeded-repair line looks exhausted for the current
+    `prob11like` drift: the protected warm lane reopened to a worse floor and
+    the regret phase stalled after one insertion.
+  - the next structural move is to leave compact reinsertion entirely and
+    switch to `bay assignment first, timing second + backward/latest-start`
+    on the currently observed alternate blocker/predecessor chain so the lane
+    is re-shaped upstream at bay pressure allocation time.
+- target Family A subtype:
+  - `prob11like drifting warm / alternate blocker-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first bay/timing rebuilds (`alternate blocker-chain bayassign + backward/latest-start`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v431_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the protected warm lane was stable again at `T 342`.
+  - the best bayassign/latest result was
+    `stay_altchain_focus_predecessors_backward_latest -> T 340`; this confirms
+    the alternate predecessor chain is a real lever, but only by `2` tardiness.
+  - blocker-focused and replayed latest-start variants regressed sharply, so
+    the current bay-pressure redistribution is still too shallow to open a
+    near-zero lane.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v429` | `prob11like compact cluster_focus predecessor pocket` | seeded compact-pocket dispatch beam | workload seed reproduced to `T 328`, but the beam phase produced no scored candidate |
+  | `v430` | `prob11like drifting warm / alternate blocker-chain pocket` | seeded compact-pocket regret-k insertion | protected warm reopened to `T 386`, workload seed drifted to `T 395`, and regret stalled after a single insertion |
+  | `v431` | `prob11like stable warm / alternate predecessor-chain pocket` | bay assignment first, timing second + backward/latest-start | stable warm held at `T 342`, and the best predecessor-focused lane only reached `T 340` |
+- decision:
+  - `v431` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on due-window + predecessor-chain cluster`
+    targeting the `prob11like stable warm / alternate predecessor-chain pocket`
+    so we can remove and rebuild a larger causal slice instead of only
+    redistributing bay pressure within the same shallow lane.
+## 2026-07-03 reboot_v432_20260703_trackA_prob11_altchain_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v431` showed that the stable warm lane is back at `T 342` and the only
+    meaningful signal in the alternate chain came from the predecessor-focused
+    backward/latest lane (`T 340`), which is too small to justify full40.
+  - the next structural move is to destroy and rebuild a larger due-window +
+    predecessor-chain slice with ALNS/LNS, then replay that slice around the
+    most relevant due-window anchors instead of just redistributing bay
+    pressure in place.
+- target Family A subtype:
+  - `prob11like stable warm / alternate predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first destroy-repair (`altchain ALNS/LNS on due-window + predecessor cluster`)
+  - bounded repair / local search (`due-window replay`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v432_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+- diagnostic notes:
+  - the protected warm lane stayed at `T 342`, but every altchain ALNS destroy-
+    repair candidate regressed well above that floor.
+  - due-window replay on the rebuilt predecessor slice recovered a little from
+    the ALNS damage (`426 -> 391`) but never reached the warm baseline.
+  - this suggests the current subtype is too sensitive for wide destroy-repair,
+    but still not responsive enough to shallow bay/timing redistribution.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v430` | `prob11like drifting warm / alternate blocker-chain pocket` | seeded compact-pocket regret-k insertion | protected warm reopened to `T 386`, workload seed drifted to `T 395`, and regret stalled after a single insertion |
+  | `v431` | `prob11like stable warm / alternate predecessor-chain pocket` | bay assignment first, timing second + backward/latest-start | stable warm held at `T 342`, and the best predecessor-focused lane only reached `T 340` |
+  | `v432` | same subtype | ALNS/LNS destroy-repair on due-window + predecessor cluster | every destroy-repair candidate regressed above warm, and due-window replay only partially recovered the damage |
+- decision:
+  - `v432` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `ejection-chain / block group move on stable warm predecessor-chain`
+    targeting the `prob11like stable warm / alternate predecessor-chain pocket`
+    so the next cycle moves a medium-sized causal group instead of doing either
+    shallow local reorder or wide destroy-repair.
+## 2026-07-03 reboot_v433_20260703_trackA_prob11_altchain_ejection_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only / rejected for promotion after smoke
+- hypothesis:
+  - `v432` showed that wide destroy-repair is too destructive for the current
+    subtype, while `v431` suggested the only real signal still sits on the
+    alternate predecessor-chain pocket.
+  - the next structural move is to keep the stable warm lane intact, rebuild
+    only that alternate chain, and then apply ejection-chain / block-group
+    moves as a medium-width operator.
+- target Family A subtype:
+  - `prob11like stable warm / alternate predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first medium-width rebuild (`altchain ejection-chain / block-group move`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v433_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 323`
+- diagnostic notes:
+  - this is the strongest signal since `v424` and clearly better than the
+    recent `340/342` floor, but it still fails the `T<10` hard gate by a large
+    margin.
+  - the best chain came from the predecessor-side medium-width moves:
+    `migrate_196_to_3 -> T 334`, followed by the warm repair tail to `T 323`.
+  - blocker-side rebuilds remained too destructive, so the useful lever is now
+    the stable warm predecessor-chain plus bounded repair, not the blocker lane.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v431` | `prob11like stable warm / alternate predecessor-chain pocket` | bay assignment first, timing second + backward/latest-start | stable warm held at `T 342`, and the best predecessor-focused lane only reached `T 340` |
+  | `v432` | same subtype | ALNS/LNS destroy-repair on due-window + predecessor cluster | every destroy-repair candidate regressed above warm, and due-window replay only partially recovered the damage |
+  | `v433` | same subtype | ejection-chain / block-group move plus warm repair tail | best lane improved to `T 323`, but still far from the Family A hard gate and therefore cannot advance to full40 |
+- decision:
+  - keep `v433` as training-best-only evidence for this subtype, but reject it
+    for promotion and do not run full 40.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP tardy-cluster repair on stable warm predecessor-chain`
+    targeting the `prob11like stable warm / alternate predecessor-chain pocket`
+    so we exploit the new `323` lane with a tighter exact repair operator
+    instead of another broad structural rebuild.
+## 2026-07-03 reboot_v434_20260703_trackA_prob11_altchain_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v433` finally found a usable training-best-only lane on the stable warm
+    predecessor-chain pocket (`T 323`), with the improvement coming from the
+    medium-width predecessor migration plus warm repair tail.
+  - the next structural move is to preserve that lane and add only a tiny exact
+    subset repair on the most tardy blocks within the same predecessor chain,
+    rather than reopening a broader rebuild.
+- target Family A subtype:
+  - `prob11like stable warm / alternate predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first medium-width rebuild (`altchain ejection / migration / groupmove`)
+  - bounded repair / exact tail (`micro exact subset repair`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v434_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 337`
+- diagnostic notes:
+  - this run reopened a different local subtype realization: the protected warm
+    lane itself improved to `T 337`, but the altchain micro-exact candidate did
+    not beat it.
+  - the only scored exact subset repair on the predecessor chain landed at
+    `T 357`, so the exact tail was too weak relative to the new warm floor.
+  - this suggests the next lever is not a smaller exact repair but broader
+    restart diversity around the now-improved warm lane.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v432` | `prob11like stable warm / alternate predecessor-chain pocket` | ALNS/LNS destroy-repair on due-window + predecessor cluster | every destroy-repair candidate regressed above warm, and due-window replay only partially recovered the damage |
+  | `v433` | same subtype | ejection-chain / block-group move plus warm repair tail | best lane improved to `T 323`, but still far from the Family A hard gate and therefore could not advance to full40 |
+  | `v434` | `prob11like improved warm / shifted predecessor-chain pocket` | micro exact subset repair on altchain rebuild | protected warm itself improved to `T 337`, but exact subset repair never beat that floor |
+- decision:
+  - `v434` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `GRASP/randomized restart on improved warm predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle exploits the new `337` floor with seed diversity rather
+    than another deterministic exact tail.
+## 2026-07-03 reboot_v435_20260703_trackA_prob11_altchain_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v434` showed that the improved warm lane itself can now reopen to
+    `T 337`, while the micro exact tail is too weak to beat that floor.
+  - the next structural move is to keep the improved warm predecessor-chain
+    pocket intact and widen only the GRASP/randomized restart seed diversity on
+    that same lane.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first randomized restart (`altchain predecessor-pocket GRASP`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v435_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+- diagnostic notes:
+  - the shifted warm lane did not reopen here; it fell back to the familiar
+    `T 342` floor.
+  - the randomized restart on the predecessor pocket produced one clearly bad
+    scored lane (`T 467`) and one failed lane, so simple seed diversity alone
+    did not exploit the subtype.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v433` | `prob11like stable warm / alternate predecessor-chain pocket` | ejection-chain / block-group move plus warm repair tail | best lane improved to `T 323`, but still far from the Family A hard gate and therefore could not advance to full40 |
+  | `v434` | `prob11like improved warm / shifted predecessor-chain pocket` | micro exact subset repair on altchain rebuild | protected warm itself improved to `T 337`, but exact subset repair never beat that floor |
+  | `v435` | same shifted subtype | GRASP/randomized restart on altchain predecessor pocket | restart diversity failed to beat the `T 342` warm floor and mostly produced worse lanes |
+- decision:
+  - `v435` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on improved warm shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle explores richer ordering frontiers than plain restart
+    diversity while staying narrower than a full destroy-repair.
+## 2026-07-03 reboot_v436_20260703_trackA_prob11_altchain_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v435` showed that plain restart diversity on the shifted predecessor-chain
+    pocket does not reliably exploit the newer warm floor.
+  - the next structural move is to keep that same improved warm pocket but
+    maintain multiple dispatch-rule beam frontiers instead of isolated restart
+    samples.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first beam search (`altchain shifted predecessor-pocket dispatch beam`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v436_prob10_prob11_20260703_002/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 376`
+- diagnostic notes:
+  - the import-time failure from the first `v436` attempt was fixed, so the
+    rerun produced a clean accepted smoke and closed the implementation bug.
+  - the actual beam hypothesis still failed decisively: the protected warm lane
+    stayed at `T 376`, while the only scored dispatch-beam frontier rows
+    regressed to `T 379`.
+  - the logged predecessor-pocket frontier confirms the beam kept exploring the
+    same shifted predecessor chain, but richer dispatch ordering did not open a
+    better latest-feasible rescue lane.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v434` | `prob11like improved warm / shifted predecessor-chain pocket` | micro exact subset repair on altchain rebuild | protected warm itself improved to `T 337`, but exact subset repair never beat that floor |
+  | `v435` | same shifted subtype | GRASP/randomized restart on altchain predecessor pocket | restart diversity failed to beat the `T 342` warm floor and mostly produced worse lanes |
+  | `v436` | same shifted subtype | beam search over dispatch rules on predecessor pocket | accepted smoke, but warm stayed at `T 376` and scored beam frontiers regressed to `T 379`, so ordering diversity alone did not unlock the subtype |
+- decision:
+  - `v436` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `backward/latest-start scheduler on improved warm shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the timing construction itself instead of
+    exploring more forward-order variants on the same frontier.
+## 2026-07-03 reboot_v437_20260703_trackA_prob11_shifted_backward_latest_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after smoke
+- hypothesis:
+  - `v436` confirmed that richer forward dispatch ordering on the shifted
+    predecessor pocket still cannot beat the protected warm lane.
+  - the next structural move is to keep the same improved warm pocket but
+    change the timing construction itself: bay-locked predecessor-pocket
+    reinsertion followed by widened backward/latest-start local replay on the
+    shifted rescue neighborhood.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first timing rebuild (`shifted predecessor-chain backward/latest-start`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v437_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the shifted predecessor-chain latest-start family did execute cleanly and
+    beat the inherited warm lane (`T 342 -> 340`), so the timing-side phase is
+    not blocked anymore on this subtype.
+  - however all three timing orders (`backward_latest`, `latest`, `slack`)
+    converged to the same `T 340` floor on the best shifted predecessor-chain
+    lane, which is still far from the Family A hard gate.
+  - the widened local replay was decisively unstable: replay branches blew up
+    to `T 417~625`, so the current pocket can tolerate the direct reinsertion
+    but not a broader same-bay latest-start replay.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v435` | `prob11like improved warm / shifted predecessor-chain pocket` | GRASP/randomized restart on altchain predecessor pocket | restart diversity failed to beat the `T 342` warm floor and mostly produced worse lanes |
+  | `v436` | same shifted subtype | beam search over dispatch rules on predecessor pocket | accepted smoke, but warm stayed at `T 376` and scored beam frontiers regressed to `T 379`, so ordering diversity alone did not unlock the subtype |
+  | `v437` | same shifted subtype | bay-locked shifted predecessor-chain backward/latest-start scheduler | latest-start finally produced a small clean gain (`T 342 -> 340`), but all timing orders hit the same floor and widened replay destabilized to `T 417~625` |
+- decision:
+  - `v437` fails the strengthened Family A smoke gate and is rejected without a
+    full 40 run.
+- next structural hypothesis:
+  - try `ejection-chain / block group move on improved warm shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes upstream block placement instead of only
+    re-timing the same pocket.
+## 2026-07-03 reboot_v438_20260703_trackA_prob11_shifted_ejection_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only signal, rejected for promotion after smoke
+- hypothesis:
+  - `v437` showed the shifted predecessor-chain timing rebuild is real but tops
+    out at `T 340`, and wider replay destabilizes badly.
+  - the next structural move is to keep that same shifted pocket but change
+    upstream placement directly with ejection-chain / companion block-group
+    moves instead of more timing-only replay.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural move (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`warm repair tail`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v438_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - this is the strongest shifted-pocket signal so far: the base shifted
+    backward/latest rebuild reached `T 316`, then the structural migration lane
+    `migrate_123_to_2` pushed the subtype down again to `T 309`.
+  - the improvement came from changing upstream placement, not from broader
+    replay: the `latest` branch regressed, and the rescue-front variant failed
+    before producing a scored candidate.
+  - this means the shifted predecessor pocket is now materially responsive to
+    migration/groupmove structure, but still far from the Family A hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v436` | `prob11like improved warm / shifted predecessor-chain pocket` | beam search over dispatch rules on predecessor pocket | accepted smoke, but warm stayed at `T 376` and scored beam frontiers regressed to `T 379`, so ordering diversity alone did not unlock the subtype |
+  | `v437` | same shifted subtype | bay-locked shifted predecessor-chain backward/latest-start scheduler | latest-start finally produced a small clean gain (`T 342 -> 340`), but all timing orders hit the same floor and widened replay destabilized to `T 417~625` |
+  | `v438` | same shifted subtype | shifted predecessor-chain ejection / companion groupmove | strongest signal yet (`T 309` via `migrate_123_to_2`), but still nowhere near the `T<10` smoke gate so promotion/full40 remains forbidden |
+- decision:
+  - `v438` is kept as training-best-only evidence for the shifted subtype but
+    rejected for promotion and closed without a full 40 run.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle starts from the new `migrate_123_to_2` signal and
+    perturbs a tardy/predecessor cluster instead of replaying the same pocket.
+## 2026-07-03 reboot_v439_20260703_trackA_prob11_shifted_ejection_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v438` finally exposed a materially better shifted structural seed through
+    `migrate_123_to_2 -> T 309`.
+  - the next structural move is to start from that shifted ejection/groupmove
+    lane and apply one bounded ALNS/LNS destroy-repair pass on the same tardy /
+    predecessor neighborhood, rather than reopening broad new ordering logic.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted-seed ALNS/LNS`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v439_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - the carried shifted seed stayed strong: `migrate_123_to_2 -> T 309` was
+    reproduced cleanly.
+  - however the bounded ALNS/LNS phase never produced any attempted row at all,
+    so this cycle did not falsify the shifted seed itself; it showed that the
+    current ALNS add-on is too heavy to open inside the remaining headroom.
+  - this points away from another broad destroy-repair pass and toward a much
+    smaller deterministic repair operator on the specific tardy cluster opened
+    by the shifted seed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v437` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-locked shifted predecessor-chain backward/latest-start scheduler | latest-start finally produced a small clean gain (`T 342 -> 340`), but all timing orders hit the same floor and widened replay destabilized to `T 417~625` |
+  | `v438` | same shifted subtype | shifted predecessor-chain ejection / companion groupmove | strongest signal yet (`T 309` via `migrate_123_to_2`), but still nowhere near the `T<10` smoke gate so promotion/full40 remains forbidden |
+  | `v439` | same shifted subtype | ALNS/LNS destroy-repair on shifted ejection lane | carried the `T 309` shifted seed, but the ALNS add-on never opened within remaining budget, so no additional repair candidate was actually judged |
+- decision:
+  - `v439` is kept as training-best-only carry evidence for the shifted
+    subtype but rejected for promotion and closed without a full 40 run.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP tardy-cluster repair on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle uses a much smaller deterministic repair kernel around
+    the `123/61/196` tardy cluster opened by the `T 309` seed.
+## 2026-07-03 reboot_v440_20260703_trackA_prob11_shifted_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v439` showed that the shifted ejection seed itself is reproducible, but
+    any broader ALNS add-on is too heavy for the remaining budget.
+  - the next structural move is to stay no-install because `ortools` is not
+    available locally, and replace the planned micro CP-SAT/MIP idea with a
+    tiny exact subset repair directly on the `123/61/196` shifted tardy
+    cluster opened by the `T 309` seed.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`no-install micro exact tardy-cluster repair`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v440_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - the shifted structural seed was reproduced again at `migrate_123_to_2 -> T 309`.
+  - however, like `v439`, the no-install micro exact add-on never produced a
+    single attempted repair row in the scored log, so this cycle again spent
+    its headroom recreating the shifted seed and never reached the tiny exact
+    kernel.
+  - this makes the blockage more specific: not only broad ALNS but also the
+    current micro exact follow-up is too late in the budget order for this
+    subtype.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v438` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted predecessor-chain ejection / companion groupmove | strongest signal yet (`T 309` via `migrate_123_to_2`), but still nowhere near the `T<10` smoke gate so promotion/full40 remains forbidden |
+  | `v439` | same shifted subtype | ALNS/LNS destroy-repair on shifted ejection lane | carried the `T 309` shifted seed, but the ALNS add-on never opened within remaining budget, so no additional repair candidate was actually judged |
+  | `v440` | same shifted subtype | no-install micro CP-SAT/MIP style exact subset repair on shifted ejection lane | carried the same `T 309` shifted seed, but the micro exact follow-up also never opened, so the repair kernel is arriving too late to be evaluated |
+- decision:
+  - `v440` is kept as training-best-only carry evidence for the shifted
+    subtype but rejected for promotion and closed without a full 40 run.
+- next structural hypothesis:
+  - try `regret-k insertion on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the constructive insertion logic immediately
+    after the shifted seed instead of waiting for a late repair phase.
+## 2026-07-03 reboot_v441_20260703_trackA_prob11_shifted_regret_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v440` confirmed that late repair phases keep arriving too late, while the
+    shifted structural seed itself is stable at `T 309`.
+  - the next structural move is to preserve that shifted seed and immediately
+    change the local constructive reinsertion logic with regret-k on the
+    `61/123/196`-anchored local pocket, instead of waiting for a later repair
+    stage.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted-seed regret-k reinsertion`, then warm repair tail)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v441_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - the shifted structural seed was reproduced yet again at `migrate_123_to_2 -> T 309`.
+  - however, just like the late repair families, the shifted-seed regret-k
+    follow-up never produced a single scored attempted row in the log.
+  - that means the current issue is broader than one repair style: after
+    recreating the shifted seed, there is not enough useful headroom left for
+    another local follow-up phase to even start.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v439` | `prob11like improved warm / shifted predecessor-chain pocket` | ALNS/LNS destroy-repair on shifted ejection lane | carried the `T 309` shifted seed, but the ALNS add-on never opened within remaining budget, so no additional repair candidate was actually judged |
+  | `v440` | same shifted subtype | no-install micro CP-SAT/MIP style exact subset repair on shifted ejection lane | carried the same `T 309` shifted seed, but the micro exact follow-up also never opened, so the repair kernel is arriving too late to be evaluated |
+  | `v441` | same shifted subtype | regret-k reinsertion on shifted ejection lane | carried the same `T 309` shifted seed, but the regret-k follow-up also never opened, so even earlier local reinsertion is still not reaching a scored phase after the seed rebuild |
+- decision:
+  - `v441` is kept as training-best-only carry evidence for the shifted
+    subtype but rejected for promotion and closed without a full 40 run.
+- next structural hypothesis:
+  - try `spatial/orientation constructive on shifted high-pressure cluster`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the seed generator itself rather than stacking
+    another follow-up phase after the same `T 309` lane.
+## 2026-07-03 reboot_v442_20260703_trackA_prob11_shifted_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v438` through `v441` kept reproducing the same shifted predecessor-chain
+    seed at `T 309`, but every follow-up phase arrived too late to open a new
+    scored candidate.
+  - this cycle changes the seed generator itself: preserve the protected warm
+    lane, rebuild the shifted high-pressure predecessor pocket with local
+    spatial/orientation placement, and only then allow a bounded warm-repair
+    tail if the spatial lane actually improves.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted high-pressure local spatial/orientation rebuild`)
+  - bounded repair / local search (`best shifted spatial lane + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v442_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 349`
+- diagnostic notes:
+  - unlike `v439` through `v441`, this cycle really did open the shifted
+    spatial family first instead of merely recreating the `T 309` seed and
+    running out of headroom afterward.
+  - however, every shifted spatial/orientation branch failed before closing a
+    single scoreable candidate, so the best returned lane stayed the protected
+    warm fallback at `T 349`.
+  - that makes this a stronger falsification than the late-repair failures:
+    on the shifted predecessor-chain subtype, local spatial/orientation
+    placement itself cannot currently close a feasible improving rebuild.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v440` | `prob11like improved warm / shifted predecessor-chain pocket` | no-install micro CP-SAT/MIP style exact subset repair on shifted ejection lane | carried the same `T 309` shifted seed, but the micro exact follow-up also never opened, so the repair kernel arrived too late to be evaluated |
+  | `v441` | same shifted subtype | regret-k reinsertion on shifted ejection lane | carried the same `T 309` shifted seed, but the regret-k follow-up also never opened, so even earlier local reinsertion still did not reach a scored phase after the seed rebuild |
+  | `v442` | same shifted subtype | shifted high-pressure local spatial/orientation constructive | the spatial family really executed, but every branch failed before producing any scoreable candidate, so the candidate fell back to protected warm at `T 349` |
+- decision:
+  - `v442` is rejected for promotion and closed without a full 40 run because
+    the target smoke row still missed the `T<10` gate by a wide margin.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the local sequencing policy upstream with
+    `EDD / min-slack / critical-ratio / release-due-proc / area-pressure`
+    competition instead of another placement-heavy rebuild.
+## 2026-07-03 reboot_v443_20260703_trackA_prob11_shifted_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v442` falsified shifted spatial placement itself, while earlier shifted
+    repair attempts kept showing that late follow-up phases arrive too late.
+  - this cycle keeps the protected warm lane and changes the shifted subtype
+    upstream at local sequencing time only: run a scoreable dispatch-rule beam
+    directly on the shifted predecessor-chain pocket using
+    `EDD / min-slack / critical-ratio / release-due-proc / area-pressure`.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain dispatch-rule beam`)
+  - bounded repair / local search (`best shifted dispatch-beam lane + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v443_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+- diagnostic notes:
+  - the headline number improved versus `v442` (`T 349 -> 342`), but that gain
+    came entirely from the protected warm lane itself, which again surfaced the
+    inherited `prob11_spatial_move` signal on block `193`.
+  - the new shifted dispatch-beam branch did identify the intended shifted
+    predecessor-chain variant `153/193/81/105/3/61/123/196`, but it never
+    produced a single scored beam candidate afterward.
+  - so this cycle does not support the dispatch-beam hypothesis on the shifted
+    subtype; it mainly reconfirms that the useful live signal is still coming
+    from the older protected warm/spatial move.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v441` | `prob11like improved warm / shifted predecessor-chain pocket` | regret-k reinsertion on shifted ejection lane | carried the same `T 309` shifted seed, but the regret-k follow-up also never opened, so even earlier local reinsertion still did not reach a scored phase after the seed rebuild |
+  | `v442` | same shifted subtype | shifted high-pressure local spatial/orientation constructive | the spatial family really executed, but every branch failed before producing any scoreable candidate, so the candidate fell back to protected warm at `T 349` |
+  | `v443` | same shifted subtype | shifted predecessor-chain dispatch-rule beam | the shifted beam variant was identified cleanly, but no scored beam candidate was emitted; the returned `T 342` came from the inherited protected warm spatial move rather than the new beam branch |
+- decision:
+  - `v443` is rejected for promotion and closed without a full 40 run because
+    the target smoke row still missed the `T<10` gate by a wide margin.
+- next structural hypothesis:
+  - try `GRASP/randomized restart on shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle perturbs local insertion order and bay/orientation choice
+    around the live `61/123/196` chain instead of relying on one deterministic
+    beam path.
+## 2026-07-03 reboot_v444_20260703_trackA_prob11_shifted_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v443` showed that the shifted predecessor-chain pocket is still the right
+    local target, but one deterministic beam path does not actually close a
+    scored branch.
+  - this cycle keeps the same shifted pocket and changes only the local
+    restart policy: run GRASP/randomized restart with multiple insertion-order
+    rules and seed perturbations directly on the shifted predecessor-chain
+    pocket.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain GRASP/randomized restart`)
+  - bounded repair / local search (`best shifted GRASP lane + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v444_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+- diagnostic notes:
+  - unlike `v443`, the shifted randomized-restart family did produce a real
+    scored branch: `stay_shifted_predecessor_chain_targetfirst_s7` closed at
+    `T 446`, while another restart failed mid-build.
+  - that is still a negative signal for this hypothesis, because the only
+    returned best lane remained the protected warm route at `T 342`.
+  - so the new information here is narrower but useful: perturbing insertion
+    order and seed on the shifted `61/123/196` pocket is executable, but its
+    current GRASP scoring is actively steering away from the live warm/spatial
+    signal.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v442` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted high-pressure local spatial/orientation constructive | the spatial family really executed, but every branch failed before producing any scoreable candidate, so the candidate fell back to protected warm at `T 349` |
+  | `v443` | same shifted subtype | shifted predecessor-chain dispatch-rule beam | the shifted beam variant was identified cleanly, but no scored beam candidate was emitted; the returned `T 342` came from the inherited protected warm spatial move rather than the new beam branch |
+  | `v444` | same shifted subtype | shifted predecessor-chain GRASP/randomized restart | the randomized restart family finally emitted a scored shifted branch, but it landed at `T 446` and the candidate still fell back to the inherited protected warm `T 342` lane |
+- decision:
+  - `v444` is rejected for promotion and closed without a full 40 run because
+    the target smoke row still missed the `T<10` gate by a wide margin.
+- next structural hypothesis:
+  - try `bay assignment first, timing second on shifted predecessor-chain pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes upstream bay-pressure allocation around the live
+    `61/123/196` chain instead of only perturbing local insertion order.
+## 2026-07-03 reboot_v445_20260703_trackA_prob11_shifted_bayassign_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v444` showed the shifted pocket is executable but still trapped under the
+    inherited warm/spatial move when only local ordering is perturbed.
+  - this cycle changes the shifted subtype upstream at bay allocation time:
+    assign the shifted predecessor-chain pocket first, then replay timing with
+    latest/backward-latest/slack variants.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`best shifted bayassign lane + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v445_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - this is the first recent shifted-pocket cycle where the new structural lane
+    itself clearly beat the inherited protected warm lane: the
+    `stay_shifted_predecessor_chain_*` bayassign-first branch reached `T 340`
+    against warm `T 342`.
+  - the improvement is still tiny relative to the hard gate, and replay tails
+    on the same branch exploded back to `T 462~679`, so the line is live but
+    not yet stable enough for promotion or any full40 spend.
+  - that makes `v445` the best current non-promotable signal for the shifted
+    predecessor-chain subtype, ahead of the warm-only `T 342` carries from
+    `v443` and `v444`.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v443` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted predecessor-chain dispatch-rule beam | the shifted beam variant was identified cleanly, but no scored beam candidate was emitted; the returned `T 342` came from the inherited protected warm spatial move rather than the new beam branch |
+  | `v444` | same shifted subtype | shifted predecessor-chain GRASP/randomized restart | the randomized restart family finally emitted a scored shifted branch, but it landed at `T 446` and the candidate still fell back to the inherited protected warm `T 342` lane |
+  | `v445` | same shifted subtype | shifted predecessor-chain bay-assignment-first timing-second rebuild | the new shifted bayassign branch finally improved the subtype on its own to `T 340`, but replay tails destabilized sharply and the result remained nowhere near the `T<10` smoke gate |
+- decision:
+  - `v445` is kept as training-best-only signal for the shifted subtype but
+    rejected for promotion and closed without a full 40 run because the target
+    smoke row still missed the `T<10` gate by a very wide margin.
+- next structural hypothesis:
+  - try `bounded local search on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle starts from the live `T 340` bayassign branch and applies
+    pair swap / block-group reorder / bay migration / latest-feasible pull-back
+    instead of replaying the same unstable tail directly.
+## 2026-07-03 reboot_v446_20260703_trackA_prob11_shifted_bayassign_localsearch_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v445` finally opened a live shifted bayassign lane at `T 340`, but the
+    direct replay tail on the same branch was unstable enough to erase that
+    gain.
+  - this cycle keeps the same shifted predecessor-chain bayassign seed and
+    changes only the second phase: stop replaying the unstable tail directly,
+    and instead run bounded same-bay pair swap / tiny group reorder plus
+    latest-feasible pull-back on top of the live seed before any warm repair.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + pair/group local search + latest-feasible pull-back + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v446_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 363`
+- diagnostic notes:
+  - the intended live `v445` seed did not reproduce here. The best shifted
+    bayassign lane in the log was only
+    `stay_shifted_predecessor_chain_backward_latest = T 500`, and bounded
+    pair/group local search reduced that only to `T 460`.
+  - the candidate therefore returned the protected warm lane at `T 363`, which
+    is materially worse than the prior shifted-bayassign signal `T 340` and
+    even worse than the inherited `T 342` carry seen in `v443/v444/v445`.
+  - no latest-feasible pull-back or warm-repair improvement landed after the
+    local search, so this local-search family is not rescuing the shifted seed
+    once the seed quality slips.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v444` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted predecessor-chain GRASP/randomized restart | the randomized restart family emitted a scored shifted branch, but it still fell back to the inherited protected warm `T 342` lane |
+  | `v445` | same shifted subtype | shifted predecessor-chain bay-assignment-first timing-second rebuild | the new shifted bayassign branch finally improved the subtype on its own to `T 340`, but replay tails destabilized sharply and the result remained nowhere near the `T<10` smoke gate |
+  | `v446` | same shifted subtype | bounded pair/group local search on shifted bayassign seed | the intended `T 340` live seed did not reproduce; the shifted branch stayed at `T 500 -> 460`, and the candidate fell back to a weaker warm lane at `T 363` |
+- decision:
+  - `v446` is rejected for promotion and closed without a full 40 run because
+    the target smoke row regressed to `T 363`, far above the hard `T<10` gate.
+- next structural hypothesis:
+  - try `ejection-chain / block-group move on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the rescue operator structurally around the live
+    shifted pocket instead of relying on same-bay pair/group polishing.
+## 2026-07-03 reboot_v447_20260703_trackA_prob11_shifted_bayassign_groupmove_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v446` showed that same-bay pair/group polishing cannot rescue the shifted
+    bayassign line once the seed slips; it never recovered the live `T 340`
+    signal and returned a weaker warm lane.
+  - this cycle keeps the shifted bay-assignment-first seed construction from
+    `v445`, but replaces replay/polish with a structural rescue operator:
+    ejection-chain / block-group move directly on top of the shifted bayassign
+    candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + ejection-chain / companion groupmove + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v447_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - this cycle cleanly reproduced the best `v445` shifted bayassign seed:
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - however, every structural rescue branch on top of that seed was worse:
+    migration/groupmove candidates ranged from `T 358` through `T 462`, so the
+    new heuristic failed to improve the live seed at all.
+  - that makes `v447` a useful confirmation that the `T 340` line is real and
+    reproducible, but the current ejection-chain / companion groupmove operator
+    is not the missing breakthrough on this subtype.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v445` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted predecessor-chain bay-assignment-first timing-second rebuild | the new shifted bayassign branch finally improved the subtype on its own to `T 340`, but replay tails destabilized sharply and the result remained nowhere near the `T<10` smoke gate |
+  | `v446` | same shifted subtype | bounded pair/group local search on shifted bayassign seed | the intended `T 340` live seed did not reproduce; the shifted branch stayed at `T 500 -> 460`, and the candidate fell back to a weaker warm lane at `T 363` |
+  | `v447` | same shifted subtype | shifted bayassign seed + ejection-chain / companion groupmove | the live `T 340` seed did reproduce, but every migration/groupmove follow-up was worse (`T 358~462`), so the heuristic added no new gain beyond the seed itself |
+- decision:
+  - `v447` is kept as training-best-only confirmation of the live `T 340`
+    shifted seed but rejected for promotion and closed without a full 40 run
+    because the target smoke row still missed the `T<10` gate by a very wide margin.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle preserves the reproducible `T 340` seed and changes the
+    rescue operator to tardy-cluster / due-window destroy-repair instead of
+    same-seed migration/groupmove.
