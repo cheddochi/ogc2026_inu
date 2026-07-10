@@ -35557,3 +35557,17485 @@
     so the next cycle preserves the reproducible `T 340` seed and changes the
     rescue operator to tardy-cluster / due-window destroy-repair instead of
     same-seed migration/groupmove.
+## 2026-07-03 reboot_v448_20260703_trackA_prob11_shifted_bayassign_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v447` confirmed that the shifted bayassign seed at `T 340` is real and
+    reproducible, but migration/groupmove branches on top of it only make the
+    candidate worse.
+  - this cycle keeps the same shifted bayassign seed and swaps only the rescue
+    operator: apply ALNS/LNS-style destroy-repair directly to the live shifted
+    candidate with cluster-first and reverse reinsertion orders.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + ALNS/LNS destroy-repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v448_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the shifted bayassign seed again reproduced cleanly at
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - the rescue operator stayed scoreable this time, but every ALNS branch was
+    strictly worse: `clusterfirst = T 481`, `clusterfirst + duewindow = T 393`,
+    and `reverse` failed before closing a candidate.
+  - so unlike `v447`, this cycle does tell us something new: the destroy-repair
+    family is executable on the live shifted seed, but it currently destroys
+    the useful structure instead of refining it.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v446` | `prob11like improved warm / shifted predecessor-chain pocket` | bounded pair/group local search on shifted bayassign seed | the intended `T 340` live seed did not reproduce; the shifted branch stayed at `T 500 -> 460`, and the candidate fell back to a weaker warm lane at `T 363` |
+  | `v447` | same shifted subtype | shifted bayassign seed + ejection-chain / companion groupmove | the live `T 340` seed did reproduce, but every migration/groupmove follow-up was worse (`T 358~462`), so the heuristic added no new gain beyond the seed itself |
+  | `v448` | same shifted subtype | shifted bayassign seed + ALNS/LNS destroy-repair | the live `T 340` seed did reproduce, but the destroy-repair branches degraded badly (`T 481`, `T 393`) or failed, so the heuristic damaged the useful seed instead of improving it |
+- decision:
+  - `v448` is kept as training-best-only confirmation of the live `T 340`
+    shifted seed but rejected for promotion and closed without a full 40 run
+    because the target smoke row still missed the `T<10` gate by a very wide margin.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle preserves the reproducible `T 340` seed and changes the
+    post-seed sequencing policy instead of replaying with migration, groupmove,
+    or destroy-repair.
+## 2026-07-03 reboot_v449_20260703_trackA_prob11_shifted_bayassign_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v448` confirmed again that the shifted bayassign seed at `T 340` is stable,
+    but post-seed destroy-repair only damages that structure.
+  - this cycle keeps the same shifted bayassign seed and changes only the
+    post-seed sequencing policy: run a short dispatch-rule beam on the live
+    shifted candidate instead of migration/groupmove or destroy-repair.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + dispatch-rule beam + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v449_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the shifted bayassign seed again reproduced cleanly at
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - the post-seed beam pocket was identified correctly on
+    `[153, 193, 81, 105, 3, 61, 123, 196]`, but the beam stage emitted no
+    scored candidate at all after pocket construction, so the candidate ended
+    exactly where the seed started.
+  - this makes the result even narrower than `v447/v448`: the issue is not
+    only that post-seed heuristics are worse, but that this dispatch-beam form
+    is failing to open a scoreable branch on the live seed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v447` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + ejection-chain / companion groupmove | the live `T 340` seed did reproduce, but every migration/groupmove follow-up was worse (`T 358~462`), so the heuristic added no new gain beyond the seed itself |
+  | `v448` | same shifted subtype | shifted bayassign seed + ALNS/LNS destroy-repair | the live `T 340` seed did reproduce, but the destroy-repair branches degraded badly (`T 481`, `T 393`) or failed, so the heuristic damaged the useful seed instead of improving it |
+  | `v449` | same shifted subtype | shifted bayassign seed + dispatch-rule beam | the live `T 340` seed did reproduce, but the beam stage emitted no scored branch after pocket construction, so the heuristic added no new signal beyond the seed itself |
+- decision:
+  - `v449` is kept as training-best-only confirmation of the live `T 340`
+    shifted seed but rejected for promotion and closed without a full 40 run
+    because the target smoke row still missed the `T<10` gate by a very wide margin.
+- next structural hypothesis:
+  - try `GRASP/randomized restart on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle preserves the reproducible `T 340` seed and perturbs the
+    post-seed insertion order / tie-break path instead of replaying with beam,
+    migration, groupmove, or destroy-repair.
+## 2026-07-03 reboot_v450_20260703_trackA_prob11_shifted_bayassign_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v449` confirmed again that the shifted bayassign seed at `T 340` is stable,
+    but the beam form still could not even open a scored post-seed branch.
+  - this cycle keeps the same shifted bayassign seed and changes only the
+    post-seed perturbation policy: run GRASP/randomized restarts directly on
+    the live shifted candidate with different local order and tie-break seeds.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + GRASP/randomized restart + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v450_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the shifted bayassign seed again reproduced cleanly at
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - one GRASP restart did produce a scored post-seed branch, but it degraded to
+    `stay_shifted_predecessor_chain_backward_latest_targetfirst_s7 = T 446`.
+  - another restart (`duebias_s13`) failed before producing a usable scored
+    candidate, so the randomized restart layer still could not beat the seed.
+  - this confirms the live `T 340` shifted pocket is stable, but seed-level
+    perturbation alone is not enough: we need a structural reinsertion operator
+    that changes who gets inserted when, not only the local order/tie-break on
+    the same pocket.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v448` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + ALNS/LNS destroy-repair | the live `T 340` seed did reproduce, but the destroy-repair branches degraded badly (`T 481`, `T 393`) or failed, so the heuristic damaged the useful seed instead of improving it |
+  | `v449` | same shifted subtype | shifted bayassign seed + dispatch-rule beam | the live `T 340` seed did reproduce, but the beam stage emitted no scored branch after pocket construction, so the heuristic added no new signal beyond the seed itself |
+  | `v450` | same shifted subtype | shifted bayassign seed + GRASP/randomized restart | the live `T 340` seed did reproduce, but the scored restart degraded to `T 446` and another restart failed, so seed-level randomization still could not improve the pocket |
+- decision:
+  - `v450` is kept as training-best-only confirmation of the live `T 340`
+    shifted seed but rejected for promotion and closed without a full 40 run
+    because the target smoke row still missed the `T<10` gate by a very wide margin.
+- next structural hypothesis:
+  - try `regret-k insertion on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle preserves the reproducible `T 340` seed but changes the
+    actual insertion pressure on the tardy pocket instead of replaying another
+    beam, destroy-repair, or seed-only restart.
+## 2026-07-03 reboot_v451_20260703_trackA_prob11_shifted_bayassign_regret_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v450` confirmed again that the shifted bayassign seed at `T 340` is
+    stable, but seed-level randomized restart still could not improve it.
+  - this cycle keeps the same shifted bayassign seed from `v445/v450` and
+    changes only the post-seed operator: run regret-k reinsertion directly on
+    the live shifted bayassign candidate so the tardy pocket insertion order is
+    structurally re-optimized instead of merely perturbed.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + regret-k reinsertion + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v451_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 349`
+- diagnostic notes:
+  - unlike `v445/v450`, this run did not recover the live shifted bayassign seed
+    at all; the protected warm lane itself stayed at `T 349`.
+  - every shifted bayassign structural branch was much worse
+    (`T 407~614`), so the regret phase never even received a useful `T 340`
+    seed to improve.
+  - the causal pocket also drifted away from the successful chain
+    (`blockers [130, 61]`, `predecessors [139, 162, 24]` instead of the live
+    `61/123/196` chain), which means this cycle failed before the intended
+    regret-k comparison became meaningful.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v449` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + dispatch-rule beam | the live `T 340` seed did reproduce, but the beam stage emitted no scored branch after pocket construction, so the heuristic added no new signal beyond the seed itself |
+  | `v450` | same shifted subtype | shifted bayassign seed + GRASP/randomized restart | the live `T 340` seed did reproduce, but the scored restart degraded to `T 446` and another restart failed, so seed-level randomization still could not improve the pocket |
+  | `v451` | same shifted subtype | shifted bayassign seed + regret-k reinsertion | the protected warm lane drifted to `T 349` and every shifted structural branch degraded to `T 407~614`, so the intended regret-k comparison never reached the previously reproducible `T 340` seed |
+- decision:
+  - `v451` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate and even regressed
+    relative to the stable `T 340` shifted seed line.
+- next structural hypothesis:
+  - try `micro CP-SAT tardy-cluster repair on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle preserves the known live shifted pocket and solves only a
+    tiny 5~20 block tardy cluster exactly instead of replaying another
+    heuristic perturbation on a drifting local lane.
+## 2026-07-03 reboot_v452_20260703_trackA_prob11_shifted_bayassign_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v451` showed that another heuristic perturbation can drift the local lane
+    before we even get to a meaningful post-seed comparison.
+  - this cycle keeps the `v445` bay-assignment-first seed structure and changes
+    only the post-seed operator: apply a tiny exact tardy-cluster repair on the
+    best shifted bayassign candidate instead of regret, beam, or restart.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + micro exact tardy-cluster repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v452_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 357`
+- diagnostic notes:
+  - the bayassign-first line again failed to recover the useful live shifted
+    seed and the protected warm lane itself stayed at `T 357`.
+  - shifted structural candidates stayed worse than warm
+    (`T 360~798`), so the exact tardy-cluster repair never received a strong
+    seed state to polish.
+  - like `v451`, the local chain drifted away from the live successful pocket
+    (`blockers [45, 55, 130]`, `predecessors [139, 162, 24]`), so the exact
+    operator spent budget on the wrong local neighborhood.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v450` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + GRASP/randomized restart | the live `T 340` seed did reproduce, but the scored restart degraded to `T 446` and another restart failed, so seed-level randomization still could not improve the pocket |
+  | `v451` | same shifted subtype | shifted bayassign seed + regret-k reinsertion | the protected warm lane drifted to `T 349` and every shifted structural branch degraded to `T 407~614`, so the intended regret-k comparison never reached the previously reproducible `T 340` seed |
+  | `v452` | same shifted subtype | shifted bayassign seed + micro exact tardy-cluster repair | the protected warm lane drifted further to `T 357` and the shifted structural branches stayed worse (`T 360~798`), so the exact repair never received a useful seed to improve |
+- decision:
+  - `v452` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate and regressed further
+    from the best known shifted seed line.
+- next structural hypothesis:
+  - try `latest-feasible pull-back window sliding on shifted bayassign seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the known bayassign-first structure but changes the
+    local timing geometry directly instead of replaying another reinsertion or
+    exact repair on a drifting neighborhood.
+## 2026-07-03 reboot_v453_20260703_trackA_prob11_shifted_bayassign_pullback_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v452` confirmed that further reinsertion/exact-repair operators still
+    spend budget on a drifting local neighborhood before recovering the useful
+    shifted seed.
+  - this cycle keeps the `v445` bay-assignment-first seed structure and changes
+    only the timing geometry: run bounded window sliding plus latest-feasible
+    pull-back directly on the live shifted bayassign candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + window sliding + latest-feasible pull-back + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v453_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+- diagnostic notes:
+  - this was the clearest timing-only test on the shifted bayassign line, and
+    it still failed before the timing operators had useful room to work.
+  - the best shifted structural candidate already degraded to
+    `stay_shifted_predecessor_chain_backward_latest = T 521`, and the timing
+    refine stage effectively did nothing (`window_sliding = []`).
+  - that means local timing geometry is not the binding issue right now; the
+    bayassign-first line is arriving at the wrong bay-pressure neighborhood
+    before any pull-back/window logic can help.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v451` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + regret-k reinsertion | the protected warm lane drifted to `T 349` and every shifted structural branch degraded to `T 407~614`, so the intended regret-k comparison never reached the previously reproducible `T 340` seed |
+  | `v452` | same shifted subtype | shifted bayassign seed + micro exact tardy-cluster repair | the protected warm lane drifted further to `T 357` and the shifted structural branches stayed worse (`T 360~798`), so the exact repair never received a useful seed to improve |
+  | `v453` | same shifted subtype | shifted bayassign seed + window sliding + latest-feasible pull-back | the protected warm lane drifted to `T 397`, the best shifted structural branch was already `T 521`, and timing refinement had no accepted move (`window_sliding = []`), so local timing geometry was not the limiting factor |
+- decision:
+  - `v453` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate and regressed again
+    on the shifted bayassign line.
+- next structural hypothesis:
+  - try `support-cluster bay repartition on shifted bayassign pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the bay-pressure allocation itself instead of
+    replaying another reinsertion, exact repair, or timing-only refinement on
+    the same drifting neighborhood.
+## 2026-07-03 reboot_v454_20260703_trackA_prob11_shifted_bayrepartition_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v453` showed that timing-only refinement still arrives too late because
+    the shifted bayassign structural candidate is already in the wrong local
+    bay-pressure neighborhood.
+  - this cycle keeps the `v445` bay-assignment-first seed structure and changes
+    only the support allocation: run support-cluster bay repartition directly
+    on the best shifted bayassign candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + support-cluster bay repartition + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v454_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+- diagnostic notes:
+  - the shifted bayassign seed reproduced the known best live signal on the
+    target row (`stay_shifted_predecessor_chain_* = T 340`), but the support
+    bay repartition phase produced no winning follow-up and left no applied
+    repartition move in the final trace.
+  - this means the current support-cluster repartition operator is not opening
+    a new neighborhood on the `prob11like improved warm / shifted
+    predecessor-chain pocket`; it is effectively preserving the same seed
+    plateau rather than breaking through it.
+  - because the target smoke row stayed far above the `T<10` gate, this line
+    remains training-best-only evidence and must not advance to full 40.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v452` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + micro exact tardy-cluster repair | the protected warm lane drifted further to `T 357` and the shifted structural branches stayed worse (`T 360~798`), so the exact repair never received a useful seed to improve |
+  | `v453` | same shifted subtype | shifted bayassign seed + window sliding + latest-feasible pull-back | the protected warm lane drifted to `T 397`, the best shifted structural branch was already `T 521`, and timing refinement had no accepted move (`window_sliding = []`), so local timing geometry was not the limiting factor |
+  | `v454` | same shifted subtype | shifted bayassign seed + support-cluster bay repartition | the shifted structural seed recovered only to the prior `T 340` plateau and the repartition phase produced no improving follow-up, so bay-pressure repartition alone did not unlock a new neighborhood |
+- decision:
+  - `v454` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate even though the seed
+    line matched the earlier `T 340` training-best signal.
+- next structural hypothesis:
+  - try `support-cluster blocker-eject on shifted bayassign pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the bay-pressure neighborhood by explicitly
+    ejecting the support blockers that the repartition-only phase failed to
+    dislodge.
+## 2026-07-03 reboot_v455_20260703_trackA_prob11_shifted_blockereject_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v454` showed that support-cluster bay repartition can recover the live
+    `T 340` shifted seed but still does not move the blocking support pocket
+    itself.
+  - this cycle keeps the same `v445` bay-assignment-first shifted seed
+    structure and changes only the local operator: apply support-cluster
+    blocker-eject directly on the best shifted bayassign candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bay-assignment-first rebuild`)
+  - bounded repair / local search (`shifted bayassign seed + support-cluster blocker-eject + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v455_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 349`
+- diagnostic notes:
+  - unlike `v454`, this cycle did not even recover the known `T 340` shifted
+    seed plateau; the protected warm lane itself stayed at `T 349`, and all
+    shifted structural rebuilds degraded further to `T 407~469`.
+  - because the shifted structural seed never became competitive, the support
+    blocker-eject phase had no useful candidate to improve; effectively this
+    operator arrived after the bayassign neighborhood had already drifted.
+  - this is a stronger rejection than `v454`: explicit support-blocker ejection
+    did not unlock a new neighborhood and also lost the prior reproducible live
+    seed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v453` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + window sliding + latest-feasible pull-back | the protected warm lane drifted to `T 397`, the best shifted structural branch was already `T 521`, and timing refinement had no accepted move (`window_sliding = []`), so local timing geometry was not the limiting factor |
+  | `v454` | same shifted subtype | shifted bayassign seed + support-cluster bay repartition | the shifted structural seed recovered only to the prior `T 340` plateau and the repartition phase produced no improving follow-up, so bay-pressure repartition alone did not unlock a new neighborhood |
+  | `v455` | same shifted subtype | shifted bayassign seed + support-cluster blocker-eject | the protected warm lane stayed at `T 349` and every shifted structural rebuild degraded to `T 407~469`, so the blocker-eject phase never received a competitive seed and added no scoreable move |
+- decision:
+  - `v455` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate and regressed even
+    relative to the prior `T 340` shifted-seed evidence.
+- next structural hypothesis:
+  - try `backward/latest-start scheduler on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle pivots back to the stronger `T 309` shifted-ejection seed
+    and changes the timing construction itself instead of adding another local
+    operator to the weaker shifted-bayassign neighborhood.
+## 2026-07-03 reboot_v456_20260703_trackA_prob11_shifted_ejection_scheduler_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v455` confirmed that the shifted-bayassign neighborhood is now weaker than
+    the stronger shifted-ejection lane that previously reached `T 309`.
+  - this cycle pivots back to that stronger shifted-ejection seed and changes
+    only the timing construction after the seed: apply a bounded
+    backward/latest-start scheduler directly on the best shifted-ejection
+    candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted ejection seed + backward/latest-start scheduler + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v456_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - the shifted-ejection structural lane did recover the stronger live seed:
+    `migrate_123_to_2 = T 309`, matching the best known shifted-ejection
+    signal from earlier experiments.
+  - however, the new backward/latest-start scheduler phase did not produce any
+    scored follow-up candidate beyond that seed; the final trace contains only
+    the shifted-ejection attempts, so the scheduler operator never opened a new
+    accepted neighborhood before the budget closed.
+  - this makes `v456` useful training-best-only evidence that the stronger lane
+    is still reproducible, but it does not satisfy the Family A gate and cannot
+    advance to full 40.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v454` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + support-cluster bay repartition | the shifted structural seed recovered only to the prior `T 340` plateau and the repartition phase produced no improving follow-up, so bay-pressure repartition alone did not unlock a new neighborhood |
+  | `v455` | same shifted subtype | shifted bayassign seed + support-cluster blocker-eject | the protected warm lane stayed at `T 349` and every shifted structural rebuild degraded to `T 407~469`, so the blocker-eject phase never received a competitive seed and added no scoreable move |
+  | `v456` | same shifted subtype | shifted ejection seed + backward/latest-start scheduler | the stronger shifted-ejection lane recovered to `T 309`, but the scheduler add-on never produced a new scored follow-up beyond that seed, so the timing operator still arrived too late to change the neighborhood |
+- decision:
+  - `v456` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate even though the
+    stronger shifted-ejection `T 309` seed was reproduced.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the reproducible `T 309` shifted-ejection seed but
+    broadens the constructive ordering search instead of relying on another
+    late local scheduler phase.
+## 2026-07-03 reboot_v457_20260703_trackA_prob11_shifted_ejection_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v456` restored the stronger shifted-ejection `T 309` seed, but the
+    backward/latest-start scheduler phase never emitted a new scored branch.
+  - this cycle keeps that same reproducible shifted-ejection seed and changes
+    only the post-seed operator: run a short dispatch-rule beam directly on the
+    live shifted-ejection candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted ejection seed + dispatch-rule beam + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v457_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+- diagnostic notes:
+  - unlike `v456`, this cycle did not even preserve the stronger shifted
+    ejection seed. The protected warm lane itself drifted to `T 397`, and the
+    shifted-ejection structural rebuilds degraded further to `T 476~490`.
+  - because the live structural seed was already noncompetitive, the
+    dispatch-rule beam never received a useful candidate to explore; no new
+    scored beam branch improved on the inherited warm lane.
+  - that makes this a strict rejection of the post-seed dispatch-beam
+    hypothesis on the shifted-ejection lane: ordering diversity alone did not
+    help, and the lane was more brittle than the prior scheduler test.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v455` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted bayassign seed + support-cluster blocker-eject | the protected warm lane stayed at `T 349` and every shifted structural rebuild degraded to `T 407~469`, so the blocker-eject phase never received a competitive seed and added no scoreable move |
+  | `v456` | same shifted subtype | shifted ejection seed + backward/latest-start scheduler | the stronger shifted-ejection lane recovered to `T 309`, but the scheduler add-on never produced a new scored follow-up beyond that seed, so the timing operator still arrived too late to change the neighborhood |
+  | `v457` | same shifted subtype | shifted ejection seed + dispatch-rule beam | the protected warm lane drifted to `T 397` and the shifted-ejection structural rebuilds regressed to `T 476~490`, so the beam phase never received a competitive seed and added no scoreable branch |
+- decision:
+  - `v457` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate and regressed badly
+    relative to the stronger `T 309` shifted-ejection evidence from `v456`.
+- next structural hypothesis:
+  - try `GRASP/randomized restart on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the stronger shifted-ejection family but searches
+    for a reproducible seed by varying tie-breaks and bay/orientation choices
+    before any late local operator is applied.
+## 2026-07-03 reboot_v458_20260703_trackA_prob11_shifted_ejection_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v456` showed that the stronger shifted-ejection `T 309` seed is still
+    reproducible, but the late scheduler operator did not open a new scored
+    neighborhood.
+  - this cycle keeps that shifted-ejection family and changes only the
+    post-seed operator: run bounded GRASP/randomized restarts directly on the
+    live shifted-ejection candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted ejection seed + GRASP/randomized restart + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v458_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+- diagnostic notes:
+  - this cycle did recover the stronger shifted-ejection seed again:
+    `migrate_123_to_2 = T 309`, matching the same best live signal seen in
+    `v456`.
+  - however, the new GRASP/randomized-restart phase did not emit any scored
+    follow-up candidate of its own; the final trace contains only the inherited
+    shifted-ejection attempts and no restart-tagged scored branch.
+  - so `v458` provides more evidence that the strong seed is still reproducible,
+    but the post-seed restart operator is not actually opening a new accepted
+    neighborhood under the current time budget.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v456` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection seed + backward/latest-start scheduler | the stronger shifted-ejection lane recovered to `T 309`, but the scheduler add-on never produced a new scored follow-up beyond that seed, so the timing operator still arrived too late to change the neighborhood |
+  | `v457` | same shifted subtype | shifted ejection seed + dispatch-rule beam | the protected warm lane drifted to `T 397` and the shifted-ejection structural rebuilds regressed to `T 476~490`, so the beam phase never received a competitive seed and added no scoreable branch |
+  | `v458` | same shifted subtype | shifted ejection seed + GRASP/randomized restart | the stronger shifted-ejection lane again recovered to `T 309`, but the restart phase emitted no scored follow-up candidate of its own, so randomized tie-break variation still did not open a new accepted neighborhood |
+- decision:
+  - `v458` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate even though the
+    stronger shifted-ejection `T 309` seed was reproduced again.
+- next structural hypothesis:
+  - try `bay assignment first, timing second on shifted ejection lane`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the reproducible shifted-ejection family but
+    changes the bay-pressure/timing decomposition itself instead of adding
+    another late post-seed operator.
+## 2026-07-03 reboot_v459_20260703_trackA_prob11_shifted_ejection_bayassign_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v458` confirmed again that the stronger shifted-ejection `T 309` seed is
+    still reproducible, but late post-seed operators continue to arrive
+    without opening a new accepted neighborhood.
+  - this cycle keeps the same shifted-ejection family and changes only the
+    post-seed structure: run a local bay-assignment-first, timing-second rebuild
+    directly on the best shifted-ejection candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted ejection seed + bay assignment first, timing second + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v459_prob10_prob11_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `2/2`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 337`
+- diagnostic notes:
+  - unlike `v456` and `v458`, this cycle did not preserve the stronger shifted
+    ejection `T 309` seed. The shifted structural rebuilds degraded to
+    `T 388~465`, so the new bay-assignment-first/timing-second phase never
+    became competitive.
+  - the best returned row came from the protected warm lane itself
+    (`prob11_spatial_warm_rescue = T 337`), not from the new post-seed
+    bayassign/timing-second operator.
+  - that means changing the bay-pressure/timing decomposition after the
+    shifted-ejection seed is not helping this subtype under the current local
+    pocket definition.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v457` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection seed + dispatch-rule beam | the protected warm lane drifted to `T 397` and the shifted-ejection structural rebuilds regressed to `T 476~490`, so the beam phase never received a competitive seed and added no scoreable branch |
+  | `v458` | same shifted subtype | shifted ejection seed + GRASP/randomized restart | the stronger shifted-ejection lane again recovered to `T 309`, but the restart phase emitted no scored follow-up candidate of its own, so randomized tie-break variation still did not open a new accepted neighborhood |
+  | `v459` | same shifted subtype | shifted ejection seed + bay assignment first, timing second | the shifted-ejection structural rebuilds degraded to `T 388~465`, so the new bayassign/timing-second phase never became competitive and the candidate fell back to protected warm at `T 337` |
+- decision:
+  - `v459` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate and the new
+    bayassign/timing-second operator did not hold the stronger shifted-ejection
+    seed.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on shifted high-pressure cluster`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the local neighborhood itself around the
+    high-pressure shifted cluster instead of stacking another fragile post-seed
+    timing or restart phase on the same lane.
+
+## 2026-07-03 reboot_v460_20260703_trackA_prob11_shifted_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v456` and `v458` showed that the stronger shifted-ejection seed can still
+    recover the `prob11like improved warm / shifted predecessor-chain pocket`,
+    but late scheduler/restart add-ons never opened a new accepted
+    neighborhood.
+  - this cycle keeps the shifted-ejection seed and replaces the late add-on
+    with a tiny ALNS/LNS destroy-repair operator on the shifted
+    high-pressure cluster itself.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted high-pressure cluster ALNS/LNS destroy-repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v460_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 363`
+  - Family B guard:
+    - `prob_40`: accepted, fallback route preserved, `T 8502`
+- diagnostic notes:
+  - the bounded ALNS/LNS destroy-repair neighborhood stayed scoreable and kept
+    the shifted-ejection family alive, but it did not recover the stronger
+    `T 309` seed seen in `v456` and `v458`.
+  - the best accepted row came from the inherited migration candidate
+    `migrate_162_to_2 = T 363`; the new destroy-repair neighborhood did not
+    add any scored branch better than that inherited seed.
+  - so this subtype still seems bottlenecked by the structural seed itself, not
+    by the lack of a same-neighborhood destroy-repair pass.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v458` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection seed + GRASP/randomized restart | the stronger shifted-ejection lane again recovered to `T 309`, but the restart phase emitted no scored follow-up candidate of its own, so randomized tie-break variation still did not open a new accepted neighborhood |
+  | `v459` | same shifted subtype | shifted ejection seed + bay assignment first, timing second | the shifted-ejection structural rebuilds degraded to `T 388~465`, so the new bayassign/timing-second phase never became competitive and the candidate fell back to protected warm at `T 337` |
+  | `v460` | same shifted subtype | shifted ejection seed + shifted high-pressure cluster ALNS/LNS destroy-repair | the new destroy-repair neighborhood stayed scoreable, but it never improved on the inherited migration seed and finished at `migrate_162_to_2 = T 363`, so the stronger `T 309` seed was not recovered and the target row stayed far above the gate |
+- decision:
+  - `v460` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP repair on shifted high-pressure cluster`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the local solver inside the same cluster instead
+    of reusing another greedy neighborhood replay.
+
+## 2026-07-03 reboot_v461_20260703_trackA_prob11_shifted_frontmicroexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v440` showed that the shifted microexact family can preserve the stronger
+    shifted seed, but the exact repair kernel was arriving too late to open an
+    accepted follow-up candidate.
+  - this cycle keeps the same shifted predecessor-chain family and changes only
+    the timing and scope of the repair: apply a front-loaded no-install micro
+    CP-SAT/MIP-style exact subset repair immediately after the shifted base
+    rebuild on a narrowed high-pressure core.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`front-loaded shifted microexact subset repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v461_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 359`
+  - Family B guard:
+    - `prob_40`: accepted but worsened to `T 8622`
+- diagnostic notes:
+  - unlike `v440`, this front-loaded microexact cycle did not even open a
+    shifted structural follow-up candidate; the final trace stayed on the
+    protected warm lane itself.
+  - the best returned row was simply `v298_prob11_protected_warm = T 359`, so
+    the narrowed front microexact kernel never reached a scoreable shifted
+    branch under the current budget.
+  - that means the bottleneck is no longer just “repair arrives too late”; in
+    this cycle the structural seed failed to get past the protected warm lane
+    at all.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v459` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection seed + bay assignment first, timing second | the shifted-ejection structural rebuilds degraded to `T 388~465`, so the new bayassign/timing-second phase never became competitive and the candidate fell back to protected warm at `T 337` |
+  | `v460` | same shifted subtype | shifted ejection seed + shifted high-pressure cluster ALNS/LNS destroy-repair | the new destroy-repair neighborhood stayed scoreable, but it never improved on the inherited migration seed and finished at `migrate_162_to_2 = T 363`, so the stronger `T 309` seed was not recovered and the target row stayed far above the gate |
+  | `v461` | same shifted subtype | front-loaded shifted micro CP-SAT/MIP style exact subset repair | the narrowed front microexact kernel never reached a scoreable shifted branch and the candidate stayed on `v298_prob11_protected_warm = T 359`, while the Family B guard row also worsened |
+- decision:
+  - `v461` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate and the Family B
+    guard worsened.
+- next structural hypothesis:
+  - try `window sliding + latest-feasible pull-back local search`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the neighborhood around the protected warm
+    predecessor cluster instead of relying on another exact-repair kernel.
+
+## 2026-07-03 reboot_v462_20260703_trackA_prob11_shifted_pullback_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v456` showed the shifted-ejection family can still materialize the
+    stronger shifted predecessor-chain seed, but the scheduler add-on was not
+    the right follow-up neighborhood.
+  - this cycle keeps that stronger shifted structural seed and replaces the
+    post-seed operator with bounded window sliding plus latest-feasible
+    pull-back directly on the live shifted candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted seed + window sliding + latest-feasible pull-back + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v462_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+  - Family B guard:
+    - `prob_40`: accepted, `T 8429`
+    - active wrapper recheck matched exactly:
+      `reports/ogc2026_reboot_v001/verify_active_prob40_20260703_001/`
+- diagnostic notes:
+  - this cycle successfully recovered the stronger shifted predecessor-chain
+    seed again: `migrate_123_to_2 = T 309`.
+  - however, the bounded window-sliding / latest-feasible pull-back follow-up
+    still did not open an improving scored branch before the phase budget ran
+    out, so the carried result stayed on the recovered shifted seed itself.
+  - Family B guard was stable: `prob_40` matched the active wrapper row-for-row
+    instead of drifting like `v461`.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v460` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection seed + shifted high-pressure cluster ALNS/LNS destroy-repair | the new destroy-repair neighborhood stayed scoreable, but it never improved on the inherited migration seed and finished at `migrate_162_to_2 = T 363`, so the stronger `T 309` seed was not recovered and the target row stayed far above the gate |
+  | `v461` | same shifted subtype | front-loaded shifted micro CP-SAT/MIP style exact subset repair | the narrowed front microexact kernel never reached a scoreable shifted branch and the candidate stayed on `v298_prob11_protected_warm = T 359`, while the Family B guard row also worsened |
+  | `v462` | same shifted subtype | shifted seed + window sliding + latest-feasible pull-back | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the timing-refine follow-up still failed to open an improving scored branch before budget exhaustion, so the target row stayed far above the gate |
+- decision:
+  - `v462` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate even though the
+    stronger shifted seed was recovered again.
+- next structural hypothesis:
+  - try `pair swap / block-group reorder / bay migration local search`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the live shifted seed structurally instead of
+    relying on another timing-only post-process.
+
+## 2026-07-03 reboot_v463_20260703_trackA_prob11_shifted_localsearch_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v462` recovered the stronger shifted predecessor-chain seed again at
+    `T 309`, but timing-only follow-up still could not open a better accepted
+    branch.
+  - this cycle keeps that same shifted structural seed and replaces the
+    post-seed timing operator with bounded pair swap / block-group reorder /
+    bay-migration local search on the live shifted candidate.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`shifted seed + pair/group/bay local search + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v463_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - this cycle again recovered the stronger shifted predecessor-chain seed
+    `migrate_123_to_2 = T 309`.
+  - however, the new pair/group/bay local-search follow-up did not emit any
+    additional scored branch in the final trace; the attempted list stops on
+    the inherited shifted seed itself.
+  - so replacing timing-only follow-up with the current local-search wrapper
+    still failed to open a new accepted neighborhood around the live shifted
+    seed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v461` | `prob11like improved warm / shifted predecessor-chain pocket` | front-loaded shifted micro CP-SAT/MIP style exact subset repair | the narrowed front microexact kernel never reached a scoreable shifted branch and the candidate stayed on `v298_prob11_protected_warm = T 359`, while the Family B guard row also worsened |
+  | `v462` | same shifted subtype | shifted seed + window sliding + latest-feasible pull-back | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the timing-refine follow-up still failed to open an improving scored branch before budget exhaustion, so the target row stayed far above the gate |
+  | `v463` | same shifted subtype | shifted seed + pair swap / block-group reorder / bay-migration local search | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the local-search follow-up emitted no additional scored branch at all, so the target row stayed on the inherited seed |
+- decision:
+  - `v463` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `regret-k insertion on shifted predecessor / blocker pocket`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the insertion priority itself around the live
+    shifted seed instead of another post-seed local-search wrapper.
+
+## 2026-07-03 reboot_v464_20260703_trackA_prob11_shifted_frontregret_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v441` already showed that regret-k on the shifted pocket is relevant, but
+    it was running too late, after the best structural seed had already been
+    selected.
+  - this cycle keeps the same shifted predecessor / blocker pocket and moves
+    regret-k reinsertion to the front of the live shifted seed evaluation so
+    the repair can actually compete before budget exhaustion.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain base/migration seeds`)
+  - bounded repair / local search (`front-loaded regret-k reinsertion + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v464_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 316`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the front-loaded regret hook did open one additional scored branch on the
+    live shifted seed trace:
+    `stay_shifted_predecessor_chain_backward_latest_base_rebuild_front_regret2`.
+  - however that branch still lost to the inherited shifted base rebuild, and
+    the final best line remained
+    `stay_shifted_predecessor_chain_backward_latest_base_rebuild = T 316`.
+  - so moving regret-k earlier changed the search order but still did not
+    escape the same shifted predecessor-chain pocket enough to recover the
+    stronger `T 309` seed, much less approach the `T<10` gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v462` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted seed + window sliding + latest-feasible pull-back | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the timing-refine follow-up still failed to open an improving scored branch before budget exhaustion, so the target row stayed far above the gate |
+  | `v463` | same shifted subtype | shifted seed + pair swap / block-group reorder / bay-migration local search | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the local-search follow-up emitted no additional scored branch at all, so the target row stayed on the inherited seed |
+  | `v464` | same shifted subtype | front-loaded regret-k reinsertion on the live shifted predecessor chain | the new regret branch became scoreable, but it still lost to the inherited shifted base rebuild and the final best row degraded to `T 316`, so the search order changed without breaking the pocket |
+- decision:
+  - `v464` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on a bay-assignment-first split`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the top-level construction family instead of
+    continuing to repair the same shifted chain locally.
+
+## 2026-07-03 reboot_v465_20260703_trackA_prob11_bayassignsplit_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v449` only attached a small beam pocket after one live shifted bayassign
+    candidate had already been built, so the beam never became the main
+    construction decision.
+  - this cycle re-centers the hypothesis around `bay assignment first,
+    timing second + dispatch beam` itself: open several bayassign-first split
+    candidates, then run dispatch-rule beam directly on both focused and
+    extended split pockets before selecting the structural winner.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain bayassign-first split candidates`)
+  - bounded repair / local search (`focused + extended dispatch-rule beam on live split candidates + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v465_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 376`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the protected warm fallback itself drifted badly to `T 376`, leaving almost
+    no competitive floor for the new split family.
+  - the live shifted bayassign split candidates were much worse
+    (`stay_shifted_predecessor_chain_backward_latest = T 612`,
+    replay `T 545`), so the focused/extended beam stage never received a viable
+    structural base to improve.
+  - only a single focused beam pocket was opened in the trace, and it never
+    emitted any scored branch beyond the degraded replay lane.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v463` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted seed + pair swap / block-group reorder / bay-migration local search | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the local-search follow-up emitted no additional scored branch at all, so the target row stayed on the inherited seed |
+  | `v464` | same shifted subtype | front-loaded regret-k reinsertion on the live shifted predecessor chain | the new regret branch became scoreable, but it still lost to the inherited shifted base rebuild and the final best row degraded to `T 316`, so the search order changed without breaking the pocket |
+  | `v465` | same shifted subtype | bay-assignment-first split candidates + focused/extended dispatch-rule beam | the protected warm floor drifted to `T 376`, the split candidates degraded to `T 612/545`, and the beam stage never emitted a competitive scored branch, so the hypothesis failed before reaching a useful live neighborhood |
+- decision:
+  - `v465` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `spatial/orientation constructive with large-area/high-pressure first`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the placement geometry itself instead of relying
+    on the current warm/bayassign neighborhood.
+
+## 2026-07-03 reboot_v466_20260703_trackA_prob11_shifted_areapressure_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v442` proved that shifted local spatial/orientation placement can execute,
+    but its existing local order still behaved like a generic pocket rebuild
+    and never closed a scoreable candidate.
+  - this cycle keeps the same shifted predecessor/high-pressure pocket and
+    changes only the spatial constructive priority itself: place
+    large-area/high-pressure blocks first, compare a couple of order variants,
+    and let the spatial scorer work on a more geometry-dominant prefix.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted high-pressure local spatial/orientation rebuild with area-pressure-first ordering`)
+  - bounded repair / local search (`best shifted area-pressure spatial lane + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v466_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 376`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - unlike `v464`, this was not a weak scored branch problem; the entire new
+    shifted area-pressure spatial family failed before producing even one
+    accepted candidate.
+  - every area-pressure order variant on the `stay/preference/split` plans
+    ended as `_failed`, so the changed large-area/high-pressure ordering still
+    could not close a feasible local spatial reconstruction on the shifted
+    predecessor core.
+  - the final result therefore stayed on the drifting protected warm floor
+    `v298_prob11_protected_warm = T 376`.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v464` | `prob11like improved warm / shifted predecessor-chain pocket` | front-loaded regret-k reinsertion on the live shifted predecessor chain | the new regret branch became scoreable, but it still lost to the inherited shifted base rebuild and the final best row degraded to `T 316`, so the search order changed without breaking the pocket |
+  | `v465` | same shifted subtype | bay-assignment-first split candidates + focused/extended dispatch-rule beam | the protected warm floor drifted to `T 376`, the split candidates degraded to `T 612/545`, and the beam stage never emitted a competitive scored branch, so the hypothesis failed before reaching a useful live neighborhood |
+  | `v466` | same shifted subtype | shifted high-pressure local spatial/orientation rebuild with large-area/high-pressure-first ordering | every `stay/preference/split` area-pressure spatial lane failed before producing any scoreable candidate, so the changed placement order still could not close the local shifted reconstruction and the candidate stayed on the drifting warm floor `T 376` |
+- decision:
+  - `v466` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP repair on the shifted predecessor-chain tardy core`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the core feasibility kernel itself instead of
+    replaying another local geometric or bay-order rebuild.
+
+## 2026-07-03 reboot_v467_20260703_trackA_prob11_shifted_tardycore_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: training-best-only carry, rejected for promotion after smoke
+- hypothesis:
+  - `v462` is still the best recent evidence that the stronger shifted
+    predecessor-chain seed can be recovered (`T 309`), but its post-seed timing
+    refiners did not change that seed.
+  - this cycle keeps the same shifted ejection/groupmove structural recovery
+    and replaces the tail with a dynamic tardy-core micro exact repair:
+    derive the local exact core from the live shifted candidate's actual tardy
+    blocks plus predecessor anchors, then compare subset repair and exact trio
+    repair on that same core.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove recovery`)
+  - bounded repair / local search (`dynamic tardy-core micro exact subset + exact trio repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v467_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 309`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the shifted structural recovery did reopen the strongest recent seed again:
+    `migrate_123_to_2 = T 309`, matching the best signal from `v462/v463`.
+  - however the new dynamic tardy-core exact tail never produced a better
+    scored branch after that recovery. The smoke trace stayed on the inherited
+    shifted migration seed instead of escaping the same `T 309` basin.
+  - that means the exact subset/trio idea is still arriving too late or on too
+    weak a neighborhood: it can preserve the best known shifted seed, but it
+    still cannot push the target subtype toward the `T<10` hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v465` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + focused/extended dispatch-rule beam | the protected warm floor drifted to `T 376`, the split candidates degraded to `T 612/545`, and the beam stage never emitted a competitive scored branch, so the hypothesis failed before reaching a useful live neighborhood |
+  | `v466` | same shifted subtype | shifted high-pressure local spatial/orientation rebuild with area-pressure-first ordering | the new area-pressure order variants stayed far weaker than the inherited warm floor, so the geometry-first rebuild never opened a competitive scored branch and the smoke row remained stuck at `T 376` |
+  | `v467` | same shifted subtype | shifted ejection/groupmove recovery + dynamic tardy-core micro exact subset/trio repair | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the new exact tail still emitted no better scored branch beyond that inherited seed, so the candidate preserved the signal without breaking the pocket |
+- decision:
+  - `v467` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ejection-chain / block group move on widened shifted predecessor and blocker chains`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the structural relocation family itself instead
+    of refining the already recovered `T 309` seed.
+
+## 2026-07-03 reboot_v468_20260703_trackA_prob11_shifted_altchain_groupmove_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v467` confirmed that the stronger shifted predecessor-chain seed can
+    still be recovered, but the post-seed exact tail is not changing that
+    basin.
+  - this cycle moves earlier and more structurally: keep the shifted pocket,
+    widen it with predecessor/blocker alternative chains, then compare
+    ejection-chain replay, companion block-group migration, and shifted
+    chain variants before any tail polish.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted protected warm fallback (`v298` lane)
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor/blocker alt-chain ejection replay`)
+  - bounded repair / local search (`companion groupmove candidates + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v468_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+  - Family B guard:
+    - `prob_40`: `T 8622` (worse than the active-verified guard row `T 8429`)
+- diagnostic notes:
+  - the protected warm floor itself drifted to `T 397`, so the widened chain
+    family started from a weaker baseline than `v467`.
+  - the only scored structural branch was
+    `stay_shifted_predecessor_chain_backward_latest = T 521`, with replay and
+    migration/groupmove follow-ups still worse; the alt-chain variants never
+    became competitive enough to beat the degraded warm lane.
+  - because both the target Family A row and the Family B guard worsened, this
+    hypothesis should be closed instead of carried forward as a training-best
+    signal.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v466` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted high-pressure local spatial/orientation rebuild with area-pressure-first ordering | the new area-pressure order variants stayed far weaker than the inherited warm floor, so the geometry-first rebuild never opened a competitive scored branch and the smoke row remained stuck at `T 376` |
+  | `v467` | same shifted subtype | shifted ejection/groupmove recovery + dynamic tardy-core micro exact subset/trio repair | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the new exact tail still emitted no better scored branch beyond that inherited seed, so the candidate preserved the signal without breaking the pocket |
+  | `v468` | same shifted subtype | widened shifted predecessor/blocker alt-chain ejection replay + companion groupmove | the protected warm floor drifted to `T 397`, the best widened-chain branch degraded to `T 521`, and Family B guard also worsened to `T 8622`, so the structural widening destabilized both target and guard rows |
+- decision:
+  - `v468` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate and the Family B
+    guard regressed.
+- next structural hypothesis:
+  - try `GRASP/randomized restart with bay/orientation tie-break diversity`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the construction randomness and restart envelope
+    instead of widening the same deterministic chain again.
+
+## 2026-07-03 reboot_v469_20260703_trackA_prob11_shifted_grasp_replay_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v458` already showed that bounded GRASP on top of the reproducible shifted
+    `T 309` seed is at least compatible with the strongest known lane, but the
+    restart phase itself still did not create a better scored branch.
+  - this cycle keeps the same shifted seed family and changes the restart
+    envelope: use a more conservative non-target fallback, then compare a
+    slightly wider plan/seed diversity and force one replay-on-restart follow-up
+    so the GRASP phase can alter timing order instead of ending as pure
+    reinsert noise.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted predecessor-chain ejection / groupmove`)
+  - bounded repair / local search (`joint plan/order GRASP restart + replay follow-up + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v469_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 357`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the more conservative non-target fallback did stabilize the Family B guard
+    again, so the candidate no longer leaked regression onto `prob_40`.
+  - however the targeted `prob11like` lane itself started from a weaker warm
+    floor (`T 360`) and the best shifted structural move only improved that to
+    `migrate_162_to_2 = T 357`.
+  - the added GRASP replay branch never surfaced in the scored trace, so this
+    hypothesis still failed before reaching the previously recovered `T 309`
+    basin.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v467` | `prob11like improved warm / shifted predecessor-chain pocket` | shifted ejection/groupmove recovery + dynamic tardy-core micro exact subset/trio repair | the stronger shifted seed was recovered again at `migrate_123_to_2 = T 309`, but the new exact tail still emitted no better scored branch beyond that inherited seed, so the candidate preserved the signal without breaking the pocket |
+  | `v468` | same shifted subtype | widened shifted predecessor/blocker alt-chain ejection replay + companion groupmove | the protected warm floor drifted to `T 397`, the best widened-chain branch degraded to `T 521`, and Family B guard also worsened to `T 8622`, so the structural widening destabilized both target and guard rows |
+  | `v469` | same shifted subtype | conservative fallback + joint plan/order GRASP restart with replay follow-up | the Family B guard was stabilized again, but the target lane only improved from `T 360` to `T 357` and never reopened the stronger `T 309` seed, so restart diversity changed the envelope without recovering the right structural basin |
+- decision:
+  - `v469` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `backward/latest-start scheduler on bay-assignment-first split`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the timing construction family itself instead of
+    continuing to diversify restart tie-breaks around the same weak warm floor.
+
+## 2026-07-03 reboot_v470_20260703_trackA_prob11_bayassignsplit_scheduler_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v469` showed that restart diversity can protect the Family B guard again,
+    but it still stayed trapped above the stronger shifted structural basin.
+  - this cycle changes the structural family more directly: keep a conservative
+    active fallback off-target, open bay-assignment-first split candidates on
+    the target subtype, then run backward/latest-start scheduling on the best
+    live split candidate instead of dispatch beam or restart diversification.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`backward/latest-start scheduler on best live split candidate + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v470_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split-plus-scheduler line did recover the older `T 340` plateau on the
+    target row: both `stay_shifted_predecessor_chain_backward_latest` and
+    `..._latest` landed at `T 340`.
+  - however the scheduler follow-ups did not improve beyond that plateau, and
+    the replay tail was actively harmful (`T 679` on the backward-latest
+    replay). This means the new timing family can reopen the weaker split basin
+    but still not the stronger shifted-ejection `T 309` basin.
+  - because the Family B guard stayed stable, this is useful subtype evidence,
+    but not enough to justify a full40 run or promotion.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v468` | `prob11like improved warm / shifted predecessor-chain pocket` | widened shifted predecessor/blocker alt-chain ejection replay + companion groupmove | the protected warm floor drifted to `T 397`, the best widened-chain branch degraded to `T 521`, and Family B guard also worsened to `T 8622`, so the structural widening destabilized both target and guard rows |
+  | `v469` | same shifted subtype | conservative fallback + joint plan/order GRASP restart with replay follow-up | the Family B guard was stabilized again, but the target lane only improved from `T 360` to `T 357` and never reopened the stronger `T 309` seed, so restart diversity changed the envelope without recovering the right structural basin |
+  | `v470` | same shifted subtype | bay-assignment-first split candidates + backward/latest-start scheduler | the target row improved to the older `T 340` split plateau while Family B stayed stable, but the scheduler never improved beyond that plateau and the replay tail regressed badly, so the construction family still failed to reach the stronger `T 309` basin |
+- decision:
+  - `v470` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on bay-assignment-first split`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the guard-stable split family but broadens the live
+    ordering search instead of relying on one scheduler tail.
+
+## 2026-07-03 reboot_v471_20260703_trackA_prob11_bayassignsplit_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v470` proved that the split family can reopen the guard-stable `T 340`
+    plateau, but the scheduler tail could not improve beyond it.
+  - this cycle keeps that split family fixed and changes only the live ordering
+    search: after selecting the best split candidate, run dispatch-rule beam on
+    its live pocket instead of relying on backward/latest scheduling.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`dispatch-rule beam on best live split candidate + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v471_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 336`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split family did improve slightly again: the best live split branch
+    landed at `stay_shifted_predecessor_chain_backward_latest = T 336`, beating
+    the `T 340` plateau from `v470`.
+  - however the added dispatch beam still did not create the winning branch;
+    the best score stayed on the base split candidate and the replay tail was
+    again harmful (`T 699`).
+  - this means the beam widened the search surface but still did not reach the
+    stronger shifted-ejection `T 309` basin or anything close to the hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v469` | `prob11like improved warm / shifted predecessor-chain pocket` | conservative fallback + joint plan/order GRASP restart with replay follow-up | the Family B guard was stabilized again, but the target lane only improved from `T 360` to `T 357` and never reopened the stronger `T 309` seed, so restart diversity changed the envelope without recovering the right structural basin |
+  | `v470` | same shifted subtype | bay-assignment-first split candidates + backward/latest-start scheduler | the target row improved to the older `T 340` split plateau while Family B stayed stable, but the scheduler never improved beyond that plateau and the replay tail regressed badly, so the construction family still failed to reach the stronger `T 309` basin |
+  | `v471` | same shifted subtype | bay-assignment-first split candidates + dispatch-rule beam | the target row improved slightly further to `T 336` while Family B stayed stable, but the winning line still came from the base split candidate rather than the beam branches, so broader ordering search still failed to escape the split plateau |
+- decision:
+  - `v471` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on bay-assignment-first split tardy cluster`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the guard-stable `T 336` split basin but changes
+    the neighborhood by explicitly destroying and rebuilding the tardy cluster
+    instead of only widening ordering search.
+
+## 2026-07-03 reboot_v472_20260703_trackA_prob11_bayassignsplit_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v471` showed that the guard-stable split family can still reopen the live
+    `T 336` basin, but the added dispatch-rule beam never became the winning
+    branch.
+  - this cycle keeps the split family fixed and changes only the tail
+    neighborhood: after selecting the best live split candidate, run bounded
+    ALNS/LNS destroy-repair directly on that split tardy cluster instead of
+    widening dispatch order search.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`ALNS/LNS destroy-repair on best live split candidate + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v472_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the guard-stable split family remained alive, but the best returned row was
+    again the base split candidate
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - the new ALNS/LNS tail did not register any scored follow-up branch in the
+    final attempt list, so the destroy-repair phase effectively arrived too
+    late to change the basin before budget exhaustion.
+  - that means this hypothesis preserved Family B safety but still failed to
+    turn the split plateau into a new improving neighborhood.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v470` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + backward/latest-start scheduler | the target row improved to the older `T 340` split plateau while Family B stayed stable, but the scheduler never improved beyond that plateau and the replay tail regressed badly, so the construction family still failed to reach the stronger `T 309` basin |
+  | `v471` | same shifted subtype | bay-assignment-first split candidates + dispatch-rule beam | the target row improved slightly further to `T 336` while Family B stayed stable, but the winning line still came from the base split candidate rather than the beam branches, so broader ordering search still failed to escape the split plateau |
+  | `v472` | same shifted subtype | bay-assignment-first split candidates + ALNS/LNS destroy-repair on live split tardy cluster | the split family stayed guard-stable, but the best row fell back to the old `T 340` plateau and the ALNS tail produced no scored follow-up branch before budget exhaustion, so the destroy-repair neighborhood never had time to alter the basin |
+- decision:
+  - `v472` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP repair on bay-assignment-first split tardy cluster`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the guard-stable split family but moves the repair
+    earlier and more aggressively onto the same live split tardy core.
+
+## 2026-07-03 reboot_v473_20260703_trackA_prob11_bayassignsplit_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v472` preserved the guard-stable split family but the ALNS/LNS tail never
+    produced a scored follow-up branch before budget exhaustion.
+  - this cycle keeps the same split family fixed and swaps only the tail:
+    apply a bounded micro CP-SAT/MIP-style tardy-core exact repair directly on
+    the best live split candidate instead of destroy-repair.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split tardy-core micro exact subset/trio repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v473_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split family again returned the old best basin
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - unlike the intent of this cycle, the microexact tail did not add a single
+    scored follow-up branch to the final attempt list, so the exact subset/trio
+    repair never changed the live split candidate before the budget closed.
+  - this is a stronger confirmation that the current split plateau is not being
+    unlocked by late repair operators, whether destroy-repair or microexact.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v471` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + dispatch-rule beam | the target row improved slightly further to `T 336` while Family B stayed stable, but the winning line still came from the base split candidate rather than the beam branches, so broader ordering search still failed to escape the split plateau |
+  | `v472` | same shifted subtype | bay-assignment-first split candidates + ALNS/LNS destroy-repair on live split tardy cluster | the split family stayed guard-stable, but the best row fell back to the old `T 340` plateau and the ALNS tail produced no scored follow-up branch before budget exhaustion, so the destroy-repair neighborhood never had time to alter the basin |
+  | `v473` | same shifted subtype | bay-assignment-first split candidates + split tardy-core micro CP-SAT/MIP style exact repair | the split family remained guard-stable and again landed on `T 340`, but the microexact subset/trio tail produced no scored branch at all, so even the exact repair operator could not alter the plateau when applied this late |
+- decision:
+  - `v473` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `regret-k insertion on bay-assignment-first split tardy core`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the live insertion priority itself instead of
+    adding another late repair tail to the same split plateau.
+
+## 2026-07-03 reboot_v474_20260703_trackA_prob11_bayassignsplit_regretcore_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v473` confirmed that another late exact repair on the split plateau still
+    does not generate a winning branch.
+  - this cycle keeps the same split family fixed and changes only the live
+    insertion policy: run regret-k reinsertion directly on the split tardy core
+    so the branch order changes before another repair tail is attempted.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split tardy-core regret-k reinsertion + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v474_prob10_prob11_prob40_20260703_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split family again returned the old best basin
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - the new regret-core tail did not add any scored follow-up branch to the
+    final attempt list, so changing insertion priority this late still did not
+    alter the split plateau before budget exhaustion.
+  - together with `v472` and `v473`, this suggests the current best split basin
+    is limited by the structural seed itself rather than by the specific tail
+    operator attached afterward.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v472` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + ALNS/LNS destroy-repair on live split tardy cluster | the split family stayed guard-stable, but the best row fell back to the old `T 340` plateau and the ALNS tail produced no scored follow-up branch before budget exhaustion, so the destroy-repair neighborhood never had time to alter the basin |
+  | `v473` | same shifted subtype | bay-assignment-first split candidates + split tardy-core micro CP-SAT/MIP style exact repair | the split family remained guard-stable and again landed on `T 340`, but the microexact subset/trio tail produced no scored branch at all, so even the exact repair operator could not alter the plateau when applied this late |
+  | `v474` | same shifted subtype | bay-assignment-first split candidates + split tardy-core regret-k reinsertion | the split family again stayed guard-stable at `T 340`, but the regret-core tail also produced no scored follow-up branch, so changing insertion priority still did not alter the basin once the split candidate was already fixed |
+- decision:
+  - `v474` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ejection-chain / block group move on bay-assignment-first split tardy core`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the structural seed motion itself instead of
+    attaching another late tail to the same split plateau.
+
+## 2026-07-04 reboot_v475_20260704_trackA_prob11_bayassignsplit_groupmove_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v474` showed that changing only the tardy-core insertion priority still
+    leaves the best split candidate pinned to the same `T 340` plateau.
+  - this cycle keeps the same split family fixed and changes only the tail:
+    apply ejection-chain / companion block-group migration directly on the live
+    split tardy core so the structural motion itself changes after the split
+    seed is selected.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split tardy-core ejection-chain / block-group move + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v475_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split family again returned the same best basin
+    `stay_shifted_predecessor_chain_backward_latest = T 340`.
+  - the new groupmove tail also failed to add any scored follow-up branch to
+    the final attempt list, so even explicit ejection-chain / companion block
+    migration did not alter the live split candidate before budget exhaustion.
+  - this makes four consecutive split-tail variants (`v472`-`v475`) that keep
+    Family B safe but cannot move the same `prob11like` split plateau.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v473` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split tardy-core micro CP-SAT/MIP style exact repair | the split family remained guard-stable and again landed on `T 340`, but the microexact subset/trio tail produced no scored branch at all, so even the exact repair operator could not alter the plateau when applied this late |
+  | `v474` | same shifted subtype | bay-assignment-first split candidates + split tardy-core regret-k reinsertion | the split family again stayed guard-stable at `T 340`, but the regret-core tail also produced no scored follow-up branch, so changing insertion priority still did not alter the basin once the split candidate was already fixed |
+  | `v475` | same shifted subtype | bay-assignment-first split candidates + split tardy-core ejection-chain / block-group move | the split family again stayed guard-stable at `T 340`, but the ejection/groupmove tail also produced no scored follow-up branch at all, so even structural migration on the tardy core did not alter the plateau when attached after the split seed |
+- decision:
+  - `v475` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `GRASP/randomized restart on bay-assignment-first split seed`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the split seed diversity itself instead of
+    attaching another deterministic tail to the same plateau.
+
+## 2026-07-04 reboot_v476_20260704_trackA_prob11_bayassignsplit_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v475` showed that changing only the late split tail still leaves the best
+    candidate pinned to the same `T 340` plateau.
+  - this cycle keeps the same guard-stable split family but changes the seed
+    diversity itself: run GRASP/randomized restart directly on the live
+    bay-assignment-first split pocket so the branch order changes before warm
+    repair instead of after another deterministic tail.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split-seed GRASP/randomized restart + replay follow-up + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v476_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the split-seed GRASP restarts did not improve the live split basin at all;
+    the final best label fell back to `v298_prob11_protected_warm = T 397`,
+    which is worse than the recent split plateau (`T 340`) and also far above
+    the `T<10` gate.
+  - the logged GRASP replay branches never beat the warm-protected incumbent,
+    so simply injecting restart diversity after the split selector is still not
+    enough to unlock the `prob11like` shifted predecessor-chain pocket.
+  - Family B stayed protected, which means the rejection is purely on the
+    Family A hard gate and not on wrapper safety.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v474` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split tardy-core regret-k reinsertion | the split family again stayed guard-stable at `T 340`, but the regret-core tail also produced no scored follow-up branch, so changing insertion priority still did not alter the basin once the split candidate was already fixed |
+  | `v475` | same shifted subtype | bay-assignment-first split candidates + split tardy-core ejection-chain / block-group move | the split family again stayed guard-stable at `T 340`, but the ejection/groupmove tail also produced no scored follow-up branch at all, so even structural migration on the tardy core did not alter the plateau when attached after the split seed |
+  | `v476` | same shifted subtype | bay-assignment-first split candidates + split-seed GRASP/randomized restart with replay follow-up | Family B stayed stable, but the GRASP replay branches never beat the protected warm incumbent and the final row regressed to `T 397`, so added seed diversity still failed to unlock the split pocket |
+- decision:
+  - `v476` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `bay assignment first, timing second with workload / pressure repartition before latest-feasible scheduling`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the bay workload partition itself instead of
+    reordering the same split pocket after the seed is already fixed.
+
+## 2026-07-04 reboot_v477_20260704_trackA_prob11_bayassignsplit_repartition_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v476` showed that adding restart diversity on top of the same split seed
+    still cannot beat the protected warm lane on the target subtype.
+  - this cycle keeps the guard-stable split family but changes the structural
+    bay workload partition itself on the live split pocket: repartition the
+    local pocket across bays with workload / pressure balancing before applying
+    latest-feasible timing replay.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split-pocket bay repartition + latest-feasible scheduling replay + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v477_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 340`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the new repartition path did beat the protected warm incumbent
+    `T 342 -> 340`, which confirms the bay workload repartition is at least
+    touching the right local pocket.
+  - even so, the best scored branch still landed on the same split plateau
+    `stay_shifted_predecessor_chain_backward_latest = T 340`, so changing the
+    live bay plan alone was not enough to produce the required T-zero move.
+  - Family B stayed protected and runtime remained under control, so the
+    rejection is again purely on the Family A hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v475` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split tardy-core ejection-chain / block-group move | the split family again stayed guard-stable at `T 340`, but the ejection/groupmove tail also produced no scored follow-up branch at all, so even structural migration on the tardy core did not alter the plateau when attached after the split seed |
+  | `v476` | same shifted subtype | bay-assignment-first split candidates + split-seed GRASP/randomized restart with replay follow-up | Family B stayed stable, but the GRASP replay branches never beat the protected warm incumbent and the final row regressed to `T 397`, so added seed diversity still failed to unlock the split pocket |
+  | `v477` | same shifted subtype | bay-assignment-first split candidates + split-pocket workload/pressure repartition before latest-feasible replay | the repartition path recovered the recent best `T 340` and stayed guard-stable, but it still converged to the same split plateau, so changing local bay loads alone was not enough to create a T-zero breakout |
+- decision:
+  - `v477` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `spatial/orientation constructive with area-pressure bay partition and wall/corner hugging`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the pocket geometry and placement frontier itself
+    instead of continuing to reorder the same split bay plan.
+
+## 2026-07-04 reboot_v478_20260704_trackA_prob11_bayassignsplit_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v477` confirmed that the right live pocket is being hit, but the current
+    split family still converges to the same `T 340` timing plateau.
+  - this cycle keeps the same guard-stable split selector and changes only the
+    pocket geometry: rebuild the live split pocket with area-pressure spatial /
+    orientation constructive and wall-corner hugging before warm repair.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-first structural seed (`shifted bay-assignment-first split candidates`)
+  - bounded repair / local search (`split-pocket area-pressure spatial constructive + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v478_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - unlike `v477`, the spatial/orientation tail never produced a single scored
+    winning branch; every area-pressure spatial attempt fell back to the warm
+    incumbent and the final best stayed at `v298_prob11_protected_warm = T 342`.
+  - that means the current split-pocket geometry variants are failing before
+    they even enter a useful scored basin, which is weaker evidence than the
+    repartition path that at least touched `T 340`.
+  - Family B stayed protected, so this is again a pure Family A hard-gate
+    rejection rather than a wrapper stability issue.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v476` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split-seed GRASP/randomized restart with replay follow-up | Family B stayed stable, but the GRASP replay branches never beat the protected warm incumbent and the final row regressed to `T 397`, so added seed diversity still failed to unlock the split pocket |
+  | `v477` | same shifted subtype | bay-assignment-first split candidates + split-pocket workload/pressure repartition before latest-feasible replay | the repartition path recovered the recent best `T 340` and stayed guard-stable, but it still converged to the same split plateau, so changing local bay loads alone was not enough to create a T-zero breakout |
+  | `v478` | same shifted subtype | bay-assignment-first split candidates + split-pocket area-pressure spatial/orientation constructive | Family B stayed stable, but all spatial/orientation branches failed before producing a better scored candidate and the final row stayed at warm `T 342`, so changing local geometry alone did not even recover the split plateau |
+- decision:
+  - `v478` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP style exact repair on a 5-20 block tardy cluster carved from the prob11like warm/spatial incumbent`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle attacks a smaller exact tardy core after the stronger
+    warm/spatial lane instead of rebuilding the same split pocket again.
+
+## 2026-07-04 reboot_v479_20260704_trackA_prob11_warm_tardycore_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v478` showed that rebuilding the split pocket geometry still fails before
+    it reaches a better scored basin.
+  - this cycle stops rebuilding the split pocket and instead attacks the
+    stronger warm/spatial incumbent directly: carve a 5-20 block tardy core
+    from the incumbent and run bounded micro exact subset/trio repair there.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm-incumbent tardy-core micro exact subset + trio repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v479_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the warm-incumbent microexact path produced many valid exact subset
+    branches, but every one of them was worse than the protected warm/spatial
+    incumbent; the best exact branch in the log still sat at `T 420+`.
+  - unlike `v478`, this means the exact operator did execute and score
+    candidates, but the local 3-block exact neighborhood is simply pointed at
+    the wrong tardy structure for this subtype.
+  - Family B stayed protected, so the rejection is again entirely on the
+    Family A hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v477` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split-pocket workload/pressure repartition before latest-feasible replay | the repartition path recovered the recent best `T 340` and stayed guard-stable, but it still converged to the same split plateau, so changing local bay loads alone was not enough to create a T-zero breakout |
+  | `v478` | same shifted subtype | bay-assignment-first split candidates + split-pocket area-pressure spatial/orientation constructive | Family B stayed stable, but all spatial/orientation branches failed before producing a better scored candidate and the final row stayed at warm `T 342`, so changing local geometry alone did not even recover the split plateau |
+  | `v479` | same shifted subtype | warm/spatial incumbent + bounded tardy-core micro exact subset/trio repair | the exact repair operator ran and scored many local exact branches, but every repaired branch was materially worse than the warm incumbent and none beat `T 342`, so the local exact neighborhood was too narrow or misaligned for the true tardy cause |
+- decision:
+  - `v479` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on a due-window tardy cluster carved from the prob11like warm/spatial incumbent`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle widens the repair neighborhood beyond tiny exact trios
+    while still staying anchored to the stronger warm incumbent.
+
+## 2026-07-04 reboot_v480_20260704_trackA_prob11_warm_duewindow_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v479` confirmed the protected warm/spatial lane is the strongest available
+    incumbent, but the local exact trio neighborhood is too narrow and
+    misaligned for the real tardy cause.
+  - this cycle keeps the same warm incumbent and replaces exact trio repair
+    with a wider due-window ALNS/LNS destroy-repair neighborhood around the
+    live tardy core.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm-incumbent tardy-core due-window ALNS/LNS + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v480_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 360`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the warm-incumbent due-window ALNS scaffold executed cleanly and stayed
+    within the guard/runtime envelope, but it still never beat the protected
+    warm incumbent; the best scored ALNS branch regressed to `T 444` and the
+    second due-window rebuild failed before producing a candidate.
+  - unlike `v479`, this shows the wider neighborhood itself is live, but the
+    current destroy-repair order is still not attacking the real timing cause
+    inside the shifted predecessor-chain pocket.
+  - Family B stayed protected, so the rejection is again purely on the Family
+    A hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v478` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first split candidates + split-pocket area-pressure spatial/orientation constructive | Family B stayed stable, but all spatial/orientation branches failed before producing a better scored candidate and the final row stayed at warm `T 342`, so changing local geometry alone did not even recover the split plateau |
+  | `v479` | same shifted subtype | warm/spatial incumbent + bounded tardy-core micro exact subset/trio repair | the exact repair operator ran and scored many local exact branches, but every repaired branch was materially worse than the warm incumbent and none beat `T 342`, so the local exact neighborhood was too narrow or misaligned for the true tardy cause |
+  | `v480` | same shifted subtype | warm/spatial incumbent + due-window ALNS/LNS destroy-repair on the tardy core | the ALNS neighborhood executed under time and kept Family B stable, but the best scored branch regressed to `T 444` while the other due-window rebuild failed, so widening the local destroy-repair neighborhood alone still did not move the incumbent off `T 360` |
+- decision:
+  - `v480` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `backward/latest-start scheduler with bay-assignment-first timing-second replay`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle changes the time-feasibility frontier directly instead of
+    continuing to mutate the same local destroy-repair neighborhood.
+
+## 2026-07-04 reboot_v481_20260704_trackA_prob11_bayassign_lateststart_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v480` showed that wider local destroy-repair still leaves the warm
+    incumbent trapped on the same timing frontier.
+  - this cycle keeps the warm incumbent and changes only the structural family:
+    assign the rescue pocket to bays first, then replay affected bay sequences
+    with backward/latest-start timing-second scheduling.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first pocket migration + whole-bay/window/cluster latest-start replay + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v481_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 327`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - this is the strongest recent signal on the prob11like pocket: the
+    bay-assignment-first latest-start family improved the protected warm row
+    from `T 363 -> 327`, with the winning branch
+    `stay_cluster_focus_backward_latest_tardy_window_latest`.
+  - even so, the target row is still far above the `T<10` hard gate, so this
+    remains training-best-only evidence rather than a promotion candidate.
+  - Family B stayed protected, so the signal is usable for follow-up work
+    without any wrapper rollback.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v479` | `prob11like improved warm / shifted predecessor-chain pocket` | warm/spatial incumbent + bounded tardy-core micro exact subset/trio repair | the exact repair operator ran and scored many local exact branches, but every repaired branch was materially worse than the warm incumbent and none beat `T 342`, so the local exact neighborhood was too narrow or misaligned for the true tardy cause |
+  | `v480` | same shifted subtype | warm/spatial incumbent + due-window ALNS/LNS destroy-repair on the tardy core | the ALNS neighborhood executed under time and kept Family B stable, but the best scored branch regressed to `T 444` while the other due-window rebuild failed, so widening the local destroy-repair neighborhood alone still did not move the incumbent off `T 360` |
+  | `v481` | same shifted subtype | bay-assignment-first pocket migration + backward/latest-start timing-second replay | the timing-second scheduler finally improved the warm incumbent to `T 327`, but the gain is still far short of the `T<10` gate, so changing the timing frontier alone is not enough for a T-zero breakthrough |
+- decision:
+  - `v481` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `regret-k insertion with bay-assignment-first rescue-pocket rebuild`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the better bay/timing signal from `v481` but
+    changes the insertion priority itself instead of replaying the same
+    latest-start ordering.
+
+## 2026-07-04 reboot_v482_20260704_trackA_prob11_bayassign_regretk_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v481` showed the rescue pocket responds to bay-assignment-first timing
+    changes, but fixed latest-start replay still leaves the row far from T-zero.
+  - this cycle keeps the same rescue pocket and bay-assignment scaffold, then
+    changes only the insertion priority by using regret-k reinsertion on that
+    pocket.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first rescue-pocket regret-k reinsertion + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v482_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 376`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the regret-k rescue-pocket rebuild did execute, but it was weaker than the
+    latest-start signal from `v481`; the best scored regret branch regressed to
+    `T 439` and the final best stayed on the protected warm incumbent at
+    `T 376`.
+  - this means changing insertion priority alone is not enough for the current
+    shifted predecessor-chain pocket, and the useful timing signal from
+    `v481` is more valuable than the raw regret ordering.
+  - Family B stayed protected, so the failure is again purely on the Family A
+    hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v480` | `prob11like improved warm / shifted predecessor-chain pocket` | warm/spatial incumbent + due-window ALNS/LNS destroy-repair on the tardy core | the ALNS neighborhood executed under time and kept Family B stable, but the best scored branch regressed to `T 444` while the other due-window rebuild failed, so widening the local destroy-repair neighborhood alone still did not move the incumbent off `T 360` |
+  | `v481` | same shifted subtype | bay-assignment-first pocket migration + backward/latest-start timing-second replay | the timing-second scheduler finally improved the warm incumbent to `T 327`, but the gain is still far short of the `T<10` gate, so changing the timing frontier alone is not enough for a T-zero breakthrough |
+  | `v482` | same shifted subtype | bay-assignment-first rescue-pocket regret-k reinsertion | the regret-k rebuild stayed guard-stable but failed to beat the protected warm incumbent and even its best scored branch regressed to `T 439`, so changing insertion priority alone is weaker than the timing-second latest-start family on this pocket |
+- decision:
+  - `v482` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `beam search over dispatching rules with bay-assignment-first rescue-pocket rebuild`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the useful bay/timing signal from `v481` but
+    explores multiple dispatch orders instead of committing to one regret or
+    one latest-start rule.
+
+## 2026-07-04 reboot_v483_20260704_trackA_prob11_bayassign_dispatchbeam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v481` showed the rescue pocket has real signal when we fix bay assignment
+    and then change timing order, while `v482` showed one fixed insertion
+    priority is not enough.
+  - this cycle keeps the `v481` bay-assignment-first rescue-pocket scaffold,
+    then runs a small beam over dispatching rules on the affected bay
+    sequences instead of committing to a single latest-start order.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first pocket migration + dispatch-rule beam replay + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v483_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the dispatch beam did find several viable replay orders, but none improved
+    on the protected warm/spatial incumbent; the best beam branches tied at
+    `T 342`, which is better than `v482` but still worse than the `v481`
+    latest-start signal at `T 327`.
+  - this suggests the pocket still responds more to a specific timing replay
+    than to broader dispatch-order diversification, at least under the current
+    bay plan and local window size.
+  - Family B stayed protected, so the failure is again entirely on the Family
+    A hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v481` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first pocket migration + backward/latest-start timing-second replay | the timing-second scheduler finally improved the warm incumbent to `T 327`, but the gain is still far short of the `T<10` gate, so changing the timing frontier alone is not enough for a T-zero breakthrough |
+  | `v482` | same shifted subtype | bay-assignment-first rescue-pocket regret-k reinsertion | the regret-k rebuild stayed guard-stable but failed to beat the protected warm incumbent and even its best scored branch regressed to `T 439`, so changing insertion priority alone is weaker than the timing-second latest-start family on this pocket |
+  | `v483` | same shifted subtype | bay-assignment-first rescue-pocket dispatch-rule beam replay | the beam diversified dispatch orders and recovered `T 342`, but it only tied the warm/spatial incumbent and still missed the stronger `v481` signal at `T 327`, so order diversification alone is not enough on the current pocket geometry |
+- decision:
+  - `v483` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ejection-chain / block group move with bay-assignment-first rescue-pocket migration`
+    targeting the `prob11like improved warm / shifted predecessor-chain pocket`
+    so the next cycle keeps the useful `v481` timing signal in mind but changes
+    the actual moved block set instead of only reordering the same local pocket.
+
+## 2026-07-04 reboot_v484_20260704_trackA_prob11_bayassign_ejection_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v481` showed that bay-assignment-first rescue-pocket rebuilding can still
+    find real signal on the target subtype, but `v482` and `v483` also showed
+    that merely changing insertion priority or replay order is not enough.
+  - this cycle keeps the same protected warm entry and bay-assignment-first
+    rescue pocket, but replaces timing-only replay with explicit
+    `ejection-chain / companion block-group move` candidates so the moved block
+    set changes as well as the order.
+- target Family A subtype:
+  - `prob11like improved warm / shifted predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first rescue-pocket ejection/groupmove + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v484_prob10_prob11_prob40_20260704_002/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+  - Family B guard:
+    - `prob_40`: `T 8622` (worse than the active-verified guard `T 8429`)
+- diagnostic notes:
+  - the protected warm incumbent itself drifted on this rerun from the earlier
+    `T 360` pocket state to `T 397`, and the ejection/groupmove candidates all
+    remained worse than that drifted incumbent (`T 452~560` on the scored
+    branches that opened).
+  - the focus pocket also shifted from the earlier `.../39/154` tail into a
+    `.../55/18` tail, which means this candidate was operating on a focus-drift
+    subtype variant rather than preserving the stronger live `v481` pocket.
+  - unlike `v481`, the new structural move changed the moved block set but did
+    not create any new competitive branch, and it also broke the Family B
+    guard, so this is a stronger rejection than a pure Family A miss.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v481` | `prob11like improved warm / shifted predecessor-chain pocket` | bay-assignment-first pocket migration + backward/latest-start timing-second replay | improved the warm incumbent to `T 327`, but the gain still stayed far above the `T<10` gate |
+  | `v482` | same shifted subtype | bay-assignment-first rescue-pocket regret-k reinsertion | stayed guard-stable but failed to beat the warm incumbent and its best scored branch regressed to `T 439` |
+  | `v483` | same shifted subtype | bay-assignment-first rescue-pocket dispatch-rule beam replay | diversified replay orders but only tied the warm/spatial incumbent at `T 342`, missing the stronger `v481` signal |
+  | `v484` | `prob11like focus-drift predecessor-chain pocket` | bay-assignment-first rescue-pocket ejection-chain / companion groupmove | changed the moved block set, but every scored branch was worse than the drifted warm incumbent and Family B guard also worsened to `T 8622` |
+- decision:
+  - `v484` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate and the Family B
+    guard also worsened.
+- next structural hypothesis:
+  - try `GRASP/randomized restart over bay-assignment-first rescue-pocket seeds`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle changes the seed geometry itself before repair, instead
+    of replaying or migrating on top of one unstable warm pocket snapshot.
+
+## 2026-07-04 reboot_v485_20260704_trackA_prob11_bayassign_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v484` showed that changing the moved block set directly on one drifted
+    pocket snapshot still left every scored branch worse than the warm floor.
+  - this cycle keeps the bay-assignment-first rescue pocket, but changes the
+    actual seed geometry through bounded `GRASP/randomized restart` over the
+    local reinsertion order, instead of fixed replay or fixed migration.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted stable fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first rescue-pocket randomized restarts + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v485_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the Family B wrapper stayed protected again, so this cycle cleanly
+    isolated the Family A pocket without contaminating the guard rows.
+  - however, the protected warm lane itself already landed at `T 342`, and the
+    randomized restart branches that actually scored all converged to a worse
+    `T 404`, while the blocker-heavier branch failed before scoring.
+  - that means the GRASP/randomized restart family did reopen multiple seed
+    geometries, but the new seed diversity still could not escape the current
+    `T 342` floor on this focus-drift subtype.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v484` | `prob11like focus-drift predecessor-chain pocket` | bay-assignment-first rescue-pocket ejection-chain / companion groupmove | every scored branch was worse than the drifted warm incumbent and Family B guard also worsened to `T 8622` |
+  | `v485` | same focus-drift subtype | bay-assignment-first rescue-pocket GRASP/randomized restart | preserved Family B guard and reopened multiple randomized seed geometries, but every scored restart converged to `T 404`, so seed diversity alone could not improve the protected `T 342` floor |
+- decision:
+  - `v485` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ALNS/LNS destroy-repair on bay-assignment-first rescue-pocket seeds`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle keeps the guard-stable bayassign seed but changes the
+    destroy/repair neighborhood itself instead of only re-randomizing the
+    reinsertion order.
+
+## 2026-07-04 reboot_v486_20260704_trackA_prob11_bayassign_alns_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v485` kept the Family B guard stable but showed that seed diversity alone
+    cannot move the focus-drift pocket off the current `T 342` floor.
+  - this cycle keeps the same guard-stable bay-assignment-first rescue-pocket
+    seed, then changes only the local neighborhood by applying bounded
+    `ALNS/LNS destroy-repair` on the resulting tardy core.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bay-assignment-first rescue-pocket seed + tardy-core ALNS/LNS destroy-repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v486_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 363`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the guard stayed protected again, so the candidate cleanly tested the
+    target pocket without Family B contamination.
+  - however, the protected warm lane drifted to `T 363`, the bayassign seed
+    itself was much worse at `T 457`, and the only scored ALNS branch also
+    regressed further to `T 476`.
+  - so the destroy-repair neighborhood did open, but on this focus-drift
+    subtype it amplified a weak seed instead of repairing it back toward the
+    earlier `T 342` floor.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v485` | `prob11like focus-drift predecessor-chain pocket` | bay-assignment-first rescue-pocket GRASP/randomized restart | preserved Family B guard but every scored restart converged to `T 404`, so seed diversity alone could not improve the protected `T 342` floor |
+  | `v486` | same focus-drift subtype | bay-assignment-first rescue-pocket seed + tardy-core ALNS/LNS destroy-repair | the destroy-repair neighborhood opened, but the bayassign seed itself degraded to `T 457` and the only scored ALNS branch worsened further to `T 476`, so ALNS could not recover the weak seed back to the warm floor |
+- decision:
+  - `v486` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `bounded local search pair-swap / 2-opt reorder on bay-assignment-first rescue-pocket seed`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle keeps the guard-stable bayassign seed but changes only
+    the local order with cheap deterministic neighborhood moves instead of
+    randomized restarts or destroy-repair.
+
+## 2026-07-04 reboot_v487_20260704_trackA_prob11_bayassign_localsearch_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v486` showed the guard-stable bayassign seed is still too weak for ALNS:
+    the neighborhood opened, but only made the weak seed worse.
+  - this cycle keeps the same bay-assignment-first rescue-pocket seed and
+    changes only the local order with bounded `pair-swap / group reorder /
+    latest-feasible pullback` moves.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bayassign seed + pair-swap/group reorder/pullback + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v487_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the Family B wrapper stayed protected, and the local-search phase did at
+    least open a real scored branch on the bayassign seed.
+  - however, the bayassign seed itself was still weak at `T 404`, and the best
+    pair-swap recovery only climbed back to `T 378`, which is better than the
+    raw seed but still worse than the protected warm floor `T 342`.
+  - that makes this a clean plateau result: cheap local order improvements can
+    partially repair a weak seed, but they still cannot create a new basin
+    below the current warm/spatial floor.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v486` | `prob11like focus-drift predecessor-chain pocket` | bay-assignment-first rescue-pocket seed + tardy-core ALNS/LNS destroy-repair | the destroy-repair neighborhood opened, but the bayassign seed degraded to `T 457` and the scored ALNS branch worsened further to `T 476` |
+  | `v487` | same focus-drift subtype | bayassign seed + pair-swap / group reorder local search | local search recovered the weak seed from `T 404` to `T 378`, but still could not beat the protected warm floor `T 342`, so order-only repair remains trapped on the same plateau |
+- decision:
+  - `v487` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `spatial/orientation constructive on bay-assignment-first rescue-pocket seed`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle changes the geometry of the local packing itself instead
+    of continuing to reorder the same weak seed neighborhood.
+
+## 2026-07-04 reboot_v488_20260704_trackA_prob11_bayassign_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v487` showed that cheap local order improvements can partially repair a
+    weak bayassign seed, but still cannot create a new basin below the warm
+    floor.
+  - this cycle keeps the same bay-assignment-first rescue-pocket seed and
+    changes the local geometry with a local `spatial/orientation constructive`
+    instead of more reorder-only repair.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`bayassign seed + local spatial/orientation constructive + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v488_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 357`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the Family B wrapper stayed protected again, so the target pocket was
+    isolated cleanly.
+  - the bayassign seeds themselves stayed weak (`T 413~515` depending on the
+    plan/variant), and every spatial/orientation rebuild failed before
+    producing a scoreable improvement candidate.
+  - this is a stronger rejection than `v487`: changing the local geometry
+    still could not materialize a competitive branch, so the issue is no
+    longer just local ordering on the same seed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v487` | `prob11like focus-drift predecessor-chain pocket` | bayassign seed + pair-swap / group reorder local search | local search recovered the weak seed from `T 404` to `T 378`, but still could not beat the protected warm floor `T 342` |
+  | `v488` | same focus-drift subtype | bayassign seed + spatial/orientation constructive | the bayassign seeds stayed weak (`T 413~515`), and every spatial/orientation rebuild failed before producing a scoreable candidate, so geometry changes still could not create a new competitive branch |
+- decision:
+  - `v488` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `micro CP-SAT/MIP tardy-cluster repair on protected warm/spatial incumbent`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle changes the neighborhood solver itself on the surviving
+    warm floor instead of continuing to rebuild weak bayassign seeds.
+
+## 2026-07-04 reboot_v489_20260704_trackA_prob11_warm_microexact_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v488` showed that rebuilding weak bayassign seeds is no longer producing
+    competitive branches at all.
+  - this cycle abandons weak seed rebuilds and instead keeps only the
+    surviving protected warm/spatial incumbent, then applies a bounded
+    `micro exact tardy-core subset/trio repair` directly on that incumbent.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm/spatial incumbent + micro exact tardy-core subset/trio repair + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v489_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 359`
+  - Family B guard:
+    - `prob_40`: `T 8622` (`+193` versus the active-verified guard row `8429`)
+- diagnostic notes:
+  - the protected warm/spatial incumbent stayed at `prob_11 T 359`, which is
+    already weaker than the prior best warm floor seen in this subtype
+    (`T 342` from `v485`/`v487`), so the repair operator started from a weaker
+    incumbent than hoped.
+  - the bounded micro-exact subset/trio passes never produced a scoreable
+    improvement over that incumbent; the final winner remained the untouched
+    `v298_prob11_protected_warm`.
+  - the fast constructive probes were not competitive at all
+    (`T 30236` / `T 31332`), which reinforces that this subtype is now failing
+    inside the protected predecessor-chain pocket rather than in the coarse
+    initial ordering stage.
+  - Family B guard also regressed (`8429 -> 8622`), so even if the target row
+    had moved slightly, this branch would still stay training-only.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v488` | `prob11like focus-drift predecessor-chain pocket` | bayassign seed + spatial/orientation constructive | bayassign seeds stayed weak (`T 413~515`) and no scoreable spatial branch was produced |
+  | `v489` | same focus-drift subtype | protected warm incumbent + micro exact tardy-core subset/trio repair | warm floor stayed at `T 359`, micro-exact never beat it, and Family B guard regressed to `T 8622` |
+- decision:
+  - `v489` is rejected for promotion and closed without a full 40 run because
+    the target smoke row stayed far above the `T<10` gate and the Family B
+    guard also worsened.
+- next structural hypothesis:
+  - try `beam search over dispatching rules on protected warm/spatial tardy core`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle explores alternative predecessor-chain dispatch orders
+    without going back to weak bayassign seed rebuilds.
+
+## 2026-07-04 reboot_v490_20260704_trackA_prob11_tardycore_beam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v489` showed that direct micro-exact repair on the surviving warm floor is
+    too weak when the incumbent itself is already stuck in the same predecessor
+    pocket.
+  - this cycle keeps the protected warm/spatial incumbent, but changes the
+    neighborhood generator to a bounded `beam search over dispatching rules`
+    on the tardy-core local sequence around the focus pocket.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm/spatial incumbent + tardy-core dispatch beam + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v490_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the protected warm/spatial incumbent entered the beam at `prob_11 T 376`,
+    so this branch started from an even weaker floor than `v489`.
+  - the beam did find a small improvement (`376 -> 367`), but almost every
+    dispatch rule collapsed to the same `T 367` plateau, which is still far
+    above the `T<10` gate.
+  - this is useful failure information: changing local dispatch priority alone
+    is not enough for the predecessor pocket, because the neighborhood keeps
+    converging to the same basin regardless of rule (`EDD`, `min-slack`,
+    `latest-start`, `critical-ratio`, `area-pressure`).
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v489` | `prob11like focus-drift predecessor-chain pocket` | protected warm incumbent + micro exact tardy-core subset/trio repair | warm floor stayed at `T 359`, micro-exact never beat it, and Family B guard regressed to `T 8622` |
+  | `v490` | same focus-drift subtype | protected warm incumbent + tardy-core dispatch beam | beam improved `T 376 -> 367`, but nearly every dispatch rule converged to the same `T 367` plateau, so local priority changes alone cannot escape the pocket |
+- decision:
+  - `v490` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `ejection-chain / block-group move on protected warm/spatial tardy core`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle can move the blocker chain jointly instead of merely
+    reprioritizing the same local window.
+
+## 2026-07-04 reboot_v491_20260704_trackA_prob11_ejection_groupmove_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v490` showed that dispatch-rule changes on the local window still collapse
+    to the same plateau, so the next step must move multiple blockers jointly.
+  - this cycle keeps the protected warm/spatial incumbent, then compares a
+    bounded `same-bay ejection-chain` family and a `blocker-eject group move`
+    family on the prob11 predecessor-chain pocket.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm/spatial incumbent + same-bay ejection-chain + blocker-eject group move + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v491_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 351`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - the protected warm/spatial incumbent itself improved to `prob_11 T 351`,
+    which is the best signal seen in the recent prob11 line, but it is still
+    far above the `T<10` gate.
+  - the same-bay ejection-chain family did not improve that incumbent at all;
+    almost every chain candidate snapped back to the exact same `T 351`
+    objective pocket.
+  - the blocker-eject group move was actively worse on the first scoreable
+    branch (`T 404`), so the joint relocation idea as currently scoped is too
+    coarse for this subtype.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v490` | `prob11like focus-drift predecessor-chain pocket` | protected warm incumbent + tardy-core dispatch beam | beam improved only to `T 367`, and most dispatch rules converged to the same plateau |
+  | `v491` | same focus-drift subtype | protected warm incumbent + same-bay ejection-chain + blocker-eject group move | incumbent floor reached `T 351`, but chain moves could not beat it and blocker-eject degraded to `T 404` |
+- decision:
+  - `v491` is rejected for promotion and closed without a full 40 run because
+    the target smoke row remained far above the `T<10` gate.
+- next structural hypothesis:
+  - try `backward/latest-start scheduler on protected tardy-core pocket`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle explicitly rebuilds the local chain from due-date
+    feasibility backward instead of pushing the same incumbent neighborhood
+    forward.
+
+## 2026-07-04 reboot_v492_20260704_trackA_prob11_lateststart_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v491` showed that pushing the incumbent neighborhood forward with chain
+    and blocker moves still returns to the same basin.
+  - this cycle keeps the protected warm/spatial incumbent, then rebuilds the
+    affected prob11 pocket backward with `latest-start` style ordering on the
+    local bays/windows instead of more forward moves.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm/spatial incumbent + whole-bay latest + window latest + cluster-front latest + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v492_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `3/3`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 342`
+  - Family B guard:
+    - `prob_40`: `T 8429` (stable versus the active-verified guard row)
+- diagnostic notes:
+  - this is the strongest recent prob11 signal numerically (`T 342`), but it
+    came entirely from the protected `v298` warm/spatial incumbent, not from
+    the new latest-start heuristic.
+  - every explicit backward/latest-start rebuild was worse than the incumbent:
+    `whole_bay_latest -> T 402`, `window_latest -> T 388`,
+    `cluster_front_latest -> T 844`.
+  - that means the predecessor pocket is currently benefiting more from the
+    incumbent spatial move than from any naive backward timing rebuild on the
+    same local bays.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v491` | `prob11like focus-drift predecessor-chain pocket` | protected warm incumbent + same-bay ejection-chain + blocker-eject group move | incumbent floor reached `T 351`, but chain moves could not beat it and blocker-eject degraded to `T 404` |
+  | `v492` | same focus-drift subtype | protected warm incumbent + backward/latest-start scheduler | incumbent floor improved to `T 342`, but all latest-start rebuilds were worse (`T 388~844`), so backward local timing alone is not the missing ingredient |
+- decision:
+  - `v492` is rejected for promotion and closed without a full 40 run because
+    the target smoke row still failed the `T<10` gate, and the new heuristic
+    itself did not beat the incumbent.
+- next structural hypothesis:
+  - try `regret-k insertion on protected tardy-core pocket`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    so the next cycle explicitly prioritizes blocks whose delayed insertion
+    expands the tardy chain most severely.
+
+## 2026-07-04 reboot_v493_20260704_trackA_prob11_regretk_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected for promotion after smoke
+- hypothesis:
+  - `v492` showed that the current best signal still comes from the protected
+    warm/spatial incumbent, and naive backward rebuilds only worsen it.
+  - this cycle keeps that incumbent and explicitly scores which prob11 pocket
+    moves are most expensive to leave in place via `regret-k insertion`,
+    comparing same-bay regret and local-cluster regret beam variants.
+- target Family A subtype:
+  - `prob11like focus-drift predecessor-chain pocket`
+- planned comparisons inside the same hypothesis:
+  - trusted active fallback on non-target rows
+  - fast constructive probes (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`v298 warm/spatial incumbent`)
+  - bounded repair / local search (`warm/spatial incumbent + same-bay regret-k + local-cluster regret beam + warm repair`)
+- smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v493_prob10_prob11_prob40_20260704_001/`
+- smoke summary:
+  - accepted_for_score: `2/3`
+  - timeout: `1`
+  - invalid/error: `1`
+  - Family A rows:
+    - `prob_10`: `T 94`
+    - `prob_11`: `T 408`
+  - Family B guard:
+    - `prob_40`: `T 17115`, `timed_out=true`, `accepted_for_score=false`
+- diagnostic notes:
+  - this branch was strictly worse than the current incumbent on both visible
+    Family A smoke rows: `prob_10 T 43 -> 94`, `prob_11 T 342 -> 408`.
+  - the only scoreable regret move on `prob_11` was a tiny same-bay move on
+    block `105`, but it still stayed far above the warm floor and never opened
+    a useful second move.
+  - Family B protection failed completely here: `prob_40` timed out and its
+    tardiness exploded to `17115`, so this candidate cannot even be retained as
+    training-best-only.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v492` | `prob11like focus-drift predecessor-chain pocket` | protected warm incumbent + backward/latest-start scheduler | incumbent floor improved to `T 342`, but all latest-start rebuilds were worse (`T 388~844`) |
+  | `v493` | same focus-drift subtype | protected warm incumbent + regret-k insertion / local regret beam | same-bay regret only found a weak `block105` move (`T 408`), `prob_10` also worsened, and `prob_40` timed out with `T 17115` |
+- decision:
+  - `v493` is rejected for promotion and closed without a full 40 run because
+    it failed the hard gate on both Family A signal and Family B stability.
+- next structural hypothesis:
+  - try `ALNS/LNS due-window destroy-repair on protected tardy-core pocket`
+    targeting the `prob11like focus-drift predecessor-chain pocket`
+    with a stricter Family B fallback guard so the next cycle changes the local
+    neighborhood more aggressively without re-opening runtime drift.
+
+## 2026-07-04 reboot_v494_20260704_familyA_spatial_family_lane_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - the recent `v490~v493` line confirmed that protected warm-incumbent local
+    moves on one prob11 pocket are plateauing and are no longer a useful search
+    direction.
+  - this cycle opens a standalone Family A lane instead: on a broad
+    feature-gated tight-slack / high-`w1` band, compare from-scratch
+    constructive candidates before the trusted fallback:
+    `fast constructive seeds + spatial/orientation constructive +
+    best-seed bounded repair + trusted fallback`.
+- target Family A subtype:
+  - `4~5 bay, high-w1, low-proc, low-slack, low-preference-pressure spatial Family A lane`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`) on non-target rows and as the protected compare lane
+  - fast constructive (`slack_tardiness_seed`, `edd_release_preference_seed`)
+  - T-zero structural seed (`spatial/orientation wall-corner-edge constructive`)
+  - bounded repair / local search (`best constructive seed + short Family A warm repair`)
+- hard gate intent:
+  - run Family A residual smoke on `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_19`, `prob_20` plus Family B guards.
+  - do not run full 40 unless the smoke rows all stay accepted and the target
+    subtype shows a real `T<10`-class breakthrough signal.
+- recovery / interrupted artifacts kept:
+  - `reports/ogc2026_reboot_v001/smoke_v494_familyA_residuals_guards_20260704_001/`
+    ended with a fast-seed order-name exception on the Family A lane.
+  - `reports/ogc2026_reboot_v001/smoke_v494_familyA_residuals_guards_20260704_002_recovery/`
+    fixed the first exception but still carried the remaining seed-name bug and
+    import-overhead drift, so it is kept only as recovery evidence.
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v494_familyA_residuals_guards_20260704_003_recovery2/`
+- final smoke summary:
+  - accepted_for_score: `7/10`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 397`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 278`
+  - Family B guards:
+    - `prob_36`: `T 2892`, runtime `55.35s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.23s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.64s`, accepted `true`
+    - `prob_40`: `T 9508`, runtime `62.11s`, accepted `false`
+- diagnostic notes:
+  - the standalone Family A lane did run as designed in the final recovery
+    smoke, but the fast constructive seeds and spatial/orientation seed were
+    dramatically weaker than the trusted fallback on visible rows.
+  - `prob_10` simply fell back to the trusted line at `T 43`, which is stable
+    but not a breakthrough.
+  - `prob_11` regressed badly versus the trusted BEST (`T 334 -> 397`), so the
+    new Family A lane did not improve the prob11 residual cluster at all.
+  - `prob_13` matched the trusted fallback quality (`T 443`) but exceeded the
+    official limit at `71.61s`, which fails the hard gate even before score
+    comparison.
+  - Family B protection also failed materially: `prob_38` timed out and
+    `prob_40` regressed from the trusted `T 8429` guard to `T 9508` with a
+    timeout.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v493` | `prob11like focus-drift predecessor-chain pocket` | protected warm incumbent + regret-k insertion / local regret beam | same-bay regret only found a weak `block105` move (`T 408`), `prob_10` worsened, and `prob_40` timed out |
+  | `v494` | `4~5 bay high-w1 low-proc low-slack low-pref-pressure Family A lane` | standalone fast seeds + spatial/orientation constructive + warm repair | visible Family A rows stayed at fallback-or-worse (`prob_11 334 -> 397`, `prob_14 181 -> 187`, `prob_19 123 -> 128`, `prob_20 164 -> 278`), `prob_13` timed out at `71.61s`, and Family B guards `prob_38` / `prob_40` timed out |
+- decision:
+  - `v494` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on both Family A signal and Family B guard stability.
+- next structural hypothesis:
+  - try `bay assignment first, timing second` targeting the
+    `4-bay dense high-w1 tight-slack low-pref-pressure Family A residual lane`
+    so the next cycle changes the global construction order itself instead of
+    replaying another expensive spatial-first seed.
+
+## 2026-07-04 reboot_v495_20260704_familyA_bayfirst_timingsecond_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v494` showed that a standalone Family A lane is the right structural move,
+    but the spatial-first seed was too expensive and still weaker than the
+    trusted fallback.
+  - this cycle keeps the standalone Family A lane structure but changes the
+    architecture to `bay assignment first, timing second`: first distribute
+    Family A blocks across feasible bays under preference/load/tightness
+    pressure, then compare several timing orders on top of those assignments.
+- target Family A subtype:
+  - `4~5 bay dense high-w1 tight-slack low-pref-pressure Family A residual lane`
+  - representative rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`bay-first pref-balance + tight-latest assignment`)
+  - bounded improvement (`fixed-bay local timing order portfolio`)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and multiple Family A rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v495_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 2970`, runtime `54.98s`, accepted `true`
+    - `prob_38`: `T 16174`, runtime `61.29s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.76s`, accepted `true`
+    - `prob_40`: `T 9716`, runtime `61.92s`, accepted `false`
+- diagnostic notes:
+  - the bay-first timing-second lane stayed structurally cleaner than `v494`
+    and matched current trusted quality on already-strong rows
+    (`prob_10`, `prob_15`, `prob_17`, `prob_20`), but it did not break the
+    high-T residual band.
+  - `prob_11` remained much worse than the trusted BEST (`T 334 -> 386`), so
+    changing bay assignment and local timing order alone is not enough for the
+    dominant residual cluster.
+  - `prob_13` again landed on the trusted-quality row (`T 443`) but exceeded
+    the limit at `68.57s`, showing that the extra standalone-lane work still
+    leaves too little runtime headroom on this subtype.
+  - `prob_14` and `prob_19` also regressed slightly (`181 -> 187`,
+    `123 -> 128`), so the new constructive lane is not producing a net
+    Family A multi-row gain.
+  - Family B protection still failed materially because `prob_38` and
+    `prob_40` both timed out and regressed versus the trusted guard.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v494` | `4~5 bay high-w1 low-proc low-slack low-pref-pressure Family A lane` | standalone fast seeds + spatial/orientation constructive + warm repair | visible Family A rows stayed at fallback-or-worse, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v495` | `4~5 bay dense high-w1 tight-slack low-pref-pressure Family A residual lane` | standalone bay-assignment-first timing-second constructive | strong rows only matched fallback, `prob_11` stayed weak (`T 386`), `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v495` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on both Family A breakthrough signal and
+    Family B guard stability.
+- next structural hypothesis:
+  - try `Family A global backward constructive`
+    targeting the `4-bay dense high-w1 tight-slack low-pref-pressure residual lane`
+    so the next cycle changes the timing model itself to a due-date backward
+    build instead of stacking more forward-time constructive variants.
+
+## 2026-07-04 reboot_v496_20260704_familyA_global_backward_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v495` showed that a Family A standalone lane can stay lightweight enough
+    to preserve some runtime headroom, but forward-time construction still
+    converges to fallback-or-worse on the main residual rows.
+  - this cycle changes the timing model itself: build a standalone
+    `global backward constructive` Family A lane that derives bay-local orders
+    from due-date-backward pressure, then materializes the resulting order as a
+    scoreable forward schedule.
+- target Family A subtype:
+  - `4~5 bay dense high-w1 tight-slack low-pref-pressure Family A residual lane`
+  - representative rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`global backward due-window order`)
+  - bounded improvement (`same bay assignment + backward-derived timing variants`)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v500_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 460`, `timed_out=true`
+    - `prob_14`: `T 198`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3110`, runtime `55.02s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.53s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.23s`, accepted `true`
+    - `prob_40`: `T 9716`, runtime `62.20s`, accepted `false`
+- diagnostic notes:
+  - the randomized GRASP lane did not preserve the partial `v499` signal:
+    `prob_11` fell back to `T 386`, `prob_13` worsened to `T 460`, and
+    `prob_14` also regressed to `T 198`.
+  - Family B guards remained unstable on the same timeout rows
+    `prob_38` and `prob_40`, so the added seed diversity increased variance
+    without creating a usable Track A breakthrough.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v499` | `250~300 block mixed due-window fourbay/fivebay residual lane` | standalone due-window / bay-pressure cluster decomposition | partial signal on `prob_11` (`386 -> 367`) and `prob_36`, but `prob_13` still timed out and guards `prob_38` / `prob_40` still timed out |
+  | `v500` | `mixed due-window low-pref diffuse residual lane` | standalone GRASP/randomized constructive | seed diversity lost the `v499` signal, returning `prob_11` to `386`, worsening `prob_13` / `prob_14`, and still timing out on guards `prob_38` / `prob_40` |
+- decision:
+  - `v500` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate and regressed versus the `v499`
+    training-best-only signal.
+- next structural hypothesis:
+  - try `Family A spatial/orientation constructive`
+    targeting the `mixed due-window high-area pressure residual lane`,
+    especially the `prob13/prob14-like` subtype where timing-only and
+    randomized ordering both failed to break the bottleneck.
+
+## 2026-07-04 reboot_v500_20260704_familyA_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v499` finally produced a real Track A signal on `prob_11`, but the
+    deterministic cluster merge still collapsed back to the same runtime wall
+    on `prob_13` and the same flat rows on `prob_19` / `prob_20`.
+  - this cycle switches the construction diversity itself: use a
+    `GRASP/randomized constructive` Family A lane with several bounded seeds,
+    randomized tie-breaks, and light bay/orientation perturbations, while
+    keeping the trusted fallback protected.
+- target Family A subtype:
+  - `mixed due-window low-pref diffuse residual lane`
+  - representative rows: `prob_13`, `prob_20`, with spillover checks on
+    `prob_10`, `prob_11`, `prob_14`, `prob_15`, `prob_17`, `prob_19`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`bounded randomized GRASP seeds`)
+  - bounded improvement (`best seed` + deterministic merge variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v499_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 2892`, runtime `55.15s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.10s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.23s`, accepted `true`
+    - `prob_40`: `T 9228`, runtime `62.02s`, accepted `false`
+- diagnostic notes:
+  - the cluster decomposition lane finally moved one dominant residual row in
+    the right direction: `prob_11` improved from the repeated `T 386` basin to
+    `T 367`, and `prob_36` also improved to `T 2892`.
+  - that is still far from the hard-gate target and did not generalize across
+    the rest of Family A: `prob_13` remained at `T 443` with timeout,
+    `prob_19` regressed back to `128`, and `prob_20` stayed flat.
+  - Family B protection still failed on the same runtime-risk rows
+    `prob_38` and `prob_40`, so this lane cannot be promoted or used for a
+    full 40 run.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v497` | `4~5 bay dense high-w1 tight-slack low-pref-pressure residual lane` | standalone beam portfolio from scratch | `prob_11` stayed in the same basin, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v498` | same residual lane | standalone two-stage T-zero timing skeleton then forward repair | explicit timing skeleton still converged to `prob_11 T 386`, `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+  | `v499` | `250~300 block mixed due-window fourbay/fivebay residual lane` | standalone due-window / bay-pressure cluster decomposition | partial signal on `prob_11` (`386 -> 367`) and `prob_36`, but `prob_13` still timed out and guards `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v499` is closed as `training-best-only` and not promoted, because it
+    showed a real but still insufficient signal on one residual row while
+    failing the hard smoke gate and Family B guard condition.
+- next structural hypothesis:
+  - try `Family A GRASP/randomized constructive`
+    targeting the `mixed due-window low-pref diffuse residual lane`,
+    especially the `prob13/prob20-like` subtype, so the next cycle changes the
+    construction diversity itself instead of reusing the same deterministic
+    cluster merge.
+
+## 2026-07-04 reboot_v499_20260704_familyA_clusterdecomp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v496` to `v498` repeatedly failed on the same dense four-bay lateness
+    basin, so keeping the whole Family A row as one monolithic construction
+    unit is no longer paying off.
+  - this cycle changes the architecture to `cluster decomposition`: split the
+    Family A row into due-window and bay-pressure subclusters, build each
+    cluster with its own constructive order, then merge the cluster schedules
+    in bay-local time.
+- target Family A subtype:
+  - `250~300 block mixed due-window fourbay/fivebay residual lane`
+  - representative rows: `prob_13`, `prob_19`, `prob_20` with spillover checks
+    on `prob_10`, `prob_11`, `prob_14`, `prob_15`, `prob_17`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`due-window / bay-pressure cluster decomposition`)
+  - bounded improvement (`cluster-local timing-order merge variants`)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v498_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3174`, runtime `54.97s`, accepted `true`
+    - `prob_38`: `T 16174`, runtime `61.14s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `58.28s`, accepted `true`
+    - `prob_40`: `T 9847`, runtime `61.97s`, accepted `false`
+- diagnostic notes:
+  - the two-stage timing skeleton did recover `prob_19` to the trusted BEST
+    level and improved `prob_36` versus the recent standalone lanes, but it
+    still failed to move the dominant Family A rows.
+  - `prob_11` remained stuck at `T 386`, so explicitly planning a backward
+    timing skeleton still collapses into the same dense four-bay lateness basin
+    after forward repair.
+  - `prob_13` again hit `T 443` and still exceeded the official limit, which
+    means the core issue is not only timing priority but also how the lane
+    decomposes and budgets the large residual cluster.
+  - Family B guards `prob_38` and `prob_40` still timed out, so the current
+    Family A gate remains too coupled to runtime-risk rows.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v496` | `4~5 bay dense high-w1 tight-slack low-pref-pressure residual lane` | standalone global backward constructive | `prob_11` stayed weak, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v497` | same residual lane | standalone beam portfolio from scratch | global order diversification still converged to the same `prob_11` basin, `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+  | `v498` | same residual lane | standalone two-stage T-zero timing skeleton then forward repair | explicit timing skeleton still converged to `prob_11 T 386`, `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v498` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on both Family A breakthrough signal and
+    Family B guard stability.
+- next structural hypothesis:
+  - switch away from the repeated dense four-bay residual subtype and try
+    `Family A cluster decomposition over due-window / bay-pressure clusters`
+    targeting the `250~300 block mixed due-window fourbay/fivebay residual lane`,
+    with emphasis on splitting `prob_13/prob_19/prob_20-like` subclusters
+    before reconstruction.
+
+## 2026-07-04 reboot_v498_20260704_familyA_twostage_skeleton_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v495` to `v497` all failed while still building the schedule directly from
+    constructive order variants, which kept collapsing into the same
+    `prob11/prob13-like` lateness basin.
+  - this cycle changes the solver architecture to a true two-stage Track A
+    lane: first build a `T-zero timing skeleton` backward from due dates at the
+    bay level, then run a bounded forward feasibility repair that tries to stay
+    close to that skeleton instead of optimizing directly from a forward order.
+- target Family A subtype:
+  - `4-bay dense high-w1 tight-slack low-pref-pressure residual lane`
+  - representative rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`backward bay skeleton` with multiple bay selectors)
+  - bounded improvement (`skeleton-preserving forward repair timing variants`)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - partial/interrupted artifact:
+    `reports/ogc2026_reboot_v001/smoke_v497_familyA8_guard4_20260704_001/`
+  - artifact note:
+    benchmark row execution completed, but the process ended after row writes
+    with a cumulative CSV schema refusal, so this run directory currently has
+    `results.csv` plus raw/log/solution outputs without the final
+    `readable_results.csv` / `summary.json` wrapper files.
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3706`, runtime `54.37s`, accepted `true`
+    - `prob_38`: `T 15511`, runtime `61.37s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `56.96s`, accepted `true`
+    - `prob_40`: `T 9228`, runtime `61.94s`, accepted `false`
+- diagnostic notes:
+  - the beam portfolio did keep the good rows at the same level as the recent
+    standalone lanes (`prob_10`, `prob_15`, `prob_17`, `prob_20`), but it
+    still failed to break the dominant residual band.
+  - `prob_11` stayed at `T 386`, exactly the same weak basin as `v495` and
+    `v496`, so widening global order rules alone is not enough for the main
+    dense four-bay lateness cluster.
+  - `prob_13` again reproduced the trusted-quality row `T 443` but still
+    exceeded the official limit, so the standalone Family A lane still leaves
+    too little runtime headroom on this subtype.
+  - Family B protection remains materially broken because `prob_38` and
+    `prob_40` still timed out, even after the Family A detector was simplified
+    and the beam work was budget-capped.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v495` | `4~5 bay dense high-w1 tight-slack low-pref-pressure Family A residual lane` | standalone bay-assignment-first timing-second constructive | strong rows only matched fallback, `prob_11` stayed weak, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v496` | same Family A residual lane | standalone global backward constructive | `prob_11` still stayed weak (`T 386`), `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+  | `v497` | same Family A residual lane | standalone beam portfolio from scratch over global order rules | global order diversification still converged to the same `prob_11` basin (`T 386`), `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v497` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on both Family A breakthrough signal and
+    Family B guard stability.
+- next structural hypothesis:
+  - try `Family A two-stage T-zero timing skeleton then spatial/bay feasibility repair`
+    targeting the `4-bay dense high-w1 tight-slack low-pref-pressure residual lane`
+    with emphasis on the `prob11/prob13-like dominant lateness cluster`, so the
+    next cycle changes the solver architecture from direct constructive search
+    to an explicit timing-first skeleton before feasibility repair.
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v496_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 278`
+  - Family B guards:
+    - `prob_36`: `T 2970`, runtime `55.06s`, accepted `true`
+    - `prob_38`: `T 16442`, runtime `61.30s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `58.45s`, accepted `true`
+    - `prob_40`: `T 9847`, runtime `61.85s`, accepted `false`
+- diagnostic notes:
+  - the global backward constructive did slightly improve one residual row
+    (`prob_14: 187 -> 186` relative to `v495`) and recovered `prob_19` back to
+    the trusted fallback level, but it still did not move the dominant
+    residuals.
+  - `prob_11` stayed far above the trusted BEST (`T 334 -> 386`), so the
+    backward timing model alone still cannot break the main high-T basin.
+  - `prob_13` again reproduced the trusted-quality row but exceeded the time
+    limit, which means the extra standalone-lane work still leaves too little
+    runtime headroom on this subtype.
+  - Family B protection again failed on the same runtime-risk rows:
+    `prob_38` and `prob_40` both timed out and regressed.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v495` | `4~5 bay dense high-w1 tight-slack low-pref-pressure Family A residual lane` | standalone bay-assignment-first timing-second constructive | strong rows only matched fallback, `prob_11` stayed weak, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v496` | same Family A residual lane | standalone global backward constructive | `prob_11` still stayed weak (`T 386`), `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out despite the changed timing model |
+- decision:
+  - `v496` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on both Family A breakthrough signal and
+    Family B guard stability.
+- next structural hypothesis:
+  - try `Family A beam portfolio from scratch`
+    targeting the `4~5 bay dense high-w1 tight-slack low-pref-pressure residual lane`
+    so the next cycle widens the global construction search over order rules
+    instead of switching only one constructive timing model at a time.
+
+## 2026-07-04 reboot_v497_20260704_familyA_beamportfolio_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v494` to `v496` confirmed that the next useful Track A move must stay on
+    the standalone Family A lane, but the previous lanes either spent too much
+    time on one constructive model or still polluted runtime headroom badly
+    enough that Family B guards lost `accepted_for_score`.
+  - this cycle changes two structural levers together inside one coherent
+    hypothesis: use a cheap feature-gated Family A detector plus a
+    `beam portfolio from scratch` over multiple global order rules, while
+    capping standalone-lane work under a strict beam budget so the trusted
+    fallback keeps most of the timelimit.
+- target Family A subtype:
+  - `4~5 bay dense high-w1 tight-slack low-pref-pressure residual lane`
+  - representative rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`beam portfolio from scratch` over
+    `slack`, `edd_release`, `release_due`, `critical_ratio`, `workload_due`)
+  - bounded improvement (`best fixed assignment` + timing-order variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+
+## 2026-07-04 reboot_v501_20260704_familyA_spatial_constructive_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v497` to `v500` showed that merely changing global ordering and tie-break
+    logic still leaves the same dominant Family A basin intact, especially on
+    the mixed due-window rows where placement pressure and timing pressure seem
+    entangled.
+  - this cycle changes the construction stage itself: for Family A-like rows,
+    keep the trusted fallback intact, but compare it against a standalone
+    `spatial/orientation constructive` lane that scores candidate placements by
+    area pressure, wall/corner hugging, and bay fragmentation proxies before
+    doing bounded timing variants.
+- target Family A subtype:
+  - `mixed due-window high-area pressure residual lane`
+  - representative rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`spatial compact`, `spatial edge_hug`, `spatial due_wall`)
+  - bounded improvement (`best spatial assignment` + `slack/edd/release_due`)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v501_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 362`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3596`, runtime `54.79s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.71s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.80s`, accepted `true`
+    - `prob_40`: `T 9318`, runtime `61.90s`, accepted `false`
+- diagnostic notes:
+  - the standalone spatial lane produced the best recent `prob_11` signal
+    among the post-`v497` standalone candidates (`386 -> 362` versus `v500`,
+    and slightly better than `v499`), so the constructive stage change was not
+    completely inert.
+  - that signal was still too narrow for the hard gate: none of the dominant
+    Family A residual rows approached `T < 10`, and only one high-T row moved
+    materially.
+  - `prob_13` again matched the trusted fallback tardiness but still lost on
+    runtime, which means the standalone lane continues to spend too much of the
+    60s budget before returning control.
+  - Family B protection remained broken on the same runtime-risk rows
+    (`prob_38`, `prob_40`) and `prob_36` regressed sharply in tardiness, so
+    the spatial lane is not safe to promote.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v499` | `mixed due-window / bay-pressure Family A residual lane` | standalone cluster decomposition | only `prob_11` nudged down, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v500` | same Family A residual lane | standalone GRASP/randomized constructive | lost the earlier `prob_11` signal, `prob_14` worsened, and runtime risk stayed on guards |
+  | `v501` | `mixed due-window high-area pressure residual lane` | standalone spatial/orientation constructive | `prob_11` improved to `T 362` but still failed the hard gate, `prob_13` timed out again, and guards `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v501` is closed as `training-best-only` and not promoted because it failed
+    the hard smoke gate on acceptance count, Family B guard stability, and
+    multi-row Family A breakthrough signal.
+- next structural hypothesis:
+  - try `Family A subtype-split bay-first timing-second standalone solver`
+    targeting the `5-bay mixed-pressure late-window residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like rows), so the next cycle changes
+    the Family A lane by separating broader 5-bay workload pressure from the
+    tighter 4-bay rows instead of reusing one shared standalone constructor.
+
+## 2026-07-04 reboot_v502_20260704_familyA_latewindow_bayfirst_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v495` and `v501` suggest that the broad standalone Family A lane is still
+    too heterogeneous: the tighter 4-bay rows (`prob_11` / `prob_13`-like) and
+    the later-window, more workload-balanced rows (`prob_14` / `prob_19` /
+    `prob_20`-like) are paying for the same constructor while responding to
+    different pressure signals.
+  - this cycle subtype-splits the Family A lane and only activates a
+    lightweight `bay-first timing-second` constructor on the later-window,
+    lower-concentration workload-balanced subtype, with a much smaller budget
+    to reduce guard-side timeout leakage.
+- target Family A subtype:
+  - `4~5 bay late-window mixed-pressure residual lane`
+  - intended representatives: `prob_14`, `prob_15`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`late-window bay-balance + due/release timing`)
+  - bounded improvement (`best fixed-bay assignment` + `late/slack/edd` timing variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v502_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 362`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3498`, runtime `55.05s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.54s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.29s`, accepted `true`
+    - `prob_40`: `T 9603`, runtime `62.25s`, accepted `false`
+- diagnostic notes:
+  - the subtype split did exactly what it was meant to test: on the intended
+    later-window rows it recovered `prob_19` and `prob_20` back to the trusted
+    fallback surface, but it still did not create a new improvement branch.
+  - `prob_14` remained slightly worse (`181 -> 187`), so even inside the
+    intended subtype the lighter bay-first constructor did not outperform the
+    trusted line.
+  - the more important failure is headroom contamination: even though the
+    lane was narrowed and the subtype budget was cut to about one second,
+    non-target `prob_11` still drifted to `T 362`, which means the fallback
+    route is sensitive to even small prelude overhead.
+  - `prob_13` again matched the trusted tardiness but timed out, and Family B
+    guards `prob_38` / `prob_40` still timed out, so the narrowed lane did not
+    solve the runtime-risk coupling.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v501` | `mixed due-window high-area pressure residual lane` | standalone spatial/orientation constructive | `prob_11` improved to `T 362`, but only one high-T row moved and guards `prob_38` / `prob_40` still timed out |
+  | `v502` | `4~5 bay late-window mixed-pressure residual lane` | subtype-split lightweight bay-first timing-second constructive | target rows only recovered to fallback-level (`prob_19`, `prob_20`) while `prob_14` stayed worse, and even the narrowed prelude still stole enough headroom to keep `prob_11` at `T 362` |
+- decision:
+  - `v502` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on acceptance count, Family B guard
+    stability, and multi-row Family A breakthrough signal.
+- next structural hypothesis:
+  - try `Family A headroom-aware two-stage timing skeleton`
+    targeting the `4-bay ultra-tight high-w1 residual lane`
+    (`prob_11` / `prob_13`-like rows), so the next cycle changes the
+    standalone lane again by making the Family A candidate itself cheaper and
+    more timing-first rather than narrowing the gate while still paying a
+    fallback-contaminating prelude cost.
+
+## 2026-07-04 reboot_v503_20260704_familyA_headroom_twostage_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v501` and `v502` established a sharper failure mode than just "wrong
+    constructor": even narrow standalone lanes keep contaminating the trusted
+    fallback route unless the Family A prelude is extremely cheap.
+  - this cycle therefore keeps the narrow `prob_11` / `prob_13`-like subtype,
+    but changes the solver architecture again to a `headroom-aware two-stage
+    timing skeleton` that spends at most a few tenths of a second before the
+    fallback route gets the remaining budget.
+- target Family A subtype:
+  - `4-bay ultra-tight high-w1 residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`ultra-light backward timing skeleton`)
+  - bounded improvement (`same skeleton` + `target/slack/edd` forward repair)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v503_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 2822`, runtime `55.18s`, accepted `true`
+    - `prob_38`: `T 16174`, runtime `61.31s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `56.93s`, accepted `true`
+    - `prob_40`: `T 9420`, runtime `61.94s`, accepted `false`
+- diagnostic notes:
+  - the explicit headroom-aware cap did not solve the target subtype at all:
+    `prob_11` stayed at the old weak standalone plateau (`T 386`) and never
+    moved back toward the trusted fallback floor `T 334`.
+  - the target `prob_13` subtype still reproduced the trusted tardiness but
+    actually spent even more wall time (`71.91s`), so the cheap two-stage
+    skeleton did not preserve effective fallback headroom the way it was meant
+    to.
+  - Family B remained unstable on `prob_38` and `prob_40`, while `prob_36`
+    improved materially; that means the lane is still coupling to runtime-risk
+    rows in an inconsistent way rather than producing a trustworthy wrapper.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v502` | `4~5 bay late-window mixed-pressure residual lane` | subtype-split lightweight bay-first timing-second constructive | target rows only recovered to fallback-level while the narrowed prelude still stole enough headroom to keep `prob_11` at `T 362` |
+  | `v503` | `4-bay ultra-tight high-w1 residual lane` | headroom-aware two-stage timing skeleton | target rows still converged to the weak standalone plateau (`prob_11 T 386`), `prob_13` timed out worse than before, and guard timeouts on `prob_38` / `prob_40` persisted |
+- decision:
+  - `v503` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on acceptance count, Family A signal, and
+    Family B guard stability.
+- next structural hypothesis:
+  - try `Family A surrogate-scored single-check beam portfolio`
+    targeting the `4-bay ultra-tight high-w1 residual lane`
+    (`prob_11` / `prob_13`-like rows), so the next cycle changes the lane by
+    removing repeated in-lane checker overhead and comparing more candidate
+    orders under one final scoreable validation pass.
+
+## 2026-07-04 reboot_v504_20260704_familyA_singlecheck_beam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v503` showed that even a tiny standalone prelude can fail if the lane
+    still pays repeated in-lane scoring/validation overhead.
+  - this cycle keeps the same ultra-tight 4-bay subtype, but changes the
+    lane architecture to a `surrogate-scored single-check beam portfolio`:
+    use cheap surrogate metrics to compare multiple order/bay/orientation
+    branches, then score only the final best beam candidate.
+- target Family A subtype:
+  - `4-bay ultra-tight high-w1 residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`surrogate beam over global order rules`)
+  - bounded improvement (`best beam assignment` + compact timing variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v504_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 187`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3051`, runtime `55.30s`, accepted `true`
+    - `prob_38`: `T 15484`, runtime `60.81s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `56.12s`, accepted `true`
+    - `prob_40`: `T 9420`, runtime `62.10s`, accepted `false`
+- diagnostic notes:
+  - the single-check beam did what it was meant to do operationally: compared
+    multiple ultra-tight subtype branches with a cheaper runtime profile than
+    `v503`, and it reduced the target-row wall time on `prob_11`.
+  - but the structural result did not change: `prob_11` stayed fixed at the
+    same weak standalone plateau (`T 386`) and `prob_13` still timed out, so
+    removing repeated in-lane checker calls is not enough to break the
+    underlying subtype basin.
+  - the one modest secondary signal is on Family B/runtime-risk behavior:
+    `prob_38` improved from `T 16174 -> 15484` and runtime max fell versus
+    `v503`, but the row still missed `accepted_for_score`, so this is not a
+    promotable guard fix.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v503` | `4-bay ultra-tight high-w1 residual lane` | headroom-aware two-stage timing skeleton | target rows still converged to the weak standalone plateau (`prob_11 T 386`), `prob_13` timed out worse than before, and guard timeouts on `prob_38` / `prob_40` persisted |
+  | `v504` | same ultra-tight residual lane | surrogate-scored single-check beam portfolio | in-lane runtime got cheaper and `prob_38` guard improved slightly, but the core subtype plateau did not move at all (`prob_11 T 386`, `prob_13 T 443 timeout`) |
+- decision:
+  - `v504` is closed as `candidate` and not promoted because it still failed
+    the hard smoke gate on acceptance count, Family A breakthrough signal, and
+    Family B guard stability.
+- next structural hypothesis:
+  - switch away from the repeated ultra-tight subtype and try
+    `Family A surrogate-scored cluster decomposition`
+    targeting the `mixed due-window / bay-pressure multi-row residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like rows), so the next cycle changes
+    both subtype and construction architecture after the repeated
+    `prob_11`-focused plateau.
+
+## 2026-07-04 reboot_v505_20260704_familyA_singlecheck_cluster_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v504` confirmed the ultra-tight `prob_11` / `prob_13` subtype is stuck on
+    a construction plateau, so this cycle explicitly switches away from that
+    subtype instead of trying one more local variation.
+  - this cycle reopens the broader mixed due-window / bay-pressure residual
+    lane, but keeps the cheaper execution pattern learned from `v504`:
+    generate several cluster-decomposition assignments, rank them by surrogate
+    score, and only score-check the final best cluster branch.
+- target Family A subtype:
+  - `mixed due-window / bay-pressure multi-row residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`surrogate-scored due-window / bay-pressure cluster decomposition`)
+  - bounded improvement (`best cluster assignment` + compact timing variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v505_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 149`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 2822`, runtime `55.28s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.10s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.65s`, accepted `true`
+    - `prob_40`: `T 9508`, runtime `61.85s`, accepted `false`
+- diagnostic notes:
+  - the mixed-lane surrogate cluster path did not solve its intended subtype:
+    `prob_19` regressed badly (`123 -> 149`) and `prob_20` stayed flat, so the
+    multi-row due-window cluster idea did not open a useful constructive branch
+    for the lane it was actually targeting.
+  - unexpectedly, the same run reopened some signal on the old ultra-tight
+    row: `prob_11` improved to `T 367`, and `prob_14` also held the slightly
+    better `T 186` value. That means the surrogate cluster scoring is not
+    useless, but it is currently leaking its benefit onto the wrong subtype.
+  - Family B stayed partly improved relative to some recent candidates
+    (`prob_36` back to `2822`), but `prob_38` / `prob_40` still missed
+    `accepted_for_score`, so there is still no promotion path.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v504` | `4-bay ultra-tight high-w1 residual lane` | surrogate-scored single-check beam portfolio | in-lane runtime got cheaper but the core subtype plateau did not move at all (`prob_11 T 386`, `prob_13 T 443 timeout`) |
+  | `v505` | `mixed due-window / bay-pressure multi-row residual lane` | surrogate-scored single-check cluster decomposition | intended subtype degraded (`prob_19 123 -> 149`, `prob_20` flat) while the unexpected gain leaked back onto `prob_11`, so the architecture is still mismatched to its target lane |
+- decision:
+  - `v505` is closed as `candidate` and not promoted because it failed the
+    hard smoke gate on acceptance count, Family B guard stability, and
+    target-subtype breakthrough.
+- next structural hypothesis:
+  - try `Family A GRASP/randomized constructive on mixed due-window clusters`
+    targeting the `mixed due-window / bay-pressure multi-row residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like rows), so the next cycle keeps the
+    broader subtype but swaps cluster ranking for seed-diversified construction.
+
+## 2026-07-04 reboot_v506_20260704_familyA_mixed_grasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending smoke
+- hypothesis:
+  - `v505` suggested the broader mixed residual lane still has some latent
+    signal, but the deterministic cluster ranking keeps leaking that signal
+    onto the wrong subtype.
+  - this cycle keeps the same mixed due-window / bay-pressure lane but swaps
+    the constructor to a `GRASP/randomized constructive` with several bounded
+    seeds so the lane can explore different cluster interleavings, bay choices,
+    and timing orders before comparing them against the trusted fallback.
+- target Family A subtype:
+  - `mixed due-window / bay-pressure multi-row residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`seed-diversified mixed-lane GRASP`)
+  - bounded improvement (`best randomized assignment` + compact timing variants)
+- hard gate intent:
+  - smoke on Family A high-T targets plus Family B guards
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v506_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 386`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3110`, runtime `54.87s`, accepted `true`
+    - `prob_38`: `T 16739`, runtime `61.25s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `59.81s`, accepted `true`
+    - `prob_40`: `T 10328`, runtime `61.90s`, accepted `false`
+- diagnostic notes:
+  - the mixed-lane GRASP constructor failed cleanly on its intended subtype:
+    `prob_14` only held the prior `T 186` leak value, `prob_19` returned to
+    fallback-level `T 128`, and `prob_20` stayed flat, so seed diversity did
+    not open a new constructive branch.
+  - unlike `v505`, the unexpected `prob_11` improvement disappeared, which
+    suggests the earlier signal was tied to the cluster-ranking artifact rather
+    than to the broader mixed subtype itself.
+  - Family B degraded again on `prob_38` / `prob_40`, so this broader
+    randomized lane is strictly worse than the cleaner single-check cluster
+    attempt.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v505` | `mixed due-window / bay-pressure multi-row residual lane` | surrogate-scored single-check cluster decomposition | intended subtype degraded while an unexpected gain leaked back onto `prob_11` |
+  | `v506` | same mixed residual lane | GRASP/randomized constructive on mixed clusters | no target-row breakthrough at all, the leaked `prob_11` signal vanished, and guard rows `prob_38` / `prob_40` regressed further |
+- decision:
+  - `v506` is rejected for promotion and closed without a full 40 run because
+    it failed the hard smoke gate on acceptance count, Family B guard
+    stability, and target-subtype breakthrough.
+- next structural hypothesis:
+  - try `Family A bay-first timing-second with micro CP-SAT tardy-cluster repair`
+    targeting the `mixed due-window / bay-pressure residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like rows), so the next cycle keeps the
+    broader subtype but changes from randomized construction to a bounded
+    repair operator on top of a deterministic lane.
+
+## 2026-07-04 reboot_v507_20260704_familyA_mixed_cluster_repair_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending probe + smoke
+- hypothesis:
+  - the recent mixed-lane candidates failed in two different ways: pure
+    single-check structure leaked signal onto the wrong row (`prob_11`), while
+    randomization flattened that leak without improving the intended
+    `prob_14` / `prob_19` / `prob_20` lane.
+  - this cycle keeps the same mixed due-window / bay-pressure Family A lane,
+    but switches to a deterministic `bay-first timing-second` constructor plus
+    a no-install bounded tardy-cluster repair. The repair only reorders a tiny
+    local window around the first tardy blocks inside each bay, so it changes
+    the timing model structurally without falling back into the forbidden warm
+    incumbent / prob_11-only local-repair line.
+- target Family A subtype:
+  - `mixed due-window / bay-pressure residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`deterministic bay-first mixed-lane assignments`)
+  - bounded improvement (`tiny tardy-cluster reorder / pull-back repair`)
+- hard gate intent:
+  - probe on one mixed-lane representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least 3 high-T rows move sharply toward T-zero
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v507_prob19_20260704_001/`
+- probe summary:
+  - `prob_19`: `T 156`, runtime `57.00s`, accepted `true`
+  - the single-instance probe regressed against the trusted row (`T 123`), so
+    the repair operator did not show an immediate mixed-lane breakthrough.
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v507_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 362`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 123`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3242`, runtime `54.88s`, accepted `true`
+    - `prob_38`: `T 15900`, runtime `61.35s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `56.19s`, accepted `true`
+    - `prob_40`: `T 9716`, runtime `61.80s`, accepted `false`
+- diagnostic notes:
+  - the bounded tardy-cluster repair succeeded only in removing the earlier
+    mixed-lane regression on `prob_19` (`156` in probe back to trusted `123`
+    in smoke), but it still produced no positive movement on the intended
+    `prob_14` / `prob_19` / `prob_20` target set.
+  - the same old leak onto the ultra-tight lane reappeared again:
+    `prob_11` held `T 362`, exactly like `v502`, while the real mixed subtype
+    rows stayed flat. That confirms the mixed-lane repair operator is still
+    coupling to the wrong feature pocket.
+  - Family B guard rows remained blocked by the same runtime cliff
+    (`prob_38` / `prob_40` timed out again) and `prob_36` worsened to `3242`,
+    so there is still no promotion path even though the candidate stayed
+    checker-feasible on all 12 rows.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v505` | `mixed due-window / bay-pressure multi-row residual lane` | surrogate-scored single-check cluster decomposition | intended subtype degraded while an unexpected gain leaked back onto `prob_11` |
+  | `v506` | same mixed residual lane | GRASP/randomized constructive on mixed clusters | no target-row breakthrough at all, the leaked `prob_11` signal vanished, and guard rows `prob_38` / `prob_40` regressed further |
+  | `v507` | same mixed residual lane | deterministic bay-first plus bounded tardy-cluster repair | mixed-lane rows stayed flat, `prob_11` leak reappeared, and guard rows still missed acceptance on `prob_38` / `prob_40` |
+- decision:
+  - `v507` is rejected and closed without a full 40 run because it failed the
+    hard smoke gate on acceptance count, Family B guard stability, and
+    multi-row Family A breakthrough.
+- next structural hypothesis:
+  - the mixed due-window / bay-pressure residual lane has now failed three
+    consecutive standalone constructions (`v505` / `v506` / `v507`), so the
+    next cycle must switch subtype.
+  - try `Family A two-stage timing skeleton then bay/spatial feasibility repair`
+    targeting the `4-bay ultra-tight high-w1 residual lane`
+    (`prob_11` / `prob_13`-like rows) as a fresh standalone architecture,
+    rather than another mixed-lane constructor.
+
+## 2026-07-04 reboot_v508_20260704_familyA_tight_twostage_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending probe + smoke
+- hypothesis:
+  - after three consecutive failures on the mixed residual lane, this cycle
+    switches subtype completely to the `4-bay ultra-tight high-w1` lane that
+    still dominates `prob_11` / `prob_13`.
+  - unlike the earlier broader `v498` lane, this candidate keeps the
+    two-stage timing-skeleton architecture but cuts the comparison surface
+    down to one fast constructive, one T-zero constructive, and one bounded
+    repair path so the subtype has a chance to keep runtime headroom while
+    still exploring a structurally different schedule.
+- target Family A subtype:
+  - `4-bay ultra-tight high-w1 residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`backward tight timing skeleton`)
+  - bounded improvement (`skeleton-preserving forward repair`)
+- hard gate intent:
+  - probe one representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and the ultra-tight target subtype shows a real T-zero signal
+
+## 2026-07-04 reboot_v513_20260704_familyA_crosspressure_backward_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe
+- hypothesis:
+  - the packing-heavy Family A residual rows have now rejected spatial,
+    cluster, and bay-partition forward constructions.
+  - this cycle switches the construction stage itself to a
+    `global backward/latest-feasible constructive`, aiming to pull high-area,
+    high-pressure work backward from due dates before fallback is consulted.
+- target Family A subtype:
+  - `cross-subtype high-pressure packing lane`
+  - intended representatives: `prob_10`, `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`backward_prefbalance_due`,
+    `backward_tight_slack`)
+  - bounded improvement (`same fixed bay assignment` + backward/forward timing
+    variants)
+- hard gate intent:
+  - probe one packing-lane representative before the 12-row smoke
+  - no full 40 unless the targeted subtype shows real T-zero direction and the
+    guard rows remain stable
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v513_prob10_20260704_001/`
+- probe summary:
+  - `prob_10`: `T 43`, runtime `44.64s`, accepted `true`
+  - the representative row stayed exactly flat versus the trusted line, so the
+    backward construction did not open any T-zero direction signal.
+- diagnostic notes:
+  - the due-date-backward construction was worth checking because it changes
+    the timing model itself, but on the first packing-heavy representative it
+    simply recreated the current tardy pattern instead of reducing it.
+  - because the target subtype did not improve at all in probe, there was no
+    justification to spend the 12-row smoke budget on this architecture.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v511` | `cross-subtype high-pressure packing lane` | due-window / feasible-bay / area-pressure cluster decomposition | target rows stayed flat and non-target rows worsened |
+  | `v512` | same packing subtype | bay-first timing-second solver | representative `prob_20` regressed from `T 164` to `T 283` in probe |
+  | `v513` | same packing subtype | global backward/latest-feasible constructive | representative `prob_10` stayed exactly flat at `T 43` in probe |
+- decision:
+  - `v513` is rejected and closed without a smoke/full 40 run because the
+    representative packing subtype showed no T-zero direction signal in probe.
+- next structural hypothesis:
+  - the packing subtype has now rejected four distinct whole-construction
+    architectures in a row, so the next bounded cycle should switch to a
+    different broader Family A construction pattern.
+  - next: `Family A GRASP/randomized constructive with T-first candidate selection`
+    targeting the `broad Family A low-slack high-w1 residual lane`, with the
+    current packing rows used as smoke representatives rather than as an
+    exclusive subtype gate.
+
+## 2026-07-04 reboot_v512_20260704_familyA_crosspressure_bayfirst_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe
+- hypothesis:
+  - the packing subtype has now failed both spatial and cluster whole-schedule
+    resets while leaving the target rows effectively flat.
+  - this cycle keeps the same `cross-subtype high-pressure packing lane` but
+    changes architecture to `bay-first timing-second`, explicitly partitioning
+    workload and footprint pressure across bays before applying timing order.
+- target Family A subtype:
+  - `cross-subtype high-pressure packing lane`
+  - intended representatives: `prob_10`, `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`bayfirst_prefbalance_slack`,
+    `bayfirst_tightlatest_edd`)
+  - bounded improvement (`fixed-bay timing-order improvement portfolio`)
+- hard gate intent:
+  - probe one packing-lane representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and the targeted packing subtype shows a real multi-row T-zero
+    direction
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v512_prob20_20260704_001/`
+- probe summary:
+  - `prob_20`: `T 283`, runtime `57.64s`, accepted `true`
+  - the representative 5-bay packing row regressed sharply versus the trusted
+    line (`164`), so the bay-first lane failed before the smoke gate.
+- diagnostic notes:
+  - explicit bay workload partitioning did not create the intended packing
+    relief. On the very row that should benefit most from bay-first structure,
+    tardiness jumped instead of shrinking.
+  - because the target subtype itself moved away from T-zero direction in the
+    probe, running the 12-row smoke would only spend budget to reconfirm a
+    failing architecture and would not satisfy the hard gate.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v510` | `cross-subtype high-pressure packing lane` | narrowed spatial wall/corner/edge hugging lane | target rows stayed flat and runtime guards remained broken |
+  | `v511` | same packing subtype | due-window / feasible-bay / area-pressure cluster decomposition | target rows still stayed flat and `prob_11` / `prob_36` worsened |
+  | `v512` | same packing subtype | bay-first timing-second solver | representative `prob_20` regressed from trusted `T 164` to `T 283` in probe |
+- decision:
+  - `v512` is rejected and closed without a smoke/full 40 run because the
+    representative packing subtype regressed immediately in probe and showed no
+    T-zero direction signal.
+- next structural hypothesis:
+  - keep the target on the broader packing lane, but switch away from bay
+    partitioning.
+  - next: `Family A global backward constructive`
+    targeting the `cross-subtype high-pressure packing lane`
+    (`prob_10` / `prob_14` / `prob_19` / `prob_20`-like feature blend) so the
+    next cycle tests due-date-backward latest-feasible construction instead of
+    forward bay balancing.
+
+## 2026-07-04 reboot_v511_20260704_familyA_crosspressure_cluster_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe + smoke
+- hypothesis:
+  - `v510` showed that a narrowed spatial lane can keep the cross-subtype
+    packing rows stable, but a single spatial pass still leaves the actual
+    `prob_10` / `prob_14` / `prob_19` / `prob_20` pressure pocket almost flat.
+  - this cycle keeps the same broader packing subtype but changes
+    construction-stage architecture to `cluster decomposition over due-window /
+    feasible-bay / area-pressure clusters` so the lane builds multiple smaller
+    schedules instead of one global placement pass.
+- target Family A subtype:
+  - `cross-subtype high-pressure packing lane`
+  - intended representatives: `prob_10`, `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`cluster due-area`, `cluster bay-area`,
+    `cluster slack-area`)
+  - bounded improvement (`best cluster assignment` + compact timing variants)
+- hard gate intent:
+  - probe one packing-lane representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and at least the targeted packing subtype shows multi-row T-zero
+    direction
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v511_prob14_20260704_001/`
+- probe summary:
+  - `prob_14`: `T 186`, runtime `58.66s`, accepted `true`
+  - the representative packing row stayed flat versus the live fallback lane,
+    so the cluster reset did not create an early subtype breakthrough signal.
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v511_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 367`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 3174`, runtime `55.06s`, accepted `true`
+    - `prob_38`: `T 16967`, runtime `60.94s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.94s`, accepted `true`
+    - `prob_40`: `T 10412`, runtime `61.86s`, accepted `false`
+- diagnostic notes:
+  - the broadened cluster gate finally activated on the intended packing rows,
+    but activation alone did not help. `prob_10`, `prob_14`, `prob_19`, and
+    `prob_20` all stayed at the same live-row level as the fallback lane.
+  - the lane also leaked backwards into non-target smoke quality:
+    `prob_11` moved to `367`, `prob_36` worsened to `3174`, and the runtime
+    guards `prob_38` / `prob_40` stayed outside acceptance.
+  - this means the crosspressure subtype is not blocked just by missing a
+    cluster split. A due-window / feasible-bay / area-pressure regroup alone
+    still preserves the same tardy structure.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v501` | `cross-subtype high-pressure packing lane` | broad spatial/orientation constructive | over-broad lane spent too much runtime, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v510` | same packing subtype | narrowed spatial wall/corner/edge hugging lane | target rows stayed flat, `prob_13` still timed out, and guard rows `prob_38` / `prob_40` still missed acceptance |
+  | `v511` | same packing subtype | due-window / feasible-bay / area-pressure cluster decomposition | target rows still stayed flat, `prob_11` and `prob_36` worsened, and guard rows `prob_38` / `prob_40` still timed out |
+- decision:
+  - `v511` is rejected and closed without a full 40 run because it failed the
+    hard smoke gate on acceptance count, Family B guard stability, and
+    multi-row packing-lane breakthrough.
+- next structural hypothesis:
+  - keep the same `cross-subtype high-pressure packing lane`, but switch
+    architecture again.
+  - next: `Family A bay-first timing-second solver`
+    targeting the `prob_10` / `prob_14` / `prob_19` / `prob_20`-like packing
+    subtype so the next cycle tests whether explicit bay workload partitioning,
+    rather than cluster regrouping, can change the stubborn tardy pattern.
+
+## 2026-07-04 reboot_v510_20260704_familyA_crosspressure_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe + smoke
+- hypothesis:
+  - after both the mixed due-window lane and the ultra-tight lane failed three
+    times each, the next reset should move away from those repeated subtype
+    pockets and target the broader `high-pressure packing` blend directly.
+  - this cycle revives the spatial/orientation idea, but unlike the older
+    broad `v501` lane it applies a much narrower area-pressure gate and a much
+    smaller candidate surface so the lane can test wall/corner/edge hugging
+    without spending too much of the 60s budget before fallback.
+- target Family A subtype:
+  - `cross-subtype high-pressure packing lane`
+  - intended representatives: `prob_10`, `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`spatial edge_hug`, `spatial due_wall`)
+  - bounded improvement (`best spatial assignment` + compact slack timing)
+- hard gate intent:
+  - probe one representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and multiple packing-lane targets show real T-zero direction
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v510_prob19_20260704_001/`
+- probe summary:
+  - `prob_19`: `T 123`, runtime `54.03s`, accepted `true`
+  - the representative packing-lane row merely matched the trusted line rather
+    than opening any new T-zero direction signal.
+- final smoke evidence:
+  - `reports/ogc2026_reboot_v001/smoke_v510_familyA8_guard4_20260704_001/`
+- final smoke summary:
+  - accepted_for_score: `9/12`
+  - timeout: `3`
+  - invalid/error: `3`
+  - Family A rows:
+    - `prob_10`: `T 43`
+    - `prob_11`: `T 362`
+    - `prob_13`: `T 443`, `timed_out=true`
+    - `prob_14`: `T 186`
+    - `prob_15`: `T 25`
+    - `prob_17`: `T 13`
+    - `prob_19`: `T 128`
+    - `prob_20`: `T 164`
+  - Family B guards:
+    - `prob_36`: `T 2822`, runtime `52.83s`, accepted `true`
+    - `prob_38`: `T 16174`, runtime `61.61s`, accepted `false`
+    - `prob_39`: `T 3553`, runtime `57.57s`, accepted `true`
+    - `prob_40`: `T 9420`, runtime `65.58s`, accepted `false`
+- diagnostic notes:
+  - the narrower spatial lane avoided the broad regressions of `v501`, but it
+    still failed the actual breakthrough test. The target packing rows stayed
+    effectively flat: `prob_10` remained `43`, `prob_14` remained `186`,
+    `prob_19` slipped back to `128` in smoke, and `prob_20` stayed `164`.
+  - the cross-lane construct did not help the harder residuals either.
+    `prob_11` only reached `362`, `prob_13` stayed at trusted-quality `T 443`
+    while timing out again, and the Family B runtime guards remained broken on
+    `prob_38` and `prob_40`.
+  - there is a small guard-side signal on `prob_36` (`2822` versus several
+    recent runs above `3000`), but it is nowhere near enough to justify a full
+    40 run while acceptance stays at `9/12`.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v501` | `cross-subtype high-pressure packing lane` | broad spatial/orientation constructive | over-broad lane spent too much runtime, `prob_13` timed out, and guards `prob_38` / `prob_40` timed out |
+  | `v510` | same packing subtype | narrowed spatial wall/corner/edge hugging lane | target rows stayed flat, `prob_13` still timed out, and guard rows `prob_38` / `prob_40` still missed acceptance |
+- decision:
+  - `v510` is rejected and closed without a full 40 run because it failed the
+    hard smoke gate on acceptance count, Family B guard stability, and
+    multi-row packing-lane breakthrough.
+- next structural hypothesis:
+  - keep the same broader subtype but switch architecture again rather than
+    polishing the spatial lane.
+  - next: `Family A cluster decomposition over due-window / feasible-bay / area-pressure clusters`
+    targeting the `cross-subtype high-pressure packing lane`
+    (`prob_10` / `prob_14` / `prob_19` / `prob_20`-like feature blend) so the
+    next cycle tests whether decomposed whole-construction, rather than a
+    single spatial pass, can create multiple-row T-zero direction.
+
+## 2026-07-05 reboot_v514_20260705_familyA_broadgrasp_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe
+- hypothesis:
+  - the recent packing-only standalone lanes (`v510` to `v513`) failed four
+    different whole-construction architectures in a row without opening any
+    multi-row T-zero direction.
+  - the next bounded cycle should therefore widen back out to a broader
+    `low-slack high-w1 residual lane`, but keep the GRASP idea on a much
+    tighter budget than `v500` so the lane can test seed diversity without
+    reopening the `prob_13` / `prob_38` / `prob_40` runtime wall.
+- target Family A subtype:
+  - `broad Family A low-slack high-w1 residual lane`
+  - intended representatives: `prob_11`, `prob_13`, `prob_14`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`bounded randomized GRASP seeds` with broader feature gate)
+  - bounded improvement (`best seed` + low-cost bay-local timing variants)
+- expected failure mode to test against:
+  - unlike `v500`, this lane should not spend enough pre-fallback time to
+    trigger the old guard-side timeout pattern.
+  - unlike `v510` to `v513`, it should not be restricted to the packing-only
+    subtype and should have a chance to move multiple high-T rows together.
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v514_prob13_20260705_001/`
+- probe summary:
+  - `prob_13`: `T 460`, runtime `71.91s`, accepted `false`
+  - checker feasible stayed `true`, but runtime exceeded the official limit, so
+    the candidate failed `accepted_for_score` at the probe gate.
+- diagnostic notes:
+  - the broader GRASP selector did trigger on the intended residual lane, but
+    the bounded randomized phase still consumed enough pre-fallback time to
+    break the runtime contract on the hardest representative.
+  - the solver log shows the lane spent about `3.30s` on its own candidates,
+    then handed `56.63s` to the trusted fallback. That was not enough for the
+    active `v317` path on `prob_13`, so the row finished with the same
+    tardiness/objective as the trusted line (`T 460`, objective `9174335`) but
+    missed the official runtime limit.
+  - this means the immediate issue is not a small quality gap. On the
+    `250-block four-bay runtime-heavy prob13like` sub-pocket, any standalone
+    lane that spends even a few seconds before fallback must either win
+    outright very quickly or be rejected before smoke.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v500` | `mixed due-window low-pref diffuse residual lane` | standalone GRASP/randomized constructive | lost the earlier `prob_11` signal, worsened `prob_14`, and still timed out on guard rows |
+  | `v513` | `cross-subtype high-pressure packing lane` | global backward/latest-feasible constructive | representative `prob_10` stayed exactly flat at `T 43` in probe |
+  | `v514` | `broad Family A low-slack high-w1 residual lane` | bounded GRASP/randomized constructive | representative `prob_13` kept trusted-quality `T 460` but broke `accepted_for_score` on runtime because fallback only got `56.63s` |
+- decision:
+  - `v514` is rejected and closed without a smoke/full 40 run because the
+    representative probe already failed `accepted_for_score`, so the Family A
+    hard gate was not met.
+- next structural hypothesis:
+  - do not spend pre-fallback budget on the runtime-heavy `250-block four-bay`
+    residual pocket unless the lane can beat the fallback outright.
+  - next: `Family A beam portfolio from scratch`
+    targeting the `200-block four-bay compact low-slack high-w1 subtype`
+    (`prob_10` / `prob_11`-like features) so the next cycle tests a true
+    from-scratch T-first lane on the cheaper compact subtype while the broader
+    smoke still checks the full Family A residual set.
+
+## 2026-07-05 reboot_v515_20260705_familyA_compact_beam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe
+- hypothesis:
+  - `v514` showed that even a modest standalone pre-budget is already too
+    expensive for the runtime-heavy `prob13like` pocket.
+  - the next bounded cycle therefore narrows to the cheaper
+    `200-block four-bay compact low-slack high-w1` subtype and tests whether a
+    very low-budget `beam portfolio from scratch` can create any T-first
+    signal on `prob_10` / `prob_11`-like rows without reopening the runtime
+    contract failure.
+- target Family A subtype:
+  - `200-block four-bay compact low-slack high-w1 subtype`
+  - intended representatives: `prob_10`, `prob_11`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`, `serial edd_release`)
+  - T-zero constructive (`compact beam portfolio from scratch`)
+  - bounded improvement (`best beam-fixed assignment` + cheap timing variants)
+- expected failure mode to test against:
+  - if the compact subtype still only recreates the trusted row, then the next
+    architecture should move away from beam ordering entirely rather than
+    spending more time polishing the same compact four-bay lane.
+- recovery note inside same hypothesis:
+  - the first probe (`001`) showed that the compact gate was one notch too
+    tight and did not activate on `prob_11` because `nonpos_ratio` was
+    slightly above the initial cutoff.
+  - the gate was widened from `0.30` to `0.32` and the representative probe
+    was rerun under the same `v515` hypothesis using a fresh run directory.
+- probe evidence:
+  - pre-activation check:
+    `reports/ogc2026_reboot_v001/probe_v515_prob11_20260705_001/`
+  - final representative probe:
+    `reports/ogc2026_reboot_v001/probe_v515_prob11_20260705_002/`
+- final probe summary:
+  - `prob_11`: `T 397`, runtime `60.69s`, accepted `false`
+  - checker feasible stayed `true`, but runtime exceeded the official limit, so
+    the candidate failed `accepted_for_score` before smoke.
+- diagnostic notes:
+  - once the gate actually opened on `prob_11`, the low-budget beam lane still
+    failed for a different reason than `v514`.
+  - the log shows the compact lane spent nearly all of its `1.50s` budget on
+    the two `fast_serial_*` checker-evaluated candidates, after which every
+    actual beam branch was skipped on budget. The candidate therefore fell back
+    to the trusted line with only `57.67s` remaining.
+  - that remaining time was not enough to preserve the trusted-quality row on
+    this representative, so the fallback finished at `T 397` and broke the
+    runtime limit.
+  - this means the compact subtype does not justify another beam-ordering pass
+    unless the architecture removes most pre-checker candidate evaluation and
+    produces one strong standalone candidate almost immediately.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v514` | `broad Family A low-slack high-w1 residual lane` | bounded GRASP/randomized constructive | representative `prob_13` matched trusted quality but broke `accepted_for_score` on runtime |
+  | `v515` | `200-block four-bay compact low-slack high-w1 subtype` | compact beam portfolio from scratch | gate fix opened the lane, but fast constructive checks consumed the entire beam budget, all beam branches were skipped, and fallback still timed out at `T 397` |
+- decision:
+  - `v515` is rejected and closed without a smoke/full 40 run because the
+    representative compact subtype still failed `accepted_for_score` and showed
+    no usable T-zero direction signal.
+- next structural hypothesis:
+  - move away from beam ordering on the compact subtype and stop spending
+    budget on multiple checker-evaluated pre-candidates.
+  - next: `Family A two-stage solver`
+    targeting the `200~250 block four-bay ultra-tight high-w1 subtype`
+    (`prob_10` / `prob_11` / `prob_13`-like features) so the next cycle tests
+    one explicit T-first timing skeleton plus minimal bay/spatial repair.
+
+## 2026-07-05 reboot_v516_20260705_familyA_ultratight_twostage_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after probe
+- hypothesis:
+  - `v515` showed that the compact beam lane still wasted too much headroom on
+    candidate comparison before the actual Family A lane could do useful work.
+  - the next bounded cycle therefore keeps only one fast constructive, one
+    explicit backward timing skeleton, and one minimal repair pass inside a
+    `two-stage T-first solver`, targeting the cheaper
+    `200~250 block four-bay ultra-tight high-w1` subtype before wider smoke.
+- target Family A subtype:
+  - `200~250 block four-bay ultra-tight high-w1 subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`single backward timing skeleton`)
+  - bounded improvement (`single skeleton-preserving forward repair`)
+- expected failure mode to test against:
+  - if even this very thin two-stage lane cannot move the runtime-safe
+    representative `prob_10`, then the next cycle should leave timing-first
+    construction and switch to a different architecture rather than polishing
+    two-stage variants again.
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v516_prob10_20260705_001/`
+- probe summary:
+  - `prob_10`: `T 43`, runtime `45.51s`, accepted `true`
+  - the representative row stayed exactly flat versus the trusted line, so the
+    two-stage lane showed no T-zero direction signal even on the runtime-safe
+    compact representative.
+- diagnostic notes:
+  - this probe failed for a cleaner reason than the recent runtime-overflow
+    lanes. The candidate remained accepted, but the standalone lane never
+    actually reached its timing-skeleton stage.
+  - the log shows `fast_serial_slack` alone consumed the whole `0.72s`
+    lane budget, so both `tight_skeleton` and `repair_target_exit` were
+    skipped. The lane then handed `59.16s` to the trusted fallback and simply
+    reproduced the current trusted `prob_10` row at `T 43`.
+  - because the intended two-stage constructive never executed, this subtype
+    does not justify another timing-skeleton retry unless the next
+    architecture removes the expensive pre-checker fast-constructive path
+    entirely.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v515` | `200-block four-bay compact low-slack high-w1 subtype` | compact beam portfolio from scratch | lane opened, but fast constructive checks consumed the beam budget and fallback still timed out on `prob_11` |
+  | `v516` | `200~250 block four-bay ultra-tight high-w1 subtype` | thin two-stage timing skeleton plus repair | representative `prob_10` stayed flat because `fast_serial_slack` consumed the lane budget and the skeleton never ran |
+- decision:
+  - `v516` is rejected and closed without a smoke/full 40 run because the
+    representative subtype showed no T-zero direction signal in probe.
+- next structural hypothesis:
+  - stop spending standalone budget on pre-checker fast-constructive paths for
+    this compact four-bay subtype.
+  - next: `Family A spatial/orientation constructive`
+    targeting the `200~250 block four-bay compact high-w1 subtype`
+    (`prob_10` / `prob_11` / `prob_13`-like features) so the next cycle tests
+    a single direct constructive candidate rather than order-first or
+    timing-first portfolios.
+
+## 2026-07-05 reboot_v517_20260705_familyA_compact_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + probe
+- hypothesis:
+  - `v516` showed that the compact four-bay subtype still does not tolerate a
+    lane shape that spends its small budget before the intended constructor
+    actually runs.
+  - the next bounded cycle therefore uses a single direct
+    `spatial/orientation constructive` candidate plus one cheap repair pass,
+    keeping the comparison surface minimal while staying on the broader
+    `prob_10 / prob_11 / prob_13` compact subtype instead of collapsing back
+    to local repair.
+- target Family A subtype:
+  - `200~250 block four-bay compact high-w1 subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`single spatial edge-hug candidate`)
+  - bounded improvement (`single compact slack timing pass`)
+- expected failure mode to test against:
+  - if the compact spatial lane cannot improve the dominant compact
+    representative without breaking runtime, the next cycle should leave the
+    compact four-bay subtype and switch architecture again rather than polish
+    another spatial variant here.
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v517_prob11_20260705_001/`
+- probe summary:
+  - `prob_11`: `T 362`, runtime `56.91s`, accepted `true`
+  - the representative row stayed far above the trusted compact target
+    (`334`), so the compact spatial lane still failed the T-zero direction
+    test even though it remained under the official limit.
+- diagnostic notes:
+  - unlike `v516`, this lane did execute its intended direct constructive.
+    The log shows `spatial_edge_hug` ran before fallback.
+  - that still did not open the right signal. The best accepted result for the
+    row ended at `T 362`, which is exactly the same weak basin previously seen
+    from the broader spatial lane and still materially worse than the trusted
+    compact target `T 334`.
+  - the lane only left `59.02s` for the fallback path, and that reduced-time
+    fallback itself also landed at `T 362`. So even this thinner spatial lane
+    still perturbs the compact subtype enough to lose the trusted row quality.
+  - because the compact subtype has now rejected beam, two-stage, and spatial
+    whole-construction resets without reaching `T < 10` or even recovering the
+    trusted representative, the next bounded cycle should switch subtype and
+    architecture rather than keep polishing compact four-bay variants.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v515` | `200-block four-bay compact low-slack high-w1 subtype` | compact beam portfolio from scratch | lane opened, but fast constructive checks consumed the beam budget and fallback still timed out on `prob_11` |
+  | `v516` | `200~250 block four-bay ultra-tight high-w1 subtype` | thin two-stage timing skeleton plus repair | representative `prob_10` stayed flat because `fast_serial_slack` consumed the lane budget and the skeleton never ran |
+  | `v517` | `200~250 block four-bay compact high-w1 subtype` | compact spatial/orientation constructive | representative `prob_11` finished at `T 362`, matching the old weak spatial basin and still well above the trusted `T 334` |
+- decision:
+  - `v517` is rejected and closed without a smoke/full 40 run because the
+    representative compact subtype showed no acceptable T-zero direction
+    signal.
+- next structural hypothesis:
+  - leave the compact four-bay subtype after three distinct standalone
+    architecture failures.
+  - next: `Family A cluster decomposition`
+    targeting the `250~300 block mixed due-window fourbay/fivebay residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like features) so the next cycle
+    changes both subtype and architecture instead of staying in the same
+    compact four-bay basin.
+
+## 2026-07-05 reboot_v518_20260705_familyA_mixed_cluster_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + probe
+- hypothesis:
+  - the compact four-bay subtype has now rejected beam, two-stage, and spatial
+    standalone resets, so the next useful bounded cycle should switch both
+    subtype and architecture.
+  - this cycle returns to `cluster decomposition`, but unlike the older broad
+    `v499` lane it keeps only one fast constructive, one cluster build, and
+    one merge repair so the representative mixed due-window subtype can be
+    tested without reopening the old portfolio-overhead failure pattern.
+- target Family A subtype:
+  - `250~300 block mixed due-window fourbay/fivebay residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`single due-window / bay-pressure cluster build`)
+  - bounded improvement (`single cluster timing merge`)
+- expected failure mode to test against:
+  - if the representative mixed due-window row still stays flat or regresses,
+    the next cycle should move away from cluster decomposition again rather
+    than polish another cluster merge on the same subtype.
+- probe evidence:
+  - `reports/ogc2026_reboot_v001/probe_v518_prob19_20260705_001/`
+- probe summary:
+  - `prob_19`: `T 166`, runtime `57.56s`, accepted `true`
+  - the representative row regressed sharply from the trusted mixed-lane level
+    (`T 123`), so the lane failed the subtype gate before smoke.
+- diagnostic notes:
+  - this failure mirrors the recent compact-subtype issues more than the older
+    broad `v499` cluster run. The intended cluster constructor never actually
+    ran on the representative probe.
+  - the log shows `fast_serial_slack` alone consumed the whole `0.96s`
+    cluster budget, so both `cluster_duewindow` and `merge_target_due` were
+    skipped. The lane then handed only `56.82s` to the trusted fallback.
+  - that reduced-time fallback landed at `T 166`, materially worse than the
+    trusted `prob_19` row `T 123`, so this subtype does not justify another
+    cluster retry unless the next architecture removes the checker-evaluated
+    pre-candidate entirely.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v517` | `200~250 block four-bay compact high-w1 subtype` | compact spatial/orientation constructive | representative `prob_11` finished at `T 362`, matching the old weak spatial basin and still well above the trusted `T 334` |
+  | `v518` | `250~300 block mixed due-window fourbay/fivebay residual lane` | minimal due-window / bay-pressure cluster decomposition | representative `prob_19` regressed to `T 166` because `fast_serial_slack` consumed the cluster budget and the cluster constructor never ran |
+- decision:
+  - `v518` is rejected and closed without a smoke/full 40 run because the
+    representative mixed due-window subtype regressed immediately in probe.
+- next structural hypothesis:
+  - stop using checker-evaluated fast-constructive pre-candidates inside the
+    standalone Family A lane when the lane budget is below one second.
+  - next: `Family A bay-first timing-second solver`
+    targeting the `250~300 block mixed due-window fourbay/fivebay residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like features) so the next cycle tests
+    a single direct bay-partition candidate instead of another cluster build.
+
+## 2026-07-05 reboot_v519_20260705_familyA_mixed_bayfirst_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after representative probe
+- hypothesis:
+  - `v518` showed that the mixed due-window lane still cannot afford a
+    candidate shape where a pre-checker path consumes the whole budget before
+    the intended constructor even runs.
+  - the next bounded cycle keeps the same mixed due-window subtype but swaps
+    architecture to a minimal `bay-first timing-second` lane with exactly one
+    direct bay assignment candidate and one timing merge, so we can see
+    whether explicit bay partitioning changes the `prob_14 / prob_19 / prob_20`
+    pocket without reopening the old broad portfolio overhead.
+- target Family A subtype:
+  - `250~300 block mixed due-window fourbay/fivebay residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`single bay-first direct candidate`)
+  - bounded improvement (`single fixed-bay timing merge`)
+- expected failure mode to test against:
+  - if the representative mixed due-window row still stays flat or regresses,
+    the next cycle should leave the mixed due-window subtype rather than keep
+    rotating constructors inside the same pocket.
+- representative probe:
+  - run id: `probe_v519_prob14_20260705_001`
+  - row: `prob_14`
+  - result: accepted `true`, `T 186`, objective `3883976`, runtime `58.84s`
+  - trusted comparator: active/trusted `prob_14 T 181`, objective `3795716`
+- diagnostic notes:
+  - the intended mixed bay-first constructor did not actually run on the
+    representative row.
+  - probe log shows `fast_serial_slack` alone consumed the full `1.32s`
+    lane budget, so both `bayfirst_direct` and `merge_release_due` were
+    skipped before checker evaluation.
+  - the lane then handed `58.62s` to trusted fallback and still landed at
+    `T 186`, which is worse than the trusted `prob_14 T 181` floor for this
+    row. This confirms the mixed due-window subtype is not improving under
+    another low-headroom constructive wrapper.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v518` | `250~300 block mixed due-window fourbay/fivebay residual lane` | minimal due-window / bay-pressure cluster decomposition | representative `prob_19` regressed to `T 166` because `fast_serial_slack` consumed the cluster budget and the cluster constructor never ran |
+  | `v519` | `250 block four-bay mixed due-window residual lane` | minimal bay-first timing-second constructive | representative `prob_14` regressed to `T 186` because `fast_serial_slack` consumed the bay-first budget and both intended constructors were skipped |
+- decision:
+  - `v519` is rejected and closed without a smoke/full 40 run because the
+    representative row regressed immediately and the intended bay-first
+    constructor never executed.
+- next structural hypothesis:
+  - leave the mixed due-window subtype for the next bounded cycle instead of
+    rotating another low-headroom constructor inside the same pocket.
+  - next: `Family A global backward constructive`
+    targeting the `200~250 block four-bay compact high-w1 residual lane`
+    (`prob_10` / `prob_11` / `prob_15` / `prob_17`-like features) so the next
+    cycle tests due-date-backward placement on a different Family A subtype
+    that still contributes materially to the first20 Total T gap.
+
+## 2026-07-05 reboot_v520_20260705_familyA_compact_backward_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after representative probe
+- hypothesis:
+  - recent `v518` / `v519` failures were not just weak construction quality.
+    they also showed a structural budget problem: checker-evaluated
+    pre-candidates consumed the whole standalone lane budget before the
+    intended constructor could run.
+  - this cycle keeps the Family A standalone wrapper shape but changes both
+    subtype and comparison method:
+    - subtype moves to the `200~250 block four-bay compact high-w1` residual
+      lane
+    - candidate comparison inside the lane uses surrogate `T/objective` scoring
+      first and calls the official checker on only one chosen standalone alt
+      before protected fallback
+- target Family A subtype:
+  - `200~250 block four-bay compact high-w1 residual lane`
+  - intended representatives: `prob_10`, `prob_11`, `prob_15`, `prob_17`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`compact slack-forward serial-from-scratch`)
+  - T-zero constructive (`global backward due-date bay-first assignment`)
+  - bounded improvement (`same compact bay assignment with alternate backward timing`)
+- representative probe plan:
+  - `prob_10` first, because it belongs to the compact subtype and still holds
+    a meaningful residual `T 43` gap while being cheaper than the `prob_11`
+    pocket.
+- expected failure mode to test against:
+  - if the representative row still stays flat or regresses even after the
+    checker-budget issue is removed, then compact four-bay backward placement
+    is not the right architecture and the next cycle should rotate to a fresh
+    Family A beam/GRASP lane instead of another backward variant.
+- representative probe:
+  - run id: `probe_v520_prob10_20260705_001`
+  - row: `prob_10`
+  - result: accepted `true`, `T 43`, objective `943557`, runtime `45.05s`
+  - trusted comparator: active/trusted `prob_10 T 43`, objective `943557`
+- diagnostic notes:
+  - the structural budget issue was fixed: the standalone lane did execute its
+    intended compact backward constructor before fallback.
+  - however, the surrogate-ranked standalone alt was already extremely poor
+    (`surrogate T 29347`) and failed checker feasibility outright, so the lane
+    fell back to trusted `v317`.
+  - trusted fallback then reproduced the exact old `prob_10 T 43` floor, so
+    this architecture produced no T-zero signal even after removing the recent
+    checker-budget failure mode.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v519` | `250 block four-bay mixed due-window residual lane` | minimal bay-first timing-second constructive | representative `prob_14` regressed to `T 186` because `fast_serial_slack` consumed the bay-first budget and both intended constructors were skipped |
+  | `v520` | `200~250 block four-bay compact high-w1 residual lane` | surrogate-ranked compact global backward constructive | representative `prob_10` stayed flat at `T 43`; the checked backward alt was infeasible and trusted fallback won unchanged |
+- decision:
+  - `v520` is rejected and closed without a smoke/full 40 run because the
+    representative compact subtype showed no T movement and the checked
+    standalone backward alt was infeasible.
+- next structural hypothesis:
+  - keep the compact four-bay high-w1 subtype, but rotate away from backward
+    timing to a fresh ordering architecture.
+  - next: `Family A beam portfolio from scratch`
+    targeting the `200~250 block four-bay compact high-w1 residual lane`
+    (`prob_10` / `prob_11` / `prob_15` / `prob_17`-like features) so the next
+    cycle tests EDD/min-slack/critical-ratio beam ordering instead of another
+    backward placement variant.
+
+## 2026-07-05 reboot_v521_20260705_familyA_compact_beam2_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after representative probe
+- hypothesis:
+  - compact subtype has now failed once on spatial (`v517`) and once on
+    backward placement (`v520`), so the last reasonable retry inside this
+    subtype should change ordering architecture rather than timing shape.
+  - this cycle uses a `beam portfolio from scratch` over compact four-bay
+    order rules, but keeps the `v520` lesson: compare all standalone alts with
+    surrogate T/objective first and only checker-evaluate the top few beam
+    candidates before protected fallback.
+- target Family A subtype:
+  - `200~250 block four-bay compact high-w1 residual lane`
+  - intended representatives: `prob_10`, `prob_11`, `prob_15`, `prob_17`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`compact forward seed`)
+  - T-zero constructive (`beam order rules: tight-slack / edd-release / critical-ratio`)
+  - bounded improvement (`retimed variants on the best compact beam-fixed assignment`)
+- representative probe plan:
+  - `prob_11` first, because it is the highest-T row in the compact subtype
+    and the current trusted gap there is still very large.
+- expected failure mode to test against:
+  - if `prob_11` still cannot move materially under the compact beam lane,
+    then the compact four-bay high-w1 subtype should be considered exhausted
+    for now and the next cycle must switch to another Family A subtype or a
+    broader Family A architecture.
+- representative probe:
+  - run id: `probe_v521_prob11_20260705_001`
+  - row: `prob_11`
+  - result: accepted `true`, `T 397`, objective `9387458`, runtime `57.84s`
+  - trusted comparator: active/trusted `prob_11 T 334`, objective `7986128`
+- diagnostic notes:
+  - the standalone compact beam candidates did execute, but both checker-tested
+    alts were infeasible (`checked=[('beam_tight_pref', None, None),
+    ('retime_slack', None, None)]`).
+  - after the standalone beam miss, the protected fallback still landed at
+    `T 397`, so the compact subtype regressed badly against the trusted
+    `prob_11 T 334` floor instead of producing a T-zero signal.
+  - this is now the third consecutive failure on the same compact subtype
+    (`v517` spatial, `v520` backward, `v521` beam), so the subtype should be
+    treated as exhausted for now under the current guardrails.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v517` | `200~250 block four-bay compact high-w1 residual lane` | compact spatial/orientation constructive | representative `prob_11` finished at `T 362`, matching the old weak spatial basin and staying above trusted `T 334` |
+  | `v520` | `200~250 block four-bay compact high-w1 residual lane` | surrogate-ranked compact global backward constructive | representative `prob_10` stayed flat at `T 43`; the checked backward alt was infeasible and trusted fallback won unchanged |
+  | `v521` | `200~250 block four-bay compact high-w1 residual lane` | surrogate-ranked compact beam portfolio from scratch | representative `prob_11` regressed to `T 397`; both checked beam alts were infeasible and fallback still lost badly to trusted |
+- decision:
+  - `v521` is rejected and closed without a smoke/full 40 run because the
+    representative compact subtype regressed immediately and the subtype has
+    now failed three consecutive architectural retries.
+- next structural hypothesis:
+  - leave the compact four-bay high-w1 subtype and switch to a different
+    Family A residual pocket.
+  - next: `Family A GRASP/randomized constructive`
+    targeting the `250~300 block mixed due-window fourbay/fivebay residual lane`
+    (`prob_14` / `prob_19` / `prob_20`-like features) so the next cycle tests
+    randomized tie-break / bay / timing seeds on a different subtype instead
+    of reopening the exhausted compact pocket.
+
+## 2026-07-05 reboot_v522_20260705_familyA_mixed_grasp2_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after representative probe
+- hypothesis:
+  - mixed due-window subtype has two recent failures (`v518` cluster, `v519`
+    bay-first), but both were dominated by lane-budget or constructor-skip
+    issues more than by an actually executed randomized constructive.
+  - this cycle keeps the mixed due-window subtype and changes architecture to a
+    lightweight `GRASP/randomized constructive` lane that:
+    - builds all standalone Family A candidates from scratch
+    - ranks them with surrogate `T/objective` first
+    - checker-evaluates only the top few standalone alts before protected fallback
+- target Family A subtype:
+  - `250~300 block mixed due-window fourbay/fivebay residual lane`
+  - intended representatives: `prob_14`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`deterministic mixed forward seed`)
+  - T-zero constructive (`randomized GRASP tie-break / bay / orientation seeds`)
+  - bounded improvement (`retimed variants on the best randomized bay assignment`)
+- representative probe plan:
+  - `prob_20` first, so this third mixed-subtype retry covers the five-bay
+    side of the pocket rather than repeating only four-bay representatives.
+- expected failure mode to test against:
+  - if the mixed GRASP lane still stays flat or regresses on `prob_20`, the
+    mixed due-window subtype should also be treated as exhausted for now and
+    the next cycle must switch to another Family A subtype or a broader family
+    selector architecture.
+- representative probe:
+  - run id: `probe_v522_prob20_20260705_001`
+  - row: `prob_20`
+  - result: accepted `true`, `T 278`, objective `8239778`, runtime `56.50s`
+  - trusted comparator: active/trusted `prob_20 T 164`, objective `5199740`
+- diagnostic notes:
+  - the mixed GRASP standalone candidates did execute, but both checker-tested
+    top alts were infeasible (`checked=[('grasp_seed11_tight_pref', None, None),
+    ('retime_slack', None, None)]`).
+  - after the standalone miss, the protected fallback still landed at
+    `T 278`, far above the trusted `prob_20 T 164` level. This shows the mixed
+    lane not only failed to improve the subtype; it also eroded the trusted
+    route enough to lose the old floor on a high-T row.
+  - mixed due-window subtype is therefore now exhausted for the current cycle
+    sequence: `v518` cluster, `v519` bay-first, `v522` GRASP all failed to
+    produce a T-zero signal.
+- feature/subtype failure table:
+
+  | version | subtype | heuristic | failure mode |
+  | --- | --- | --- | --- |
+  | `v518` | `250~300 block mixed due-window fourbay/fivebay residual lane` | minimal due-window / bay-pressure cluster decomposition | representative `prob_19` regressed to `T 166` because `fast_serial_slack` consumed the cluster budget and the cluster constructor never ran |
+  | `v519` | `250 block four-bay mixed due-window residual lane` | minimal bay-first timing-second constructive | representative `prob_14` regressed to `T 186` because `fast_serial_slack` consumed the bay-first budget and both intended constructors were skipped |
+  | `v522` | `250~300 block mixed due-window fourbay/fivebay residual lane` | surrogate-ranked GRASP/randomized constructive | representative `prob_20` regressed to `T 278`; checked GRASP alts were infeasible and fallback also lost the trusted floor |
+- decision:
+  - `v522` is rejected and closed without a smoke/full 40 run because the
+    representative mixed subtype regressed immediately and the subtype has now
+    failed three consecutive architectural retries.
+- next structural hypothesis:
+  - leave the mixed due-window subtype and switch to a different Family A
+    residual pocket with a stronger fallback-erosion guard.
+  - next: `Family A two-stage solver`
+    targeting the `250 block four-bay ultra-tight high-w1 residual lane`
+    (`prob_13`-like features) so the next cycle tests a T-zero timing skeleton
+    before spatial/bay realization instead of reopening the exhausted compact
+    or mixed pockets.
+
+## 2026-07-05 reboot_v523_20260705_familyA_ultratight_twostage2_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: rejected after representative probe
+- hypothesis:
+  - ultra-tight `prob_13`-like rows are still one of the biggest remaining
+    contributors to first20 Total T, but the earlier two-stage attempts mixed
+    their intended skeleton candidate with checker-evaluated pre-candidates
+    and/or overly broad family gates.
+  - this cycle narrows to an explicit `250 block four-bay ultra-tight high-w1`
+    subtype and changes the lane structure:
+    - build only timing-skeleton-first standalone candidates from scratch
+    - rank them with surrogate `T/objective`
+    - checker-evaluate only the top two skeleton realizations
+    - preserve the trusted fallback with maximal remaining time
+- target Family A subtype:
+  - `250 block four-bay ultra-tight high-w1 residual lane`
+  - intended representative: `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`tight forward seed from scratch`)
+  - T-zero constructive (`backward timing skeleton with tardiness-first bay assignment`)
+  - bounded improvement (`target-exit and slack-based forward realization on the same skeleton`)
+- expected failure mode to test against:
+  - if the representative `prob_13` row still stays flat/regresses even after
+    removing the pre-checker budget bleed, the next cycle should leave this
+    subtype and rotate to another Family A architecture rather than another
+    ultra-tight skeleton tweak.
+- representative probe:
+  - run id: `probe_v523_prob13_20260705_001`
+  - row: `prob_13`
+  - result: `accepted_for_score=false`, `T 443`, objective `8863902`,
+    runtime `69.27s`, error `runtime exceeded official_limit 60.000000s`
+  - trusted comparator: active/trusted `prob_13 T 443`, objective `8863902`
+- diagnostic notes:
+  - the standalone two-stage candidates did execute, but both checker-tested
+    alts were infeasible (`checked=[('skeletonA_slack', None, None),
+    ('fast_tight_forward', None, None)]`).
+  - trusted fallback reproduced the old `prob_13 T 443` floor exactly, but the
+    wrapper still exceeded the official limit at `69.27s`, so this candidate is
+    invalid for score even before considering the lack of T improvement.
+  - this means the ultra-tight lane cannot afford even a small wrapper tax
+    around the current trusted `prob_13` route unless the standalone candidate
+    itself wins quickly and avoids fallback entirely.
+- decision:
+  - `v523` is rejected and closed without a smoke/full 40 run because the
+    representative row failed `accepted_for_score` and showed no T movement.
+- next structural hypothesis:
+  - keep the ultra-tight `prob_13`-like subtype, but change architecture away
+    from timing skeletons and enforce a stricter fallback-erosion guard.
+  - next: `Family A spatial/orientation constructive`
+    targeting the `250 block four-bay ultra-tight high-w1 residual lane`
+    (`prob_13`-like features) so the next cycle tests large-area / edge-hug /
+    orientation-first construction instead of another timing-first wrapper.
+
+## 2026-07-05 reboot_v524_20260705_familyA_ultratight_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - `v523` confirmed that the ultra-tight `prob_13`-like subtype cannot afford
+    a timing-skeleton wrapper tax unless the standalone candidate wins almost
+    immediately.
+  - this cycle keeps the same `250 block four-bay ultra-tight high-w1`
+    subtype, but changes architecture away from timing skeletons and checker
+    fan-out:
+    - build only spatial/orientation-first standalone candidates from scratch
+    - rank them with a cheap surrogate and checker-evaluate at most one
+      standalone candidate before fallback
+    - preserve the trusted fallback with a stricter fallback-erosion guard
+- target Family A subtype:
+  - `250 block four-bay ultra-tight high-w1 residual lane`
+  - intended representative: `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`tight serial assignment seed`)
+  - T-zero constructive (`large-area / edge-hug / orientation-first spatial seed`)
+  - bounded improvement (`compact due-wall realization on the best spatial seed`)
+- representative probe plan:
+  - run id: `probe_v524_prob13_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and shows a meaningful T-zero signal versus the
+    trusted `prob_13 T 443` floor
+- representative probe:
+  - run id: `probe_v524_prob13_20260705_001`
+  - row: `prob_13`
+  - result: `accepted_for_score=false`, `T 460`, objective `9174335`,
+    runtime `71.68s`, error `runtime exceeded official_limit 60.000000s`
+- diagnostic notes:
+  - the standalone spatial candidates were extremely cheap to build, but the
+    best surrogate candidate still failed checker validation immediately
+    (`checked=[('fast_tight_forward', None, None)]`).
+  - even with only one checker-evaluated standalone candidate and a fallback
+    budget of `59.32s`, the trusted fallback route degraded from the old
+    trusted `prob_13 T 443` floor to `T 460`. This shows the ultra-tight
+    subtype is now too fallback-fragile for another wrapper-based specialist
+    pass.
+- decision:
+  - `v524` is rejected and closed without a smoke/full 40 run because the
+    representative row again failed `accepted_for_score` and still did not
+    produce any T-zero signal.
+- next structural hypothesis:
+  - leave the ultra-tight `prob_13` subtype for now and switch to a different
+    Family A residual pocket where the standalone lane can spend more budget
+    before the fallback floor collapses.
+  - next: `Family A global backward constructive`
+    targeting the `250 block four-bay medium-tight window-pressure residual
+    lane` (`prob_10/prob_14`-like features) so the next cycle changes both
+    subtype and construction geometry instead of retrying another fragile
+    ultra-tight wrapper.
+
+## 2026-07-05 reboot_v525_20260705_familyA_window_backward_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - after `v523` and `v524`, the ultra-tight `prob_13` subtype is too
+    fallback-fragile to justify another wrapper-based attempt.
+  - this cycle switches to a different Family A residual pocket:
+    `prob_10/prob_14`-like medium-tight four-bay rows with stronger due-window
+    pressure but a more tolerant fallback floor.
+  - architecture change:
+    - standalone global backward constructive from scratch
+    - due-window / preference-gap aware bay assignment
+    - one bounded backward retiming variant on the same fixed layout
+    - checker-evaluate at most one standalone candidate before trusted fallback
+- target Family A subtype:
+  - `200~250 block four-bay medium-tight window-pressure residual lane`
+  - intended representatives: `prob_10`, `prob_14`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`window-forward seed`)
+  - T-zero constructive (`global backward due-window assignment`)
+  - bounded improvement (`backward slack/window retime on the same assignment`)
+- representative probe plan:
+  - run id: `probe_v525_prob14_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    multi-window reduction signal versus the trusted `prob_14 T 181` floor
+- representative probe:
+  - run id: `probe_v525_prob14_20260705_001`
+  - row: `prob_14`
+  - result: `accepted_for_score=true`, `T 186`, objective `3883976`,
+    runtime `58.58s`
+  - trusted comparator: active/trusted `prob_14 T 181`, objective `3796154`
+- diagnostic notes:
+  - the standalone backward candidates stayed cheap enough to preserve score
+    validity, but the checker-tested best surrogate candidate was still
+    infeasible (`checked=backward_slack_retime`, `checked_T=None`).
+  - after the standalone miss, the protected fallback remained accepted but
+    still slipped from the trusted `prob_14 T 181` floor to `T 186`. That is
+    small in absolute size, but it is still the wrong direction and does not
+    meet the Track A hard gate for a high-T residual row.
+- decision:
+  - `v525` is rejected and closed without a smoke/full 40 run because the
+    representative row did not show a T-zero signal and regressed versus the
+    trusted comparator.
+- next structural hypothesis:
+  - keep the same `prob_10/prob_14`-like medium-tight window-pressure subtype,
+    but change architecture again instead of retrying another backward
+    realization on the same structure.
+  - next: `Family A bay-first timing-second solver`
+    targeting the `200~250 block four-bay medium-tight window-pressure residual
+    lane` so the next cycle first separates bay pressure and only then applies
+    latest-feasible timing inside each bay.
+
+## 2026-07-05 reboot_v526_20260705_familyA_window_bayfirst_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - `v525` showed that the medium-tight `prob_10/prob_14` subtype can stay
+    score-valid, but the backward constructive itself did not produce a better
+    T signal.
+  - this cycle keeps the same subtype and changes only the solver structure:
+    - assign blocks to bays first using due-window pressure, preference gap,
+      and workload balance
+    - schedule inside each bay with latest-feasible timing second
+    - checker-evaluate only one standalone candidate before fallback
+  - representative row switches to `prob_10`, because its trusted floor is
+    more stable under wrapper overhead than `prob_14`.
+- target Family A subtype:
+  - `200~250 block four-bay medium-tight window-pressure residual lane`
+  - intended representatives: `prob_10`, `prob_14`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`window-forward seed`)
+  - T-zero constructive (`bay-first latest-feasible candidate`)
+  - bounded improvement (`same bay partition with alternate latest/slack timing`)
+- representative probe plan:
+  - run id: `probe_v526_prob10_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    reduction from the trusted `prob_10 T 43` floor
+- representative probe:
+  - run id: `probe_v526_prob10_20260705_001`
+  - row: `prob_10`
+  - result: `accepted_for_score=true`, `T 43`, objective `943557`,
+    runtime `45.19s`
+  - trusted comparator: active/trusted `prob_10 T 43`, objective `943557`
+- diagnostic notes:
+  - the wrapper stayed cheap and preserved the trusted fallback floor on the
+    representative row, which is better than the `prob_14` erosion seen in
+    `v525`.
+  - however, the standalone bay-first candidate itself again failed checker
+    validation (`checked=baygap_latest_due`, `checked_T=None`), so the final
+    result was just an exact fallback match rather than a genuine Family A
+    construction improvement.
+  - because the representative row stayed completely flat, this cycle still
+    fails the Track A hard gate.
+- decision:
+  - `v526` is rejected and closed without a smoke/full 40 run because it
+    produced no T movement on the representative row even though it stayed
+    score-valid.
+- next structural hypothesis:
+  - treat the `prob_10/prob_14`-like medium-tight four-bay window-pressure
+    subtype as exhausted for the current cycle sequence
+    (`v520` compact backward, `v525` window backward, `v526` bay-first).
+  - next: `Family A beam portfolio from scratch`
+    targeting a broader `200~300 block four-bay/five-bay residual Family A`
+    subtype so the next cycle stops retrying one narrow pocket and instead
+    tests a cross-subtype constructive portfolio on rows like
+    `prob_15/prob_17/prob_19/prob_20`.
+
+## 2026-07-05 reboot_v527_20260705_familyA_broad_beam_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - the medium-tight `prob_10/prob_14` pocket is now exhausted for the current
+    cycle sequence, so the next bounded cycle must broaden back out.
+  - this cycle tests a cross-subtype `Family A beam portfolio from scratch`
+    over residual rows like `prob_15/prob_17/prob_19/prob_20`:
+    - several independent from-scratch constructive orders
+    - lightweight bay assignment variants
+    - one checker-evaluated top candidate before trusted fallback
+  - representative row switches to `prob_17`, because it is still a residual
+    high-T row (`T 13`) but has a simpler `T < 10` hard gate than the more
+    fallback-fragile `prob_19/prob_20` rows.
+- target Family A subtype:
+  - `250~300 block four-bay/five-bay residual Family A broad beam lane`
+  - intended representatives: `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`EDD-like from scratch`)
+  - T-zero constructive (`slack / critical-ratio / area-pressure beam seeds`)
+  - bounded improvement (`alternate timing realization on the best beam branch`)
+- representative probe plan:
+  - run id: `probe_v527_prob17_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    broader beam signal worth escalating to the full Family A smoke set
+- representative probe:
+  - run id: `probe_v527_prob17_20260705_001`
+  - row: `prob_17`
+  - result: `accepted_for_score=true`, `T 13`, objective `338183`,
+    runtime `34.21s`
+  - trusted comparator: active/trusted `prob_17 T 13`, objective `338183`
+- diagnostic notes:
+  - the broad beam wrapper stayed cheap and preserved the trusted fallback
+    floor on the representative row.
+  - however, the best surrogate branch again failed checker validation
+    (`checked=beam_edd_pref`, `checked_T=None`), so the final result was only
+    an exact fallback match and not a genuine from-scratch improvement.
+  - because `prob_17` remained at `T 13` instead of breaking below `10`, this
+    cycle still fails the representative Track A hard gate.
+- decision:
+  - `v527` is rejected and closed without a smoke/full 40 run because it
+    produced no T movement on the representative row.
+- next structural hypothesis:
+  - keep the broader residual `prob_15/prob_17/prob_19/prob_20` family, but
+    change architecture away from deterministic beam ordering.
+  - next: `Family A GRASP/randomized constructive`
+    targeting the `250~300 block four-bay/five-bay residual Family A` subtype
+    so the next cycle explores diversified bay/timing tie-breaks instead of
+    another deterministic from-scratch portfolio.
+
+## 2026-07-05 reboot_v528_20260705_familyA_broad_grasp_serial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - `v527` showed that the broader residual family can preserve fallback time,
+    but the custom beam branches were still checker-infeasible.
+  - this cycle keeps the same broader `prob_15/prob_17/prob_19/prob_20`
+    family, but changes the construction backbone:
+    - start from the safe-serial `v005` style constructive so standalone
+      candidates stay structurally feasible
+    - add randomized GRASP tie-breaks over order, selector, and top-k bay/
+      orientation choices
+    - checker-evaluate only the best randomized candidate before trusted
+      fallback
+- target Family A subtype:
+  - `250~300 block four-bay/five-bay residual Family A broad randomized lane`
+  - intended representatives: `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`deterministic safe-serial seed`)
+  - T-zero constructive (`randomized safe-serial GRASP seeds`)
+  - bounded improvement (`alternate selector / order realization on the same
+    randomized family`)
+- representative probe plan:
+  - run id: `probe_v528_prob15_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    reduction from the trusted `prob_15 T 25` floor
+- representative probe:
+  - run id: `probe_v528_prob15_20260705_001`
+  - row: `prob_15`
+  - result: `accepted_for_score=true`, `T 25`, objective `844023`,
+    runtime `58.62s`
+  - trusted comparator: active/trusted `prob_15 T 25`, objective `844023`
+- diagnostic notes:
+  - unlike the earlier broad beam lane, the standalone randomized safe-serial
+    candidate was checker-feasible this time (`checked_T=42013`) because the
+    construction stayed on the safe-serial backbone.
+  - however, the standalone quality was catastrophically worse than the trusted
+    active floor, so the final selected result still collapsed back to the
+    trusted fallback with zero T movement on the representative row.
+  - this means the broader residual Family A issue is no longer only
+    checker-feasibility for standalone candidates; the safe-serial randomized
+    family is simply too weak on T quality for these rows.
+- decision:
+  - `v528` is rejected and closed without a smoke/full 40 run because the
+    representative row remained flat at the trusted floor and the standalone
+    branch quality was far too weak to justify expansion.
+- next structural hypothesis:
+  - keep the broader residual `prob_15/prob_17/prob_19/prob_20` family, but
+    change architecture again away from serial-only GRASP.
+  - next: `Family A cluster decomposition`
+    targeting the `250~300 block four-bay/five-bay residual Family A` subtype
+    so the next cycle can build due-window / slack / bay-pressure subclusters
+    from scratch instead of relying on one global serial order.
+
+## 2026-07-05 reboot_v529_20260705_familyA_duewindow_cluster_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - `v528` proved that a safe-serial standalone branch can stay checker-feasible
+    on the broader residual family, but its global randomized order is far too
+    weak on T quality.
+  - this cycle narrows to the `300 block four-bay/five-bay due-window residual`
+    pocket (`prob_19/prob_20`-like) and changes architecture to explicit
+    cluster decomposition:
+    - split blocks into due/slack clusters first
+    - run a serial-feasible constructive inside that cluster order
+    - compare a few cluster definitions and selectors
+    - checker-evaluate only the best clustered standalone candidate before
+      trusted fallback
+- target Family A subtype:
+  - `300 block four-bay/five-bay due-window residual lane`
+  - intended representatives: `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`due-third cluster serial seed`)
+  - T-zero constructive (`slack-band cluster serial seed`)
+  - bounded improvement (`clustered balance/preference selector variant`)
+- representative probe plan:
+  - run id: `probe_v529_prob19_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    reduction from the trusted `prob_19 T 123` floor
+- representative probe:
+  - initial run id: `probe_v529_prob19_20260705_001`
+  - initial result: rejected as implementation bug (`NameError: math not defined`)
+  - rerun id: `probe_v529_prob19_20260705_002`
+  - row: `prob_19`
+  - result: `accepted_for_score=true`, `T 166`, objective `2339332`,
+    runtime `58.13s`
+  - trusted comparator: active/trusted `prob_19 T 123`, objective `1880672`
+- diagnostic notes:
+  - after the quick bug fix, the clustered standalone candidate was
+    checker-feasible (`checked_T=59104`) on the serial-safe backbone.
+  - however, its T quality was still catastrophically worse than the trusted
+    `prob_19 T 123` floor, so the final selected result again collapsed back to
+    the trusted fallback with zero useful movement.
+  - that means cluster decomposition, at least in this safe-serial form, does
+    not break the broader residual family either.
+- decision:
+  - `v529` is rejected and closed without a smoke/full 40 run because the
+    representative row remained far from the target and the standalone cluster
+    branch quality was too weak.
+- next structural hypothesis:
+  - treat the broader `prob_15/prob_17/prob_19/prob_20` residual family as
+    exhausted for the current serial-safe construction sequence
+    (`v527` beam, `v528` GRASP, `v529` cluster).
+  - next: `Family A two-stage solver`
+    targeting a different high-T subtype such as the `prob_11` / `prob_13`
+    hard-window residual family with a new stage-1 timing skeleton plus
+    bounded stage-2 spatial/bay realization, or rotate back to another
+    previously untried Family A architecture on the remaining high-T rows.
+
+## 2026-07-05 reboot_v530_20260705_familyA_hardwindow_twostage_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative probe
+- hypothesis:
+  - the broader residual `prob_15/prob_17/prob_19/prob_20` family is now
+    exhausted for the current serial-safe standalone sequence.
+  - this cycle switches to a different Family A subtype:
+    the `200~250 block four-bay hard-window residual family`
+    (`prob_11/prob_13`-like features).
+  - architecture change:
+    - stage 1 builds a hard-window timing skeleton from scratch using target
+      due/slack bands
+    - stage 2 realizes that skeleton through a serial-safe bay/placement
+      schedule so the standalone candidate stays checker-feasible
+    - compare a few skeleton variants, checker-evaluate only the best one,
+      then protect the trusted fallback
+- target Family A subtype:
+  - `200~250 block four-bay hard-window residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`due-band skeleton`)
+  - T-zero constructive (`slack-band / hard-window target-exit skeleton`)
+  - bounded improvement (`alternate selector / realization on the same
+    skeleton family`)
+- representative probe plan:
+  - run id: `probe_v530_prob13_20260705_001`
+  - hard gate: reject immediately unless the representative row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    reduction from the trusted `prob_13 T 443` floor
+- representative probe:
+  - run id: `probe_v530_prob13_20260705_001`
+  - row: `prob_13`
+  - result: `accepted_for_score=false`, `T 464`, objective `9240787`,
+    runtime `73.91s`, error `runtime exceeded official_limit 60.000000s`
+  - trusted comparator: active/trusted `prob_13 T 443`, objective `8863902`
+- diagnostic notes:
+  - the standalone two-stage branch was checker-feasible this time
+    (`checked_T=47248`), but its T quality was unusably weak.
+  - after the standalone miss, the protected fallback still degraded to
+    `prob_13 T 464`, and the wrapper overran the official limit, so this cycle
+    failed both the score-validity gate and the T-improvement gate.
+  - that means the hard-window family remains fallback-fragile, and this
+    serial-safe two-stage version did not solve the runtime erosion problem.
+- decision:
+  - `v530` is rejected and closed without a smoke/full 40 run because the
+    representative row failed `accepted_for_score` and regressed on T.
+- next structural hypothesis:
+  - keep the hard-window residual family but change architecture again instead
+    of another serial-safe skeleton pass.
+  - next: `Family A spatial/orientation constructive`
+    targeting the `200~250 block four-bay hard-window residual lane`
+    with a stricter one-check fallback guard so the next cycle tests
+    large-area / wall-hug / orientation diversification on the remaining
+    `prob_11/prob_13` high-T rows.
+
+## 2026-07-05 reboot_v531_20260705_familyA_hardwindow_spatial_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending implementation + representative smoke
+- hypothesis:
+  - `v530` showed that the hard-window residual family remains fallback-fragile
+    and that the serial-safe timing skeleton spent too much runtime budget
+    before the trusted fallback.
+  - this cycle keeps the same Family A subtype but changes architecture at the
+    construction stage:
+    - build spatial/orientation-first standalone candidates from scratch
+    - prioritize large-area / wall-hug / corner-bias bay placement early
+    - keep the lane ultra-light so the trusted fallback still has runtime
+      headroom
+    - checker-evaluate at most one standalone candidate before fallback
+- target Family A subtype:
+  - `200~250 block four-bay hard-window residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`tight forward serial seed`)
+  - T-zero constructive (`edge-area spatial wall-hug seed`)
+  - bounded improvement (`due-wall realization on the best spatial seed`)
+- representative smoke plan:
+  - Track A rep: `probe_v531_prob13_20260705_001`
+  - Family B guard rep: `probe_v531_prob40_20260705_001`
+  - hard gate: reject immediately unless the Track A row stays
+    `accepted_for_score=true` and either reaches `T < 10` or shows a clear
+    reduction from the trusted `prob_13 T 443` floor while the Family B guard
+    remains non-worse.
+- representative smoke:
+  - Track A run id: `probe_v531_prob13_20260705_001`
+  - row: `prob_13`
+  - result: `accepted_for_score=false`, `T 460`, objective `9174335`,
+    runtime `70.63s`, error `runtime exceeded official_limit 60.000000s`
+  - trusted comparator: active/trusted `prob_13 T 443`, objective `8863902`
+  - Family B guard run id: `probe_v531_prob40_20260705_001`
+  - row: `prob_40`
+  - result: `accepted_for_score=false`, `T 14950`, objective `10130800`,
+    runtime `62.36s`, error `runtime exceeded official_limit 60.000000s`
+- diagnostic notes:
+  - the new spatial/orientation-first standalone branch remained far too weak
+    (`surrogate T` around `48k`, checker attempt infeasible), so the lane
+    still collapsed back to the trusted fallback path on the Track A rep.
+  - even after stripping internal fallback comparison, the wrapper still
+    overran the official limit on `prob_13`, so the hard-window residual lane
+    remains runtime-fragile under this architecture.
+  - the Family B guard rep also missed `accepted_for_score`, so this candidate
+    fails the protection requirement as well and cannot advance to any broader
+    smoke/full run.
+- decision:
+  - `v531` is rejected and closed without full 40 because both the Track A rep
+    and the Family B guard failed the score-validity gate, and the Track A T
+    signal regressed instead of moving toward the target.
+- next structural hypothesis:
+  - keep the `200~250 block four-bay hard-window residual lane`, but change
+    architecture again away from spatial/orientation-first construction.
+  - next: `Family A bay-first timing-second solver`
+    targeting the same hard-window subtype so the next cycle first partitions
+    bay pressure/workload from scratch, then realizes latest-feasible timing
+    inside each bay with a stricter no-extra-check runtime guard.
+
+## 2026-07-05 reboot_v532_20260705_familyA_hardwindow_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + representative smoke
+- hypothesis:
+  - the active `v317/v318` trusted line has drifted on current recheck and is
+    no longer protecting score-validity on representative rows, while the
+    older safe-serial `v005` line still stays accepted under time on both
+    Track A and Family B probes.
+  - this cycle therefore changes both the Family A construction backbone and
+    the protection backbone:
+    - Family A lane uses a bay-first timing-second standalone solver from
+      scratch on the hard-window subtype
+    - Family B / uncertain route falls back to the stable accepted `v005`
+      serial portfolio instead of the drifting active surface
+    - checker-evaluate at most one standalone Family A candidate before the
+      stable fallback
+- target Family A subtype:
+  - `200~250 block four-bay hard-window residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`pref-load bay partition + forward slack realization`)
+  - T-zero constructive (`pref-load bay partition + latest-feasible due-wall realization`)
+  - bounded improvement (`tighter bay partition bias for hard-window blocks`)
+- representative smoke plan:
+  - Track A rep: `probe_v532_prob13_20260705_001`
+  - Family B guard rep: `probe_v532_prob40_20260705_001`
+  - hard gate: reject immediately unless both rows stay
+    `accepted_for_score=true` and the Track A row either reaches `T < 10` or
+    shows a clear reduction from the trusted historical `prob_13 T 443` floor.
+- representative smoke:
+  - Track A run id: `probe_v532_prob13_20260705_001`
+  - row: `prob_13`
+  - result: `accepted_for_score=true`, `T 47258`, objective `880421744`,
+    runtime `10.27s`
+  - historical comparator: trusted stored `prob_13 T 443`, objective `8863902`
+  - Family B guard run id: `probe_v532_prob40_20260705_001`
+  - row: `prob_40`
+  - result: `accepted_for_score=true`, `T 152921`, objective `102168836`,
+    runtime `13.84s`
+- diagnostic notes:
+  - the stable `v005` fallback successfully restored score-validity and runtime
+    protection on both representative rows, which confirms that the current
+    active `v317/v318` surface has drifted while `v005` remains stable.
+  - however, the new bay-first timing-second standalone branch again failed
+    checker validation on the Track A rep (`checked_T=None`), and the final
+    selected solution collapsed back to the stable `v005` fallback.
+  - this means the cycle solved only the protection problem, not the Family A
+    T-zero problem: `prob_13 T 47258` is catastrophically worse than both the
+    historical trusted floor and the Track A target.
+- decision:
+  - `v532` is rejected and closed without full 40 because it produces no
+    credible Family A improvement signal despite staying accepted on the
+    representative smoke rows.
+- next structural hypothesis:
+  - treat the `200~250 block four-bay hard-window residual lane` as exhausted
+    for the current targeted subtype sequence (`v530` two-stage, `v531`
+    spatial, `v532` bay-first).
+  - next: `Family A beam portfolio from scratch`
+    targeting a broader cross-subtype Family A lane so the next cycle rotates
+    away from the exhausted hard-window pocket and tests one whole-family
+    constructive portfolio under the stable fallback guard.
+
+## 2026-07-05 reboot_v533_20260705_familyA_broad_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - the narrow hard-window subtype sequence is exhausted, but `v532` proved
+    that the stable `v005` fallback can still protect acceptance/runtime while
+    we explore new from-scratch Family A constructions.
+  - this cycle therefore widens back out to a whole-family Family A lane:
+    - classify broad Family A-like rows by feature statistics only
+    - build several lightweight beam constructives from scratch
+    - compare the beam family against the stable `v005` fallback
+    - checker-evaluate at most one standalone beam candidate per Family A row
+- target Family A subtype:
+  - `broad cross-subtype Family A high-w1 four-bay/five-bay lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`beam_edd_pref`)
+  - T-zero constructive (`beam_slack_tardiness`)
+  - bounded improvement (`beam_area_balance`)
+- smoke plan:
+  - run id: `smoke_v533_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v533_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013`
+    - `prob_11 T 30236`
+    - `prob_13 T 47258`
+    - `prob_14 T 45039`
+    - `prob_15 T 42020`
+    - `prob_17 T 58669`
+    - `prob_19 T 59104`
+    - `prob_20 T 54446`
+  - Family A aggregate:
+    - sum `T 364785`
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.29s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.56s`
+- diagnostic notes:
+  - the broad beam wrapper stayed runtime-safe and the stable `v005` fallback
+    protected all smoke rows under the official acceptance gate.
+  - however, the standalone beam family never produced a useful Track A
+    candidate: on all representative logs the checked beam branch was worse
+    than fallback, and some wider branches never materialized beyond the
+    simplest beam seed.
+  - the final smoke surface is therefore just a stable accepted fallback line,
+    not a Family A breakthrough. It is orders of magnitude worse on T than the
+    stored target table, so it fails the Track A hard gate completely.
+- decision:
+  - `v533` is rejected and closed without full 40 because it preserved
+    acceptance but produced zero credible Family A T-zero movement.
+- next structural hypothesis:
+  - keep the broad cross-subtype Family A lane, but change architecture away
+    from beam search.
+  - next: `Family A global backward constructive`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane` so the next
+    cycle builds latest-due schedules from the back first and then repairs
+    release/bay feasibility under the stable fallback guard.
+
+## 2026-07-05 reboot_v534_20260705_familyA_broad_backward_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v533` proved that the broad Family A lane can stay fully accepted under
+    the stable `v005` fallback guard, but the beam portfolio itself never
+    produced a competitive standalone candidate.
+  - this cycle keeps the same broad Family A lane and changes construction
+    stage again:
+    - assign bays from scratch with due/slack/pressure-aware bay scoring
+    - build each bay schedule backward from latest due targets first
+    - compare several backward priority families
+    - checker-evaluate at most one standalone backward candidate before the
+      stable fallback
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`backward_due_pref`)
+  - T-zero constructive (`backward_slack_latest`)
+  - bounded improvement (`backward_area_balance`)
+- smoke plan:
+  - run id: `smoke_v534_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v534_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013`
+    - `prob_11 T 30236`
+    - `prob_13 T 47258`
+    - `prob_14 T 45039`
+    - `prob_15 T 42020`
+    - `prob_17 T 58669`
+    - `prob_19 T 59104`
+    - `prob_20 T 54446`
+  - Family A aggregate:
+    - sum `T 364785`
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.67s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.56s`
+- diagnostic notes:
+  - the broad backward wrapper again stayed runtime-safe and the stable `v005`
+    fallback protected every smoke row under the official acceptance gate.
+  - unlike `v533`, the backward standalone family did produce all three
+    surrogate variants on each Family A row, but every checked candidate still
+    failed checker validation (`checked_T=None`) before fallback selection.
+  - the resulting smoke surface is exactly the same stable fallback profile as
+    `v533`, with zero Track A movement and no sign of a whole-family
+    breakthrough.
+- decision:
+  - `v534` is rejected and closed without full 40 because it preserved
+    acceptance but still produced no credible Family A T-zero signal.
+- next structural hypothesis:
+  - keep the broad cross-subtype Family A lane, but change architecture away
+    from deterministic backward construction.
+  - next: `Family A GRASP/randomized constructive`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane` so the next
+    cycle explores diversified bay/timing tie-breaks from scratch under the
+    stable fallback guard.
+
+## 2026-07-05 reboot_v535_20260705_familyA_broad_grasp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v534` showed that deterministic broad backward construction still
+    collapses completely to the stable `v005` fallback.
+  - this cycle keeps the same broad Family A lane but changes construction
+    stage to lightweight randomized GRASP:
+    - generate several serial-safe randomized constructives from scratch
+    - vary order, selector, and top-k bay/orientation tie-breaks with local RNG
+    - checker-evaluate only the best GRASP candidate
+    - keep the stable `v005` fallback for protection
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`grasp_due_pref_seed11`)
+  - T-zero constructive (`grasp_slack_tardiness_seed23`)
+  - bounded improvement (`grasp_area_balance_seed37`)
+- smoke plan:
+  - run id: `smoke_v535_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v535_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013`
+    - `prob_11 T 30236`
+    - `prob_13 T 47258`
+    - `prob_14 T 45039`
+    - `prob_15 T 42020`
+    - `prob_17 T 58669`
+    - `prob_19 T 59104`
+    - `prob_20 T 54446`
+  - Family A aggregate:
+    - sum `T 364785`
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.75s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.68s`
+- diagnostic notes:
+  - the broad GRASP wrapper stayed runtime-safe and the stable `v005` fallback
+    again protected every smoke row under the official acceptance gate.
+  - unlike `v534`, the randomized GRASP family did produce checker-feasible
+    standalone candidates on several rows, but every checked GRASP candidate
+    was still slightly or materially worse than the stable fallback surface.
+  - the resulting smoke surface is therefore still exactly the same
+    fallback-dominated Family A profile as `v533/v534`, with no broad T-zero
+    movement at all.
+- decision:
+  - `v535` is rejected and closed without full 40 because it preserved
+    acceptance but still produced zero credible Family A breakthrough signal.
+- next structural hypothesis:
+  - keep the broad cross-subtype Family A lane, but change architecture away
+    from single-pass serial constructives.
+  - next: `Family A two-stage solver`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane` so the next
+    cycle first builds a T-oriented timing skeleton from scratch and then uses
+    a bounded spatial/bay repair phase under the stable fallback guard.
+
+## 2026-07-05 reboot_v536_20260705_familyA_broad_twostage_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v535` showed that even randomized single-pass serial constructives still
+    collapse to the stable `v005` fallback on the broad Family A lane.
+  - this cycle keeps the same broad Family A lane but changes construction
+    architecture to a true two-stage solver:
+    - stage 1 builds a T-oriented timing skeleton from scratch
+    - stage 2 realizes that skeleton through bounded bay/serial repair
+    - compare a few skeleton families, checker-evaluate only one candidate
+    - keep the stable `v005` fallback for protection
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`stage1_due_seed + forward repair`)
+  - T-zero constructive (`stage1_slack_seed + latest-due repair`)
+  - bounded improvement (`stage1_area_seed + pressure-balanced repair`)
+- smoke plan:
+  - run id: `smoke_v536_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v536_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013`
+    - `prob_11 T 30236`
+    - `prob_13 T 47258`
+    - `prob_14 T 45039`
+    - `prob_15 T 42020`
+    - `prob_17 T 58669`
+    - `prob_19 T 59104`
+    - `prob_20 T 54446`
+  - Family A aggregate:
+    - sum `T 364785`
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.28s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.80s`
+- diagnostic notes:
+  - the broad two-stage wrapper stayed runtime-safe and the stable `v005`
+    fallback protected every smoke row under the official acceptance gate.
+  - the two-stage family produced all three surrogate variants on every broad
+    Family A row, but every checked standalone candidate still failed checker
+    validation (`checked_T=None`) before selection.
+  - the resulting smoke surface is therefore still the same fallback-dominated
+    Family A profile as `v533/v534/v535`, with zero movement toward the
+    Track A target.
+- decision:
+  - `v536` is rejected and closed without full 40 because it preserved
+    acceptance but still produced no credible Family A T-zero signal.
+- next structural hypothesis:
+  - keep the broad cross-subtype Family A lane, but stop iterating on simple
+    from-scratch serial families that collapse to the same fallback surface.
+  - next: `micro CP-SAT/MIP tardy-cluster repair on top of the stable accepted
+    fallback`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane` so the next
+    cycle attacks a bounded tardy cluster directly instead of rebuilding the
+    whole schedule from scratch.
+
+## 2026-07-05 reboot_v537_20260705_familyA_cluster_repair_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v536` showed that more from-scratch serial/two-stage families still
+    collapse back to the same stable `v005` fallback surface.
+  - this cycle therefore changes structure again:
+    - build standalone Family A constructives from scratch on the same broad
+      lane
+    - identify a bounded tardy cluster inside the standalone candidate
+    - run a no-dependency exact repair by enumerating cluster permutations
+      (ORTools is unavailable in the current workspace)
+    - checker-evaluate the best repaired standalone candidate once, then
+      compare against the stable `v005` fallback
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`tardy-cluster exact repair on the slack seed`)
+  - bounded improvement (`tardy-cluster exact repair on alternate serial seeds`)
+- smoke plan:
+  - run id: `smoke_v537_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v537_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28005` (`-8`)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47257` (`-1`)
+    - `prob_14 T 45036` (`-3`)
+    - `prob_15 T 42018` (`-2`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59102` (`-2`)
+    - `prob_20 T 54445` (`-1`)
+  - Family A aggregate:
+    - sum `T 364768` (`-17` vs `v536`)
+    - avg `T 45596.0`
+    - worst-row `T 59102`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.53s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.33s`
+- diagnostic notes:
+  - the bounded exact tardy-cluster repair is the first broad-lane architecture
+    in this sequence that actually beat the stable `v005` fallback on multiple
+    Family A rows while preserving acceptance.
+  - however, the gains are only tiny local reductions (`-1` to `-8` on six
+    rows, aggregate `-17` T), far below the Track A hard gate and nowhere near
+    the needed T-zero direction.
+  - this is therefore a weak training-only signal rather than a promotion
+    candidate: the architecture can move the fallback surface, but only by a
+    negligible amount at the current repair scope.
+- decision:
+  - `v537` is rejected and closed without full 40 because the improvements are
+    too small to justify a full benchmark or BEST promotion.
+- next structural hypothesis:
+  - keep the broad cross-subtype Family A lane, but change architecture away
+    from single-cluster local repair.
+  - next: `Family A cluster decomposition`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane` so the next
+    cycle builds due-window / slack / bay-pressure subclusters from scratch and
+    then merges them under the stable fallback guard.
+
+## 2026-07-05 reboot_v538_20260705_familyA_clusterdecomp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v537` showed that bounded tardy-cluster repair can move the stable
+    fallback surface, but only by negligible local amounts.
+  - this cycle therefore shifts the construction stage itself:
+    - keep the broad standalone Family A lane on top of stable `v005`
+    - split blocks into due-window / slack / bay-pressure clusters
+    - build separate cluster-first assignments from scratch
+    - merge them into serial bay schedules
+    - optionally apply one bounded cluster repair on the best cluster-built
+      candidate before comparing against the stable fallback
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack / due / workload seeds`)
+  - T-zero constructive (`due-window / slack / bay-pressure cluster decomposition`)
+  - bounded improvement (`single bounded repair on the best cluster-built candidate`)
+- smoke plan:
+  - run id: `smoke_v538_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v538_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`+8` vs `v537`)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`+1`)
+    - `prob_14 T 45039` (`+3`)
+    - `prob_15 T 42020` (`+2`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`+2`)
+    - `prob_20 T 54446` (`+1`)
+  - Family A aggregate:
+    - sum `T 364785` (`+17` vs `v537`)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.34s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.17s`
+- diagnostic notes:
+  - the broad cluster-decomposition constructives never beat the stable `v005`
+    fallback on the target rows; the checked standalone candidates were always
+    worse than the serial fallback on `T`.
+  - unlike `v537`, this architecture did not even keep the tiny training-only
+    gains from bounded cluster repair and instead collapsed back to the exact
+    fallback surface on the wide smoke set.
+- decision:
+  - `v538` is rejected and closed without full 40 because it produced no
+    meaningful Family A breakthrough signal and regressed the weak `v537`
+    training gains.
+- next structural hypothesis:
+  - move away from cluster decomposition on this subtype.
+  - next: `Family A bay-first timing-second`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane with diffuse
+    preference pressure and tight positive slack`.
+
+## 2026-07-05 reboot_v539_20260705_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v538` confirmed that broad cluster decomposition still collapses back to
+    the stable fallback surface on this Family A lane.
+  - this cycle changes construction stage again:
+    - keep the broad standalone Family A lane on top of stable `v005`
+    - assign blocks to bays first using diffuse preference pressure,
+      workload spread, and due-window pressure
+    - realize timing second with bay-local latest-due and tight-slack variants
+    - apply one bounded fixed-bay repair on the best bay-first candidate
+      before comparing against the stable fallback
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane with diffuse preference
+    pressure and tight positive slack`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack / due seeds`)
+  - T-zero constructive (`bay-first latest-due timing`)
+  - bounded improvement (`fixed-bay reorder repair on the best bay-first candidate`)
+- smoke plan:
+  - run id: `smoke_v539_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v539_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs `v538`)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs `v538`)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `15.62s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `14.65s`
+- diagnostic notes:
+  - the bay-first timing-second constructives produced valid standalone
+    candidates, but every checked candidate was still worse than the stable
+    `v005` fallback on `T`.
+  - unlike `v538`, this lane at least ran faster, but the quality surface was
+    exactly unchanged because selection stayed on the fallback for every wide
+    smoke row.
+- decision:
+  - `v539` is rejected and closed without full 40 because it showed no
+    Family A breakthrough signal beyond runtime reduction.
+- next structural hypothesis:
+  - move away from bay-first and cluster-decomposition serial rebuilds.
+  - next: `Family A beam portfolio from scratch`
+    targeting the `high-w1 four-bay/five-bay broad Family A lane with diffuse
+    preference pressure and medium-tight positive slack`.
+
+## 2026-07-05 reboot_v540_20260705_familyA_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v539` showed that broad bay-first timing-second still collapses back to
+    the stable fallback surface.
+  - this cycle returns to a from-scratch beam architecture, but changes the
+    failure mode relative to `v533`:
+    - keep the broad standalone Family A lane on top of stable `v005`
+    - generate multiple independent beam branches across order/selector pairs
+    - checker-evaluate the best two beam candidates instead of only one
+    - apply one bounded fixed-bay reorder repair on the best beam branch
+    - compare all checked standalone candidates against the stable fallback
+- target Family A subtype:
+  - `high-w1 four-bay/five-bay broad Family A lane with diffuse preference
+    pressure and medium-tight positive slack`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack / due seeds`)
+  - T-zero constructive (`beam portfolio from scratch`)
+  - bounded improvement (`fixed-bay reorder repair on the best beam branch`)
+- smoke plan:
+  - run id: `smoke_v540_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v540_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs `v539`)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs `v539`)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.64s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.29s`
+- diagnostic notes:
+  - the broadened beam portfolio stayed score-valid and ran quickly, but the
+    extra beam branches mostly timed out of their internal cap or still
+    produced worse `T` than the stable fallback.
+  - checked standalone candidates never beat the stable `v005` fallback, so
+    the wide smoke result remained exactly on the fallback surface.
+  - this is now the third consecutive failure on the same broad
+    `high-w1 four-bay/five-bay diffuse preference` subtype (`v538`/`v539`/`v540`),
+    so the next cycle must change subtype rather than only changing
+    construction flavor again inside the same lane.
+- decision:
+  - `v540` is rejected and closed without full 40 because it showed no
+    Family A breakthrough signal.
+- next structural hypothesis:
+  - switch to a different Family A subtype instead of repeating the same broad
+    diffuse-pressure lane.
+  - next: `Family A spatial/orientation constructive`
+    targeting the `large-area high-pressure four-bay/five-bay Family A subtype`
+    to attack rows where packing pressure may be the hidden blocker.
+
+## 2026-07-05 reboot_v541_20260705_familyA_spatial_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + broad smoke
+- hypothesis:
+  - `v538`/`v539`/`v540` exhausted one broad diffuse-preference subtype without
+    producing any T breakthrough, so this cycle intentionally changes subtype.
+  - this lane targets Family A rows where large-area / high-pressure packing
+    may be the hidden blocker:
+    - keep the stable `v005` fallback
+    - build standalone spatial/orientation-first candidates from scratch
+    - vary compact-fill, edge-hug, and due-wall pressure modes
+    - apply one bounded timing realization variant on the best spatial
+      assignment before comparing against fallback
+- target Family A subtype:
+  - `large-area high-pressure four-bay/five-bay Family A subtype`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`spatial/orientation-first compact candidate`)
+  - bounded improvement (`timing reorder on the best spatial assignment`)
+- smoke plan:
+  - run id: `smoke_v541_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and at least three high-T targets show a clear
+    T-direction improvement versus the current stored target table.
+- smoke result:
+  - run id: `smoke_v541_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs `v540`)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs `v540`)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.70s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.11s`
+- diagnostic notes:
+  - unlike `v540`, this cycle changed subtype, but the large-area high-pressure
+    feature gate appears too narrow: smoke logs show the run falling straight
+    through to the stable `v005` fallback rather than materially exercising the
+    spatial lane on the target rows.
+  - this means the cycle produced no Family A signal at all; it is primarily a
+    feature-selection miss rather than evidence that the spatial constructive
+    itself is promising or unpromising.
+- decision:
+  - `v541` is rejected and closed without full 40 because the standalone lane
+    did not generate a usable T-direction signal on the smoke set.
+- next structural hypothesis:
+  - stay on the new `large-area high-pressure four-bay/five-bay Family A`
+    subtype for one more bounded cycle, but widen activation and diversify
+    construction.
+  - next: `Family A GRASP/randomized constructive`
+    targeting the same `large-area high-pressure four-bay/five-bay Family A
+    subtype`.
+
+## 2026-07-05 reboot_v542_20260705_familyA_grasp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v541` changed subtype correctly but missed activation: every target row was
+    classified as `uncertain`, so the standalone lane never materially ran.
+  - this cycle keeps the same `large-area high-pressure four-bay/five-bay`
+    Family A subtype, but explicitly widens the feature gate to the observed
+    smoke envelope and switches construction to a GRASP/randomized lane that
+    should actually open on the target rows.
+  - inside the same hypothesis:
+    - preserve the stable `v005` fallback
+    - keep one fast serial constructive candidate
+    - generate several area/slack/pref-biased GRASP constructives from scratch
+    - run bounded timing-only reschedules on the best GRASP assignment before
+      comparing against fallback
+- evidence for widened subtype gate:
+  - `v541` feature readback on current high-T target rows showed the subtype is
+    broader than the previous gate expected:
+    - `blocks 200~300`
+    - `bays 4~5`
+    - `w1 9697~26667`
+    - `slack_mean 1.28~1.57`
+    - `pref_concentration 0.2067~0.3040`
+    - `pref_pressure 0.2128~0.2731`
+    - `max_area_ratio 0.2239~0.3788`
+    - `p90_area_ratio 0.1626~0.1988`
+    - `large_area_ratio 0.0400~0.1300`
+- target Family A subtype:
+  - `large-area high-pressure four-bay/five-bay Family A subtype`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`area/slack/pref-biased GRASP seeds`)
+  - bounded improvement (`timing-only reschedule on the best GRASP assignment`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - run id: `smoke_v542_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run ids:
+    - `probe_v542_prob13_prob40_20260705_001`
+    - `probe_v542_prob13_prob40_20260705_002`
+  - probe acceptance:
+    - both probes stayed `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the first probe showed the widened gate was correct, but the
+      implementation was still effectively checking only the fast serial lane.
+    - after the bounded in-cycle fix, the second probe confirmed the GRASP lane
+      really executed on `prob_13`, but the checked GRASP candidate stayed worse
+      than fallback:
+      - `prob_13`: checked `grasp_tight_area_seed7 = T 49093` vs fallback
+        `T 47258`
+      - `prob_40`: remained on Family B fallback guard, `T 152921`
+- smoke result:
+  - run id: `smoke_v542_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 27913` (`-100` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364685` (`-100` vs fallback surface / `v541`)
+    - avg `T 45585.625`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.30s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.52s`
+- diagnostic notes:
+  - unlike `v541`, this cycle did fix the activation bug: the standalone Family
+    A lane genuinely ran on the target subtype.
+  - however, the wide GRASP/randomized family produced only a tiny signal on one
+    row (`prob_10 -100`) and stayed flat on the seven other high-T targets.
+  - this is still far below the hard gate requirement and does not justify a
+    full 40 benchmark.
+- decision:
+  - `v542` is rejected and closed without full 40.
+  - keep it as evidence that widened subtype gating is correct, but the current
+    serial GRASP construction is too weak for the large-area high-pressure lane.
+- next structural hypothesis:
+  - rotate architecture again while keeping the same widened subtype gate.
+  - next: `Family A global backward constructive`
+    targeting the same `large-area high-pressure four-bay/five-bay Family A
+    subtype`, with due-window latest-feasible timing skeleton before fallback
+    is consulted.
+
+## 2026-07-05 reboot_v543_20260705_familyA_backward_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v542` proved that the widened subtype gate is correct, but its GRASP lane
+    was too weak: it only moved `prob_10` by `T -100` and stayed flat on the
+    seven remaining high-T targets.
+  - this cycle keeps the same widened `large-area high-pressure four-bay/five-bay`
+    Family A subtype and rotates architecture instead of just retuning seeds:
+    - preserve the stable `v005` fallback
+    - keep one fast serial constructive candidate for internal comparison
+    - build several global backward constructive candidates from scratch
+    - assign bays with due/slack/area pressure awareness
+    - realize each bay using a latest-feasible timing skeleton before
+      comparing against fallback
+- target Family A subtype:
+  - `large-area high-pressure four-bay/five-bay Family A subtype`
+  - inherited widened gate from `v542`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`global backward due/slack/area variants`)
+  - bounded improvement (`timing reorder on best backward assignment`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - run id: `smoke_v543_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run id: `probe_v543_prob13_prob40_20260705_001`
+  - probe acceptance:
+    - `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the widened subtype gate stayed correct and the backward lane really
+      opened on `prob_13`.
+    - however, the realized backward candidates were far worse than fallback:
+      - `prob_13`: best checked backward candidate `backward_slack_latest`
+        had surrogate `T 52262` versus fallback `T 47258`
+      - `prob_40`: stayed on Family B fallback guard, `T 152921`
+- smoke result:
+  - run id: `smoke_v543_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs fallback surface)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.23s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.55s`
+- diagnostic notes:
+  - unlike `v542`, the backward constructive did not even produce a small
+    single-row gain; the smoke surface stayed exactly on fallback.
+  - this falsifies the simple global backward/latest-feasible hypothesis for
+    the current widened large-area high-pressure subtype.
+- decision:
+  - `v543` is rejected and closed without full 40.
+- next structural hypothesis:
+  - keep the widened subtype gate, but rotate to a different construction
+    architecture instead of more timing-only backward variants.
+  - next: `Family A bay-first timing-second solver`
+    targeting the same `large-area high-pressure four-bay/five-bay Family A
+    subtype`, with workload / feasible-bay partitioning before latest-feasible
+    scheduling.
+
+## 2026-07-05 reboot_v544_20260705_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v543` falsified the simple backward/latest-feasible family on the widened
+    large-area high-pressure subtype.
+  - this cycle keeps the same widened `large-area high-pressure four-bay/five-bay`
+    Family A subtype, but rotates to a bay-first timing-second architecture:
+    - preserve stable `v005` fallback
+    - keep one fast serial constructive candidate
+    - partition blocks to bays first using preference / workload / feasible-bay
+      pressure
+    - realize timing inside each bay with latest-feasible and tight-slack
+      variants
+    - compare the best checked standalone bay-first candidate against fallback
+- target Family A subtype:
+  - `large-area high-pressure four-bay/five-bay Family A subtype`
+  - inherited widened gate from `v542`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`bay-first pressure partition + timing variants`)
+  - bounded improvement (`fixed-bay reorder on best bay-first candidate`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - run id: `smoke_v544_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run id: `probe_v544_prob13_prob40_20260705_001`
+  - probe acceptance:
+    - `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the widened subtype gate stayed correct and the bay-first lane really
+      opened on `prob_13`.
+    - but the best checked bay-first candidate still trailed fallback:
+      - `prob_13`: checked `bayfirst_pref_slack = T 48440` vs fallback
+        `T 47258`
+      - `prob_40`: stayed on Family B fallback guard, `T 152921`
+- smoke result:
+  - run id: `smoke_v544_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs fallback surface)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.88s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `12.61s`
+- diagnostic notes:
+  - this keeps the widened subtype gate alive, but the simple bay-first
+    pressure partition still collapses back to the same fallback surface on all
+    eight Family A target rows.
+  - combined with `v543`, this suggests the main blocker is not just timing
+    policy versus bay partition order; the current lane likely needs a stronger
+    from-scratch search family with multiple maintained alternatives.
+- decision:
+  - `v544` is rejected and closed without full 40.
+- next structural hypothesis:
+  - keep the same widened subtype gate, but rotate to a stronger multi-branch
+    constructive family.
+  - next: `Family A beam portfolio from scratch`
+    targeting the same `large-area high-pressure four-bay/five-bay Family A
+    subtype`, maintaining several due/slack/area-pressure order branches before
+    fallback comparison.
+
+## 2026-07-05 reboot_v545_20260705_familyA_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v544` showed that a single bay-first partition still collapses back to
+    fallback, so this cycle rotates to a stronger multi-branch constructive
+    family while keeping the same widened subtype gate.
+  - this lane:
+    - preserves the stable `v005` fallback
+    - keeps fast serial seeds for comparison
+    - runs a from-scratch beam portfolio across due/slack/area-pressure /
+      critical-ratio order families
+    - checker-evaluates the best maintained beam branches before fallback
+- target Family A subtype:
+  - `large-area high-pressure four-bay/five-bay Family A subtype`
+  - inherited widened gate from `v542`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack/due seeds`)
+  - T-zero constructive (`beam portfolio from scratch`)
+  - bounded improvement (`fixed-bay reorder on best beam branch`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - run id: `smoke_v545_familyA_wide_20260705_001`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run ids:
+    - `probe_v545_prob13_prob40_20260705_001`
+    - `probe_v545_prob13_prob40_20260705_002`
+  - probe acceptance:
+    - both probes stayed `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the first probe showed the widened beam lane still spent too much budget
+      on serial seeds, so the standalone beam family barely opened.
+    - after the bounded in-cycle fix, the second probe confirmed the beam lane
+      really executed on `prob_13` and produced a tiny scored gain:
+      - `prob_13`: `beam_slack_tardiness = T 47257` vs fallback `T 47258`
+      - `prob_40`: remained on Family B fallback guard, `T 152921`
+- smoke result:
+  - run id: `smoke_v545_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47257` (`-1`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364784` (`-1` vs fallback surface)
+    - avg `T 45598.0`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.63s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.07s`
+- diagnostic notes:
+  - this is the first post-`v542` widened-subtype architecture to generate a
+    genuine from-scratch scored gain on one high-T Family A row.
+  - however, the signal is still tiny and isolated to `prob_13`, far below the
+    hard gate requirement of three major target-row improvements or a clear
+    aggregate T-zero shift.
+- decision:
+  - `v545` is rejected and closed without full 40.
+  - keep it as training-only evidence that the widened beam family is the first
+    constructive architecture in this subtype to beat fallback at all, even if
+    only by `T -1`.
+- next structural hypothesis:
+  - the widened `large-area high-pressure four-bay/five-bay` subtype has now
+    rejected backward, bay-first, and beam in three consecutive cycles, so the
+    next attempt must widen scope instead of striking the same pocket again.
+  - next: `Family A two-stage solver`
+    targeting a `broader cross-subtype low-slack / due-window mixed Family A
+    lane`, with stage 1 building several T-first timing skeletons from
+    scratch, stage 2 realizing them through bounded bay repair, and a small
+    tardy-cluster exact improvement layered on top before fallback comparison.
+
+## 2026-07-05 reboot_v546_20260705_familyA_broad_twostage_cluster_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v543/v544/v545` consumed the allowed retries on the widened
+    `large-area high-pressure four-bay/five-bay` pocket without producing the
+    required multi-row T-zero signal, so this cycle must widen the targeted
+    Family A lane instead of repeating the same subtype.
+  - this cycle changes both architecture and scope:
+    - keep the stable accepted `v005` fallback as the trusted wrapper surface
+    - classify a broader cross-subtype Family A lane using low-slack,
+      due-window, preference-pressure, and feasible-bay features only
+    - build several from-scratch two-stage timing skeleton candidates
+    - apply a bounded tardy-cluster exact repair on the best stage-2 outputs
+    - checker-evaluate up to two standalone candidates, then compare against
+      the fallback using `T-first, objective-second, L/P-third`
+- target Family A subtype:
+  - `broader cross-subtype low-slack / due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`due-seed + forward repair`)
+  - T-zero constructive (`slack/headroom seed + latest-due repair`)
+  - bounded improvement (`small tardy-cluster exact repair on stage-2 output`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run id: `probe_v546_prob13_prob40_20260705_001`
+  - probe acceptance:
+    - `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the new broader cross-subtype gate did activate on `prob_13`.
+    - however, both checker-tested standalone two-stage candidates still failed
+      checker validation there (`checked=[..., None]`), so the solver again
+      fell back to stable `v005`.
+    - `prob_40` remained protected by the Family B fallback guard with
+      `T 152921`.
+- smoke result:
+  - run id: `smoke_v546_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs fallback surface)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.95s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.24s`
+- diagnostic notes:
+  - widening the lane avoided the previous subtype-repeat violation, but it
+    still did not create a checker-valid standalone Family A candidate.
+  - every smoke row exactly preserved the stable fallback surface, so there is
+    no Track A breakthrough signal and no reason to run full 40.
+  - the bounded tardy-cluster improvement improved surrogate scores slightly,
+    but not enough to survive checker validation.
+- decision:
+  - `v546` is rejected and closed without full 40.
+- next structural hypothesis:
+  - move away from two-stage timing skeletons again and switch architecture.
+  - next: `Family A spatial/orientation constructive`
+    targeting a `broader cross-subtype low-slack large-area Family A lane`,
+    with bottom-left / edge-hugging placement variants from scratch and the
+    stable `v005` fallback preserved for Family B and uncertain rows.
+
+## 2026-07-05 reboot_v547_20260705_familyA_broad_spatial_cluster_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v546` widened the lane correctly but still collapsed because the
+    two-stage standalone candidates did not survive checker validation.
+  - this cycle changes architecture again to a geometry-first Family A lane:
+    - preserve the stable accepted `v005` fallback surface
+    - widen the Family A gate to a broader cross-subtype low-slack large-area
+      lane
+    - build only spatial/orientation-first candidates from scratch
+    - compare compact / edge-hugging / due-wall placement variants
+    - apply one tiny tardy-cluster exact repair on the best spatial branch as
+      the bounded improvement candidate
+    - checker-evaluate at most two standalone spatial candidates, then compare
+      against fallback using `T-first, objective-second, L/P-third`
+- target Family A subtype:
+  - `broader cross-subtype low-slack large-area Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`spatial_compact`)
+  - T-zero constructive (`spatial_edge_hug`)
+  - bounded improvement (`best spatial branch + tiny tardy-cluster repair`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run id: `probe_v547_prob13_prob40_20260705_001`
+  - probe acceptance:
+    - `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - the broader spatial candidate remained runtime-safe on both probe rows.
+    - however, the probe logs showed only the stable `v005` fallback surface on
+      `prob_13` and the Family B guard fallback on `prob_40`; no standalone
+      spatial branch became visible in the checked surface.
+- smoke result:
+  - run id: `smoke_v547_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs fallback surface)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `13.70s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `13.11s`
+- diagnostic notes:
+  - unlike `v546`, this cycle changed architecture again, but the actual broad
+    selector still failed to surface a scoreable standalone Family A candidate.
+  - every smoke row stayed exactly on the stable fallback surface, so there is
+    still no Track A movement and no basis for a full 40 run.
+- decision:
+  - `v547` is rejected and closed without full 40.
+- next structural hypothesis:
+  - stop retrying broader spatial selectors for now and rotate structure again.
+  - next: `Family A cluster decomposition`
+    targeting a `broader cross-subtype low-slack due-window mixed Family A
+    lane`, with due-window / slack / bay-pressure clustering and the stable
+    `v005` fallback preserved for Family B and uncertain rows.
+
+## 2026-07-05 reboot_v548_20260705_familyA_broad_clustercheck_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending implementation + probe + broad smoke
+- hypothesis:
+  - `v547` changed architecture again but still failed to surface any
+    scoreable standalone candidate on the broad Family A lane.
+  - `v538` suggests the old broad cluster lane may also have been too biased
+    toward serial-surrogate ordering, so this cycle keeps cluster
+    decomposition but changes the actual checked comparison surface:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - widen the Family A gate to a broader cross-subtype low-slack due-window
+      mixed lane
+    - build only cluster-first standalone candidates from scratch
+    - split by due-window / slack / feasible-bay pressure in multiple ways
+    - apply one tiny tardy-cluster exact repair on the best cluster branch
+    - checker-evaluate cluster-built candidates first instead of letting serial
+      seeds dominate the checked shortlist
+- target Family A subtype:
+  - `broader cross-subtype low-slack due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`cluster due-window tight-first`)
+  - T-zero constructive (`cluster due/slack pressure-first`)
+  - bounded improvement (`best cluster branch + tiny tardy-cluster repair`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe result:
+  - run id: `probe_v548_prob13_prob40_20260705_001`
+  - probe acceptance:
+    - `accepted_for_score=2/2`, timeout `0`, invalid `0`
+  - diagnostic notes:
+    - unlike `v538`, the checked surface really did change this time: on
+      `prob_13` the probe log shows the standalone checked set was
+      `cluster_slack_target_repair` / `cluster_slack_target`, not serial
+      fallback seeds.
+    - however, those checked cluster-built candidates were still worse than the
+      stable fallback (`prob_13`: checked `T 48959/48973` vs fallback
+      `T 47258`), while `prob_40` remained protected on the Family B fallback.
+- smoke result:
+  - run id: `smoke_v548_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - Family A rows:
+    - `prob_10 T 28013` (`0` vs fallback surface)
+    - `prob_11 T 30236` (`0`)
+    - `prob_13 T 47258` (`0`)
+    - `prob_14 T 45039` (`0`)
+    - `prob_15 T 42020` (`0`)
+    - `prob_17 T 58669` (`0`)
+    - `prob_19 T 59104` (`0`)
+    - `prob_20 T 54446` (`0`)
+  - Family A aggregate:
+    - sum `T 364785` (`0` vs fallback surface)
+    - avg `T 45598.125`
+    - worst-row `T 59104`
+    - `T>0 count 8/8`
+  - Family B guards:
+    - `prob_36`: `accepted_for_score=true`, `T 77617`, runtime `14.55s`
+    - `prob_40`: `accepted_for_score=true`, `T 152921`, runtime `14.09s`
+- diagnostic notes:
+  - this cycle successfully changed the failure mode relative to `v538`: the
+    cluster-built candidates did get checker-evaluated first.
+  - even with that fix, the broad cluster decomposition family remained
+    materially worse than the stable fallback on representative high-T rows
+    (`prob_10`, `prob_13`, `prob_19`), so the final smoke surface still
+    collapsed to exact fallback.
+- decision:
+  - `v548` is rejected and closed without full 40.
+- next structural hypothesis:
+  - cluster decomposition has now been re-tested with a corrected checked
+    surface and still failed, so rotate architecture again.
+  - next: `Family A GRASP/randomized constructive`
+    targeting a `broader cross-subtype low-slack due-window mixed Family A
+    lane`, with multiple bay/orientation/placement tie-break seeds and the
+    stable `v005` fallback preserved for Family B and uncertain rows.
+
+## 2026-07-05 reboot_v549_20260705_familyA_broad_graspcheck_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v548` fixed the checked-surface issue for cluster decomposition, but the
+    resulting standalone cluster candidates were still materially worse than
+    fallback.
+  - this cycle rotates architecture again to a broader GRASP/randomized
+    constructive lane:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - widen the Family A gate to a broader cross-subtype low-slack due-window
+      mixed lane
+    - generate several randomized constructive candidates with different
+      order/selector/seed/RCL mixes
+    - add cheap timing-only realization variants on the best randomized branch
+    - checker-evaluate randomized candidates first instead of serial fallback
+      references
+- target Family A subtype:
+  - `broader cross-subtype low-slack due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`randomized due/slack seed`)
+  - T-zero constructive (`area/pref/pressure-biased GRASP seeds`)
+  - bounded improvement (`best randomized branch + timing-only reschedules`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v549_prob13_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `16.29s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.56s`
+  - key evidence:
+    - randomized branches were checker-evaluated first on `prob_13`
+    - checked `grasp_slack_pref_seed47 -> T=47929`
+    - checked `grasp_tight_area_seed23 -> T=49034`
+    - fallback `v005` still won with `T=47258`
+- smoke summary:
+  - run id: `smoke_v549_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `16.15s`, max `22.71s`
+  - Family A target rows:
+    - `prob_10 T=27910`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364682`
+    - avg `45585.25`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `-103`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - only one high-T row improved (`prob_10: 28013 -> 27910`)
+  - the other seven Family A target rows stayed at the fallback surface
+- decision:
+  - `v549` is rejected and closed without full 40.
+  - the hypothesis did change the failure mode correctly: checked-first
+    randomized standalone candidates can now beat fallback on isolated rows,
+    but the improvement is too narrow and too small for the Family A hard gate.
+- next architecture:
+  - rotate to `Family A beam portfolio from scratch`
+  - keep the same `broader cross-subtype low-slack due-window mixed Family A
+    lane`
+  - test whether a wider deterministic+randomized beam shortlist can beat the
+    fallback on at least three of `prob_10/11/13/14/15/17/19/20` instead of
+    only nudging `prob_10`
+
+## 2026-07-05 reboot_v550_20260705_familyA_broad_beamportfolio_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v549` proved the broader Family A lane can produce checked standalone
+    candidates that occasionally beat fallback, but the single-path GRASP
+    shortlist only moved `prob_10`.
+  - this cycle keeps the broadened Family A gate and rotates architecture to a
+    broader beam portfolio from scratch:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - keep the `broader cross-subtype low-slack due-window mixed Family A lane`
+    - generate multiple beam candidates with different order / selector /
+      option-cap mixes rather than a single randomized path family
+    - include one bounded fixed-bay repair on the best beam branch
+    - checker-evaluate beam-built candidates first instead of serial fallback
+      references
+- target Family A subtype:
+  - `broader cross-subtype low-slack due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack seed`)
+  - T-zero constructive (`wide beam due/slack/area/critical variants`)
+  - bounded improvement (`best beam branch + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v550_prob13_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `16.72s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.02s`
+  - key evidence:
+    - `prob_13` Family A lane activated and checked `beam_due_pressure`
+    - checked beam stayed materially worse than fallback:
+      `beam_due_pressure T=49602` vs fallback `T=47258`
+    - the wider beam portfolio mostly collapsed inside budget before secondary
+      branches (`beam_tight_area=inf`, remaining beam branches skipped)
+- smoke summary:
+  - run id: `smoke_v550_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `17.30s`, max `23.53s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `0`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked-beam evidence:
+    - `prob_10`: checked `beam_due_pressure T=28054`, `beam_tight_area T=28315`,
+      fallback still wins at `T=28013`
+    - `prob_14`: checked `beam_due_pressure T=47925`,
+      fallback still wins at `T=45039`
+    - `prob_19`: checked `beam_due_pressure T=64074`,
+      fallback still wins at `T=59104`
+- decision:
+  - `v550` is rejected and closed without full 40.
+  - the beam architecture changed the construction stage correctly, but under
+    the broader Family A lane it converged to one dominant branch
+    (`beam_due_pressure`) that remained consistently worse than fallback while
+    the other beam branches exhausted their bounded budget too early.
+- next architecture:
+  - rotate to `Family A bay-first timing-second solver`
+  - keep targeting the same `broader cross-subtype low-slack due-window mixed
+    Family A lane`
+  - explicitly separate bay-pressure allocation from timing realization so the
+    solver is not spending most of its budget on one early serial beam branch
+    before reaching the multi-row high-T residuals
+
+## 2026-07-05 reboot_v551_20260705_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v550` showed that from-scratch beam search under the broader Family A lane
+    still spends most of its bounded budget on one dominant early branch, so
+    the lane rarely reaches a meaningfully different schedule surface.
+  - this cycle rotates architecture to a bay-first timing-second solver:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - keep the same `broader cross-subtype low-slack due-window mixed Family A
+      lane`
+    - assign blocks to bays first using feasible-bay pressure, preference gap,
+      area pressure, and load balance
+    - realize timing per bay with several latest-feasible / tight-first /
+      area-due forward schedules
+    - apply one bounded fixed-bay reorder on the best bay-first schedule
+    - checker-evaluate bay-first candidates first instead of serial fallback
+      references
+- target Family A subtype:
+  - `broader cross-subtype low-slack due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`bay-first due-pressure + edd timing`)
+  - T-zero constructive (`bay-first tight-area + tight timing`)
+  - bounded improvement (`best bay-first schedule + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v551_prob13_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `11.28s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.06s`
+  - key evidence:
+    - the bay-first lane activated on `prob_13` and generated meaningfully
+      different standalone schedules
+    - best checked standalone remained worse than fallback:
+      `bay_due_pressure__tight_first_repair T=48436`
+      vs fallback `T=47258`
+- smoke summary:
+  - run id: `smoke_v551_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `12.95s`, max `18.28s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `0`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked bay-first evidence:
+    - `prob_10`: checked `bay_due_pressure__edd T=29350`,
+      `bay_wall_pref__edd T=29549`, fallback still wins at `T=28013`
+    - `prob_13`: checked `bay_due_pressure__tight_first_repair T=48436`,
+      `bay_due_pressure__tight_first T=48440`, fallback still wins at `T=47258`
+    - `prob_19`: checked `bay_slack_pref__tight_first_repair T=63515`,
+      fallback still wins at `T=59104`
+- decision:
+  - `v551` is rejected and closed without full 40.
+  - the architecture changed the construction stage correctly, but the
+    bay-first allocation systematically pushed the standalone lane farther away
+    from the trusted fallback surface across the broad residual set.
+- next architecture:
+  - rotate to `Family A global backward constructive`
+  - keep targeting the same `broader cross-subtype low-slack due-window mixed
+    Family A lane`
+  - explicitly test a due-date-backward timing skeleton before bay/spatial
+    realization, because both beam-first and bay-first forward schedules are
+    consistently losing T on the current high-pressure residual rows
+
+## 2026-07-05 reboot_v552_20260705_familyA_backward_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v551` showed that even separated bay-first / timing-second forward
+    schedules keep losing T across the broad residual Family A rows.
+  - this cycle rotates architecture again to a global backward constructive:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - keep the same `broader cross-subtype low-slack due-window mixed Family A
+      lane`
+    - assign and time blocks from due-date backward with bay / area / pref
+      pressure heuristics
+    - compare several backward order variants before any fallback
+    - apply one bounded forward-normalization / bay reorder repair on the best
+      backward branch
+    - checker-evaluate backward-built candidates first instead of serial
+      fallback references
+- target Family A subtype:
+  - `broader cross-subtype low-slack due-window mixed Family A lane`
+  - intended smoke rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`backward due-pressure`)
+  - T-zero constructive (`backward tight-area / backward slack-pref`)
+  - bounded improvement (`best backward schedule + forward-normalized repair`)
+- smoke plan:
+  - probe: `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v552_prob13_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `12.60s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `15.16s`
+  - key evidence:
+    - backward lane activated on `prob_13` and produced distinct checked
+      candidates
+    - best checked standalone still lost to fallback:
+      `back_tight_area__area_desc_repair T=48684`
+      vs fallback `T=47258`
+- smoke summary:
+  - run id: `smoke_v552_familyA_wide_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `13.78s`, max `18.62s`
+  - Family A target rows:
+    - `prob_10 T=27824`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364596`
+    - avg `45574.5`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `-189`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked backward evidence:
+    - `prob_10`: checked `back_tight_area__area_desc T=27824`,
+      `back_tight_area__tight_desc T=27843`, and selected backward standalone
+      beat fallback `28013`
+    - `prob_14`: best checked backward after repair was still
+      `T=46955` vs fallback `45039`
+    - `prob_19`: best checked backward after repair was still
+      `T=62412` vs fallback `59104`
+  - only one high-T row improved (`prob_10: 28013 -> 27824`)
+  - the other seven Family A target rows stayed at the fallback surface
+- decision:
+  - `v552` is rejected and closed without full 40.
+  - this is the strongest signal so far on the broad lane (`-189` on Family A
+    aggregate), but it still fails the hard gate because the gain is isolated
+    to one row and nowhere near a T-zero breakthrough.
+- next architecture:
+  - rotate away from the repeated broad-lane attempts to a
+    `Family A spatial/orientation constructive`
+  - target a narrower `large-area high-pressure low-pref-concentration Family A
+    subtype`
+  - evidence for subtype shift:
+    - after three consecutive broad-lane structural failures (`v550/v551/v552`)
+      the only repeatable positive signal came from area-heavy backward
+      variants, especially `back_tight_area__area_desc` on `prob_10`
+    - the next cycle should test whether explicit wall/corner/edge hugging and
+      orientation-aware placement can unlock the area-pressure residual rows
+      without spending another cycle on the same broad mixed subtype
+
+## 2026-07-05 reboot_v553_20260705_familyA_spatial_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v552` produced the best broad-lane signal so far, but the gain remained
+    isolated to `prob_10` and came specifically from the area-heavy backward
+    variants.
+  - this cycle narrows the Family A lane to a `large-area high-pressure
+    low-pref-concentration` subtype and rotates architecture to a spatial /
+    orientation constructive:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - activate only on the narrower large-area subtype
+    - choose bay + orientation first with fill / edge / preference pressure
+      scoring
+    - realize several forward timing schedules on top of the spatial layout
+    - checker-evaluate spatial candidates first instead of serial fallback
+      references
+- target Family A subtype:
+  - `large-area high-pressure low-pref-concentration Family A subtype`
+  - intended representatives: `prob_10`, `prob_14`
+  - smoke rows remain `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`spatial due-pressure + edd timing`)
+  - T-zero constructive (`spatial tight-area + area-due timing`)
+  - bounded improvement (`best spatial schedule + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_10`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run ids:
+    - `probe_v553_prob10_prob40_20260705_001` (initial subtype gate too narrow;
+      `prob_10` stayed `uncertain` and only fallback ran)
+    - `probe_v553_prob10_prob40_20260705_002` (after fixing the subtype gate)
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=28013`, objective `408382227`, runtime `7.27s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.57s`
+  - key evidence after the gate fix:
+    - the spatial lane activated on `prob_10`
+    - checked spatial candidates still lost to fallback:
+      `spatial_due_pressure__edd T=29350`
+      and `spatial_wall_pref__edd T=29549`
+      vs fallback `T=28013`
+- smoke summary:
+  - run id: `smoke_v553_familyA_spatial_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `11.93s`, max `16.41s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `0`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked spatial evidence:
+    - `prob_10`: checked `spatial_due_pressure__edd T=29350`,
+      `spatial_wall_pref__edd T=29549`, fallback still wins at `T=28013`
+    - `prob_14`: checked `spatial_due_pressure__tight_first T=46976`,
+      `spatial_tight_area__tight_first T=47421`, fallback still wins at `T=45039`
+    - `prob_15`: checked `spatial_tight_area__tight_first_repair T=43903`,
+      fallback still wins at `T=42020`
+- decision:
+  - `v553` is rejected and closed without full 40.
+  - the subtype gating is now correct, but the spatial/orientation constructive
+    still systematically produces worse standalone schedules than the stable
+    fallback even on the intended large-area subtype.
+- next architecture:
+  - keep the same `large-area high-pressure low-pref-concentration Family A
+    subtype`
+  - rotate architecture to a `Family A two-stage solver`
+  - stage 1 should build an aggressive timing skeleton, then stage 2 should do
+    subtype-specific spatial/bay repair, because pure spatial-first
+    construction is not beating fallback on the targeted rows
+
+## 2026-07-05 reboot_v554_20260705_familyA_twostage_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: rejected after probe + broad smoke
+- hypothesis:
+  - `v553` confirmed the subtype gate is now correct, but pure spatial-first
+    construction still loses to fallback on the targeted large-area rows.
+  - this cycle keeps the same `large-area high-pressure low-pref-concentration
+    Family A subtype` and rotates architecture to a two-stage solver:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - stage 1 builds an aggressive timing skeleton using subtype-aware orders
+    - stage 2 maps the skeleton onto bays / orientations with spatial pressure
+      repair
+    - include one bounded fixed-bay reorder repair on the best stage-2 result
+    - checker-evaluate two-stage candidates first instead of serial fallback
+      references
+- target Family A subtype:
+  - `large-area high-pressure low-pref-concentration Family A subtype`
+  - intended representatives: `prob_10`, `prob_14`, `prob_15`
+  - smoke rows remain `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`two-stage due-pressure + edd realization`)
+  - T-zero constructive (`two-stage tight-area + area-due realization`)
+  - bounded improvement (`best two-stage schedule + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_10`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v554_prob10_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=27544`, objective `401681456`, runtime `9.33s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.95s`
+  - key evidence:
+    - the two-stage lane activated on `prob_10`
+    - checked `twostage_wall_pref_repair T=27544`
+    - fallback `v005 T=28013`
+    - first subtype representative improvement: `-469 T`
+- smoke summary:
+  - run id: `smoke_v554_familyA_twostage_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `12.78s`, max `15.66s`
+  - Family A target rows:
+    - `prob_10 T=27544`
+    - `prob_11 T=30228`
+    - `prob_13 T=47258`
+    - `prob_14 T=45032`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364301`
+    - avg `45537.625`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `-484`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - improved Family A rows:
+    - `prob_10: 28013 -> 27544`
+    - `prob_11: 30236 -> 30228`
+    - `prob_14: 45039 -> 45032`
+  - representative checked evidence:
+    - `prob_10`: selected `twostage_wall_pref_repair T=27544`
+    - `prob_11`: selected `twostage_wall_pref T=30228`
+    - `prob_14`: selected `twostage_wall_pref T=45032`
+- decision:
+  - `v554` is rejected and closed without full 40.
+  - this is the strongest subtype-lane signal so far, and it improves three
+    Family A target rows while protecting Family B, but only `prob_10` moves
+    materially; the other gains are too small to satisfy the hard gate's
+    breakthrough intent.
+- next architecture:
+  - keep the same `large-area high-pressure low-pref-concentration Family A
+    subtype`
+  - rotate architecture to a `Family A GRASP/randomized constructive`
+  - rationale:
+    - the deterministic two-stage lane found a better surface on three target
+      rows, so the next bounded cycle should diversify tie-breaks / bay /
+      orientation choices on the same subtype rather than re-running another
+      deterministic variant
+
+## 2026-07-05 reboot_v555_20260705_familyA_grasp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v554` produced the first multi-row positive signal on the narrowed
+    subtype, especially on `prob_10`, but its deterministic constructions still
+    collapse onto nearly the same surface on the other high-T rows.
+  - this cycle keeps the same `large-area high-pressure low-pref-concentration
+    Family A subtype` and rotates architecture to a bounded
+    `GRASP/randomized constructive` lane:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - keep the same subtype classifier and wrapper so Family B remains guarded
+    - reuse the stronger timing/spatial shape from `v554`, but inject bounded
+      randomized tie-breaks across order, bay, orientation, and timing
+      realization
+    - compare multiple from-scratch candidates inside one coherent Family A
+      constructive lane, then checker-select with T-first ordering
+- target Family A subtype:
+  - `large-area high-pressure low-pref-concentration Family A subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+  - smoke rows remain `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`grasp due-pressure seed`)
+  - T-zero constructive (`grasp tight-area seed`)
+  - bounded improvement (`best grasp schedule + fixed-bay reorder / retime`)
+- smoke plan:
+  - probe: `prob_10`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v555_prob10_prob40_20260705_001`
+  - accepted_for_score: `2/2`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=27696`, objective `403870743`, runtime `11.26s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `14.83s`
+  - key evidence:
+    - the GRASP lane activated on `prob_10`
+    - selected `grasp_wall_seed2 T=27696`
+    - fallback `v005 T=28013`
+    - probe is clean, but weaker than `v554` on the same representative row
+- smoke summary:
+  - run id: `smoke_v555_familyA_grasp_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `15.30s`, max `19.65s`
+  - Family A target rows:
+    - `prob_10 T=27696`
+    - `prob_11 T=30215`
+    - `prob_13 T=47258`
+    - `prob_14 T=45028`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364436`
+    - avg `45554.5`
+    - worst row `59104`
+    - delta vs `v554`: `+135`
+    - delta vs stable `v005` fallback surface: `-349`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - improved Family A rows vs `v554`:
+    - `prob_11: 30228 -> 30215`
+    - `prob_14: 45032 -> 45028`
+  - regressed Family A rows vs `v554`:
+    - `prob_10: 27544 -> 27696`
+  - representative checked evidence:
+    - `prob_10`: selected `grasp_wall_seed2 T=27696`
+    - `prob_11`: selected `grasp_wall_seed2_repair T=30215`
+    - the randomized seeds did execute, but they converged very close to the
+      same wall-preference surface already seen in `v554`
+- decision:
+  - `v555` is rejected and closed without full 40.
+  - although all smoke rows stayed accepted and Family B remained protected,
+    the lane does not satisfy the hard gate: only two rows improve slightly,
+    `prob_10` regresses versus `v554`, and the Family A aggregate moves away
+    from the strongest signal from the prior cycle.
+- next architecture:
+  - leave the `large-area high-pressure low-pref-concentration Family A
+    subtype` after three consecutive failures (`v553` spatial, `v554`
+    two-stage, `v555` GRASP) to hit the required breakthrough level
+  - rotate to a `Family A cluster decomposition` solver
+  - target subtype:
+    - broader cross-row `due-window / bay-pressure residual Family A lane`
+    - intended representatives: `prob_13`, `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the narrowed large-area subtype can produce small improvements on
+      `prob_10/11/14`, but it is not moving the dominant residual rows enough,
+      so the next bounded cycle should repartition the harder late rows by
+      due-window and bay pressure rather than keep perturbing the same subtype.
+
+## 2026-07-05 reboot_v556_20260705_familyA_cluster_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v553`/`v554`/`v555` exhausted the narrowed large-area subtype without
+    producing the required multi-row breakthrough.
+  - this cycle deliberately leaves that subtype and targets a broader
+    cross-row residual Family A lane driven by the still-dominant high-T late
+    rows:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - broaden the Family A gate toward `250~300 block`, `4~5 bay`,
+      low-pref-pressure, positive-slack rows
+    - split blocks into due-window / bay-pressure clusters from scratch
+    - build several cluster-first constructives and compare them T-first
+    - apply one bounded retime / fixed-bay repair on the best cluster-built
+      candidate before comparing against fallback
+- target Family A subtype:
+  - `broader cross-row due-window / bay-pressure residual Family A lane`
+  - intended representatives: `prob_13`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`early due-window cluster build`)
+  - T-zero constructive (`late pressure cluster build`)
+  - bounded improvement (`best cluster schedule + retime / fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_13`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v556_prob13_prob20_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `13.60s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `22.24s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.77s`
+  - key evidence:
+    - the cluster lane did activate on both targeted representative rows
+    - checked `cluster_early_due_retime_tight_first` on `prob_13` stayed worse
+      than fallback (`47777 > 47258`)
+    - checked `cluster_early_due` / `cluster_late_pressure` /
+      `cluster_bay_balance` on `prob_20` all stayed far above fallback
+    - probe is clean, but it already shows no T-direction signal
+- smoke summary:
+  - run id: `smoke_v556_familyA_cluster_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `14.78s`, max `22.92s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs `v555`: `+349`
+    - exact fallback surface recovery on all target rows
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_14`: best checked cluster candidate stayed at `T 46020`, worse than
+      fallback `T 45039`
+    - `prob_17`: all checked cluster candidates stayed in the `T 63714~64419`
+      band, well above fallback `T 58669`
+- decision:
+  - `v556` is rejected and closed without full 40.
+  - although all smoke rows remained accepted and Family B stayed protected,
+    the broader cluster-decomposition lane produced no target-row breakthrough
+    at all and collapsed back to the stable fallback surface on the required
+    smoke set.
+- next architecture:
+  - keep the same `broader cross-row due-window / bay-pressure residual Family
+    A lane`
+  - rotate architecture to a `Family A bay-first timing-second solver`
+  - intended representatives remain `prob_13`, `prob_17`, `prob_19`,
+    `prob_20`
+  - rationale:
+    - the cluster-first constructor does open and checker-score, but it is
+      consistently too loose versus fallback on the late residual rows, so the
+      next bounded cycle should first partition pressure across bays and only
+      then realize timing locally.
+
+## 2026-07-05 reboot_v557_20260705_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v556` confirmed that broader cluster decomposition opens real standalone
+    candidates on the late residual rows, but the cluster-first timing remains
+    too loose versus the fallback.
+  - this cycle keeps the same `broader cross-row due-window / bay-pressure
+    residual Family A lane` and rotates architecture to `bay-first
+    timing-second`:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - partition pressure across bays first using due-window, preference gap,
+      and workload balance
+    - realize timing locally inside each bay with latest-due / tight-slack
+      variants
+    - apply one bounded fixed-bay reorder repair on the best bay-first
+      candidate before checker comparison
+- target Family A subtype:
+  - `broader cross-row due-window / bay-pressure residual Family A lane`
+  - intended representatives: `prob_13`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`bay-first due/latest`)
+  - T-zero constructive (`bay-first due/tight and pref/tight`)
+  - bounded improvement (`best bay-first schedule + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_13`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v557_prob13_prob20_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `10.39s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `16.69s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.03s`
+  - key evidence:
+    - the bay-first lane activated and produced scored candidates on both
+      targeted late residual rows
+    - checked `bayfirst_due_tight` on `prob_13` stayed worse than fallback
+      (`47852 > 47258`)
+    - checked `bayfirst_due_tight_repair` on `prob_20` stayed worse than
+      fallback (`55313 > 54446`)
+    - probe is runtime-safe, but again shows no T-direction signal
+- smoke summary:
+  - run id: `smoke_v557_familyA_bayfirst_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `12.32s`, max `17.71s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs `v556`: `0`
+    - exact fallback surface recovery on all target rows
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_19`: best checked bay-first candidate still stayed at `T 63095`,
+      well above fallback `T 59104`
+    - `prob_13` / `prob_20` probe evidence already showed the same pattern
+- decision:
+  - `v557` is rejected and closed without full 40.
+  - the bay-first timing-second architecture is runtime-safe and does produce
+    real standalone candidates, but on this broader residual lane every checked
+    candidate still loses to fallback, so the smoke collapses to the exact same
+    fallback surface as `v556`.
+- next architecture:
+  - keep the same `broader cross-row due-window / bay-pressure residual Family
+    A lane`
+  - rotate architecture to a `Family A beam portfolio from scratch`
+  - intended representatives remain `prob_13`, `prob_17`, `prob_19`,
+    `prob_20`
+  - rationale:
+    - both cluster-first and bay-first now open feasible standalone candidates
+      but remain too conservative versus fallback on the late rows, so the next
+      bounded cycle should diversify full global order hypotheses instead of
+      committing to one partitioning rule first.
+
+## 2026-07-05 reboot_v558_20260705_familyA_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v556` and `v557` proved that broader residual-lane standalone candidates
+    can be generated and checker-scored, but both cluster-first and bay-first
+    constructions remain too conservative versus fallback on the late rows.
+  - this cycle keeps the same `broader cross-row due-window / bay-pressure
+    residual Family A lane` and rotates architecture to a `beam portfolio from
+    scratch`:
+    - preserve stable `v005` fallback for Family B / uncertain rows
+    - build several independent serial-safe beam constructives from scratch
+    - checker-evaluate the best standalone beam candidates T-first
+    - apply one bounded fixed-bay reorder repair on the best beam branch
+- target Family A subtype:
+  - `broader cross-row due-window / bay-pressure residual Family A lane`
+  - intended representatives: `prob_13`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial-safe edd/slack beam`)
+  - T-zero constructive (`area-pressure / critical-ratio beam`)
+  - bounded improvement (`best beam branch + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_13`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v558_prob13_prob20_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_13`: accepted, `T=47258`, objective `880421744`, runtime `14.66s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `21.73s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `14.77s`
+  - key evidence:
+    - the broader residual lane still routes correctly to the Family A branch
+    - however, the actual beam portfolio never opened on the targeted late
+      rows inside budget: `beam_edd_pref` failed and the other beam branches
+      were skipped
+    - the checked surface fell back to the inherited serial seeds
+    - probe is accepted and runtime-safe, but shows no independent beam signal
+- smoke summary:
+  - run id: `smoke_v558_familyA_beam_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `15.34s`, max `22.28s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - delta vs `v557`: `0`
+    - exact fallback surface recovery on all target rows
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_17`: only `serial_slack_seed` survived to checking; all beam
+      candidates were skipped or failed before checker comparison
+    - `prob_13` / `prob_20` probe evidence showed the same no-open pattern
+- decision:
+  - `v558` is rejected and closed without full 40.
+  - the beam portfolio did not create a usable standalone signal on the
+    intended broader residual lane; instead it collapsed all the way back to
+    the serial fallback seeds, so the smoke surface is identical to `v557`.
+- next architecture:
+  - leave the `broader cross-row due-window / bay-pressure residual Family A
+    lane` after three consecutive failures (`v556` cluster, `v557` bay-first,
+    `v558` beam)
+  - rotate to a `Family A global backward constructive`
+  - target subtype:
+    - `300-block diffuse late-window high-area Family A subtype`
+    - intended representatives: `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the broader mixed late-row lane never produced a breakthrough despite
+      three construction-stage changes, so the next bounded cycle should switch
+    to a different subtype and test whether a due-date-backward construction
+      can move the diffuse 300-block late-window rows that still dominate the
+      residual T surface.
+
+## 2026-07-05 reboot_v559_20260705_familyA_backward_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v556`/`v557`/`v558` exhausted the broader cross-row late residual lane
+    without producing a standalone breakthrough, so this cycle intentionally
+    leaves that subtype.
+  - this cycle keeps the stable `v005` fallback wrapper but narrows the Family
+    A lane to a `300-block diffuse late-window high-area` subtype and tests a
+    stricter global backward constructive:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the diffuse 300-block late-window subtype at runtime
+    - generate several from-scratch backward constructions with different
+      due-window / area-pressure / preference-diffusion order hypotheses
+    - checker-compare a small bounded pool T-first
+    - apply one bounded fixed-bay reorder repair on the best backward branch
+- target Family A subtype:
+  - `300-block diffuse late-window high-area Family A subtype`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- representative feature evidence:
+  - `prob_17`: `blocks 300`, `bays 4`, `w1 9697`, `proc_mean 7.567`,
+    `slack_mean 1.443`, `tight2 0.773`, `pref_conc 0.263`,
+    `pref_pressure 0.260`, `p90_area 0.188`, `large_area 0.147`
+  - `prob_19`: `blocks 300`, `bays 4`, `w1 10667`, `proc_mean 7.380`,
+    `slack_mean 1.443`, `tight2 0.797`, `pref_conc 0.280`,
+    `pref_pressure 0.267`, `p90_area 0.168`, `large_area 0.123`
+  - `prob_20`: `blocks 300`, `bays 5`, `w1 26667`, `proc_mean 7.413`,
+    `slack_mean 1.567`, `tight2 0.780`, `pref_conc 0.207`,
+    `pref_pressure 0.213`, `p90_area 0.199`, `large_area 0.163`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`due-window / release-safe backward`)
+  - T-zero constructive (`late-area / huge-area backward`)
+  - bounded improvement (`best backward branch + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_17`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v559_prob17_prob20_prob40_20260705_002`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_17`: accepted, `T=58669`, objective `570289700`, runtime `16.46s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `17.75s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.23s`
+  - representative checked evidence:
+    - `prob_17`: best checked backward candidate stayed at `T 63003`, above
+      fallback `T 58669`
+    - `prob_20`: best checked repaired backward candidate stayed at `T 56654`,
+      above fallback `T 54446`
+  - probe verdict:
+    - runtime-safe and scoreable, but it already showed no T-direction movement
+      on two intended subtype representatives.
+- smoke summary:
+  - run id: `smoke_v559_familyA_backward_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `12.14s`, max `18.46s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - exact fallback surface recovery on all target rows
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_19`: best checked repaired backward candidate stayed at `T 62412`,
+      above fallback `T 59104`
+    - `prob_17` / `prob_20` kept the same no-win pattern seen at probe
+- decision:
+  - `v559` is rejected and closed without full 40.
+  - the narrowed `300-block diffuse late-window high-area` detector is clean
+    and the standalone backward constructions are genuinely checker-scored, but
+    every checked backward branch still loses to fallback, so the smoke again
+    collapses to the exact trusted surface.
+- next architecture:
+  - keep the same `300-block diffuse late-window high-area Family A subtype`
+    for one more bounded cycle
+  - rotate architecture to a `Family A spatial/orientation constructive`
+  - intended representatives remain `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the backward timing hypothesis appears too conservative on the diffuse
+      300-block rows, while the subtype still has strong large-area pressure;
+      the next bounded cycle should change the spatial construction itself
+      rather than only the timing order.
+
+## 2026-07-05 reboot_v560_20260705_familyA_spatial_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v559` showed that the narrowed 300-block subtype detector is clean, but a
+    backward timing hypothesis alone is still too conservative against the
+    trusted fallback on `prob_17`/`prob_19`/`prob_20`.
+  - this cycle keeps the same `300-block diffuse late-window high-area`
+    subtype and rotates architecture to a `spatial/orientation constructive`:
+    - preserve stable fallback for Family B / uncertain rows
+    - build standalone spatial candidates from scratch for only the narrowed
+      300-block subtype
+    - favor large-area blocks, edge/corner hugging, and diffuse-preference bay
+      spreading before timing order is assigned
+    - checker-compare a bounded pool T-first
+    - apply one bounded fixed-bay reorder repair on the best spatial branch
+- target Family A subtype:
+  - `300-block diffuse late-window high-area Family A subtype`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`late-area edge-hug`)
+  - T-zero constructive (`huge-area corner-hug`)
+  - bounded improvement (`best spatial branch + fixed-bay reorder`)
+- smoke plan:
+  - probe: `prob_17`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v560_prob17_prob20_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_17`: accepted, `T=58669`, objective `570289700`, runtime `16.75s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `17.27s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.65s`
+  - representative checked evidence:
+    - `prob_17`: best checked repaired spatial branch stayed at `T 63140`,
+      above fallback `T 58669`
+    - `prob_20`: best checked spatial branch stayed at `T 55773`, above
+      fallback `T 54446`
+  - probe verdict:
+    - runtime-safe and scoreable, but it again showed no T-direction movement
+      on two intended subtype representatives.
+- smoke summary:
+  - run id: `smoke_v560_familyA_spatial_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `11.79s`, max `17.97s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364785`
+    - avg `45598.125`
+    - worst row `59104`
+    - exact fallback surface recovery on all target rows
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_19`: best checked spatial branch stayed at `T 63704`, above
+      fallback `T 59104`
+    - `prob_17` / `prob_20` kept the same no-win pattern seen at probe
+- decision:
+  - `v560` is rejected and closed without full 40.
+  - the spatial/orientation hypothesis also preserved the scoreable contract
+    and produced real standalone candidates, but every checked branch still
+    lost to fallback, so the smoke again collapsed to the exact trusted
+    surface.
+- next architecture:
+  - keep the same `300-block diffuse late-window high-area Family A subtype`
+    for one final bounded cycle before forcing a subtype change
+  - rotate architecture to a `Family A GRASP/randomized constructive`
+  - intended representatives remain `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - both backward and spatial constructions on this subtype are now runtime
+      safe but structurally too deterministic versus fallback; the next bounded
+      cycle should diversify tie-break, bay choice, and orientation seeds
+      before this subtype is retired after a third miss.
+
+## 2026-07-05 reboot_v561_20260705_familyA_grasp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v559` backward and `v560` spatial/orientation both kept the scoreable
+    contract on the narrowed subtype but remained too deterministic and never
+    beat fallback on the intended late rows.
+  - this cycle keeps the same `300-block diffuse late-window high-area`
+    subtype for one final bounded pass and rotates to a
+    `GRASP/randomized constructive`:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the narrowed 300-block subtype at runtime
+    - diversify timing skeletons, bay tie-breaks, orientation sampling, and
+      rank-biased candidate choice
+    - checker-compare a bounded pool T-first
+    - apply retime and fixed-bay repair on the best GRASP branch
+- target Family A subtype:
+  - `300-block diffuse late-window high-area Family A subtype`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`late-window randomized serial realization`)
+  - T-zero constructive (`late-area / diffuse-preference randomized branch`)
+  - bounded improvement (`best GRASP branch + retime + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_17`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v561_prob17_prob20_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_17`: accepted, `T=58669`, objective `570289700`, runtime `24.47s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `25.46s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `14.19s`
+  - representative checked evidence:
+    - `prob_17`: best checked GRASP branch stayed at `T 63021`, above fallback
+      `T 58669`
+    - `prob_20`: best checked GRASP branch stayed at `T 57266`, above fallback
+      `T 54446`
+    - two later GRASP seeds were skipped after budget contraction, so runtime
+      headroom already worsened without T movement at probe
+- smoke summary:
+  - run id: `smoke_v561_familyA_grasp_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `14.45s`, max `24.85s`
+  - Family A target rows:
+    - `prob_10 T=28013`
+    - `prob_11 T=30236`
+    - `prob_13 T=47258`
+    - `prob_14 T=45039`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54434`
+  - Family A aggregate:
+    - sum `364773`
+    - avg `45596.625`
+    - worst row `59104`
+    - delta vs trusted fallback surface: `-12` on total `T`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_20`: `grasp_wall_seed2` finally won the local comparison and
+      improved `T 54446 -> 54434`
+    - `prob_17`: best checked GRASP branch stayed at `T 63021`, above fallback
+      `T 58669`
+    - `prob_19`: best checked GRASP branch stayed at `T 64121`, above fallback
+      `T 59104`
+- decision:
+  - `v561` is rejected and closed without full 40.
+  - this is only a tiny single-row signal (`prob_20 T -12`) and it does not
+    satisfy the hard gate requiring either all target rows below `T < 10` or a
+    clear multi-row breakthrough. The subtype is therefore closed after three
+    consecutive misses (`v559` backward, `v560` spatial, `v561` GRASP).
+- next architecture:
+  - leave the `300-block diffuse late-window high-area Family A subtype`
+  - rotate to a `Family A two-stage solver`
+  - target subtype:
+    - `4-bay 200-250-block tight-window high-w1 residual subtype`
+    - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+  - representative feature evidence:
+    - `prob_10`: `blocks 200`, `bays 4`, `w1 14545`, `proc_mean 7.695`,
+      `slack_mean 1.545`, `tight2 0.785`, `pref_conc 0.295`,
+      `pref_pressure 0.273`
+    - `prob_11`: `blocks 200`, `bays 4`, `w1 22857`, `proc_mean 7.695`,
+      `slack_mean 1.285`, `tight2 0.850`, `pref_conc 0.260`,
+      `pref_pressure 0.261`
+    - `prob_14`: `blocks 250`, `bays 4`, `w1 17778`, `proc_mean 7.528`,
+      `slack_mean 1.548`, `tight2 0.776`, `pref_conc 0.304`,
+      `pref_pressure 0.271`
+    - `prob_15`: `blocks 250`, `bays 4`, `w1 14815`, `proc_mean 7.416`,
+      `slack_mean 1.416`, `tight2 0.792`, `pref_conc 0.272`,
+      `pref_pressure 0.258`
+  - rationale:
+    - the diffuse 300-block lane now has three consecutive structure changes
+      without a meaningful breakthrough, so the next bounded cycle must switch
+      subtype and test whether a timing-skeleton-first two-stage construction
+      can move the compact 4-bay residual rows instead.
+
+## 2026-07-05 reboot_v562_20260705_familyA_twostage_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - the 300-block diffuse lane is now closed after three misses, so this cycle
+    rotates subtype and tests whether a compact 4-bay high-w1 residual family
+    responds better to a timing-skeleton-first two-stage construction.
+  - this cycle builds a narrowed `4-bay 200-250-block tight-window high-w1`
+    lane:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the compact 4-bay subtype at runtime
+    - build several timing skeletons from scratch
+    - realize them with bay assignment / spatial feasibility as stage 2
+    - checker-compare a bounded pool T-first
+    - apply bounded fixed-bay repair on the best two-stage branch
+- target Family A subtype:
+  - `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`due-pressure timing skeleton`)
+  - T-zero constructive (`tight-area / wall-pref timing skeleton`)
+  - bounded improvement (`best two-stage branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v562_prob10_prob11_prob40_20260705_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=27544`, objective `401681456`, runtime `9.74s`
+  - `prob_11`: accepted, `T=30228`, objective `691832292`, runtime `9.18s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.67s`
+  - representative checked evidence:
+    - `prob_10`: `twostage_wall_pref_repair` beat fallback `T 28013 -> 27544`
+    - `prob_11`: `twostage_wall_pref` beat fallback `T 30236 -> 30228`
+    - `prob_40` stayed on stable fallback, so Family B protection held
+  - probe verdict:
+    - strong enough to continue to smoke because two intended subtype reps
+      improved while the guard stayed flat.
+- smoke summary:
+  - run id: `smoke_v562_familyA_twostage_20260705_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `13.66s`, max `16.39s`
+  - Family A target rows:
+    - `prob_10 T=27544`
+    - `prob_11 T=30228`
+    - `prob_13 T=47241`
+    - `prob_14 T=45032`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364284`
+    - avg `45535.5`
+    - worst row `59104`
+    - delta vs trusted fallback surface: `-501` on total `T`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - representative checked evidence:
+    - `prob_10`: `twostage_wall_pref_repair` beat fallback by `T -469`
+    - `prob_11`: `twostage_wall_pref` beat fallback by `T -8`
+    - `prob_13`: `twostage_tight_area` beat fallback by `T -17`
+    - `prob_14`: `twostage_tight_area` beat fallback by `T -7`
+    - `prob_15` and the 300-block carryover rows stayed on fallback
+- decision:
+  - `v562` is rejected and closed without full 40.
+  - this is the first candidate on the compact 4-bay subtype that produced a
+    real multi-row improvement signal, but it still misses the hard gate:
+    none of the target rows are near `T < 10`, and the smoke does not show the
+    required large breakthrough across at least three high-T targets.
+- next architecture:
+  - keep the same `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - rotate architecture to a `Family A bay-first timing-second solver`
+  - intended representatives remain `prob_10`, `prob_11`, `prob_14`, `prob_15`
+  - rationale:
+    - the two-stage lane suggests the compact 4-bay subtype is actually
+      responsive, especially on `prob_10`; the next bounded cycle should keep
+      the subtype but change the construction stage from timing-skeleton-first
+      to bay partitioning first, so we can test whether the remaining gap is
+      mostly caused by bay workload splits rather than timing order.
+
+## 2026-07-06 reboot_v563_20260706_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + broad smoke
+- hypothesis:
+  - `v562` proved the compact 4-bay high-w1 subtype is responsive, with the
+    strongest recent T signal on `prob_10` plus smaller wins on
+    `prob_11/13/14`.
+  - this cycle keeps that same subtype and rotates architecture to a
+    `bay-first timing-second` solver:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the compact 4-bay subtype at runtime
+    - partition blocks into bays first using preference pressure, workload,
+      and due-window pressure
+    - realize timing inside each bay with latest-due / tight-slack variants
+    - apply bounded fixed-bay reorder repair before checker comparison
+- target Family A subtype:
+  - `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`pref-balance bay split + latest-due timing`)
+  - T-zero constructive (`due-pressure bay split + tight-slack timing`)
+  - bounded improvement (`best bay-first branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v563_prob10_prob11_prob40_20260706_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=28013`, objective `408382227`, runtime `7.23s`
+  - `prob_11`: accepted, `T=30236`, objective `692018053`, runtime `6.68s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.05s`
+  - representative checked evidence:
+    - `prob_10`: best checked repaired bay-first branch stayed at `T 28773`,
+      above fallback `T 28013`
+    - `prob_11`: best checked repaired bay-first branch stayed at `T 30464`,
+      above fallback `T 30236`
+    - `prob_40` stayed on stable fallback, so Family B protection held
+- smoke summary:
+  - not run
+  - rationale:
+    - the intended compact-subtype representatives both reverted to exact
+      fallback output at the top-level selector, and the checked standalone
+      bay-first branches were strictly worse than fallback on both rows.
+    - because the probe already erased the `v562` signal, broad smoke was not
+      worth spending before full40.
+- decision:
+  - `v563` is rejected and closed without broad smoke and without full 40.
+  - the bay-first timing-second hypothesis did not preserve the compact-subtype
+    improvement signal seen in `v562`; instead it collapsed immediately back to
+    fallback after probe.
+- next architecture:
+  - keep the same `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - rotate architecture to a `Family A beam portfolio from scratch`
+  - intended representatives remain `prob_10`, `prob_11`, `prob_14`, `prob_15`
+  - rationale:
+    - the compact subtype still looks responsive because `v562` moved several
+      rows, but bay-first lost that signal entirely. The next bounded cycle
+      should diversify full order hypotheses from scratch rather than committing
+      to bay partitioning first.
+
+## 2026-07-06 reboot_v564_20260706_familyA_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v562` moved the compact 4-bay subtype while `v563` immediately collapsed
+    back to fallback, suggesting that the subtype may still respond if several
+    global order hypotheses are allowed to compete before bay or timing
+    commitments harden.
+  - this cycle keeps the same compact subtype and rotates to a
+    `beam portfolio from scratch`:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the compact 4-bay subtype at runtime
+    - build several independent serial-safe beam constructives from scratch
+    - checker-compare the best compact beam candidates T-first
+    - apply one bounded fixed-bay reorder repair on the best beam branch
+- target Family A subtype:
+  - `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`edd/slack compact beam`)
+  - T-zero constructive (`critical-ratio / area-pressure beam`)
+  - bounded improvement (`best beam branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v564_prob10_prob11_prob40_20260706_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=28013`, objective `408382227`, runtime `10.98s`
+  - `prob_11`: accepted, `T=30236`, objective `692018053`, runtime `10.35s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `15.41s`
+  - representative checked evidence:
+    - `prob_10`: `beam_edd_pref` failed to open, the remaining checked serial
+      seeds stayed at `T 28052` and `T 28211`, and the selector returned exact
+      fallback `T 28013`
+    - `prob_11`: `beam_edd_pref` failed to open, the remaining checked serial
+      seeds stayed at `T 30236` and `T 31046`, and the selector returned exact
+      fallback `T 30236`
+    - `prob_40` stayed on stable fallback, so Family B protection held
+- smoke summary:
+  - not run
+  - rationale:
+    - the compact beam lane failed at the probe stage itself: the intended beam
+      branch did not yield a usable candidate on either representative row, and
+      the remaining checked serial seeds were not better than fallback.
+    - because the probe already erased the compact-subtype signal from `v562`,
+      broad smoke was not worth spending before full40.
+- decision:
+  - `v564` is rejected and closed without broad smoke and without full 40.
+  - the beam-from-scratch architecture did change the construction stage, but
+    on the compact subtype it immediately collapsed to exact fallback instead
+    of extending the `v562` signal.
+- next architecture:
+  - keep the same `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - rotate architecture to a `Family A GRASP/randomized constructive`
+  - intended representatives remain `prob_10`, `prob_11`, `prob_14`, `prob_15`
+  - rationale:
+    - `v562` showed the subtype is responsive, while both `v563` bay-first and
+      `v564` beam lost that signal at probe. The next bounded cycle should keep
+      the subtype fixed and widen randomized construction diversity before bay
+      or beam commitments harden.
+
+## 2026-07-06 reboot_v565_20260706_familyA_grasp_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v562` remains the only recent lane with a real compact-subtype signal,
+    but `v563` bay-first and `v564` beam both collapsed back to fallback at
+    probe.
+  - this cycle keeps the same compact subtype and rotates to a
+    `GRASP/randomized constructive` lane:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the compact 4-bay subtype at runtime
+    - generate several from-scratch timing-skeleton plus randomized placement
+      realizations
+    - rank feasible candidates T-first, objective-second
+    - checker-compare the best distinct GRASP branches plus one bounded repair
+- target Family A subtype:
+  - `4-bay 200-250-block tight-window high-w1 residual subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`due-pressure GRASP seed`)
+  - T-zero constructive (`tight-area / wall-preference GRASP seeds`)
+  - bounded improvement (`best grasp branch + retime / fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v565_prob10_prob11_prob40_20260706_001`
+  - accepted_for_score: `3/3`
+  - timeout / invalid: `0 / 0`
+  - `prob_10`: accepted, `T=27729`, objective `404323239`, runtime `12.96s`
+  - `prob_11`: accepted, `T=29907`, objective `684425055`, runtime `11.71s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `15.19s`
+  - representative checked evidence:
+    - `prob_10`: selected standalone `grasp_wall_seed2`, improving on fallback
+      `28013 -> 27729`
+    - `prob_11`: selected standalone `grasp_due_seed4`, improving on fallback
+      `30236 -> 29907`
+    - `prob_40` stayed on fallback, so Family B protection held
+- smoke summary:
+  - run id: `smoke_v565_familyA_grasp_20260706_001`
+  - accepted_for_score: `10/10`
+  - timeout / invalid: `0 / 0`
+  - runtime: avg `15.63s`, max `20.49s`
+  - Family A target rows:
+    - `prob_10 T=27729`
+    - `prob_11 T=29907`
+    - `prob_13 T=47234`
+    - `prob_14 T=45031`
+    - `prob_15 T=42020`
+    - `prob_17 T=58669`
+    - `prob_19 T=59104`
+    - `prob_20 T=54446`
+  - Family A aggregate:
+    - sum `364140`
+    - avg `45517.5`
+    - worst row `59104`
+    - delta vs stable `v005` fallback surface: `-645`
+    - delta vs `v562`: `-144`
+  - Family B guards:
+    - `prob_36 T=77617`
+    - `prob_40 T=152921`
+    - no guard regression
+  - improved Family A rows vs `v562`:
+    - `prob_11: 30228 -> 29907`
+    - `prob_13: 47241 -> 47234`
+    - `prob_14: 45032 -> 45031`
+  - regressed Family A rows vs `v562`:
+    - `prob_10: 27544 -> 27729`
+  - representative checked evidence:
+    - `prob_10`: `grasp_wall_seed2` remained the best checked branch
+    - `prob_11`: `grasp_due_seed4` opened a better compact seed than the prior
+      lanes
+    - `prob_13/prob_14`: the lane still only produced marginal deltas, and the
+      rest of the high-T rows stayed on the fallback surface
+- decision:
+  - `v565` is rejected and closed without full 40.
+  - it is the best recent compact-subtype GRASP signal and does improve the
+    compact smoke aggregate versus both the stable fallback and `v562`, but it
+    still misses the hard gate: no target row is anywhere near `T < 10`, the
+    dominant late rows remain flat, and the multi-row gains are still too small
+    to justify another full40 run.
+- next architecture:
+  - leave the `4-bay 200-250-block tight-window high-w1 residual subtype`
+    after repeated misses on `v562`/`v563`/`v564`/`v565`
+  - rotate to a `Family A global backward constructive`
+  - target subtype:
+    - broader `250~300 block, 4~5 bay, diffuse late-window residual Family A`
+      lane centered on `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the compact subtype can move `prob_10/11/13/14`, but it is not breaking
+      the still-dominant late rows enough. The next bounded cycle should change
+      subtype and switch to a backward due-date construction that attacks the
+      large residual tail directly.
+
+## 2026-07-06 reboot_v566_20260706_familyA_backward_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v565` closed the compact 4-bay lane with the best recent local signal on
+    `prob_10/11/13/14`, but the dominant late residual rows still stayed flat.
+  - this cycle deliberately leaves the compact subtype and retargets a broader
+    late-window residual lane with a standalone `global backward constructive`:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect a broader `250~300 block / 4~5 bay / diffuse late-window residual`
+      Family A subtype at runtime
+    - build several due-backward bay/orientation assignments from scratch
+    - realize multiple backward timing orders before checker comparison
+    - keep one bounded repair candidate, but no warm local-repair dependence
+- target Family A subtype:
+  - `250~300 block, 4~5 bay, diffuse late-window residual Family A lane`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- evidence for subtype shift:
+  - compact subtype (`v562`/`v563`/`v564`/`v565`) can move
+    `prob_10/11/13/14`, but not the dominant late rows enough for the hard
+    gate.
+  - earlier narrow `300-block diffuse late-window` cycles
+    (`v559`/`v560`/`v561`) were runtime-safe but too narrow and too static to
+    carry any improvement beyond their own representatives.
+  - this bounded cycle widens the late-window lane while keeping the backward
+    construction hypothesis, so the failure mode changes from a narrow subtype
+    miss to a broader residual-tail test.
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`late-window backward`)
+  - T-zero constructive (`late-area / release-cliff backward`)
+  - bounded improvement (`best backward branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_17`, `prob_19`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- pre-probe classifier correction note:
+  - the first centered probe returned fallback-surface results on
+    `prob_17`, `prob_19`, `prob_20`, and the wrapper logs never printed the
+    `latewindow_bayfirst_lane` banner, which means the standalone Family A
+    lane did not open on its own intended subtype.
+  - direct feature replay showed the issue was not the subtype itself but a
+    classifier mismatch: `v568` gated on `feasible_bay_pressure >= 0.95`
+    while the neighboring late-window constructions (`v566`, `v567`) and the
+    subtype evidence had been using `feasible_bays_mean <= 1.10`.
+  - observed centered representative values:
+    - `prob_17`: `feasible_bays_mean ~= 1.020`, but
+      `feasible_bay_pressure ~= 0.017`
+    - `prob_19`: `feasible_bays_mean ~= 1.030`, but
+      `feasible_bay_pressure = 0.000`
+    - `prob_20`: `feasible_bays_mean ~= 1.027`, but
+      `feasible_bay_pressure = 0.000`
+  - bounded-cycle fix:
+    - expose `feasible_bays_mean` in `v568`
+    - switch the lane gate to the intended mean-based bottleneck metric
+    - re-run the same centered probe before deciding on broad smoke
+- probe summary:
+  - run id: `probe_v568_prob17_prob19_prob20_prob40_20260706_002`
+  - accepted_for_score: `4/4`
+  - timeout / invalid: `0 / 0`
+  - lane-open verification:
+    - `prob_17`, `prob_19`, `prob_20` now all printed the
+      `latewindow_bayfirst_lane` banner with `family=family_a_like`
+    - `prob_40` remained on the trusted fallback route as intended for Family B
+  - centered representative outcomes:
+    - `prob_17`: fallback `T=58669`; best checked bay-first candidate stayed at
+      `T=62966`
+    - `prob_19`: fallback `T=59104`; best checked bay-first candidate stayed at
+      `T=63095`
+    - `prob_20`: fallback `T=54446`; best checked bay-first candidate stayed at
+      `T=55313`
+  - guard outcome:
+    - `prob_40`: accepted, unchanged fallback result `T=152921`
+- smoke summary:
+  - not run
+  - rationale:
+    - once the classifier bug was fixed, the standalone lane still lost on all
+      three centered representatives, so the architecture showed no T-direction
+      signal even on its own intended subtype.
+    - because the hard-gate representatives did not improve at all, broad smoke
+      and full 40 were not justified.
+- decision:
+  - `v568` is rejected and closed without broad smoke and without full 40.
+  - this closes the third consecutive failure on the same
+    `300-block 4~5 bay diffuse late-window residual` subtype
+    (`v566` backward, `v567` cluster, `v568` bay-first), so the next bounded
+    cycle must rotate away from this subtype rather than keep poking it.
+- next architecture:
+  - switch to a `Family A beam portfolio from scratch`
+  - switch target subtype to the `250-block 4-bay hard-window / high-pref-gap`
+    residual rows that still dominate the broader Family A front
+    (`prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`)
+  - rationale:
+    - the late-window 300-block lane is now exhausted for a bounded cycle set,
+      while the 250-block hard-window family still carries multiple high-T rows
+      and benefits from order diversity more than another bay-first or backward
+      variant on the same late-window subtype.
+
+## 2026-07-06 reboot_v569_20260706_familyA_hardwindow_beam_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v568` closed the third consecutive failure on the late-window 300-block
+    subtype, so this cycle rotates both subtype and construction emphasis.
+  - the new lane targets the still-dominant hard-window/high-pref-gap residual
+    Family A rows (`prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`) and
+    returns to a `beam portfolio from scratch`, but with a changed failure mode
+    relative to `v564`:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the 4-bay 200~250-block hard-window/high-pref-gap subtype
+    - build beam candidates only, using due/release/hard-window/pref-gap order
+      families instead of letting serial seeds dominate the checked pool
+    - evaluate the best beam-built candidates T-first
+    - apply bounded repair only to leading beam branches before comparison
+- target Family A subtype:
+  - `4-bay 200~250-block hard-window / high-pref-gap residual subtype`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v005` serial portfolio)
+  - fast constructive (`narrow hard-window beams`)
+  - T-zero constructive (`release/due/pref-gap/area-pressure beam variants`)
+  - bounded improvement (`top beam branches + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_13`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe/smoke rows stay
+    `accepted_for_score=true` and the hard-window target rows show a clear
+    multi-row T-direction improvement.
+- in-cycle retune note:
+  - the first `v569` probe showed a real win on `prob_10`, but the beam budget
+    allocation was wrong for the hypothesis: `beam_fast_due` consumed nearly
+    the whole shared beam cap, so the remaining beam families logged as
+    `_skipped` on `prob_10`, `prob_11`, `prob_13`.
+  - because that failure is budget-shaping rather than subtype mismatch, the
+    same bounded cycle should retune beam time slices to give multiple beam
+    families a chance before closing the candidate.
+- probe summary:
+  - run id: `probe_v569_prob10_prob11_prob13_prob40_20260706_001`
+  - accepted_for_score: `4/4`
+  - timeout / invalid: `0 / 0`
+  - Family A targets:
+    - `prob_10`: improved to `T=27689` from fallback `T=28013`
+      via `beam_fast_due_repair`
+    - `prob_11`: stayed at fallback `T=30236`
+    - `prob_13`: stayed at fallback `T=47258`
+  - Family B guard:
+    - `prob_40`: unchanged fallback result `T=152921`
+  - diagnostic:
+    - only the first beam family got real budget; the remaining beam variants
+      mostly logged as `_skipped`, so the probe did not fairly test the full
+      beam hypothesis.
+- retuned probe summary:
+  - run id: `probe_v569_prob10_prob11_prob13_prob40_20260706_002`
+  - accepted_for_score: `4/4`
+  - timeout / invalid: `0 / 0`
+  - Family A targets:
+    - `prob_10`: fell back to exact stable result `T=28013`
+    - `prob_11`: exact stable result `T=30236`
+    - `prob_13`: exact stable result `T=47258`
+  - Family B guard:
+    - `prob_40`: unchanged fallback result `T=152921`
+  - diagnostic:
+    - after slicing beam budget across multiple families, all beam branches
+      collapsed to `inf` surrogate / no checked candidate on the three target
+      rows, so the beam-only hard-window lane lost even the initial single-row
+      `prob_10` signal.
+- smoke summary:
+  - not run
+  - rationale:
+    - the bounded-cycle probe never produced the required multi-row T-direction
+      signal. At best it briefly improved `prob_10` only, and the fairer
+      rerun erased that signal entirely.
+    - because `prob_11` and `prob_13` never improved and the retuned lane
+      collapsed to pure fallback, broad smoke and full 40 were not justified.
+- decision:
+  - `v569` is rejected and closed without broad smoke and without full 40.
+  - the hard-window beam-from-scratch hypothesis did not unlock the
+    `prob_10/11/13` front once beam budget was made fair, so it is not a
+    promotion candidate.
+- next architecture:
+  - rotate away from beam on the hard-window subtype
+  - next candidate should try a `Family A two-stage solver`
+  - next target subtype:
+    - `250-block 4-bay crossover Family A rows` with moderate slack and high
+      preference gap, centered on `prob_14` and `prob_15`
+  - rationale:
+    - the late-window 300-block lane has already exhausted three consecutive
+      failures, and the hard-window beam lane now also failed to create a
+      stable multi-row signal. The next bounded cycle should change both
+      architecture and representative subtype rather than repeat another beam /
+      grasp variation on the same front.
+
+## 2026-07-06 reboot_v570_20260706_familyA_crossover_twostage_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - the hard-window beam lane failed to keep even a single-row win stable, but
+    the remaining `prob_14` / `prob_15` front still looks like a crossover
+    subtype between the earlier hard-window rows and the later moderate-slack
+    rows.
+  - this cycle switches to a `two-stage timing skeleton + spatial realization`
+    lane on that crossover subtype:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only `250-block 4-bay moderate-slack / high-pref-gap` Family A
+    - stage 1 builds timing skeletons from due / release / preference-gap
+      structure
+    - stage 2 realizes those skeletons with bounded bay/spatial feasibility
+      repair
+    - compare standalone two-stage candidates T-first against fallback
+- target Family A subtype:
+  - `250-block 4-bay crossover moderate-slack / high-pref-gap subtype`
+  - intended representatives: `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v005` serial portfolio)
+  - fast constructive (`due-pressure / release-pref skeletons`)
+  - T-zero constructive (`pref-gap and moderate-slack timing skeletons`)
+  - bounded improvement (`best two-stage branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_14`, `prob_15`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe/smoke rows stay
+    `accepted_for_score=true` and the crossover subtype shows a real
+    multi-row T-direction improvement.
+- probe summary:
+  - run id: `probe_v570_prob14_prob15_prob36_prob40_20260706_001`
+  - evidence path:
+    `reports/ogc2026_benchmark/probe_v570_prob14_prob15_prob36_prob40_20260706_001/`
+  - candidate accepted_for_score: `4/4`
+  - candidate timeout / invalid: `0 / 0`
+  - companion local-wrapper comparison:
+    - the same probe also ran the current `ogc2026/baseline` surface as a
+      local comparator, but that companion row set is not promotion evidence
+      because `prob_40` crossed the official limit at runtime `61.90s`
+    - keep the trusted BEST anchored to the previously verified
+      `v318 -> v317` wrapper evidence, not this dirty local surface probe
+  - candidate rows:
+    - `prob_14`: accepted, `T=45032`, objective `801804558`, runtime `15.65s`
+    - `prob_15`: accepted, `T=42020`, objective `623767999`, runtime `15.04s`
+    - `prob_36`: accepted, `T=77617`, objective `51946440`, runtime `12.57s`
+    - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `11.19s`
+  - representative checked evidence:
+    - `prob_14`: the best checked standalone branch was
+      `twostage_tzero_crossover_balance` at `T 45032`, only `7` better than
+      the internal stable fallback `T 45039`
+    - `prob_15`: the best checked standalone branch stayed at `T 42164`,
+      above fallback `T 42020`, so selection collapsed back to the stable
+      fallback
+    - `prob_36`: Family B guard worsened sharply because the route returned the
+      `v005` stable fallback shape (`T 77617`) instead of anything close to
+      the stronger current wrapper family
+    - `prob_40`: the route stayed on the stable fallback and remained scoreable
+- smoke summary:
+  - not run
+  - rationale:
+    - the centered crossover representatives already failed the hard gate at
+      probe: `prob_14` improved by only `T 7`, `prob_15` stayed on fallback,
+      and neither row moved anywhere near `T < 10`.
+    - the added Family B guard row `prob_36` also worsened badly on the
+      candidate lane, so there was no reason to spend a broader smoke before
+      full40.
+- decision:
+  - `v570` is rejected and closed without broad smoke and without full 40.
+  - the crossover two-stage lane did become a real standalone candidate lane,
+    but it produced only a trivial `prob_14` improvement, no `prob_15`
+    improvement, and unacceptable Family B guard regression through the
+    fallback wrapper.
+- next architecture:
+  - keep the same `250-block 4-bay crossover moderate-slack / high-pref-gap`
+    subtype for one more bounded cycle
+  - rotate architecture to a `Family A GRASP/randomized constructive`
+  - target subtype:
+    - the same crossover lane centered on `prob_14`, `prob_15`
+  - rationale:
+    - the two-stage lane stayed too close to the `v005` serial fallback shape.
+      The next cycle should change the construction stage itself by generating
+      multiple from-scratch randomized bay/orientation/tie-break schedules and
+      selecting T-first, rather than polishing another near-serial timing
+      skeleton.
+
+## 2026-07-06 reboot_v571_20260706_familyA_grasp_crossover_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v570` opened the intended crossover subtype but its two-stage lane stayed
+    too close to the serial fallback shape and never produced a real
+    representative-row win.
+  - this cycle keeps the same subtype but changes the construction stage to a
+    `GRASP/randomized constructive` lane:
+    - preserve trusted fallback candidates for Family B / uncertain rows
+    - detect only the `250-block 4-bay crossover moderate-slack /
+      high-pref-gap` Family A lane
+    - build several from-scratch randomized serial schedules using different
+      order keys, bay tie-breaks, orientation choices, and seeds
+    - checker-compare those standalone GRASP candidates T-first against the
+      trusted fallback candidates, plus one bounded repair branch
+- target Family A subtype:
+  - `250-block 4-bay crossover moderate-slack / high-pref-gap subtype`
+  - intended representatives: `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` direct active line)
+  - stable serial fallback (`v005`)
+  - fast constructive (`light randomized release/due GRASP`)
+  - T-zero constructive (`slack / pref-gap / critical-area randomized GRASP`)
+  - bounded improvement (`best GRASP branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_14`, `prob_15`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe/smoke rows stay
+    `accepted_for_score=true` and the crossover subtype shows either
+    `T < 10` or a clear multi-row T-direction improvement over fallback.
+- probe summary:
+  - run id: `probe_v571_prob14_prob15_prob36_prob40_20260706_001`
+  - evidence path:
+    `reports/ogc2026_benchmark/probe_v571_prob14_prob15_prob36_prob40_20260706_001/`
+  - candidate accepted_for_score: `3/4`
+  - candidate timeout / invalid: `1 / 0`
+  - candidate rows:
+    - `prob_14`: accepted, `T=329`, objective `6421844`, runtime `49.18s`
+    - `prob_15`: accepted, `T=88`, objective `1787797`, runtime `37.60s`
+    - `prob_36`: accepted, `T=3110`, objective `2231489`, runtime `54.21s`
+    - `prob_40`: timeout, `T=9420`, objective `6442905`, runtime `61.43s`
+  - local comparator rows from the same probe:
+    - current local wrapper surface also timed out on `prob_40`
+      (`T=13112`, runtime `62.25s`)
+    - current local wrapper was still much stronger on the crossover targets:
+      `prob_14 T=186`, `prob_15 T=25`
+  - representative checked evidence:
+    - `prob_14`: every standalone GRASP build stayed near the old serial
+      fallback region (`best checked T 45029`), so final selection collapsed to
+      the trusted active fallback at `T 329`
+    - `prob_15`: the same pattern held (`best checked T 42160`), and final
+      selection again collapsed to the trusted active fallback at `T 88`
+    - `prob_36`: Family B guard stayed protected through the trusted active
+      route and even improved versus the local comparator (`T 3110` vs `5367`)
+    - `prob_40`: Family B guard protection was not enough because the trusted
+      active route itself still crossed the 60s official limit in this probe
+- smoke summary:
+  - not run
+  - rationale:
+    - the probe already failed the hard gate because `prob_40` timed out, so
+      broad smoke was not admissible.
+    - even before the timeout gate, the centered crossover rows did not show a
+      standalone GRASP breakthrough: the best checked from-scratch candidates
+      stayed in the `T ~ 42k-45k` range and the selected outputs came entirely
+      from the trusted active fallback.
+- decision:
+  - `v571` is rejected and closed without broad smoke and without full 40.
+  - the GRASP lane changed the construction stage as intended, but it never
+    produced a competitive standalone Family A candidate on `prob_14` /
+    `prob_15`, and the probe also failed the Family B guard timeout gate on
+    `prob_40`.
+- next architecture:
+  - leave the crossover subtype after two consecutive standalone misses
+    (`v570`, `v571`)
+  - rotate to a `Family A global backward constructive`
+  - target subtype:
+    - `4-bay 200~250-block hard-window / high-pref-gap residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_13`
+  - rationale:
+    - the crossover lane is now dominated by the trusted active fallback rather
+      than the standalone candidates, so another small variation on the same
+      subtype is unlikely to create the required T-zero breakthrough.
+    - the next bounded cycle should move back to an earlier residual front and
+      change architecture again, this time to a due-date backward constructive
+      rather than another two-stage or randomized serial build.
+
+## 2026-07-06 reboot_v572_20260706_familyA_backward_hardwindow_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - the crossover subtype is now clearly dominated by the trusted active
+    fallback, so the next bounded cycle should move back to the earlier
+    hard-window residual front and change architecture again.
+  - this cycle targets that front with a `global backward constructive` lane:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect the `4-bay 200~250-block hard-window / high-pref-gap residual`
+      Family A lane
+    - build several latest-feasible backward timing skeletons from due /
+      tightness / preference-gap / area orderings
+    - realize those skeletons into bay/spatial assignments and checker-compare
+      them T-first against the fallback candidates
+- target Family A subtype:
+  - `4-bay 200~250-block hard-window / high-pref-gap residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` direct active line)
+  - stable serial fallback (`v005`)
+  - fast constructive (`backward due-desc`)
+  - T-zero constructive (`backward tight / pref-gap / area latest-feasible`)
+  - bounded improvement (`best backward branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_13`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe/smoke rows stay
+    `accepted_for_score=true` and the hard-window front shows a real
+    multi-row T-direction improvement.
+- probe summary:
+  - run id: `probe_v572_prob10_prob11_prob13_prob36_prob40_20260706_001`
+  - evidence path:
+    `reports/ogc2026_benchmark/probe_v572_prob10_prob11_prob13_prob36_prob40_20260706_001/`
+  - candidate accepted_for_score: `3/5`
+  - candidate timeout / invalid: `2 / 0`
+  - candidate rows:
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `50.76s`
+    - `prob_11`: timeout, `T=397`, objective `9387458`, runtime `60.40s`
+    - `prob_13`: timeout, `T=468`, objective `9315770`, runtime `73.26s`
+    - `prob_36`: accepted, `T=77617`, objective `51946440`, runtime `13.41s`
+    - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.10s`
+  - local comparator rows from the same probe:
+    - current local wrapper was accepted on `prob_10`, `prob_11`, `prob_36`
+      with `T=43`, `353`, `2698`
+    - current local wrapper also timed out on `prob_13` and `prob_40`
+  - representative checked evidence:
+    - `prob_10`: best checked backward branch stayed around
+      `T 28025`, far above the trusted active fallback `T 43`, so final
+      selection collapsed back to the trusted active line
+    - `prob_11`: best checked backward branch stayed around
+      `T 31261`, far above the trusted active fallback `T 397`, and the final
+      selected trusted active route still crossed the official runtime limit
+    - `prob_13`: best checked backward branch stayed around
+      `T 49657`, far above the trusted active fallback `T 468`, and the final
+      selected trusted active route again crossed the official runtime limit
+    - `prob_36` / `prob_40`: Family B guard stayed accepted through the stable
+      fallback route, but quality was drastically worse than the local
+      comparator
+- smoke summary:
+  - not run
+  - rationale:
+    - the probe already failed the hard gate because `prob_11` and `prob_13`
+      timed out.
+    - even ignoring the runtime gate, the standalone backward candidates never
+      came close to the trusted active fallback on any targeted hard-window
+      representative row.
+- decision:
+  - `v572` is rejected and closed without broad smoke and without full 40.
+  - the hard-window backward lane changed architecture as intended, but the
+    standalone branches stayed deep in the fallback basin and the final
+    selected trusted active route still failed runtime on two target rows.
+- next architecture:
+  - keep the same `4-bay 200~250-block hard-window / high-pref-gap residual`
+    subtype for one more bounded cycle
+  - rotate architecture to a `Family A bay-first timing-second solver`
+  - target subtype:
+    - the same hard-window residual front centered on `prob_10`, `prob_11`,
+      `prob_13`
+  - rationale:
+    - the hard-window front has now failed under a beam-style lane and a
+      backward lane. The next cycle should test whether explicit bay partition
+      before timing can break the fallback lock without repeating another
+      serial-style or backward-style construction.
+
+## 2026-07-06 reboot_v573_20260706_familyA_bayfirst_hardwindow_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - the hard-window residual front has now failed under both a beam-like lane
+    and a backward lane, and both stayed trapped near the old serial fallback
+    basin.
+  - this cycle keeps the same subtype but changes the construction stage to a
+    `bay-first timing-second` solver:
+    - preserve trusted fallback candidates for Family B / uncertain rows
+    - detect the `4-bay 200~250-block hard-window / high-pref-gap residual`
+      Family A lane
+    - partition blocks to bays first using due pressure, tightness, and
+      preference-gap signals
+    - realize each bay with latest-feasible timing variants
+    - checker-compare several bay-first standalone candidates plus one bounded
+      repair candidate T-first
+- target Family A subtype:
+  - `4-bay 200~250-block hard-window / high-pref-gap residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` direct active line)
+  - stable serial fallback (`v005`)
+  - fast constructive (`bay-first due/latest`)
+  - T-zero constructive (`bay-first tight / pref-gap latest`)
+  - bounded improvement (`best bay-first branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_13`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe/smoke rows stay
+    `accepted_for_score=true` and the hard-window front shows a real
+    multi-row T-direction improvement.
+- probe summary:
+  - run id: `probe_v573_prob10_prob11_prob13_prob36_prob40_20260706_001`
+  - evidence path:
+    `reports/ogc2026_benchmark/probe_v573_prob10_prob11_prob13_prob36_prob40_20260706_001/`
+  - candidate accepted_for_score: `4/5`
+  - candidate timeout / invalid: `1 / 0`
+  - candidate rows:
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `47.86s`
+    - `prob_11`: accepted, `T=397`, objective `9387458`, runtime `57.60s`
+    - `prob_13`: timeout, `T=460`, objective `9174335`, runtime `73.10s`
+    - `prob_36`: accepted, `T=77617`, objective `51946440`, runtime `13.99s`
+    - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `13.06s`
+  - local comparator rows from the same probe:
+    - current local wrapper was accepted on `prob_10`, `prob_11`, `prob_36`
+      with `T=43`, `367`, `2759`
+    - current local wrapper also timed out on `prob_13` and `prob_40`
+  - representative checked evidence:
+    - `prob_10`: best checked bay-first branch stayed around
+      `T 28844`, far above the trusted active fallback `T 43`, so final
+      selection collapsed back to the trusted active line
+    - `prob_11`: best checked bay-first branch stayed around
+      `T 30161`, far above the trusted active fallback `T 397`, and final
+      selection again collapsed back to the trusted active line
+    - `prob_13`: best checked bay-first branch stayed around
+      `T 47892`, far above the trusted active fallback `T 460`, and the final
+      selected trusted active route still crossed the runtime limit
+    - `prob_36` / `prob_40`: Family B guard stayed accepted through the stable
+      fallback route, but quality remained drastically worse than the local
+      comparator
+- smoke summary:
+  - not run
+  - rationale:
+    - the probe already failed the hard gate because `prob_13` timed out.
+    - even aside from the runtime gate, the standalone bay-first candidates
+      never came close to the trusted active fallback on any targeted
+      hard-window representative row.
+- decision:
+  - `v573` is rejected and closed without broad smoke and without full 40.
+  - the hard-window bay-first lane changed architecture as intended, but the
+    standalone branches stayed deep in the fallback basin and the final
+    selected trusted active route still failed runtime on `prob_13`.
+- next architecture:
+  - leave the hard-window residual subtype after three consecutive standalone
+    misses (`beam`, `backward`, `bay-first`)
+  - rotate architecture to a `Family A spatial/orientation constructive`
+  - target subtype:
+    - `250-block 4-bay crossover moderate-slack / high-pref-gap`
+    - intended representatives: `prob_14`, `prob_15`
+  - rationale:
+    - the hard-window front is no longer the best place to keep spending
+      bounded cycles without a new structural idea beyond timing order.
+    - the next cycle should change the spatial model itself and revisit the
+      crossover front with a large-area / orientation-first constructive rather
+      than another timing-centric architecture.
+
+## 2026-07-06 reboot_v577_20260706_familyA_cluster_compact_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v576` showed that the compact subtype still has real movement, but the
+    observed gains came from protected direct trusted-active fallback rather
+    than from the standalone two-stage construction itself.
+  - this cycle keeps the same compact subtype and rotates the construction
+    stage more radically to `cluster decomposition`:
+    - preserve the trusted active line for Family B / uncertain rows
+    - keep the compact `4-bay 200~250-block tight-window high-w1 residual`
+      classifier
+    - build several from-scratch due/release/slack cluster-first constructives
+    - checker-compare a bounded distinct checked set T-first against the
+      protected trusted-active fallback
+    - keep one stable `v005` fallback comparison inside the lane only as
+      secondary evidence, not as the default selected route
+- target Family A subtype:
+  - `4-bay 200~250-block tight-window high-w1 residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - stable fallback (`v005`)
+  - fast constructive (`compact due/release cluster seed`)
+  - T-zero constructive (`tight / pressure cluster build`)
+  - bounded improvement (`best compact cluster branch + exact cluster repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the compact representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v577_prob10_prob11_prob13_prob14_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v577_prob10_prob11_prob13_prob14_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.91s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `55.96s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `66.22s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.13s`
+    - `prob_36`: accepted, `T=2892`, objective `2086706`, runtime `55.36s`
+    - `prob_40`: timeout, `T=10551`, objective `7197994`, runtime `62.05s`
+  - candidate (`trackA:v577_cluster_compact_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `50.05s`
+    - `prob_11`: timeout, `T=362`, objective `8606965`, runtime `62.14s`
+    - `prob_13`: timeout, `T=464`, objective `9244229`, runtime `73.75s`
+    - `prob_14`: accepted, `T=198`, objective `4097312`, runtime `59.47s`
+    - `prob_36`: accepted, `T=3174`, objective `2276607`, runtime `54.71s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `62.09s`
+  - representative checked evidence:
+    - `prob_10`: the compact cluster branches again stayed in the old
+      `~29k T` basin, so the selected route fell back to protected
+      `trusted_active_v317` and only tied the current row `T=43`
+    - `prob_11`: the checked compact cluster branches stayed around
+      `~30k T`, so the selected route again fell back to protected
+      `trusted_active_v317`; however the total runtime drifted above the
+      official limit and the row failed `accepted_for_score`
+    - `prob_13`: no compact cluster branch won and the candidate regressed
+      further on an already timeout row (`T 443 -> 464`)
+    - `prob_14`: no compact cluster branch won and the selected result
+      regressed versus current (`T 186 -> 198`)
+  - Family B guard evidence:
+    - `prob_36`: guard worsened versus current (`T 2892 -> 3174`)
+    - `prob_40`: raw tardiness improved (`T 10551 -> 9716`), but the row
+      still timed out and did not satisfy `accepted_for_score`
+  - structural finding:
+    - this compact cluster lane did not create any new competitive standalone
+      branch. Every checked cluster construction remained trapped in the old
+      high-T basin, and unlike `v576`, even the protected direct trusted-active
+      route was not enough to preserve the scoreable contract on `prob_11`.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed at probe immediately:
+      - `prob_11`, `prob_13`, `prob_40` were not
+        `accepted_for_score=true`
+      - `prob_14` regressed
+      - `prob_36` guard regressed
+      - no standalone compact cluster branch beat the trusted active fallback
+- decision:
+  - `v577` is rejected and closed without broad smoke and without full 40.
+  - compact cluster decomposition did not produce a standalone Family A win,
+    and the guarded wrapper path itself became runtime-fragile on `prob_11`.
+- next architecture:
+  - rotate away from the compact subtype for the next bounded cycle
+  - next cycle should use a `Family A global backward constructive`
+  - target subtype:
+    - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+  - rationale:
+    - the compact subtype has already missed repeatedly under
+      two-stage / bay-first / beam / GRASP / cluster constructions.
+      The next cycle should broaden the Family A lane again and change the
+      construction stage at once, using direct trusted-active fallback
+      protection from the start.
+
+## 2026-07-06 reboot_v578_20260706_familyA_broad_backward_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v577` confirms that the compact subtype is overfit to the old high-T
+    basin and that further compact-only rotations are unlikely to create a
+    broad Track A breakthrough.
+  - this cycle broadens the Family A lane again and switches to a guarded
+    `global backward constructive`:
+    - preserve the direct trusted active line for Family B / uncertain rows
+    - detect a wider `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure
+      residual` Family A lane that can cover both compact and broader residual
+      rows
+    - build several from-scratch backward constructions under different
+      due/release/area orderings
+    - checker-compare a bounded checked set T-first against the protected
+      trusted-active fallback
+    - keep one fixed-bay reorder repair as the bounded improvement candidate
+      and retain `v005` only as a secondary in-lane comparator
+- target Family A subtype:
+  - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - stable fallback (`v005`)
+  - fast constructive (`late-window backward`)
+  - T-zero constructive (`late-area / huge-area backward`)
+  - bounded improvement (`best backward branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_17`, `prob_19`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the widened representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v578_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v578_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=82`, objective `1513430`, runtime `46.38s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.21s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.90s`
+    - `prob_19`: accepted, `T=149`, objective `2156950`, runtime `54.30s`
+    - `prob_36`: accepted, `T=4672`, objective `3276018`, runtime `54.68s`
+    - `prob_40`: timeout, `T=9508`, objective `6501681`, runtime `61.84s`
+  - candidate (`trackA:v578_broad_backward_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `43.49s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.43s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.05s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `52.71s`
+    - `prob_36`: accepted, `T=2970`, objective `2140459`, runtime `54.72s`
+    - `prob_40`: timeout, `T=9228`, objective `6313647`, runtime `62.08s`
+  - representative checked evidence:
+    - `prob_10`: every checked backward branch stayed around `~27.8k T`;
+      the selected winner was still protected `trusted_active_v317` at
+      `T=43`
+    - `prob_19`: every checked backward branch stayed around `~64k T`;
+      the selected winner again fell back to protected `trusted_active_v317`
+      at `T=128`
+    - `prob_11` / `prob_17`: the standalone backward branches again lost, so
+      the candidate only matched the protected trusted-active rows
+  - Family B guard evidence:
+    - `prob_36`: improved strongly (`T 4672 -> 2970`), but this came from the
+      protected trusted-active route rather than from the new backward lane
+    - `prob_40`: raw tardiness improved (`T 9508 -> 9228`), but the row still
+      timed out and did not satisfy `accepted_for_score`
+  - structural finding:
+    - this broad guarded backward cycle again failed to create any competitive
+      standalone Family A branch. The visible row improvements are wrapper-path
+      drift signals from direct trusted-active import, not a constructive
+      breakthrough from the new backward lane.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed at probe because:
+      - `prob_40` still failed `accepted_for_score`
+      - no standalone backward branch beat the protected trusted-active
+        fallback on any representative row
+      - the observed gains were wrapper-surface drift, not a true Track A
+        standalone win
+- decision:
+  - `v578` is rejected and closed without broad smoke and without full 40.
+  - keep the result as `training-best-only / wrapper-audit` evidence, not as
+    a promoted Family A solver lane.
+- next architecture:
+  - keep the widened residual Family A lane for one more bounded cycle
+  - next cycle should use a `Family A beam portfolio from scratch`
+  - target subtype:
+    - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+  - rationale:
+    - the broad classifier is now correctly catching the intended residual
+      rows, but the backward constructive is too conservative and collapses to
+      protected trusted-active fallback. The next cycle should change the
+      construction stage again while keeping the same broadened lane and the
+      same direct trusted-active guard.
+
+## 2026-07-06 reboot_v579_20260706_familyA_broad_beam_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v578` fixed the broadened residual classifier, but its backward
+    constructive stayed too conservative and never produced a competitive
+    standalone checked branch.
+  - this cycle keeps the same widened `4~5 bay 200~300-block high-w1
+    low-proc low-pref-pressure residual` Family A lane and rotates only the
+    construction stage to a `beam portfolio from scratch`:
+    - preserve the direct trusted active line for Family B / uncertain rows
+    - keep the widened residual classifier that now catches
+      `prob_10/11/13/14/15/17/19/20`
+    - build several from-scratch beam candidates under due/slack/area/preference
+      orderings
+    - checker-compare a bounded checked set T-first against the protected
+      trusted-active fallback
+    - keep one fixed-bay reorder repair as the bounded improvement candidate
+      and retain `v005` only as a secondary in-lane comparator
+- target Family A subtype:
+  - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - stable fallback (`v005`)
+  - fast constructive (`beam due/slack seed`)
+  - T-zero constructive (`beam tight-area / wall-pref seed`)
+  - bounded improvement (`best beam branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_17`, `prob_19`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the widened representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v579_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v579_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `46.94s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.59s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.23s`
+    - `prob_19`: accepted, `T=149`, objective `2156950`, runtime `54.17s`
+    - `prob_36`: accepted, `T=5040`, objective `3519099`, runtime `55.33s`
+    - `prob_40`: timeout, `T=12322`, objective `8379102`, runtime `62.47s`
+  - candidate (`trackA:v579_broad_beam_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `46.40s`
+    - `prob_11`: accepted, `T=362`, objective `8606965`, runtime `58.51s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.64s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `53.33s`
+    - `prob_36`: accepted, `T=3110`, objective `2231489`, runtime `54.49s`
+    - `prob_40`: timeout, `T=9847`, objective `6728618`, runtime `62.05s`
+  - representative checked evidence:
+    - `prob_11`: the beam lane never materialized a competitive checked branch;
+      `beam_due_pressure` failed and the remaining beam variants were skipped
+      under the tightened budget, so the selected result again came from
+      protected `trusted_active_v317` at `T=362`
+    - `prob_19`: the same pattern repeated; the beam lane collapsed to
+      `serial_slack_seed T=59104` while the selected improvement again came
+      from protected `trusted_active_v317` at `T=123`
+    - `prob_10` / `prob_17`: no standalone beam win; the candidate only tied
+      the trusted-active rows
+  - Family B guard evidence:
+    - `prob_36`: improved strongly (`T 5040 -> 3110`), but this again came
+      from the protected trusted-active route rather than from a beam-built row
+    - `prob_40`: raw tardiness improved (`T 12322 -> 9847`), but the row still
+      timed out and did not satisfy `accepted_for_score`
+  - structural finding:
+    - on the widened residual lane, the beam portfolio from scratch did not
+      open a real scoreable standalone branch. Under the bounded budget it
+      mostly collapsed before checking, and every visible improvement again
+      came from the direct trusted-active fallback path.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed at probe because:
+      - `prob_40` still failed `accepted_for_score`
+      - no standalone beam branch beat the protected trusted-active fallback
+      - the observed multi-row gains were wrapper-path drift, not a true Track
+        A standalone beam breakthrough
+- decision:
+  - `v579` is rejected and closed without broad smoke and without full 40.
+  - keep the result as `training-best-only / wrapper-audit` evidence, not as
+    a promoted Family A solver lane.
+- next architecture:
+  - leave the widened residual lane for the next bounded cycle
+  - next cycle should use a `Family A GRASP/randomized constructive`
+  - target subtype:
+    - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+  - rationale:
+    - the widened classifier is stable, but both backward and beam
+      constructions collapse to protected fallback. The next cycle should keep
+      the same broad residual Family A lane and rotate to randomized
+      tie-break, bay, and orientation diversification to test whether the lane
+      can produce a real standalone checked win rather than another wrapper
+      drift signal.
+
+## 2026-07-06 reboot_v580_20260706_familyA_broad_grasp_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v579` showed that the widened residual Family A detector is stable, but
+    the bounded beam portfolio mostly collapsed before opening a real checked
+    standalone branch.
+  - this cycle keeps the same `4~5 bay 200~300-block high-w1 low-proc
+    low-pref-pressure residual` Family A lane and rotates only the
+    construction stage to `GRASP/randomized constructive`:
+    - preserve the direct trusted active line for Family B / uncertain rows
+    - keep the widened residual classifier that covers
+      `prob_10/11/13/14/15/17/19/20`
+    - diversify timing skeleton, bay tie-break, orientation, and ranked-choice
+      construction seeds
+    - checker-compare a bounded checked set T-first against the protected
+      trusted-active fallback
+    - keep one retime/fixed-bay repair path as the bounded improvement
+      candidate and retain `v005` only as a secondary in-lane comparator
+- target Family A subtype:
+  - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - stable fallback (`v005`)
+  - fast constructive (`grasp due/wall seed`)
+  - T-zero constructive (`grasp tight/area seed`)
+  - bounded improvement (`best grasp branch + retime/repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_17`, `prob_19`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the widened representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v580_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v580_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.85s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `55.65s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.85s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `50.21s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `54.93s`
+    - `prob_40`: timeout, `T=9420`, objective `6442905`, runtime `61.89s`
+  - candidate (`trackA:v580_broad_grasp_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.98s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `55.55s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `29.07s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `54.05s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `54.50s`
+    - `prob_40`: timeout, `T=9228`, objective `6313647`, runtime `61.99s`
+  - representative checked evidence:
+    - `prob_11`: checked GRASP branches stayed in the old `~30k T` basin
+      (`30224 / 30928 / 36281`), so the candidate again selected protected
+      `trusted_active_v317` at `T=386`, which was weaker than same-batch
+      current `T=367`
+    - `prob_19`: the only surviving GRASP branch stayed at `T=64121`, so the
+      candidate again selected protected `trusted_active_v317` at `T=128`,
+      which was weaker than same-batch current `T=123`
+    - `prob_10` / `prob_17`: no standalone GRASP win; the candidate only tied
+      the protected trusted-active rows
+  - Family B guard evidence:
+    - `prob_36`: matched current exactly (`T=3051`)
+    - `prob_40`: raw tardiness improved slightly (`T 9420 -> 9228`), but the
+      row still timed out and did not satisfy `accepted_for_score`
+  - structural finding:
+    - the widened residual GRASP lane again failed to create any competitive
+      standalone checked candidate. On the intended Family A representatives it
+      either tied or lost to same-batch current, and the visible `prob_40`
+      movement was again only a fallback-path effect.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed at probe because:
+      - `prob_40` still failed `accepted_for_score`
+      - no standalone GRASP branch beat the protected trusted-active fallback
+      - Family A representative rows did not show a broad T-zero direction and
+        two key rows (`prob_11`, `prob_19`) regressed versus same-batch current
+- decision:
+  - `v580` is rejected and closed without broad smoke and without full 40.
+  - keep the result as `training-best-only / wrapper-audit` evidence, not as
+    a promoted Family A solver lane.
+- next architecture:
+  - rotate away from the widened residual GRASP lane
+  - next cycle should use a `Family A spatial/orientation constructive`
+  - target subtype:
+    - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+  - rationale:
+    - the broadened residual classifier remains stable, but backward / beam /
+      GRASP have all collapsed to protected fallback without producing a real
+      checked standalone win. The next structural change should alter the
+      spatial model itself and test whether large-area / wall-corner-edge
+      placement can open a new scoreable branch on the same residual lane.
+
+## 2026-07-06 reboot_v581_20260706_familyA_broad_spatial_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v580` confirmed that the widened residual Family A classifier is stable,
+    but timing-centric constructions on that lane keep collapsing to protected
+    fallback before producing any competitive checked branch.
+  - this cycle keeps the same `4~5 bay 200~300-block high-w1 low-proc
+    low-pref-pressure residual` Family A lane and rotates only the
+    construction stage to `spatial/orientation constructive`:
+    - preserve the direct trusted active line for Family B / uncertain rows
+    - keep the widened residual classifier covering
+      `prob_10/11/13/14/15/17/19/20`
+    - build large-area / wall-corner-edge spatial candidates from scratch
+    - checker-compare a bounded checked set T-first against the protected
+      trusted-active fallback
+    - keep one fixed-bay repair as the bounded improvement candidate and retain
+      `v005` only as a secondary in-lane comparator
+- target Family A subtype:
+  - `4~5 bay 200~300-block high-w1 low-proc low-pref-pressure residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_17`, `prob_19`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - stable fallback (`v005`)
+  - fast constructive (`spatial late-area / edge-hug`)
+  - T-zero constructive (`spatial huge-area / area-corner`)
+  - bounded improvement (`best spatial branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_17`, `prob_19`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the widened representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v581_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v581_prob10_prob11_prob17_prob19_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.68s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.31s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.64s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `51.21s`
+    - `prob_36`: accepted, `T=3498`, objective `2491976`, runtime `55.07s`
+    - `prob_40`: timeout, `T=9318`, objective `6376359`, runtime `62.25s`
+  - candidate (`trackA:v581_broad_spatial_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `42.95s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.45s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `27.34s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `52.38s`
+    - `prob_36`: accepted, `T=3242`, objective `2322065`, runtime `54.28s`
+    - `prob_40`: timeout, `T=9228`, objective `6313647`, runtime `62.39s`
+  - representative checked evidence:
+    - `prob_11`: checked spatial branches stayed in the old `~31k T` basin
+      (`30962 / 31076 / 31076`), so the candidate again selected protected
+      `trusted_active_v317` at `T=386`
+    - `prob_19`: checked spatial branches stayed in the old `~63k T` basin
+      (`63704 / 63713 / 65522`), so the candidate again selected protected
+      `trusted_active_v317` at `T=128`, which was weaker than same-batch
+      current `T=123`
+    - `prob_10` / `prob_17`: no standalone spatial win; the candidate only
+      tied the protected trusted-active rows
+  - Family B guard evidence:
+    - `prob_36`: improved versus same-batch current (`T 3498 -> 3242`), but
+      again this came from the protected trusted-active route rather than from
+      a spatial-built candidate
+    - `prob_40`: raw tardiness improved slightly (`T 9318 -> 9228`), but the
+      row still timed out and did not satisfy `accepted_for_score`
+  - structural finding:
+    - the widened residual spatial/orientation lane did not create a new
+      scoreable standalone branch. On the intended Family A representatives the
+      checked spatial branches remained far outside the competitive basin, so
+      the probe again collapsed to trusted-active fallback outcomes.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed at probe because:
+      - `prob_40` still failed `accepted_for_score`
+      - no standalone spatial branch beat the protected trusted-active fallback
+      - Family A representative rows did not show broad T-direction movement,
+        and `prob_19` regressed versus same-batch current
+- decision:
+  - `v581` is rejected and closed without broad smoke and without full 40.
+  - keep the result as `training-best-only / wrapper-audit` evidence, not as
+    a promoted Family A solver lane.
+- next architecture:
+  - rotate away from the widened residual subtype-focused loop
+  - next cycle should use a `Family A bay-first timing-second solver`
+  - target scope:
+    - `full Family A high-T residual lane`
+    - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the widened residual subtype has now missed under backward / beam /
+      GRASP / spatial constructions, so the next bounded cycle should stop
+      reusing the same subtype pocket and instead switch to a broader
+      bay-pressure-first Family A construction across the full high-T residual
+      set.
+
+## 2026-07-06 reboot_v576_20260706_familyA_twostage_compact_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v562` remains the clearest compact-subtype signal, but it was benchmarked
+    against the stable `v005` fallback rather than the current trusted active
+    surface.
+  - this cycle revives the compact `two-stage` architecture while explicitly
+    protecting the current trusted fallback:
+    - preserve the trusted active line for Family B / uncertain rows
+    - keep the compact `4-bay 200~250-block tight-window high-w1 residual`
+      classifier
+    - build several from-scratch timing skeletons
+    - realize them through bounded spatial/bay stage-2 construction
+    - checker-compare the best distinct two-stage branches T-first against the
+      current trusted active fallback
+    - spend far less pre-fallback budget than `v562` so the trusted route is
+      not degraded if the standalone lane misses
+- target Family A subtype:
+  - `4-bay 200~250-block tight-window high-w1 residual`
+  - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v318` / direct active surface)
+  - fast constructive (`due-pressure timing skeleton`)
+  - T-zero constructive (`tight-area / wall-pref timing skeleton`)
+  - bounded improvement (`best two-stage branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the compact representatives show either all
+    `T < 10` or a clear multi-row T-direction gain without guard regression.
+- probe summary:
+  - run id:
+    `probe_v576_prob10_prob11_prob13_prob14_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v576_prob10_prob11_prob13_prob14_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=94`, objective `1687970`, runtime `47.61s`
+    - `prob_11`: accepted, `T=397`, objective `9387458`, runtime `56.94s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `68.35s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.10s`
+    - `prob_36`: accepted, `T=5214`, objective `3640894`, runtime `55.64s`
+    - `prob_40`: timeout, `T=12191`, objective `8291978`, runtime `62.12s`
+  - candidate (`trackA:v576_twostage_compact_guarded`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `45.06s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `55.94s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `68.56s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.20s`
+    - `prob_36`: accepted, `T=2970`, objective `2140459`, runtime `54.72s`
+    - `prob_40`: timeout, `T=9420`, objective `6442905`, runtime `61.96s`
+  - representative checked evidence:
+    - `prob_10`: the standalone two-stage branch never got close
+      (`twostage_wall_pref T=27693`), but the protected direct
+      `trusted_active_v317` fallback returned the stronger row
+      `T 43` and beat same-batch `curr` `T 94`
+    - `prob_11`: the checked two-stage branches again stayed in the old
+      `~30228` basin, but protected `trusted_active_v317` returned
+      `T 386` and beat same-batch `curr` `T 397`
+    - `prob_13`: no standalone win; the candidate selected the same trusted
+      active timeout row as direct active (`T 443`)
+    - `prob_14`: no standalone win; the candidate matched the trusted active
+      row exactly (`T 186`)
+  - Family B guard evidence:
+    - `prob_36`: protected trusted-active route returned `T 2970`, better than
+      same-batch `curr` `T 5214`
+    - `prob_40`: protected trusted-active route still timed out, but improved
+      raw tardiness and objective versus same-batch `curr`
+      (`T 12191 -> 9420`)
+  - structural finding:
+    - the compact standalone two-stage architecture itself still failed.
+      Every checked standalone branch stayed in the old high-T compact basin.
+      The observed gains came from the explicit direct `trusted_active_v317`
+      fallback, not from the new constructive lane.
+    - this is therefore not a standalone Track A breakthrough, but it is a
+      real wrapper-surface drift signal: same-batch `curr:v318_surface`
+      underperformed the candidate's direct trusted-active import on
+      `prob_10`, `prob_11`, `prob_36`, and `prob_40`.
+- smoke summary:
+  - not run
+  - rationale:
+    - hard gate failed immediately because not all probe rows were
+      `accepted_for_score=true` (`prob_13`, `prob_40` remained timeout), and
+      there was no standalone two-stage win on the compact subtype.
+- decision:
+  - `v576` is rejected and closed without broad smoke and without full 40 as a
+    standalone Family A candidate.
+  - keep the result as `training-best-only / wrapper-audit` evidence, not as a
+    promoted Track A solver lane.
+- next architecture:
+  - leave compact two-stage again and rotate architecture
+  - next bounded cycle should try a `Family A cluster decomposition`
+  - target subtype:
+    - `4-bay 200~250-block tight-window high-w1 residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`
+  - rationale:
+    - the compact subtype still shows movement, but repeated timing-skeleton
+      and GRASP lanes are not producing standalone wins. The next cycle should
+      change the construction stage more radically by decomposing the compact
+      lane into tighter due/release clusters while preserving the protected
+      direct trusted-active fallback.
+
+## 2026-07-06 reboot_v575_20260706_familyA_beam_crossover_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - the crossover subtype has now missed with three narrower standalone
+    constructions (`v570` two-stage, `v571` grasp, `v574` spatial), but those
+    misses came from committing too early to one timing/spatial path.
+  - this cycle keeps the same centered subtype and rotates to a
+    `beam portfolio from scratch`:
+    - preserve trusted active fallback plus stable `v005` fallback
+    - detect only the `250-block 4-bay crossover moderate-slack / high-pref-gap`
+      Family A lane
+    - build several from-scratch timing skeletons with beam search under
+      multiple order signals (`due_pressure`, `tight_area`, `prefgap_area`,
+      `crossover_balance`)
+    - realize those beam skeletons with the existing bounded stage-2
+      constructive and compare T-first against fallback candidates
+- target Family A subtype:
+  - `250-block 4-bay crossover moderate-slack / high-pref-gap`
+  - intended representatives: `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` / active surface)
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`beam due/release crossover variants`)
+  - T-zero constructive (`beam tight-area / prefgap / crossover variants`)
+  - bounded improvement (`best checked beam branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_14`, `prob_15`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - first probe run id:
+    `probe_v575_prob14_prob15_prob36_prob40_20260706_001`
+  - first probe artifact root:
+    `reports/ogc2026_benchmark/probe_v575_prob14_prob15_prob36_prob40_20260706_001/`
+  - first probe result:
+    - implementation bug on the Family A rows:
+      `prob_14` / `prob_15` raised `NameError: random is not defined`
+    - Family B guard rows still completed:
+      - `prob_36`: accepted, `T=3317`
+      - `prob_40`: timeout, `T=9603`
+  - second probe run id:
+    `probe_v575_prob14_prob15_prob36_prob40_20260706_002`
+  - second probe artifact root:
+    `reports/ogc2026_benchmark/probe_v575_prob14_prob15_prob36_prob40_20260706_002/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_14`: accepted, `T=187`, objective `3901754`, runtime `58.29s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `51.17s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `55.20s`
+    - `prob_40`: timeout, `T=10106`, objective `6903399`, runtime `62.10s`
+  - candidate (`trackA:v575_beam_crossover`):
+    - `prob_14`: accepted, `T=329`, objective `6421844`, runtime `49.12s`
+    - `prob_15`: accepted, `T=88`, objective `1787797`, runtime `42.57s`
+    - `prob_36`: accepted, `T=3498`, objective `2491976`, runtime `54.37s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `62.19s`
+  - representative checked evidence:
+    - `prob_14`: all tighter beam branches collapsed before checking
+      (`beam_tzero_* -> inf`), no checked standalone beam candidate survived,
+      and the selected route fell through to the trusted active fallback at
+      `T 329`, still far worse than the current wrapper `T 187`
+    - `prob_15`: the same pattern repeated; no checked standalone beam branch
+      survived and the selected fallback landed at `T 88` versus current
+      wrapper `T 25`
+    - `prob_36`: Family B guard worsened (`T 3051 -> 3498`)
+    - `prob_40`: still timeout on both sides, although the candidate's raw
+      tardiness was slightly lower
+  - root-cause note:
+    - beyond the initial import bug, the beam lane spent enough pre-fallback
+      budget that its trusted-active fallback route came back materially weaker
+      than the current local wrapper on the centered crossover rows. This means
+      the standalone lane is not only non-competitive; it is contaminating the
+      fallback budget on the same subtype.
+- smoke summary:
+  - not run
+  - rationale:
+    - the centered crossover representatives already failed the hard gate at
+      probe: `prob_14` and `prob_15` both regressed sharply, no checked
+      standalone beam branch survived, and Family B guard also worsened on
+      `prob_36`.
+- decision:
+  - `v575` is rejected and closed without broad smoke and without full 40.
+  - the crossover subtype has now failed with four distinct standalone
+    architectures (`v570` two-stage, `v571` grasp, `v574` spatial, `v575`
+    beam), so this subtype should be left for now.
+- next architecture:
+  - rotate away from the crossover subtype
+  - next bounded cycle should use a `Family A bay-first timing-second solver`
+    on the broader `300-block 4~5 bay diffuse late-window residual` subtype
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the crossover lane is now exhausted for this sweep, while the broader
+      late-window residual rows remain among the current Family A high-T set
+      and need a construction-stage change that partitions bay pressure before
+      timing.
+
+## 2026-07-06 reboot_v574_20260706_familyA_spatial_crossover_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v570`/`v571` showed the crossover subtype is real but the standalone lane
+    remained dominated by trusted active fallback when construction stayed
+    timing-centric.
+  - this cycle keeps the same narrow crossover subtype and rotates the
+    construction stage to `spatial/orientation-first`:
+    - preserve trusted active fallback and stable `v005` fallback
+    - detect only the `250-block 4-bay crossover moderate-slack /
+      high-pref-gap` lane
+    - build standalone candidates from scratch with large-area / wall-hug /
+      corner-hug / preference-sensitive spatial placement
+    - realize timing inside bays with due-first / tight-slack variants
+    - checker-compare several standalone spatial builds plus one bounded repair
+      candidate T-first
+- target Family A subtype:
+  - `250-block 4-bay crossover moderate-slack / high-pref-gap subtype`
+  - intended representatives: `prob_14`, `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`spatial_due_pressure`)
+  - T-zero constructive (`spatial_tight_area`, `spatial_wall_pref`)
+  - bounded improvement (`best spatial branch + fixed-bay repair`)
+- smoke/probe plan:
+  - probe: `prob_14`, `prob_15`, `prob_36`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_38`, `prob_39`, `prob_40`
+  - hard gate: reject immediately unless all probe rows stay
+    `accepted_for_score=true` and the crossover subtype shows either
+    `T < 10` or a clear multi-row T-direction signal before broad smoke.
+- probe summary:
+  - run id: `probe_v574_prob14_prob15_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v574_prob14_prob15_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `57.80s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `47.88s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `55.14s`
+    - `prob_40`: timeout, `T=9228`, objective `6313647`, runtime `61.94s`
+  - candidate (`trackA:v574_spatial_crossover`):
+    - `prob_14`: accepted, `T=198`, objective `4097312`, runtime `59.24s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `58.39s`
+    - `prob_36`: accepted, `T=3174`, objective `2276607`, runtime `54.23s`
+    - `prob_40`: timeout, `T=9847`, objective `6728618`, runtime `61.40s`
+  - representative checked evidence:
+    - `prob_14`: the best checked standalone spatial branch was
+      `spatial_tzero_wall_pref__tight_first` at `T 47002`; final selection
+      still collapsed to trusted active `T 198`
+    - `prob_15`: the best checked standalone spatial repair stayed at
+      `T 43890`; final selection collapsed to trusted active `T 25`
+    - `prob_36`: Family B-like route still came back weaker than current local
+      wrapper (`T 3174` vs `3051`)
+- smoke summary:
+  - not run
+  - rationale:
+    - the centered crossover rows failed the hard gate already at probe:
+      `prob_14` regressed (`186 -> 198`), `prob_15` only tied by falling back
+      to trusted active, and no standalone spatial branch became remotely
+      competitive.
+    - Family B guard direction also worsened on `prob_36`, while `prob_40`
+      remained timeout on both routes.
+- decision:
+  - `v574` is rejected and closed without broad smoke and without full 40.
+  - the crossover spatial/orientation lane did change architecture as intended,
+    but its standalone branches remained deep in the fallback basin and did
+    not produce a multi-row T-direction signal.
+- next architecture:
+  - leave the crossover subtype after three consecutive standalone misses
+    (`v570` two-stage, `v571` grasp, `v574` spatial)
+  - rotate architecture to a `Family A beam portfolio from scratch`
+  - target subtype:
+    - `250-block 4-bay crossover moderate-slack / high-pref-gap`
+    - intended representatives: `prob_14`, `prob_15`
+  - rationale:
+    - timing-centric and spatial/orientation-centric constructions both failed
+      to make the crossover lane competitive; the next bounded cycle should
+      widen the construction hypothesis to a from-scratch beam portfolio with
+      multiple order signals kept alive at once.
+
+## 2026-07-06 reboot_v567_20260706_familyA_cluster_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v566` showed that even a broadened backward lane stays too conservative on
+    the dominant late-window residual rows.
+  - this cycle keeps the same broader late-window residual subtype but changes
+    the construction stage to `cluster decomposition`:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect a tighter late-window residual subtype centered on
+      `prob_17`, `prob_19`, `prob_20`
+    - split blocks by due-window / release-tail / bay-pressure clusters from
+      scratch
+    - merge those clusters into standalone serial schedules
+    - checker-compare several distinct cluster-built candidates plus one bounded
+      repair candidate T-first
+- target Family A subtype:
+  - `300-block 4~5 bay diffuse late-window residual Family A lane`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`serial slack / due seeds`)
+  - T-zero constructive (`late-window / release-tail / bay-pressure cluster builds`)
+  - bounded improvement (`best cluster branch + bounded cluster repair`)
+- smoke plan:
+  - probe: `prob_17`, `prob_19`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id: `probe_v567_prob17_prob19_prob20_prob40_20260706_001`
+  - accepted_for_score: `4/4`
+  - timeout / invalid: `0 / 0`
+  - `prob_17`: accepted, `T=58669`, objective `570289700`, runtime `18.13s`
+  - `prob_19`: accepted, `T=59104`, objective `631818101`, runtime `20.44s`
+  - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `18.88s`
+  - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.98s`
+  - representative checked evidence:
+    - `prob_17`: best checked cluster candidate stayed at `T 63733`, above
+      fallback `T 58669`
+    - `prob_19`: best checked repaired cluster candidate stayed at
+      `T 64170`, above fallback `T 59104`
+    - `prob_20`: best checked repaired cluster candidate stayed at
+      `T 57567`, above fallback `T 54446`
+    - the selected checked candidate on each representative remained the
+      serial fallback seed, so the cluster lane never became competitive
+- smoke summary:
+  - not run
+  - rationale:
+    - the centered late-window representatives already showed a uniform no-win
+      pattern at probe: every standalone cluster-built candidate lost to the
+      trusted fallback, and the top checked choice collapsed back to the serial
+      seed on all three rows.
+    - because the subtype-centered probe itself had no T-direction signal,
+      broad smoke was not worth spending before full40.
+- decision:
+  - `v567` is rejected and closed without broad smoke and without full 40.
+  - on the broader late-window residual subtype, cluster decomposition changed
+      the construction stage but still failed to beat fallback on any centered
+      representative row.
+- next architecture:
+  - keep the same `300-block 4~5 bay diffuse late-window residual` subtype for
+    one more bounded cycle
+  - rotate architecture to a `Family A bay-first timing-second solver`
+  - intended representatives remain `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - two subtype-centered construction changes on the broader lane have now
+      failed (`v566` backward, `v567` cluster). The next cycle should test
+      whether explicitly partitioning bay workload before timing can break the
+      fallback lock without yet abandoning the subtype.
+
+## 2026-07-06 reboot_v568_20260706_familyA_bayfirst_on_v005
+
+- parent/version: `baseline_hh_v005_serial_portfolio`
+- status: pending probe + possible smoke
+- hypothesis:
+  - `v566` backward and `v567` cluster both failed on the same late-window
+    residual subtype, but they failed with globally conservative schedules.
+  - this cycle keeps the same subtype and rotates to a subtype-centered
+    `bay-first timing-second` solver:
+    - preserve stable fallback for Family B / uncertain rows
+    - detect only the `300-block 4~5 bay diffuse late-window residual` lane
+    - partition blocks to bays first using release-tail, due pressure, and
+      feasible-bay bottleneck signals
+    - realize timing inside each bay with latest-due and tight-slack variants
+    - checker-compare several bay-first candidates plus one bounded repair
+- target Family A subtype:
+  - `300-block 4~5 bay diffuse late-window residual Family A lane`
+  - intended representatives: `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - stable fallback (`v005` serial portfolio)
+  - fast constructive (`bay-first due/latest`)
+  - T-zero constructive (`bay-first release-tail latest / pressure-tight`)
+  - bounded improvement (`best bay-first branch + fixed-bay repair`)
+- smoke plan:
+  - probe: `prob_17`, `prob_19`, `prob_20`, `prob_40`
+  - Family A targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - Family B guards: `prob_36`, `prob_40`
+  - hard gate: reject immediately unless all smoke rows stay
+    `accepted_for_score=true` and either all target rows drop below `T < 10`
+    or at least three high-T targets show a clear T-direction improvement.
+- probe summary:
+  - run id:
+    `probe_v568_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v568_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.91s`
+    - `prob_19`: accepted, `T=149`, objective `2156950`, runtime `54.91s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.81s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `55.02s`
+    - `prob_40`: timeout, `T=9847`, objective `6728618`, runtime `61.99s`
+  - candidate (`trackA:v568_bayfirst`):
+    - `prob_17`: accepted, `T=58669`, objective `570289700`, runtime `16.10s`
+    - `prob_19`: accepted, `T=59104`, objective `631818101`, runtime `17.88s`
+    - `prob_20`: accepted, `T=54446`, objective `1453212543`, runtime `16.72s`
+    - `prob_36`: accepted, `T=77617`, objective `51946440`, runtime `13.87s`
+    - `prob_40`: accepted, `T=152921`, objective `102168836`, runtime `12.99s`
+  - representative checked evidence:
+    - `prob_17`: best checked bay-first branch was
+      `bayfirst_release_tight T=62966`, still worse than the selected
+      fallback `T 58669`
+    - `prob_19`: best checked repaired branch was
+      `bayfirst_due_tight_repair T=63095`, still worse than selected fallback
+      `T 59104`
+    - `prob_20`: best checked repaired branch was
+      `bayfirst_due_tight_repair T=55313`, still worse than selected fallback
+      `T 54446`
+  - structural finding:
+    - this candidate preserved only the stable `v005` fallback, not the
+      current trusted active line. As a result, even when the bay-first
+      branches lost, the selected route fell back to an obsolete surface and
+      massively regressed relative to the actual trusted BEST on every probe
+      row.
+- smoke summary:
+  - not run
+  - rationale:
+    - the late-window representatives failed the hard gate immediately at
+      probe, and the fallback-protection rule was too weak for the current
+      active baseline surface.
+- decision:
+  - `v568` is rejected and closed without broad smoke and without full 40.
+  - the broader late-window residual subtype has now missed three consecutive
+    construction-stage changes (`v566` backward, `v567` cluster, `v568`
+    bay-first), so it should be left for the next sweep.
+- next architecture:
+  - rotate away from the broader late-window subtype
+  - next bounded cycle should use a `Family A two-stage solver`
+  - target subtype:
+    - `4-bay 200~250-block tight-window high-w1 residual`
+    - intended representatives: `prob_10`, `prob_11`, `prob_13`, `prob_14`
+  - rationale:
+    - the compact/tight-window subtype was the last one with a real positive
+      signal (`v565`), while the broader late-window subtype is now exhausted
+      for this pass. The next cycle should return to the compact lane with a
+      fresh from-scratch timing skeleton plus explicit trusted-active fallback
+      protection.
+
+## 2026-07-06 reboot_v582_20260706_familyA_broad_bayfirst_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending broad smoke/probe
+- hypothesis:
+  - `v568` already tested the bay-first timing-second construction shape, but
+    its fallback protection was anchored to `v005`, so the experiment could
+    not tell whether the bay-first lane itself had value against the current
+    trusted BEST.
+  - this cycle reuses the same coherent bay-first hypothesis on a widened
+    residual Family A lane and hard-protects Family B / uncertain rows with
+    the current trusted active surface from the start:
+    - feature-gate the full residual Family A high-T lane
+    - return trusted active directly for Family B-like / uncertain rows
+    - build several from-scratch bay-first partitions and timing variants
+    - checker-compare only a small bounded pool
+    - select feasible candidates T-first, objective-second, L/P-third
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 residual Family A lane`
+  - intended targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`bay-first due/latest`)
+  - T-zero constructive (`bay-first release/latest`, `bay-first pref/tight`)
+  - bounded improvement (`best bay-first branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v582_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all rows must stay `accepted_for_score=true` except the known trusted
+      timeout behavior already present in the active wrapper
+    - no new invalid/error rows
+    - no full 40 unless all targets reach `T < 10` or at least three high-T
+      targets show a clear T-direction improvement without Family B guard
+      regression
+- probe summary:
+  - run id:
+    `probe_v582_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v582_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `47.89s`
+    - `prob_11`: accepted, `T=397`, objective `9387458`, runtime `58.13s`
+    - `prob_13`: timeout, `T=460`, objective `9174335`, runtime `71.89s`
+    - `prob_14`: accepted, `T=198`, objective `4097312`, runtime `58.63s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `50.29s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.92s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `50.43s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.58s`
+    - `prob_36`: accepted, `T=2970`, objective `2140459`, runtime `54.98s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `61.91s`
+  - candidate (`trackA:v582_broad_bayfirst`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `42.79s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `56.05s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `66.91s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `57.60s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `48.10s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `27.02s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `52.68s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.88s`
+    - `prob_36`: accepted, `T=2892`, objective `2086706`, runtime `54.91s`
+    - `prob_40`: timeout, `T=9420`, objective `6442905`, runtime `62.13s`
+  - representative checked evidence:
+    - `prob_10`: best checked bay-first branch was
+      `bayfirst_release_latest_repair T=28370`, selected route still
+      `trusted_active_v317 T=43`
+    - `prob_11`: best checked bay-first branch was
+      `bayfirst_pref_tight T=31125`, selected route still
+      `trusted_active_v317 T=367`
+    - `prob_13`: best checked bay-first branch was
+      `bayfirst_release_tight_repair T=47867`, selected route still
+      `trusted_active_v317 T=443`
+    - `prob_14`: best checked bay-first branch was
+      `bayfirst_release_tight T=46755`, selected route still
+      `trusted_active_v317 T=186`
+    - `prob_19`: best checked bay-first branch was
+      `bayfirst_pref_tight T=63780`, selected route still
+      `trusted_active_v317 T=123`
+  - structural finding:
+    - the broadened classifier and direct trusted-active protection worked as
+      intended, but every Family A target row still selected the trusted active
+      surface after checker comparison.
+    - the standalone bay-first constructions remained in the same huge-T basin
+      (`28k~67k T`), so the visible row improvements came entirely from the
+      protected fallback path, not from the new construction.
+    - Family B guard did not degrade, but that signal is also fallback-only.
+- smoke summary:
+  - rejected at probe / broad smoke gate
+  - rationale:
+    - the candidate did not produce a standalone Family A constructive win on
+      any high-T target row
+    - `prob_13` and `prob_40` remained timeout rows, so the smoke hard gate
+      for a full 40 run was not met
+    - although `prob_11`, `prob_13`, `prob_14`, `prob_36`, and `prob_40`
+      numerically improved, all confirmed improvements were delivered by the
+      trusted active fallback path rather than the bay-first lane itself
+- decision:
+  - `v582` is rejected and closed without full 40.
+  - the widened residual Family A lane still lacks a constructive signal under
+    bay-first timing-second scheduling, so repeating the same lane with only
+    minor neighborhood changes would violate the loop guard.
+- next architecture:
+  - rotate to a `Family A two-stage solver`
+  - target subtype:
+    - full residual `4~5 bay 190~320 block high-w1` Family A lane
+    - intended targets remain `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the broad residual wrapper is now in place and protected, but the
+      construction stage still collapses before timing feasibility.
+    - the next bounded cycle should explicitly build a T-zero-oriented timing
+      skeleton first, then repair bay/spatial feasibility, so the architecture
+      changes timing model and construction stage together instead of retrying
+      another direct constructive order.
+
+## 2026-07-06 reboot_v583_20260706_familyA_broad_twostage_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending broad smoke/probe
+- hypothesis:
+  - `v582` confirmed that the widened residual wrapper and trusted-active
+    protection are correct, but the direct bay-first constructive still falls
+    into the same huge-T basin before checker comparison.
+  - this cycle changes construction-stage shape to a true broad `two-stage`
+    lane:
+    - keep the full residual Family A classifier
+    - return trusted active directly for Family B-like / uncertain rows
+    - stage 1 builds several T-first timing skeletons from scratch
+    - stage 2 realizes each skeleton with bounded bay/spatial repair
+    - checker-compare distinct two-stage candidates T-first against the
+      trusted active fallback
+- target Family A subtype:
+  - full residual `4~5 bay 190~320 block high-w1` Family A lane
+  - intended targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`two-stage due-pressure`)
+  - T-zero constructive (`two-stage tight-area`, `two-stage wall-pref`)
+  - bounded improvement (`best two-stage branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v583_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all rows must stay `accepted_for_score=true` except the known trusted
+      timeout behavior already present in the active wrapper
+    - no new invalid/error rows
+    - no full 40 unless all targets reach `T < 10` or at least three high-T
+      targets show a clear T-direction improvement without Family B guard
+      regression
+- probe summary:
+  - run id:
+    `probe_v583_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v583_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.54s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.28s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `64.89s`
+    - `prob_14`: accepted, `T=187`, objective `3901754`, runtime `57.53s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `48.34s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.64s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `51.10s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.64s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `54.97s`
+    - `prob_40`: timeout, `T=9508`, objective `6501681`, runtime `61.87s`
+  - candidate (`trackA:v583_broad_twostage`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `43.87s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `55.24s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `67.74s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.24s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `49.89s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `28.49s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `53.02s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.96s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `54.58s`
+    - `prob_40`: timeout, `T=9508`, objective `6501681`, runtime `62.00s`
+  - representative checked evidence:
+    - `prob_10`: best checked two-stage branch was
+      `twostage_wall_pref T=27693`, selected route still
+      `trusted_active_v317 T=43`
+    - `prob_11`: best checked two-stage branch was
+      `twostage_wall_pref T=30228`, selected route still
+      `trusted_active_v317 T=386`
+    - `prob_13`: only checked two-stage branch was
+      `twostage_due_pressure T=49457`, selected route still
+      `trusted_active_v317 T=443`
+    - `prob_14`: only checked two-stage branch was
+      `twostage_due_pressure T=47819`, selected route still
+      `trusted_active_v317 T=186`
+    - `prob_19`: only checked two-stage branch was
+      `twostage_due_pressure T=64114`, selected route still
+      `trusted_active_v317 T=128`
+  - structural finding:
+    - the broad two-stage lane stayed fully protected, but almost every target
+      row still selected the trusted active surface.
+    - after widening the lane, only the crude `due_pressure` timing skeleton
+      consistently survived stage 2; the richer skeletons often returned
+      `inf` or were skipped under bounded budget, so the standalone family
+      never formed a competitive checked candidate set.
+    - the only row-level movement was `prob_14 T 187 -> 186`; all other
+      Family A and Family B rows stayed flat within the same batch.
+- smoke summary:
+  - rejected at probe / broad smoke gate
+  - rationale:
+    - there was no multi-row breakthrough signal; only one high-T target row
+      improved, and only by `1`
+    - `prob_13` and `prob_40` remained timeout rows
+    - the standalone two-stage branches stayed in the old huge-T basin and did
+      not produce a single checked win over the trusted active fallback
+- decision:
+  - `v583` is rejected and closed without full 40.
+  - the broad residual Family A lane has now failed under backward, beam,
+    GRASP, spatial, bay-first, and two-stage constructions, so the next cycle
+    must change architecture again rather than tuning this lane in place.
+- next architecture:
+  - rotate to a `Family A cluster decomposition`
+  - target subtype:
+    - full residual `4~5 bay 190~320 block high-w1` Family A lane, but split
+      by due-window / slack / bay-pressure clusters before construction
+    - intended targets remain `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, `prob_17`, `prob_19`, `prob_20`
+  - rationale:
+    - the broad residual lane likely mixes at least two hard substructures,
+      and monolithic from-scratch constructions keep collapsing into the same
+      dense lateness basin.
+    - the next bounded cycle should explicitly separate tight hard-window
+      blocks from diffuse late-window blocks, construct each cluster with its
+      own timing/bay policy, then merge under the guarded wrapper.
+
+## 2026-07-06 reboot_v584_20260706_familyA_broad_cluster_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending broad smoke/probe
+- hypothesis:
+  - `v582` and `v583` suggest the residual Family A lane is not one coherent
+    subtype. Monolithic bay-first and two-stage constructions both collapse
+    before they can express a useful T-first signal.
+  - this cycle changes architecture to a guarded broad `cluster decomposition`
+    lane:
+    - keep the full residual Family A classifier
+    - return trusted active directly for Family B-like / uncertain rows
+    - split blocks by due-window / slack-pressure / bay-pressure clusters
+    - construct and merge each clustered candidate from scratch
+    - checker-compare a small distinct checked set T-first against the trusted
+      active fallback
+- target Family A subtype:
+  - full residual `4~5 bay 190~320 block high-w1` Family A lane
+  - intended targets: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`cluster due-window`)
+  - T-zero constructive (`cluster bay-pressure`, `cluster slack-pressure`)
+  - bounded improvement (`best clustered branch + bounded cluster repair`)
+- smoke plan:
+  - run id:
+    `probe_v584_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all rows must stay `accepted_for_score=true` except the known trusted
+      timeout behavior already present in the active wrapper
+    - no new invalid/error rows
+    - no full 40 unless all targets reach `T < 10` or at least three high-T
+      targets show a clear T-direction improvement without Family B guard
+      regression
+- probe summary:
+  - run id:
+    `probe_v584_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v584_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.56s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `56.06s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `65.22s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `57.56s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `48.22s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `26.27s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `50.87s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.68s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `55.44s`
+    - `prob_40`: timeout, `T=9847`, objective `6728618`, runtime `61.99s`
+  - candidate (`trackA:v584_broad_cluster`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `42.75s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `56.08s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `66.32s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.21s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `49.31s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `27.12s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `51.78s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.98s`
+    - `prob_36`: accepted, `T=2892`, objective `2086706`, runtime `54.81s`
+    - `prob_40`: timeout, `T=9508`, objective `6501681`, runtime `62.05s`
+  - representative checked evidence:
+    - `prob_10`: best checked cluster branch was
+      `cluster_due_window T=29699`, selected route still
+      `trusted_active_v317 T=43`
+    - `prob_11`: best checked cluster branch was
+      `cluster_slack_pressure_repair T=31060`, selected route still
+      `trusted_active_v317 T=386`
+    - `prob_13`: best checked cluster branch was
+      `cluster_slack_pressure_repair T=48959`, selected route still
+      `trusted_active_v317 T=443`
+    - `prob_14`: best checked cluster branch was
+      `cluster_slack_pressure_repair T=47063`, selected route still
+      `trusted_active_v317 T=186`
+    - `prob_19`: best checked cluster branch was
+      `cluster_slack_pressure_repair T=64185`, selected route still
+      `trusted_active_v317 T=128`
+  - structural finding:
+    - the due-window / slack-pressure / bay-pressure split did create distinct
+      cluster-built candidates, but all checked branches still landed in the
+      same huge-T basin (`29k~64k T`).
+    - the wrapper stayed protected, yet on the critical Family A rows the
+      selected trusted-active fallback was worse than same-batch current on
+      `prob_11` (`367 -> 386`) and `prob_19` (`123 -> 128`), so this lane is
+      not even neutral at the target surface.
+    - Family B guard improved numerically on `prob_36` and `prob_40`, but that
+      signal is again fallback-only and does not rescue the failed Family A
+      gate.
+- smoke summary:
+  - rejected at probe / broad smoke gate
+  - rationale:
+    - no high-T target row reached `T < 10`
+    - there was no multi-row breakthrough; Family A targets were flat or worse
+    - `prob_13` and `prob_40` remained timeout rows
+    - standalone cluster candidates produced no checked win over the trusted
+      active fallback
+- decision:
+  - `v584` is rejected and closed without full 40.
+  - the full residual `4~5 bay 190~320 block high-w1` lane has now failed
+    under backward, beam, GRASP, spatial, bay-first, two-stage, and cluster
+    decomposition constructions, so the next cycle should stop treating it as
+    one lane and instead isolate a narrower subcluster for a different repair
+    architecture.
+- next architecture:
+  - rotate to a `Family A micro CP-SAT tardy-cluster repair` attached to a
+    split residual wrapper
+  - target subtype:
+    - `tight hard-window subcluster inside the 4~5 bay 190~320 block high-w1
+      residual family`
+    - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`
+  - rationale:
+    - broad constructive families keep collapsing, but the checked logs now
+      strongly suggest a small dense tardy core inside the compact hard-window
+      portion.
+    - the next bounded cycle should preserve the guarded wrapper, detect the
+      compact hard-window residual subcluster, and use a very small tardy-core
+      exact repair instead of another full from-scratch constructive.
+
+## 2026-07-06 reboot_v585_20260706_familyA_compact_tardycore_exact_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - the broad residual lane is now exhausted under backward / beam / GRASP /
+    spatial / bay-first / two-stage / cluster constructions, but the compact
+    hard-window subcluster was the last place where a true standalone
+    construction still moved multiple Family A rows.
+  - this cycle therefore narrows back to that compact hard-window subtype, but
+    unlike earlier warm-incumbent repair lines it keeps the trusted active
+    surface only as a protected fallback and attaches the exact repair solely
+    to standalone Family A candidates built from scratch.
+  - the construction seed comes from the best recent compact standalone GRASP
+    family (`v565`), and the bounded improvement is a tiny exact tardy-core
+    reorder inside the worst bay of the standalone candidate.
+- target Family A subtype:
+  - `compact hard-window 4-bay 190~270 block high-w1 residual subcluster`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`compact due-pressure GRASP seed`)
+  - T-zero constructive (`tight-area / wall-preference compact GRASP seeds`)
+  - bounded improvement (`best standalone compact seed + tiny worst-bay tardy-core exact reorder`)
+- smoke plan:
+  - run id:
+    `probe_v585_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all smoke rows must remain `accepted_for_score=true` except the already
+      known trusted timeout behavior on the active wrapper
+    - no new invalid / error / missing rows
+    - no full 40 unless at least three high-T target rows show a clear
+      standalone T-direction breakthrough or all targets fall below `T < 10`
+- probe summary:
+  - run id:
+    `probe_v585_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v585_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `47.43s`
+    - `prob_11`: accepted, `T=397`, objective `9387458`, runtime `57.96s`
+    - `prob_13`: timeout, `T=460`, objective `9174335`, runtime `71.82s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.15s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `51.01s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.77s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `50.39s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.55s`
+    - `prob_36`: accepted, `T=2970`, objective `2140459`, runtime `55.05s`
+    - `prob_40`: timeout, `T=9420`, objective `6442905`, runtime `62.04s`
+  - candidate (`trackA:v585_compact_tardycore_exact`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `41.38s`
+    - `prob_11`: accepted, `T=386`, objective `9136031`, runtime `55.10s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `65.11s`
+    - `prob_14`: accepted, `T=187`, objective `3901754`, runtime `56.78s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `47.76s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.50s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `50.44s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `55.93s`
+    - `prob_36`: accepted, `T=3110`, objective `2231489`, runtime `53.97s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `61.49s`
+  - structural finding:
+    - the compact tardy-core exact lane did not create a smoke-level standalone
+      breakthrough across the high-T residual set.
+    - the only numeric Family A improvements appeared on `prob_11` and
+      `prob_13`, but the logs show those rows still flowed through the trusted
+      active fallback path rather than a winning standalone compact candidate.
+    - the guarded compact classifier was therefore too narrow or misplaced for
+      the intended subtype, so the new exact-reorder stage did not become the
+      selected route on the key target rows.
+    - Family B guard regressed numerically on `prob_36` (`2970 -> 3110`) and
+      `prob_40` (`9420 -> 9716`), which blocks any promotion even before the
+      Family A gate.
+- smoke summary:
+  - rejected at probe / Family A smoke gate
+  - rationale:
+    - no high-T target row reached `T < 10`
+    - there was no three-row standalone breakthrough; only two rows improved
+      numerically, and both improvements were fallback-derived
+    - `prob_13` and `prob_40` remained timeout rows
+    - Family B guard worsened on both tracked rows
+    - no full 40 allowed
+- decision:
+  - `v585` is rejected and closed without full 40.
+  - the failure mode is now more about the family selector and subtype
+    coverage than the tiny exact-repair operator itself.
+- next architecture:
+  - rotate to a `Family A selector-calibrated bay-first timing-second standalone`
+    lane
+  - target subtype:
+    - `borderline compact-to-mixed 4-bay 190~280 block hard-window high-w1 residual family`
+    - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, with guard awareness against the broader residual spillover
+
+## 2026-07-06 reboot_v586_20260706_familyA_selector_bayfirst_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v585` failed mainly because the compact selector did not actually catch
+    the active rows where the trusted fallback later won, while the tiny exact
+    repair itself never got a chance to be selected.
+  - `v562` still says the compact hard-window family is responsive, and the
+    older bay-first misses (`v563`, `v568`, `v582`) suggest the collapse came
+    from subtype miscalibration plus too-weak candidate mix more than from the
+    bay-first idea alone.
+  - this cycle keeps the guarded standalone structure but calibrates the lane
+    to a `compact-to-mixed 4-bay 190~280 block hard-window high-w1 residual`
+    family and compares several bay partitions plus timing variants before
+    trusted fallback.
+- target Family A subtype:
+  - `borderline compact-to-mixed 4-bay 190~280 block hard-window high-w1 residual family`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`bay-first due/latest`)
+  - T-zero constructive (`bay-first pref/tight`, `bay-first release/latest`, `bay-first due/tight`)
+  - bounded improvement (`best bay-first candidate + fixed-bay reorder`)
+- smoke plan:
+  - run id:
+    `probe_v586_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all smoke rows must stay `accepted_for_score=true` except the already
+      known trusted timeout behavior on the active wrapper
+    - no new invalid / error / missing rows
+    - no full 40 unless at least three high-T target rows show a clear
+      standalone T-direction breakthrough or all targets reach `T < 10`
+- probe summary:
+  - run id:
+    `probe_v586_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v586_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `44.93s`
+    - `prob_11`: accepted, `T=340`, objective `8106575`, runtime `53.86s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `65.23s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `57.89s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `47.74s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.98s`
+    - `prob_19`: accepted, `T=128`, objective `1950019`, runtime `50.37s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.74s`
+    - `prob_36`: accepted, `T=2822`, objective `2042685`, runtime `55.14s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `61.79s`
+  - candidate (`trackA:v586_selector_bayfirst`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `41.85s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `55.13s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `65.31s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `56.63s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `47.89s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.98s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `50.88s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `55.65s`
+    - `prob_36`: accepted, `T=3051`, objective `2193157`, runtime `54.45s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `61.86s`
+  - structural finding:
+    - despite the widened compact-to-mixed selector, the candidate logs show no
+      `reboot_v586` lane trace at all; the non-empty row logs came from the
+      inherited trusted-active chain instead.
+    - that means the selector still missed the intended rows and the standalone
+      bay-first constructor never actually became the selected route on the
+      smoke targets.
+    - the apparent `prob_19` gain (`128 -> 123`) is therefore fallback-derived
+      same-batch drift, not a standalone bay-first win.
+    - `prob_11` regressed badly (`340 -> 367`) and Family B guard `prob_36`
+      worsened (`2822 -> 3051`), so the selector miss is harmful even before
+      judging construction quality.
+- smoke summary:
+  - rejected at probe / Family A smoke gate
+  - rationale:
+    - no high-T target row reached `T < 10`
+    - there was no three-row standalone breakthrough
+    - the standalone bay-first lane did not surface as the selected route on
+      the key rows
+    - `prob_13` and `prob_40` remained timeout rows
+    - Family B guard worsened on `prob_36`
+    - no full 40 allowed
+- decision:
+  - `v586` is rejected and closed without full 40.
+  - the core blocker is now clearly the runtime family selector rather than
+    the downstream bay-first constructor.
+- next architecture:
+  - rotate to a `Family A selector-audited two-stage standalone wrapper`
+  - target subtype:
+    - `compact-to-mixed 4-bay 190~280 block hard-window high-w1 residual overlap family`
+    - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`
+
+## 2026-07-06 reboot_v587_20260706_familyA_overlap_twostage_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - the last two misses (`v585`, `v586`) now show that the dominant blocker is
+    the runtime selector, not merely the downstream standalone construction.
+  - feature audit on the current training rows shows the intended high-T Family
+    A targets all sit in a broader overlap envelope:
+    - `4~5 bays`
+    - `190~300 blocks`
+    - `w1 >= 9000`
+    - `proc_mean about 7.4~7.8`
+    - `slack_mean about 1.28~1.57`
+    - `tight2 about 0.77~0.85`
+    - low preference concentration / pressure
+  - this cycle therefore rotates architecture to a broader selector-audited
+    `two-stage standalone wrapper` so the intended rows actually enter the
+    standalone lane before trusted fallback comparison.
+- target Family A subtype:
+  - `4~5 bay 190~300 block hard-window high-w1 residual overlap family`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`two-stage due-pressure`)
+  - T-zero constructive (`two-stage tight-area`, `two-stage wall-pref`)
+  - bounded improvement (`best two-stage branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v587_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all smoke rows must stay `accepted_for_score=true` except the already
+      known trusted timeout behavior on the active wrapper
+    - no new invalid / error / missing rows
+    - no full 40 unless at least three high-T target rows show a clear
+      standalone T-direction breakthrough or all targets reach `T < 10`
+- probe summary:
+  - run id:
+    `probe_v587_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - artifact root:
+    `reports/ogc2026_benchmark/probe_v587_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - current local wrapper (`curr:v318_surface`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `43.76s`
+    - `prob_11`: accepted, `T=367`, objective `8701664`, runtime `55.37s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `65.45s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.17s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `47.45s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `25.88s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `50.87s`
+    - `prob_20`: accepted, `T=164`, objective `5199740`, runtime `56.55s`
+    - `prob_36`: accepted, `T=2892`, objective `2086706`, runtime `54.94s`
+    - `prob_40`: timeout, `T=9318`, objective `6376359`, runtime `62.28s`
+  - candidate (`trackA:v587_overlap_twostage`):
+    - `prob_10`: accepted, `T=43`, objective `943557`, runtime `45.03s`
+    - `prob_11`: accepted, `T=362`, objective `8606965`, runtime `57.07s`
+    - `prob_13`: timeout, `T=443`, objective `8863902`, runtime `70.53s`
+    - `prob_14`: accepted, `T=186`, objective `3883976`, runtime `58.11s`
+    - `prob_15`: accepted, `T=25`, objective `844023`, runtime `53.98s`
+    - `prob_17`: accepted, `T=13`, objective `338183`, runtime `31.22s`
+    - `prob_19`: accepted, `T=123`, objective `1896684`, runtime `57.03s`
+    - `prob_20`: accepted, `T=278`, objective `8239778`, runtime `57.06s`
+    - `prob_36`: accepted, `T=3174`, objective `2276607`, runtime `54.58s`
+    - `prob_40`: timeout, `T=9716`, objective `6638008`, runtime `61.87s`
+  - structural finding:
+    - unlike `v585` and `v586`, the selector now really opens on the intended
+      Family A rows. The logs show `family=family_a_like` on
+      `prob_11 / prob_20` and `family_b_like` guard routing on `prob_36`.
+    - however, the standalone two-stage branches themselves remain trapped in
+      the old huge-T basin:
+      - `prob_11`: best checked `twostage_wall_pref T=30228`
+      - `prob_20`: best checked `twostage_tight_area T=54433`
+    - the selected rows therefore still come from the trusted active fallback,
+      not from the new standalone two-stage lane.
+    - `prob_11` did improve numerically (`367 -> 362`) through fallback drift,
+      but `prob_20` regressed badly (`164 -> 278`) and Family B guards also
+      worsened (`prob_36 2892 -> 3174`, `prob_40 9318 -> 9716`).
+- smoke summary:
+  - rejected at probe / Family A smoke gate
+  - rationale:
+    - no high-T target row reached `T < 10`
+    - there was no three-row standalone breakthrough
+    - selector issue is fixed, but the standalone two-stage construction still
+      fails decisively on the opened rows
+    - `prob_13` and `prob_40` remained timeout rows
+    - Family B guard regressed
+    - no full 40 allowed
+- decision:
+  - `v587` is rejected and closed without full 40.
+  - this cycle closes the selector audit question: the overlap selector is now
+    credible, and the remaining blocker is the standalone two-stage
+    construction itself.
+- next architecture:
+  - rotate away from the overlap hard-window subtype loop to an `overall Family A selector-audited beam portfolio from scratch`
+  - target subtype:
+    - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+    - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+      `prob_15`, `prob_17`, `prob_19`, `prob_20`
+
+## 2026-07-06 reboot_v588_20260706_familyA_audited_beam_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v587` closed the selector question: the overall residual Family A rows do
+    enter the intended lane when the gate is calibrated correctly.
+  - the next test should therefore return to a `beam portfolio from scratch`,
+    but unlike `v579` it should spend enough in-lane budget to actually open
+    multiple checked beam candidates before protected fallback takes over.
+  - this cycle keeps the audited overall residual Family A selector and only
+    changes the construction-stage depth:
+    - larger beam budget
+    - one more checked branch
+    - extra global order rules so the beam does not collapse immediately to the
+      same skipped pattern as `v579`
+- target Family A subtype:
+  - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`serial slack seed`, `beam due/slack`)
+  - T-zero constructive (`beam tight-area`, `beam wall-pref`, `beam critical-ratio`, `beam release-tail`)
+  - bounded improvement (`best beam branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v588_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all smoke rows must stay `accepted_for_score=true` except the already
+      known trusted timeout behavior on the active wrapper
+    - no new invalid / error / missing rows
+    - no full 40 unless at least three high-T target rows show a clear
+      standalone T-direction breakthrough or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v588_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - trusted fallback recheck run:
+    - `reports/ogc2026_benchmark/probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - accepted_for_score:
+    - `v588`: `8/10`
+    - direct trusted `v317`: `8/10`
+    - inherited timeout rows remained `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 86` (worse by `+43`)
+    - `prob_11`: `367 -> 409` (worse by `+42`)
+    - `prob_13`: `443 -> 460` timeout (worse by `+17`)
+    - `prob_14`: `187 -> 198` (worse by `+11`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 3174` (worse by `+352`)
+    - `prob_40`: `9318 -> 9228` timeout (better by `-90`, still rejected timeout row)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v588` first8 Total `T = 1483`
+    - direction moved away from T-zero by `+118`
+  - log evidence:
+    - every Family A row logged
+      `selected=trusted_active_v317`, but the selected `active_T` still stayed
+      worse than direct trusted `v317` on most target rows
+    - the checked standalone lane never became competitive:
+      - `prob_10`: checked `beam_due_pressure T=28054`
+      - `prob_11`: checked `beam_due_pressure T=31046`
+      - `prob_13`: checked `beam_due_pressure T=49602`
+      - `prob_20`: checked `serial_slack_seed T=54446`
+    - most extra beam specs were still skipped after the first early branch,
+      so deeper budget did not translate into a useful checked portfolio
+- diagnosis:
+  - `v588` failed the hard gate and is rejected without full 40.
+  - The main failure is not just weak standalone construction. This run exposed
+    a stricter guard bug:
+    - the Family A lane spends enough time before fallback that even
+      `selected=trusted_active_v317` can return a worse result than the direct
+      trusted solver with the full 60s budget
+    - the Family B fallback-only route also drifted worse on `prob_36`, showing
+      that a reduced fallback budget is not an acceptable protection rule
+  - Therefore the next architecture must preserve a full-budget trusted
+    fallback snapshot independently of any Family A candidate work.
+- decision:
+  - `v588` is rejected and closed without full 40.
+- next architecture:
+  - move to a `fallback-pinned audited beam wrapper`
+  - target Family A subtype:
+    - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural change required before any new beam/grasp/two-stage variant:
+    - run the trusted fallback first or preserve its full-budget result
+    - run the Family A standalone lane only inside a separate bounded budget
+    - compare feasible candidates T-first without allowing the lane to degrade
+      the preserved trusted fallback result
+
+## 2026-07-06 reboot_v589_20260706_familyA_fallback_pinned_beam_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v588` showed that a Family A standalone lane can still lose even when it
+    never gets selected, because pre-fallback candidate work starves the trusted
+    solver of runtime on the exact residual rows we care about.
+  - This cycle changes the solver structure before changing the heuristic
+    family:
+    - preserve a full-budget trusted fallback snapshot first
+    - only after that, spend the actual leftover time on a standalone
+      `beam portfolio from scratch`
+    - compare feasible candidates T-first, but never allow the lane to degrade
+      the preserved trusted result
+  - Inside that wrapper we still keep the required candidate roles:
+    - trusted fallback
+    - fast constructive (`serial slack seed`, cheap due/slack beam)
+    - T-zero constructive (`tight-area`, `critical-ratio`, `release-tail`)
+    - bounded improvement (`best beam branch + fixed-bay repair`)
+- target Family A subtype:
+  - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- smoke plan:
+  - run id:
+    `probe_v589_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+  - hard gate:
+    - all rows must keep the trusted acceptance pattern
+    - no new invalid / error / missing rows
+    - no full 40 unless at least three high-T targets show real T-direction
+      improvement over the preserved trusted fallback or all targets reach
+      `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v589_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v589`: `6/10`
+    - new timeout regressions appeared on `prob_14`, `prob_20`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 367` (flat)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 187` but runtime `58.03s -> 60.33s`, accepted `true -> false`
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` but runtime `56.29s -> 60.31s`, accepted `true -> false`
+    - `prob_36`: `2822 -> 2892` (worse by `+70`)
+    - `prob_40`: `9318 -> 9228` timeout (better by `-90`, still rejected timeout row)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v589` first8 Total `T = 1370`
+    - no multi-row breakthrough; direction is still worse by `+5`
+  - log evidence:
+    - the wrapper successfully preserved the direct trusted fallback T on most
+      Family A rows:
+      - `prob_10`: `active_T=43`, `selected=trusted_active_v317`
+      - `prob_11`: `active_T=367`, `selected=trusted_active_v317`
+      - `prob_14`: `active_T=187`, `selected=trusted_active_v317`
+      - `prob_20`: `active_T=164`, `selected=trusted_active_v317`
+    - however the added post-fallback lane still consumed enough runtime to
+      push near-limit accepted rows over the official limit:
+      - `prob_14`: `active_runtime=57.29s`, `lane_budget=2.51s`, final runtime `60.33s`
+      - `prob_20`: `active_runtime=56.52s`, `lane_budget=3.28s`, final runtime `60.31s`
+    - on rows with more leftover time, the standalone constructive still did
+      not open a useful beam candidate:
+      - most beam branches returned `inf`
+      - checked entries were often only `serial_slack_seed` with massive T
+        (`28211`, `30236`, `59104`, `58669`)
+- diagnosis:
+  - `v589` fixed the main `v588` bug only partially:
+    - it stopped the selected solution from drifting away from the trusted
+      fallback on many Family A rows
+    - but it still violated the hard acceptance gate by spending post-fallback
+      time on near-limit rows
+  - this proves the next wrapper must be `runtime-risk gated`:
+    - if the preserved trusted fallback already consumed most of the budget,
+      the Family A lane must be skipped entirely
+    - candidate work must use a stricter lane cutoff based on actual fallback
+      elapsed time, not only leftover wall-clock time
+- decision:
+  - `v589` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned two-stage or bay-first wrapper`
+  - target Family A subtype:
+    - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural change required next:
+    - preserve trusted fallback first
+    - add a strict runtime-risk gate so rows like `prob_14` / `prob_20` skip
+      standalone work entirely
+    - spend standalone time only on lower-risk rows where active fallback
+      finishes with enough real headroom
+
+## 2026-07-06 reboot_v590_20260706_familyA_risk_gated_bayfirst_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v589` proved that preserving the trusted fallback first is necessary but
+    not sufficient. Near-limit rows still lost acceptance because even a small
+    post-fallback lane ran after the trusted solver.
+  - This cycle keeps the `fallback-pinned` wrapper but changes the standalone
+    construction stage to `bay-first timing-second`, while adding a stricter
+    runtime-risk gate:
+    - if trusted fallback elapsed time is already close to the limit, skip the
+      Family A lane entirely
+    - otherwise use only a very small bay-first lane budget on lower-risk rows
+    - compare feasible candidates T-first without ever sacrificing the pinned
+      trusted result
+- target Family A subtype:
+  - `full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`bayfirst_due_latest`)
+  - T-zero constructive (`bayfirst_pref_tight`, `bayfirst_release_latest`, `bayfirst_release_tight`)
+  - bounded improvement (`best bay-first branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v590_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v590_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v590`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 367` (flat)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 187` (flat)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2892` (worse by `+70`)
+    - `prob_40`: `9318 -> 9603` timeout (worse by `+285`)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v590` first8 Total `T = 1370`
+    - no T-zero movement; still worse by `+5`
+  - log evidence:
+    - runtime-risk gate worked as intended on near-limit rows:
+      - `prob_11`: `active_runtime=55.15s`, `lane_budget=0.00s`
+      - `prob_14`: `active_runtime=57.21s`, `lane_budget=0.00s`
+      - `prob_20`: `active_runtime=56.42s`, `lane_budget=0.00s`
+    - lower-risk rows did enter the standalone bay-first lane, but the checked
+      candidates were still extremely bad:
+      - `prob_10`: best checked `bayfirst_release_latest_repair T=28370`
+      - `prob_15`: best checked `bayfirst_pref_tight_repair T=44015`
+      - `prob_17`: best checked `bayfirst_release_tight T=62966`
+      - `prob_19`: best checked `bayfirst_pref_tight T=63780`
+    - therefore the runtime wrapper is now safer, but the bay-first
+      constructive itself still fails to reach the relevant T basin
+- diagnosis:
+  - `v590` successfully closed the acceptance-protection question for the
+    bay-first architecture:
+    - the pinned trusted fallback can be protected with a stricter runtime-risk
+      gate
+    - near-limit rows no longer suffer the `v589` timeout regressions
+  - However the constructive itself still produces huge-T standalone schedules,
+    so there is no smoke signal for full 40.
+  - This means the next change must rotate away from bay-first and attack a
+    different construction stage while keeping the same pinned risk gate.
+- decision:
+  - `v590` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned global backward constructive`
+  - target Family A subtype:
+    - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate from `v590`
+    - replace bay-first construction with a due-backward / latest-feasible
+      global timing skeleton before spatial realization
+
+## 2026-07-06 reboot_v591_20260706_familyA_risk_gated_backward_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v590` solved the wrapper-side acceptance regression but proved that the
+    bay-first constructive still lives in a huge-T basin.
+  - This cycle keeps the exact same `pinned fallback + hard runtime-risk gate`
+    but rotates the standalone construction stage to `global backward
+    constructive`:
+    - latest due-window / area-heavy / release-cliff backward base
+    - latest-feasible forward realization
+    - bounded fixed-bay repair on the best backward branch
+  - The intent is to test whether the backward timing skeleton reaches a
+    meaningfully lower T basin on runtime-headroom-positive Family A rows
+    without destabilizing the trusted fallback.
+- target Family A subtype:
+  - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`back_late_window`)
+  - T-zero constructive (`back_late_area`, `back_huge_area`, `back_diffuse_pref`, `back_release_cliff`)
+  - bounded improvement (`best backward branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v591_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+      trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+      gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v591_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v591`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 386` (worse by `+19`)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 186` (better by `-1`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2892` (worse by `+70`)
+    - `prob_40`: `9318 -> 9228` timeout (better by `-90`, still rejected timeout row)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v591` first8 Total `T = 1388`
+    - moved away from T-zero by `+23`
+  - log evidence:
+    - runtime-risk gate still protected near-limit rows:
+      - `prob_11`: `active_runtime=55.31s`, `lane_budget=0.00s`
+      - `prob_14`: `active_runtime=57.87s`, `lane_budget=0.00s`
+      - `prob_20`: `active_runtime=56.07s`, `lane_budget=0.00s`
+    - lower-risk rows entered the backward lane, but checked candidates stayed
+      in the same huge-T basin:
+      - `prob_10`: best checked `back_late_area__area_desc T=27824`
+      - `prob_15`: best checked `back_late_area__area_desc T=44004`
+      - `prob_17`: best checked `back_huge_area__area_desc T=63003`
+      - `prob_19`: `back_late_window` failed before producing a checked branch
+- diagnosis:
+  - `v591` confirms the wrapper-side lesson from `v590`:
+    - pinned fallback + hard runtime-risk gate can preserve the acceptance
+      pattern on backward-construction trials
+  - But the global backward constructive itself still does not reach a useful
+    T basin on the runtime-headroom-positive Family A rows.
+  - Therefore the next architecture must change the constructive stage again,
+    not the wrapper.
+- decision:
+  - `v591` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned GRASP/randomized constructive`
+  - target Family A subtype:
+    - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate from `v590/v591`
+    - replace deterministic backward construction with diversified tie-break /
+      bay / orientation seeds to test whether the current deterministic basin
+      itself is the blocker
+
+## 2026-07-06 reboot_v592_20260706_familyA_risk_gated_grasp_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v590/v591` show that the wrapper is now sufficiently stable, but the
+    deterministic bay-first and backward constructives both remain stuck in the
+    same high-T basin.
+  - This cycle keeps the exact same `pinned fallback + hard runtime-risk gate`
+    and changes only the construction stage to `GRASP/randomized constructive`:
+    - diversified timing skeleton order
+    - diversified bay / orientation / ranking bias
+    - cheap retime / fixed-bay repair on the best randomized branch
+  - The purpose is to test whether diversification alone can open a materially
+    lower T basin on the runtime-headroom-positive Family A rows.
+- target Family A subtype:
+  - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`grasp_due_seed0`)
+  - T-zero constructive (`grasp_tight_seed1`, `grasp_wall_seed2`, `grasp_wall_seed3`, `grasp_tight_seed4`)
+  - bounded improvement (`best grasp branch + retime/repair`)
+- smoke plan:
+  - run id:
+    `probe_v592_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+      trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+      gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v592_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v592`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 367` (flat)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 187` (flat)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2970` (worse by `+148`)
+    - `prob_40`: `9318 -> 8917` timeout (better by `-401`, still rejected timeout row)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v592` first8 Total `T = 1370`
+    - still worse by `+5`, with no multi-row breakthrough
+  - log evidence:
+    - runtime-risk gate again protected near-limit rows:
+      - `prob_11`: `active_runtime=55.20s`, `lane_budget=0.00s`
+      - `prob_14`: `active_runtime=57.33s`, `lane_budget=0.00s`
+      - `prob_20`: `active_runtime=55.76s`, `lane_budget=0.00s`
+    - on runtime-headroom-positive rows the GRASP constructive mostly failed to
+      even produce a checked candidate:
+      - `prob_10`: surrogate values existed but `checked=[]`
+      - `prob_15`: `grasp_due_seed0`, `grasp_tight_seed1` both `inf`
+      - `prob_17`: all tested grasp seeds `inf` or skipped
+      - `prob_19`: both tested grasp seeds `inf`
+    - so diversification changed the surface behavior but still did not open a
+      competitive T basin
+- diagnosis:
+  - `v592` confirms that the wrapper is no longer the main blocker.
+  - The randomized GRASP lane did not produce a usable constructive on the
+    runtime-headroom-positive Family A rows, so simple diversification is not
+    enough.
+  - After bay-first, backward, and randomized constructive all failing on the
+    same residual lane, the next move should change the construction stage more
+    fundamentally.
+- decision:
+  - `v592` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned two-stage cluster decomposition`
+  - target Family A subtype:
+    - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate from `v590/v591/v592`
+    - replace single-pass bay/backward/grasp construction with due-window /
+      slack / bay-pressure cluster decomposition and a two-stage timing-first,
+      spatial-second build
+
+## 2026-07-06 reboot_v593_20260706_familyA_risk_gated_cluster_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v590/v591/v592` established that the `pinned fallback + hard runtime-risk gate`
+    is stable enough, but bay-first / backward / grasp all failed to open a
+    competitive Family A T basin.
+  - This cycle keeps the same wrapper and changes the construction stage to
+    `cluster decomposition` so the Family A lane is built from due-window /
+    slack / bay-pressure clusters rather than one global pass.
+  - The hope is that cluster-level grouping plus bounded intra-cluster exact
+    repair can reduce multiple residual high-T rows, not just a single pocket.
+- target Family A subtype:
+  - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`cluster_due_window`)
+  - T-zero constructive (`cluster_bay_pressure`, `cluster_slack_pressure`)
+  - bounded improvement (`best cluster branch + exact cluster repair`)
+- smoke plan:
+  - run id:
+    `probe_v593_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v593_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v593`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 397` (worse by `+30`)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 186` (better by `-1`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 128` (worse by `+5`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2892` (worse by `+70`)
+    - `prob_40`: `9318 -> 9318` timeout (flat)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v593` first8 Total `T = 1399`
+    - worse by `+34`, with no multi-row breakthrough
+  - log evidence:
+    - runtime-risk gate preserved the near-limit rows exactly where intended:
+      - `prob_11`: `active_runtime=56.40s`, `lane_budget=0.00s`
+      - `prob_14`: `active_runtime=57.87s`, `lane_budget=0.00s`
+      - `prob_20`: inherited trusted fallback, no gain signal
+    - runtime-headroom-positive rows still produced only huge-T cluster builds:
+      - `prob_10`: best checked `cluster_due_window T=29699`
+      - `prob_15`: best checked `cluster_slack_pressure_repair T=44173`
+      - `prob_17`: best checked `cluster_slack_pressure_repair T=63556`
+      - `prob_19`: best checked `cluster_bay_pressure_repair T=65558`
+    - Family B guard stayed feature-gated to fallback, but fallback itself was
+      still worse than the direct trusted smoke on `prob_36`
+- diagnosis:
+  - `v593` confirms again that the wrapper is no longer the main blocker.
+  - Cluster decomposition changed the construction stage structurally, but it
+    still failed to create any checked candidate remotely near the trusted
+    Family A T basin.
+  - The remaining issue appears to be the timing skeleton itself, not only the
+    grouping or diversification policy.
+- decision:
+  - `v593` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned two-stage timing-skeleton + spatial repair`
+  - target Family A subtype:
+    - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural rule next:
+    - stage 1: build a latest-feasible / backward timing skeleton that aims at
+      `T=0` before spatial commitment
+    - stage 2: assign bay / orientation / placement with bounded spatial
+      repair, keeping the pinned fallback wrapper intact
+
+## 2026-07-06 reboot_v594_20260706_familyA_risk_gated_twostage_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v593` showed that grouping alone was not enough; the next change keeps the
+    same trusted wrapper but moves to a true `two-stage timing-skeleton +
+    spatial repair` lane.
+  - This cycle starts from the broad residual two-stage architecture and makes
+    two structural commitments:
+    - pinned fallback + hard runtime-risk gate from `v590+`
+    - `T-first` surrogate ranking inside the standalone lane so checked
+      candidates are chosen by tardiness before objective
+  - The hope is that an explicit timing skeleton plus T-first stage-2
+    realization can open a lower Family A tardiness basin on the rows that
+    still have runtime headroom.
+- target Family A subtype:
+  - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`twostage_due_pressure`)
+  - T-zero constructive (`twostage_tight_area`, `twostage_wall_pref`, `twostage_due_area`)
+  - bounded improvement (`best twostage branch + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v594_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v594_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v594`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 340` (better by `-27`)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 186` (better by `-1`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 149` (worse by `+26`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2892` (worse by `+70`)
+    - `prob_40`: `9318 -> 9508` timeout (worse by `+190`)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v594` first8 Total `T = 1363`
+    - improved by only `-2`, far below the hard-gate bar and still without
+      a broad multi-row breakthrough
+  - log evidence:
+    - runtime-risk gate remained stable and acceptance-safe
+    - runtime-headroom-positive rows still produced huge-T standalone
+      candidates:
+      - `prob_10`: checked `twostage_due_pressure T=27973`
+      - `prob_15`: surrogate `twostage_due_pressure T=44032`, no checked
+        candidate survived the lane budget
+    - the visible `prob_11` gain came from the inherited fallback path, not
+      from the new standalone lane:
+      - `active_T=340`, `checked=[]`, `selected=trusted_active_v317`
+    - `prob_19` also selected fallback but that fallback drifted worse than the
+      direct trusted comparison baseline in this smoke
+- diagnosis:
+  - `v594` confirms that the two-stage timing-skeleton hypothesis is closer to
+    the right structure than the cluster lane, but the standalone lane still
+    does not produce checked candidates remotely close to the trusted T basin.
+  - The only material gain signal (`prob_11`) was not caused by the new
+    constructive, so it cannot justify promotion or full40.
+  - The next change should not merely retune skeleton order; it should add a
+    bounded exact tardy-core repair on top of the constructive lane.
+- decision:
+  - `v594` is rejected and closed without full 40.
+- next architecture:
+  - move to a `runtime-risk-gated fallback-pinned tardycore micro-exact repair`
+  - target Family A subtype:
+    - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - structural rule next:
+    - keep the same trusted wrapper
+    - build one compact Family A constructive lane
+    - then isolate a tardy core of roughly `5~20` blocks and run a bounded
+      exact / micro-CP style reorder-repair on that core before checker
+      comparison
+
+## 2026-07-06 reboot_v595_20260706_familyA_risk_gated_tardycore_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v594` suggested that timing-skeleton structure is not enough by itself;
+    the next structural move is to add a bounded tardy-core exact repair while
+    keeping the wrapper stable.
+  - This cycle uses the `compact constructive + worst-bay tardy-core exact`
+    architecture, but only inside the same `pinned fallback + hard runtime-risk`
+    wrapper used successfully in `v590+`.
+  - The purpose is to see whether a very small exact reorder on a tardy core
+    can reduce multiple Family A residual rows without destabilizing the
+    trusted runtime surface.
+- target Family A subtype:
+  - `runtime-headroom-positive portion of the full residual 4~5 bay 190~320 block high-w1 Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`grasp_due_seed0`)
+  - T-zero constructive (`grasp_tight_seed1`, `grasp_wall_seed2`, `grasp_wall_seed3`, `grasp_due_seed4`)
+  - bounded improvement (`retime` and `exact tardy-core repair`)
+- smoke plan:
+  - run id:
+    `probe_v595_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v595_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v595`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 367` (flat)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 187` (flat)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 123` (flat)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 3051` (worse by `+229`)
+    - `prob_40`: `9318 -> 9508` timeout (worse by `+190`)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v595` first8 Total `T = 1365`
+    - no movement at all on the targeted Family A smoke rows
+  - log evidence:
+    - the standalone lane almost never activated because the Family A selector
+      was too narrow for the residual target lane:
+      - `prob_10`: `family=uncertain`
+      - `prob_11`: `family=uncertain`
+      - `prob_15`: `family=uncertain`
+      - `prob_19`: `family=uncertain`
+    - as a result, the smoke mostly reduced to trusted fallback replay on
+      Family A rows, while Family B guard rows still drifted worse in the
+      same-batch comparison
+- diagnosis:
+  - `v595` does not provide a valid test of the tardy-core architecture on the
+    intended residual lane because the classifier failed to admit most of that
+    lane into the standalone path.
+  - This closes the exact-repair-on-top-of-compact-constructive attempt as
+    implemented here; the next move must relax or redesign the Family A
+    selector together with the standalone constructive, not only tweak the
+    exact core repair.
+- decision:
+  - `v595` is rejected and closed without full 40.
+- next architecture:
+  - move to a `selector-relaxed overlap twostage + tardycore exact`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane currently falling into uncertain`
+  - structural rule next:
+    - broaden the Family A gate to cover the actual residual smoke rows
+    - use the overlap/two-stage skeleton lane as the base constructive
+    - apply the bounded tardy-core exact repair only after that broader lane
+      produces a checked candidate
+
+## 2026-07-06 reboot_v596_20260706_familyA_relaxed_overlap_tardycore_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v595` failed mainly because the residual Family A rows were still falling
+    into `uncertain`, so the tardy-core lane barely activated.
+  - This cycle starts from the broader `overlap twostage` lane and explicitly
+    relaxes the Family A selector toward the observed residual smoke features,
+    then adds the bounded tardy-core exact repair after stage-2 realization.
+  - The goal is to finally test a real standalone Family A lane on the broad
+    residual smoke set instead of replaying fallback.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane currently falling into uncertain`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`twostage_due_pressure`)
+  - T-zero constructive (`twostage_tight_area`, `twostage_wall_pref`, `twostage_tight_due`)
+  - bounded improvement (`fixed-bay repair` plus `tardy-core exact`)
+- smoke plan:
+  - run id:
+    `probe_v596_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v596_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v596`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 43` (flat)
+    - `prob_11`: `367 -> 367` (flat)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 186` (better by `-1`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 123` (flat)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2822` (flat)
+    - `prob_40`: `9318 -> 9420` timeout (worse by `+102`)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v596` first8 Total `T = 1364`
+    - improved by only `-1`, still far below the hard-gate bar
+  - log evidence:
+    - the relaxed selector successfully admitted at least part of the residual
+      lane into `family_a_like`:
+      - `prob_10`: `family_a_like`
+      - `prob_11`: `family_a_like`
+      - `prob_19`: `family_a_like`
+    - but once the standalone lane activated, its checked candidates remained
+      far outside the trusted T basin:
+      - `prob_10`: best checked `twostage_wall_pref T=27693`
+      - `prob_19`: no checked candidate survived; surrogate stayed `inf`
+    - some residual rows still fell through the selector:
+      - `prob_14`: `family=uncertain`
+    - so `v596` improved the selector but not the constructive quality
+- diagnosis:
+  - `v596` is better than `v595` only in that it actually exercised the
+    standalone lane on part of the intended residual set.
+  - However, the overlap/two-stage constructive still produces huge-T
+    candidates, so the real blocker has moved from selector miss to
+    construction quality again.
+  - The next architecture should change the constructive stage itself, not
+    keep iterating the same overlap/two-stage family.
+- decision:
+  - `v596` is rejected and closed without full 40.
+- next architecture:
+  - move to a `selector-relaxed beam portfolio from scratch`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate
+    - replace overlap/two-stage construction with a beam portfolio built
+      directly from due/slack/critical-ratio/area-pressure orders
+    - keep T-first checked selection and optionally one bounded tardy-core
+      repair only after a competitive beam candidate appears
+
+## 2026-07-07 reboot_v597_20260707_familyA_risk_gated_beam_guarded_on_v318
+
+- parent/version: `reboot_v318_20260630_baseline_surface_direct_import_v317`
+- status: pending probe + smoke
+- hypothesis:
+  - `v596` showed that the selector can be widened, but the overlap/two-stage
+    constructive is still trapped in a huge-T basin.
+  - This cycle switches the construction stage to a broad `beam portfolio from
+    scratch`, while keeping the same `pinned fallback + hard runtime-risk gate`
+    and a selector widened toward the observed residual smoke rows.
+  - The purpose is to test whether a direct beam portfolio over due/slack /
+    critical-ratio / area-pressure orders can generate any checked candidate
+    remotely near the trusted Family A T basin.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane`
+  - intended focus rows: `prob_10`, `prob_11`, `prob_13`, `prob_14`,
+    `prob_15`, `prob_17`, `prob_19`, `prob_20`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317` active surface)
+  - fast constructive (`serial_slack_seed`, `beam_due_pressure`)
+  - T-zero constructive (`beam_tight_area`, `beam_area_due`, `beam_wall_pref`, `beam_critical_ratio`)
+  - bounded improvement (`beam best + fixed-bay repair`)
+- smoke plan:
+  - run id:
+    `probe_v597_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - Family A targets:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+  - Family B guards:
+    `prob_36`, `prob_40`
+- hard gate:
+  - no new timeout / invalid / error / missing rows versus the preserved
+    trusted acceptance pattern
+  - no full 40 unless at least three high-T rows show a real T-direction
+    gain or all targets reach `T < 10`
+- smoke result:
+  - candidate run:
+    - `reports/ogc2026_benchmark/probe_v597_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - comparison baseline:
+    - direct trusted `v317` smoke from
+      `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+  - accepted_for_score:
+    - direct trusted `v317`: `8/10`
+    - `v597`: `8/10`
+    - no new acceptance regressions; inherited timeout rows stayed
+      `prob_13`, `prob_40`
+  - same-batch T comparison vs direct trusted `v317`:
+    - `prob_10`: `43 -> 82` (worse by `+39`)
+    - `prob_11`: `367 -> 386` (worse by `+19`)
+    - `prob_13`: `443 -> 443` timeout (flat)
+    - `prob_14`: `187 -> 186` (better by `-1`)
+    - `prob_15`: `25 -> 25` (flat)
+    - `prob_17`: `13 -> 13` (flat)
+    - `prob_19`: `123 -> 149` (worse by `+26`)
+    - `prob_20`: `164 -> 164` (flat)
+    - `prob_36`: `2822 -> 2822` (flat)
+    - `prob_40`: `9318 -> 9420` timeout (worse by `+102`)
+  - Family A smoke aggregate:
+    - direct trusted `v317` first8 Total `T = 1365`
+    - `v597` first8 Total `T = 1448`
+    - worse by `+83`, so this is a clear hard-gate fail
+  - log evidence:
+    - the relaxed selector admitted the intended Family A rows:
+      - `prob_10`: `family_a_like`
+      - `prob_11`: `family_a_like`
+    - but the standalone beam lane did not yield a meaningful checked beam
+      portfolio under the available budget:
+      - `prob_10`: only `serial_slack_seed` reached checked evaluation;
+        `beam_due_pressure` went `inf` and all later beam branches were skipped
+      - `prob_11`: runtime-risk gate collapsed to `lane_budget=0.00s`
+      - `prob_19`: result worsened while no competitive standalone signal
+        appeared
+    - so the practical outcome was a weak serial seed plus fallback drift, not
+      a true competitive beam portfolio
+- diagnosis:
+  - `v597` confirms that the direct beam-from-scratch family is not viable in
+    this current wrapper/budget shape for the broad residual Family A lane.
+  - The lane consumed headroom without producing a checked candidate anywhere
+    near the trusted T basin.
+  - The next move should change construction stage again rather than further
+    retuning the same beam portfolio.
+- decision:
+  - `v597` is rejected and closed without full 40.
+- next architecture:
+  - move to a `selector-relaxed bay-first timing-second`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate
+    - first partition workload / feasible-bay pressure by bay
+    - then realize latest-feasible timing inside each bay
+    - keep T-first checked selection and add bounded tardy-core repair only if
+      a competitive bay-first candidate appears
+
+## 2026-07-07 reboot_v598_20260707_familyA_relaxed_baypack_guarded_on_v318
+
+- parent/version:
+  - `reboot_v590_20260706_familyA_risk_gated_bayfirst_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v590` confirmed the wrapper-side risk gate was stable, but the standalone
+    bay-first lane still realized each bay almost serially, which left the
+    surrogate `T` orders of magnitude above the trusted basin.
+  - this cycle keeps the pinned fallback + hard runtime-risk gate, but changes
+    the construction stage inside the Family A standalone lane from
+    `serial latest-feasible by bay` to `fixed-bay concurrent packing`.
+  - the standalone candidate now assigns a small preferred bay set first, then
+    uses the official aggressive slot search inside each selected bay so
+    multiple co-present blocks can occupy the bay concurrently.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 near-single-feasible-bay Family A lane`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `baypack_pref_cap1`
+  - T-zero constructive:
+    - `baypack_due_cap2`
+  - bounded improvement candidate:
+    - `baypack_release_cap2` and, if budget allows, a deeper packed variant
+- hard gate intent:
+  - run the standard 10-row smoke with Family B guards `prob_36`, `prob_40`
+  - do not run full 40 unless accepted rows stay intact and at least three
+    high-T Family A targets show a real `T` drop or the smoke aggregate moves
+    clearly toward `T-zero`
+
+## 2026-07-07 reboot_v599_20260707_familyA_twostage_wave_guarded_on_v318
+
+- parent/version:
+  - `reboot_v598_20260707_familyA_relaxed_baypack_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v598` changed the constructive stage, but its packed candidate generator
+    was still too expensive and overran the wrapper budget before any
+    competitive checked candidate appeared.
+  - this cycle keeps the same Family A feature gate and pinned fallback, but
+    changes the standalone lane to a true `two-stage` structure:
+    - stage 1: timing skeleton via bay assignment and due/slack wave order
+    - stage 2: budget-bounded packed realization inside the fixed bay skeleton
+  - every standalone construction is deadline-aware; if the candidate overruns
+    its micro-budget it is abandoned before checker comparison.
+- target Family A subtype:
+  - `near-single-feasible-bay residual 4~5 bay 190~320 block high-w1 tight-slack lane`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `twostage_pref_wave`
+  - T-zero constructive:
+    - `twostage_due_wave`
+  - bounded improvement candidate:
+    - `twostage_release_wave`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if acceptance regresses or if the first8 Family A smoke
+    aggregate does not show a clear move toward `T-zero`
+
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v599_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+- comparison baseline:
+  - direct trusted `v317` smoke from
+    `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+- accepted_for_score:
+  - direct trusted `v317`: `8/10`
+  - `v599`: `8/10`
+  - no new acceptance regressions; inherited timeout rows remained
+    `prob_13`, `prob_40`
+- same-batch T comparison vs direct trusted `v317`:
+  - `prob_10`: `43 -> 43` (flat)
+  - `prob_11`: `367 -> 386` (worse by `+19`)
+  - `prob_13`: `443 -> 443` timeout (flat)
+  - `prob_14`: `187 -> 186` (better by `-1`)
+  - `prob_15`: `25 -> 25` (flat)
+  - `prob_17`: `13 -> 13` (flat)
+  - `prob_19`: `123 -> 128` (worse by `+5`)
+  - `prob_20`: `164 -> 164` (flat)
+  - `prob_36`: `2822 -> 2892` (worse by `+70`)
+  - `prob_40`: `9318 -> 9716` timeout (worse by `+398`)
+- Family A smoke aggregate:
+  - direct trusted `v317` first8 Total `T = 1365`
+  - `v599` first8 Total `T = 1388`
+  - worse by `+23`, so there is still no T-zero signal
+- log evidence:
+  - the deadline-aware wrapper worked as intended and prevented the acceptance
+    regressions seen in `v598`
+  - however, on the key residual Family A rows the standalone two-stage
+    candidates mostly aborted before producing any checked candidate:
+    - `prob_10`: `twostage_pref_wave_abort`, `twostage_due_wave_abort`
+    - `prob_19`: `twostage_pref_wave_abort`, `twostage_due_wave_abort`
+  - so the practical behavior was fallback preservation, not a competitive
+    standalone Family A schedule
+- diagnosis:
+  - `v599` solved the wrapper-budget failure from `v598`, but the two-stage
+    packed-wave realization remains too expensive relative to the runtime
+    headroom available on the residual Family A lane.
+  - the next move should reduce realization cost again while changing the
+    construction stage, rather than trying to deepen the same packed-wave lane.
+- decision:
+  - `v599` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A global backward constructive`
+  - target Family A subtype:
+    - `near-single-feasible-bay high-w1 tight-slack residual lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate
+    - build a latest-feasible backward schedule from due dates first
+    - then realize bay/spatial feasibility with a lighter single-pass
+      placement stage rather than packed-wave search
+
+## 2026-07-07 reboot_v600_20260707_familyA_backward_singlepass_guarded_on_v318
+
+- parent/version:
+  - `reboot_v591_20260706_familyA_risk_gated_backward_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v591` showed that the guarded backward lane can stay scoreable, but its
+    timing realization still collapses to a serial rebuild with huge surrogate
+    `T`.
+  - this cycle keeps the guarded global backward base, but changes the second
+    stage to a `fixed-bay target-start single-pass slotting` realization.
+  - the intent is to preserve the backward timing skeleton while allowing a
+    lighter, non-serial crane-feasible realization that stays inside the
+    residual runtime headroom.
+- target Family A subtype:
+  - `near-single-feasible-bay high-w1 tight-slack residual lane`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `backward_window_singlepass`
+  - T-zero constructive:
+    - `backward_area_singlepass`
+  - bounded improvement candidate:
+    - `backward_release_singlepass`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if acceptance regresses or if the first8 Family A smoke
+    aggregate does not show a clear move toward `T-zero`
+
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v600_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+- comparison baseline:
+  - direct trusted `v317` smoke from
+    `probe_trusted_v317_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260706_001`
+- accepted_for_score:
+  - direct trusted `v317`: `8/10`
+  - `v600`: `8/10`
+  - no new acceptance regressions; inherited timeout rows remained
+    `prob_13`, `prob_40`
+- same-batch T comparison vs direct trusted `v317`:
+  - `prob_10`: `43 -> 43` (flat)
+  - `prob_11`: `367 -> 397` (worse by `+30`)
+  - `prob_13`: `443 -> 443` timeout (flat)
+  - `prob_14`: `187 -> 186` (better by `-1`)
+  - `prob_15`: `25 -> 25` (flat)
+  - `prob_17`: `13 -> 13` (flat)
+  - `prob_19`: `123 -> 149` (worse by `+26`)
+  - `prob_20`: `164 -> 164` (flat)
+  - `prob_36`: `2822 -> 2970` (worse by `+148`)
+  - `prob_40`: `9318 -> 9420` timeout (worse by `+102`)
+- Family A smoke aggregate:
+  - direct trusted `v317` first8 Total `T = 1365`
+  - `v600` first8 Total `T = 1420`
+  - worse by `+55`, so the hard gate clearly fails
+- log evidence:
+  - the target-start single-pass realization stayed within acceptance guardrails
+    better than the heavier packed-wave lane
+  - however the standalone backward candidates still mostly aborted or skipped
+    before producing any checked candidate:
+    - `prob_10`: `backward_window_singlepass__tight_desc_abort`,
+      `backward_area_singlepass__area_desc_abort`
+    - `prob_19`: `backward_window_singlepass_skipped`
+  - practical outcome remained fallback preservation without a competitive
+    Family A schedule
+- diagnosis:
+  - `v600` reduced realization cost, but not enough to open a meaningful
+    backward constructive inside the available residual headroom.
+  - the next move should change architecture again, away from backward timing
+    realization, toward a lighter randomized constructive with early T-first
+    ranking.
+- decision:
+  - `v600` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A GRASP/randomized constructive`
+  - target Family A subtype:
+    - `near-single-feasible-bay high-w1 tight-slack residual lane`
+  - structural rule next:
+    - keep the pinned fallback + hard runtime-risk gate
+    - generate a very small seed portfolio with randomized tie-break and bay
+      choice variation
+    - keep checker calls tightly bounded and select feasible candidates by
+      `T-first`
+
+## 2026-07-07 reboot_v601_20260707_familyA_grasp_guarded_on_v318
+
+- parent/version:
+  - `reboot_v599_20260707_familyA_twostage_wave_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - the backward/two-stage families keep hitting abort or skip patterns before
+    a competitive standalone Family A candidate is ever checked.
+  - this cycle switches to a much lighter `GRASP/randomized constructive`
+    family that uses local seeded tie-break variation only on allowed feature
+    signals, so the standalone lane can actually emit scoreable candidates
+    inside the residual headroom.
+- target Family A subtype:
+  - `near-single-feasible-bay high-w1 tight-slack residual lane`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `grasp_pref_seed0`
+  - T-zero constructive:
+    - `grasp_due_seed1`
+  - bounded improvement candidate:
+    - `grasp_due_refine_seed2`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if acceptance regresses or if the first8 Family A smoke
+    aggregate does not show a clear move toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v601_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 123`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1364`
+  - Family B guard:
+    - `prob_36: 2822 -> 3110`
+    - `prob_40: 9318 -> 10223` (`timeout` both)
+- diagnostic evidence:
+  - the lightweight GRASP lane still failed to produce checked standalone
+    candidates on most key Family A rows:
+    - `prob_10`: `surrogate=[('grasp_pref_seed0_abort', inf, inf), ('grasp_due_seed1_abort', inf, inf), ('grasp_due_refine_seed2_abort', inf, inf), ('grasp_release_seed3_skipped', inf, inf)]`, `checked=[]`
+    - `prob_15`: `surrogate=[('grasp_pref_seed0_abort', inf, inf), ('grasp_due_seed1_abort', inf, inf)]`, `checked=[]`
+    - `prob_17`: all three seeded candidates aborted, `checked=[]`
+    - `prob_19`: both seeded candidates aborted, `checked=[]`
+  - the only visible gain was a `-1` on `prob_14`, which is not enough to
+    clear the Family A smoke hard gate.
+- decision:
+  - `v601` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A cluster decomposition`
+  - target Family A subtype:
+    - `tight due-window cluster with near-single-feasible-bay pressure`
+  - structural rule next:
+    - decompose Family A into small due/slack clusters
+    - build each cluster with a cheap bay-first constructive
+    - merge clusters under pinned fallback protection so at least one
+      standalone candidate reaches checker comparison
+
+## 2026-07-07 reboot_v602_20260707_familyA_cluster_guarded_on_v318
+
+- parent/version:
+  - `reboot_v601_20260707_familyA_grasp_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v601` still spent most of its residual headroom aborting before any
+    standalone candidate reached checker comparison.
+  - this cycle switches to a `Family A cluster decomposition` lane: split the
+    Family A block set into small due/slack clusters, construct each cluster
+    with a cheap bay-first policy, and merge the clusters sequentially so at
+    least one scoreable standalone candidate is realized under the same
+    fallback guard.
+- target Family A subtype:
+  - `tight due-window cluster with near-single-feasible-bay pressure`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `cluster_pref_small`
+  - T-zero constructive:
+    - `cluster_due_balanced`
+  - bounded improvement candidate:
+    - `cluster_slack_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if acceptance regresses or if the first8 Family A smoke
+    aggregate does not show a clear move toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v602_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1388`
+  - Family B guard:
+    - `prob_36: 2822 -> 2892`
+    - `prob_40: 9318 -> 9420` (`timeout` both)
+- diagnostic evidence:
+  - the cluster-decomposition lane still failed to produce checked standalone
+    candidates on most key Family A rows:
+    - `prob_10`: `surrogate=[('cluster_pref_small_abort', inf, inf), ('cluster_due_balanced_abort', inf, inf), ('cluster_slack_refine_skipped', inf, inf)]`, `checked=[]`
+    - `prob_15`: `surrogate=[('cluster_pref_small_abort', inf, inf), ('cluster_due_balanced_abort', inf, inf)]`, `checked=[]`
+    - `prob_17`: both cluster candidates aborted, `checked=[]`
+    - `prob_19`: both cluster candidates aborted, `checked=[]`
+  - the structural decomposition changed architecture, but it still did not
+    realize a competitive Family A standalone candidate inside the residual
+    headroom.
+- decision:
+  - `v602` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A bay-first timing-second solver`
+  - target Family A subtype:
+    - `near-single-feasible-bay pressure with clustered bay workload imbalance`
+  - structural rule next:
+    - assign bays first with tighter feasible-bay pressure accounting
+    - then realize each bay with latest-feasible timing
+    - keep the fallback pin and only checker-compare candidates that fully
+      realize
+
+## 2026-07-07 reboot_v603_20260707_familyA_bayfirst_guarded_on_v318
+
+- parent/version:
+  - `reboot_v602_20260707_familyA_cluster_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v602` still aborted before producing checker-compared standalone
+    candidates, so the next move simplifies again: decide bay assignment first
+    with tighter feasible-bay pressure accounting, then spend the remaining
+    budget only on timing/placement realization inside each chosen bay.
+  - the main question for this cycle is whether a bay-first lane can finish a
+    realized Family A candidate often enough to reach `checked=` on the smoke
+    rows that still have some residual headroom after the trusted fallback.
+- target Family A subtype:
+  - `near-single-feasible-bay pressure with clustered bay workload imbalance`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317`
+  - fast Family A constructive:
+    - `bay_pref_fast`
+  - T-zero constructive:
+    - `bay_due_latest`
+  - bounded improvement candidate:
+    - `bay_load_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if acceptance regresses or if the first8 Family A smoke
+    aggregate does not show a clear move toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v603_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 82`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 142`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1441`
+  - Family B guard:
+    - `prob_36: 2822 -> 4363`
+    - `prob_40: 9318 -> 10412` (`timeout` both)
+- diagnostic evidence:
+  - this architecture did reach `checked=` on some rows, so it answered the
+    realization question better than `v601/v602`, but the realized candidates
+    were not competitive and the smoke aggregate moved sharply away from
+    `T-zero`.
+  - additionally, the fallback-isolation guarantee looks unsafe on this
+    candidate:
+    - `prob_10` log showed `selected=trusted_active_v317` with `active_T=82`,
+      even though the trusted comparator row is `T=43`
+    - `prob_17` also reached `checked=[('bay_pref_fast', 0.0, 0.0), ('bay_load_refine', 0.0, 0.0)]`,
+      which is not a credible improvement signal and suggests this lane is not
+      a reliable score comparator yet
+  - because the Family A lane must not contaminate the fallback route, this
+    candidate cannot be promoted even as training-only evidence.
+- decision:
+  - `v603` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A beam portfolio from scratch`
+  - target Family A subtype:
+    - `tight 4-5 bay high-w1 residual lane with due/slack ordering ambiguity`
+  - structural rule next:
+    - generate a tiny from-scratch beam with 2-3 order hypotheses only
+    - keep full fallback isolation and avoid any suspicious zero-objective
+      checked signal
+    - only compare candidates that realize cleanly and preserve the trusted
+      fallback row behavior
+
+## 2026-07-07 reboot_v604_20260707_familyA_beam_guarded_on_v318
+
+- parent/version:
+  - `reboot_v603_20260707_familyA_bayfirst_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v603` finally realized standalone candidates, but it also showed a
+    fallback-isolation red flag on `prob_10`, so the next cycle must separate
+    those concerns.
+  - this cycle introduces an explicitly isolated trusted fallback call
+    (`deepcopy` + preserved Python RNG state) and then uses a tiny
+    from-scratch beam portfolio on the Family A lane so we can tell whether
+    the poor smoke behavior came from the architecture itself or from fallback
+    contamination.
+- target Family A subtype:
+  - `tight 4-5 bay high-w1 residual lane with due/slack ordering ambiguity`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `beam_slack_pair`
+  - T-zero constructive:
+    - `beam_due_pair`
+  - bounded improvement candidate:
+    - `beam_release_pair`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if fallback isolation still looks broken or if the
+    first8 Family A smoke aggregate does not show a clear move toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v604_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 82`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1408`
+  - Family B guard:
+    - `prob_36: 2822 -> 2970`
+    - `prob_40: 9318 -> 9847` (`timeout` both)
+- diagnostic evidence:
+  - the tiny from-scratch beam produced cleaner surrogate ordering and some
+    checker-reached candidates, but it still did not move the smoke toward
+    `T-zero`.
+  - more importantly, the fallback-isolation red flag remained even after
+    switching the trusted fallback call to a `deepcopy` path with preserved
+    Python `random` state:
+    - `prob_10` log still showed `active_T=82.0`, `selected=trusted_active_v317`,
+      while the trusted comparator row remains `T=43`
+  - this means the suspicious drift is not explained just by the wrapper lane
+    mutating the shared `prob_info` or Python RNG state, so the candidate is
+    not trustworthy enough for any promotion or training-best claim.
+- decision:
+  - `v604` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A spatial/orientation constructive`
+  - target Family A subtype:
+    - `high-w1 tight-slack residual rows with hidden packing-fragmentation pressure`
+  - structural rule next:
+    - prioritize large-area / hard-footprint blocks earlier
+    - use corner/edge hugging with multi-orientation and very cheap placement
+      scoring
+    - continue watching the `prob_10` fallback drift as a separate isolation
+      audit while keeping the active wrapper unchanged
+
+## 2026-07-07 reboot_v605_20260707_familyA_spatial_guarded_on_v318
+
+- parent/version:
+  - `reboot_v604_20260707_familyA_beam_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - the beam and bay-first families both showed that some Family A rows may be
+    bottlenecked by packing-fragmentation rather than by timing order alone.
+  - this cycle switches to a cheap `spatial/orientation constructive`: place
+    large-area / hard-footprint blocks earlier, compare a few orientations, and
+    prefer corner/edge-hugging positions so the lane tests whether reducing
+    fragmentation can unlock lower-T realizations on the high-w1 residual
+    rows.
+- target Family A subtype:
+  - `high-w1 tight-slack residual rows with hidden packing-fragmentation pressure`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `spatial_area_edge`
+  - T-zero constructive:
+    - `spatial_due_corner`
+  - bounded improvement candidate:
+    - `spatial_slack_mixed`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if the `prob_10` fallback drift persists or if the
+    first8 Family A smoke aggregate does not show a clear move toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v605_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1369`
+  - Family B guard:
+    - `prob_36: 2822 -> 3110`
+    - `prob_40: 9318 -> 9420` (`timeout` both)
+- diagnostic evidence:
+  - the spatial/orientation lane was the first recent candidate that restored
+    the trusted fallback row behavior on `prob_10`:
+    - `prob_10` returned `active_T=43.0`, `selected=trusted_active_v317`,
+      matching the trusted comparator again
+  - however the constructive itself still failed the Family A hard gate:
+    - `prob_10`, `prob_15`, and `prob_17` all produced surrogate-only signals
+      without any checked standalone candidate
+    - `prob_19` reached `checked=[('spatial_area_edge', 0.0, 0.0)]`, which is
+      not a credible score signal yet and did not translate into a better row
+    - the aggregate moved only `1365 -> 1369`, so there was no clear T-zero
+      motion
+- decision:
+  - `v605` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A two-stage solver`
+  - target Family A subtype:
+    - `due-window timing skeleton rows with residual spatial realization failure`
+  - structural rule next:
+    - stage 1 should build a coarse low-T timing skeleton only
+    - stage 2 should realize that skeleton with a very cheap spatial repair
+    - keep the restored fallback-isolation audit in place while changing the
+      standalone construction stage again
+
+## 2026-07-07 reboot_v606_20260707_familyA_twostage_guarded_on_v318
+
+- parent/version:
+  - `reboot_v605_20260707_familyA_spatial_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - recent lanes suggest some residual Family A rows may need a timing-first
+    structure before any constructive can realize a competitive schedule.
+  - this cycle uses a cheap `two-stage` lane: stage 1 builds a coarse due/slack
+    timing skeleton with bay assignment, then stage 2 realizes that skeleton
+    with a lightweight spatial pass. The goal is not polish, but simply to see
+    whether a timing skeleton can convert the current surrogate-only rows into
+    cleaner checked candidates without reintroducing fallback drift.
+- target Family A subtype:
+  - `due-window timing skeleton rows with residual spatial realization failure`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `stage_pref_fast`
+  - T-zero constructive:
+    - `stage_due_zero`
+  - bounded improvement candidate:
+    - `stage_slack_repair`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if the restored `prob_10` fallback behavior breaks
+    again or if the first8 Family A smoke aggregate does not show a clear move
+    toward `T-zero`
+- smoke:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v606_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/`
+  - accepted_for_score:
+    - `8/10` (same as trusted smoke)
+  - Family A target T:
+    - `prob_10: 43 -> 82`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 164`
+  - Family A first8 Total T:
+    - `1365 -> 1448`
+  - Family B guard:
+    - `prob_36: 2822 -> 2892`
+    - `prob_40: 9318 -> 9420` (`timeout` both)
+- diagnostic evidence:
+  - the two-stage lane did reach `checked=` on more rows than some earlier
+    candidates, but the checked candidates still did not produce credible score
+    signals and the aggregate moved materially away from `T-zero`.
+  - the fallback-isolation audit also regressed again:
+    - `prob_10` log showed `active_T=82.0`, `selected=trusted_active_v317`
+      instead of the trusted comparator's `T=43`
+  - that combination means the timing skeleton idea did not solve the Family A
+    bottleneck and also failed the restored fallback-behavior expectation.
+- decision:
+  - `v606` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A global backward constructive`
+  - target Family A subtype:
+    - `tight due-window rows whose residual T may come from forward-order timing bias`
+  - structural rule next:
+    - schedule from the back using due-date pressure first
+    - keep the standalone route fully bounded and keep the fallback-isolation
+      audit in place on `prob_10`
+
+## 2026-07-07 reboot_v607_20260707_familyA_backward_guarded_on_v318
+
+- parent/version:
+  - `reboot_v606_20260707_familyA_twostage_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - recent failures may still be paying a hidden forward-order timing bias on
+    the tight due-window Family A rows.
+  - this cycle switches to a bounded `global backward constructive`: process
+    blocks from the back of the due window first, prefer bays that can absorb
+    late pressure, and keep the realization pass cheap enough to preserve the
+    fallback-isolation audit.
+- target Family A subtype:
+  - `tight due-window rows whose residual T may come from forward-order timing bias`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `backward_due_fast`
+  - T-zero constructive:
+    - `backward_due_balanced`
+  - bounded improvement candidate:
+    - `backward_release_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately if the `prob_10` fallback behavior breaks again or if
+    the first8 Family A smoke aggregate does not show a clear move toward
+    `T-zero`
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v607_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1369`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3051`
+    - `prob_40: 9318 -> 9508` (`timeout` both)
+- diagnostic evidence:
+  - the backward constructive lane restored the trusted fallback behavior on
+    `prob_10` (`T=43`), so the isolation guard was better than the regressed
+    `v606` path.
+  - however, that restored isolation still did not produce any meaningful
+    `T-zero` signal on the Family A high-T set: only `prob_14` improved by `1`
+    while `prob_19` regressed by `5` and the first8 aggregate worsened.
+  - Family B guard rows also worsened materially, so the candidate fails the
+    hard gate even before considering a full-40 promotion run.
+- decision:
+  - `v607` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A GRASP/randomized constructive`
+  - target Family A subtype:
+    - `stable-fallback but persistent high-T rows under tight due-window and limited feasible-bay pressure`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - diversify construction from scratch with randomized tie-breaks on
+      due/slack/bay pressure instead of another deterministic timing rewrite
+
+## 2026-07-07 reboot_v608_20260707_familyA_grasp_guarded_on_v318
+
+- parent/version:
+  - `reboot_v607_20260707_familyA_backward_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - the residual Family A rows are not moving under another deterministic
+    timing rewrite, even when fallback isolation is restored.
+  - this cycle switches to a bounded `Family A GRASP/randomized constructive`
+    lane: build schedules from scratch with randomized restricted candidate
+    lists over due/slack order, bay choice, orientation, and position, then
+    keep only T-first candidates under the same trusted fallback wrapper.
+- target Family A subtype:
+  - `stable-fallback but persistent high-T rows under tight due-window and limited feasible-bay pressure`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `grasp_due_fast`
+  - T-zero constructive:
+    - `grasp_tzero_balanced`
+  - bounded improvement candidate:
+    - `grasp_pressure_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless at least three high-T rows move materially or
+    the first8 Family A aggregate shows a clear T-zero direction signal
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v608_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1389`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2759`
+    - `prob_40: 9318 -> 9318` (`timeout` both)
+- diagnostic evidence:
+  - the randomized constructive lane kept the trusted fallback behavior on
+    `prob_10` and did not damage the Family B guard set; `prob_36` even
+    improved.
+  - however, the core Family A objective failed the smoke hard gate:
+    `prob_11` regressed by `19`, `prob_19` regressed by `5`, and the first8
+    aggregate moved away from `T-zero` by `24`.
+  - because the Family A high-T set did not produce either all-rows-<10 or a
+    three-row material breakthrough, the good Family B behavior is not enough
+    to justify a full-40 run.
+- decision:
+  - `v608` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A spatial/orientation constructive`
+  - target Family A subtype:
+    - `tight due-window rows where timing is stable but packing and bay-shape fragmentation may be blocking earlier completion`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - bias from-scratch construction toward large-area / high-pressure blocks,
+      multi-orientation, and edge/corner hugging instead of randomized timing
+      diversification alone
+
+## 2026-07-07 reboot_v609_20260707_familyA_spatial_guarded_on_v318
+
+- parent/version:
+  - `reboot_v608_20260707_familyA_grasp_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - the remaining Family A rows may be missing early completion not because of
+    one more timing heuristic, but because spatial packing fragmentation keeps
+    high-pressure blocks from getting good early placements.
+  - this cycle promotes a bounded `Family A spatial/orientation constructive`
+    lane: build from scratch with large-area / due-pressure ordering,
+    multi-orientation evaluation, and edge/corner hugging, then keep only
+    T-first candidates under the trusted fallback wrapper.
+- target Family A subtype:
+  - `tight due-window rows where timing is stable but packing and bay-shape fragmentation may be blocking earlier completion`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `spatial_area_fast`
+  - T-zero constructive:
+    - `spatial_due_balanced`
+  - bounded improvement candidate:
+    - `spatial_fragment_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless all smoke rows stay accepted and the Family A
+    first8 aggregate shows a clear move toward `T-zero`
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v609_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1585`
+  - row deltas:
+    - `prob_10: 43 -> 94`
+    - `prob_11: 367 -> 397`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 278`
+  - Family B guard:
+    - `prob_36: 2822 -> 4363`
+    - `prob_40: 9318 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the spatial/orientation lane did not preserve the restored fallback-like
+    behavior seen in `v607`/`v608`; `prob_10` regressed sharply and the 5-bay
+    target `prob_20` also deteriorated materially.
+  - that pattern suggests packing/orientation alone is not the dominant
+    missing structure on the residual Family A set.
+  - Family B guard also worsened substantially, so this lane fails both the
+    Family A hard gate and the protection contract.
+- decision:
+  - `v609` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A cluster decomposition`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay high-pressure rows where tardiness seems concentrated in a few due-window / bay-pressure clusters rather than pure packing`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - decompose by due-window / slack / bay-pressure clusters, solve each
+      cluster with its own constructive, then merge under the same T-first
+      comparator
+
+## 2026-07-07 reboot_v610_20260707_familyA_cluster_retime_guarded_on_v318
+
+- parent/version:
+  - `reboot_v609_20260707_familyA_spatial_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - the earlier broad cluster lane (`v602`) likely failed less because cluster
+    decomposition was wrong and more because its standalone lane budget was too
+    thin to finish a realized candidate.
+  - this cycle keeps the `Family A cluster decomposition` architecture but
+    re-times it: more residual headroom, slightly coarser clusters, and a
+    direct single-pass realization so at least one scoreable standalone
+    candidate should reach checker comparison.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay high-pressure rows where tardiness seems concentrated in a few due-window / bay-pressure clusters`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `cluster_pref_compact`
+  - T-zero constructive:
+    - `cluster_due_balanced`
+  - bounded improvement candidate:
+    - `cluster_pressure_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the cluster lane now reaches scoreable checked
+    candidates and the first8 Family A aggregate shows a clear move toward
+    `T-zero`
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v610_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1384`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 123`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2698`
+    - `prob_40: 9318 -> 9139` (`timeout` both)
+- diagnostic evidence:
+  - the retimed cluster lane did fix the earlier `v602` failure mode in one
+    important sense: it no longer collapsed into broad abort-only behavior, and
+    it preserved or improved the Family B guards.
+  - however, the Family A hard gate still was not met. The aggregate stayed
+    above trusted by `+19 T`, and the only meaningful change inside the first8
+    set was the `prob_11` regression to `386`.
+  - that means the extra residual headroom made the cluster lane more stable,
+    but it still did not produce the multi-row T-zero movement required for a
+    full-40 run.
+- decision:
+  - `v610` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A beam portfolio from scratch`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay high-pressure rows where cluster retiming stabilizes guards but due/slack ordering still fails to unlock the main tardy row set`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - compare EDD / min-slack / release-due hybrid / area-pressure orders from
+      scratch inside one beam instead of another cluster retiming pass
+
+## 2026-07-07 reboot_v611_20260707_familyA_beam_retime_guarded_on_v318
+
+- parent/version:
+  - `reboot_v610_20260707_familyA_cluster_retime_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - `v610` suggests the trusted wrapper and residual headroom are now stable
+    enough, but the cluster lens is still too rigid to unlock the main Family A
+    tardy set.
+  - this cycle switches to a `Family A beam portfolio from scratch` while
+    keeping the same stable wrapper and broader lane budget: compare several
+    due/slack/release orderings inside one bounded beam and let the T-first
+    comparator choose among fully realized candidates.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay high-pressure rows where cluster retiming stabilizes guards but due/slack ordering still fails to unlock the main tardy row set`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `beam_slack_portfolio`
+  - T-zero constructive:
+    - `beam_due_portfolio`
+  - bounded improvement candidate:
+    - `beam_release_balance`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the beam lane produces scoreable checked
+    candidates and the first8 Family A aggregate shows a clear move toward
+    `T-zero`
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v611_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1388`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2892`
+    - `prob_40: 9318 -> 9318` (`timeout` both)
+- diagnostic evidence:
+  - the beam portfolio did produce scoreable stable candidates under the
+    retimed wrapper, so it avoided the earlier abort-only failure mode.
+  - however, the actual scored outcome still matched the same weak pattern seen
+    in the earlier beam/cluster lines: `prob_11` regressed, `prob_19`
+    regressed, and the first8 aggregate stayed above trusted by `+23 T`.
+  - Family B protection was acceptable but not a breakthrough, so the beam
+    lane is still not worth a full-40 run.
+- decision:
+  - `v611` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A two-stage solver with micro CP-SAT tardy-cluster repair`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay high-pressure rows where broad constructive lanes are stable but one stubborn tardy cluster, especially around the prob11/prob19 residual pattern, still dominates total T`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build a stable broad Family A constructive first, then spend the extra
+      bounded budget only on a 5-20 block tardy cluster repair instead of
+      another whole-instance ordering change
+
+## 2026-07-07 reboot_v612_20260707_familyA_beam_microexact_guarded_on_v318
+
+- parent/version:
+  - `reboot_v611_20260707_familyA_beam_retime_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - `v611` shows the broad beam lane is stable enough to score, but it still
+    leaves one stubborn tardy core alive, especially around the `prob_11` /
+    `prob_19` residual pattern.
+  - this cycle keeps the same broad `Family A beam portfolio from scratch` and
+    adds a no-install `micro exact tardy-cluster repair`: find one small tardy
+    window on the best standalone candidate, replay bounded permutations, and
+    keep only T-first repaired variants.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay high-pressure rows where a stable broad constructive still leaves one dominant tardy window`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `beam_slack_portfolio`
+  - T-zero constructive:
+    - `beam_due_portfolio`
+  - bounded improvement candidate:
+    - `beam_microexact_tardy_window`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the repaired standalone lane shows a clear
+    multi-row Family A move toward `T-zero`
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v612_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1437`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 397`
+    - `prob_13: 443 -> 460`
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3110`
+    - `prob_40: 9318 -> 9420` (`timeout` both)
+- diagnostic evidence:
+  - the no-install micro exact tardy-window repair did not behave like a clean
+    bounded improvement candidate on top of the beam lane; instead it reopened
+    more rows, including `prob_13` and `prob_36`.
+  - that means the current tardy-window repair shape is too brittle in the
+    broad Family A route, even before considering full-40 safety.
+  - combined with the earlier `ortools` unavailability, this closes the
+    current micro-CP-SAT-style branch for now.
+- decision:
+  - `v612` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A bay-first timing-second solver`
+  - target Family A subtype:
+    - `5-bay mixed latest-feasible subtype where prob20 stays flat while the 4-bay residual set regresses under beam/microexact tails`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - explicitly repartition by bay pressure first, then schedule each bay with
+      latest-feasible timing under the now-stable wrapper instead of another
+      global ordering or repair tail
+
+## 2026-07-07 reboot_v613_20260707_familyA_bayfirst_retime_guarded_on_v318
+
+- parent/version:
+  - `reboot_v612_20260707_familyA_beam_microexact_guarded_on_v318`
+- status:
+  - rejected after smoke
+- hypothesis:
+  - the stable wrapper is no longer the bottleneck; the remaining issue may be
+    that whole-instance ordering keeps mixing incompatible bay-pressure groups.
+  - this cycle switches back to a `Family A bay-first timing-second solver`,
+    but on top of the stable retimed wrapper: repartition by feasible-bay
+    pressure first, then realize each bay with due/latest-oriented local timing
+    and compare only T-first realized candidates.
+- target Family A subtype:
+  - `5-bay mixed latest-feasible subtype where prob20 stays flat while the 4-bay residual set regresses under beam/microexact tails`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `bay_pref_fast`
+  - T-zero constructive:
+    - `bay_due_latest`
+  - bounded improvement candidate:
+    - `bay_load_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the first8 Family A aggregate shows a clear move
+    toward `T-zero` without reopening the Family B guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v613_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1359`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 123`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2970`
+    - `prob_40: 9318 -> 9420` (`timeout` both)
+- diagnostic evidence:
+  - this is the first recent broad standalone lane that moved the first8 Family
+    A aggregate in the right direction while also improving `prob_11`
+    (`367 -> 362`) under the stable wrapper.
+  - however, the improvement is still too small for the hard gate: only one
+    high-T target row improved materially, the rest were flat, and the Family B
+    guards both worsened.
+  - that makes `v613` a useful signal about subtype direction, but not a
+    promotion-worthy candidate and not sufficient to justify a full-40 run.
+- decision:
+  - `v613` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A two-stage solver`
+  - target Family A subtype:
+    - `4-bay ultra-tight residual rows where bay-first partitioning helps prob11 but the remaining high-T set may need an explicit timing skeleton before spatial realization`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - use bay-first as a signal, but build an explicit T-zero-oriented timing
+      skeleton first and only then realize the schedule spatially
+
+## 2026-07-07 reboot_v614_20260707_familyA_twostage_retime_guarded_on_v318
+
+- parent/version:
+  - `reboot_v613_20260707_familyA_bayfirst_retime_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v613` finally produced a small broad Family A move in the right direction,
+    especially on `prob_11`, which suggests the wrapper and gating are now
+    stable enough and the remaining problem is construction shape rather than
+    wrapper noise.
+  - this cycle keeps the same stable retimed wrapper but replaces the
+    standalone lane with a `Family A two-stage solver`: stage 1 builds an
+    explicit due/slack-oriented timing skeleton across tight bay groups, and
+    stage 2 realizes that skeleton spatially with cheap edge/corner-biased
+    placement.
+- target Family A subtype:
+  - `4-bay ultra-tight residual rows where bay-first partitioning helps prob11 but the remaining high-T set may need an explicit timing skeleton before spatial realization`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `stage_pref_fast`
+  - T-zero constructive:
+    - `stage_due_zero`
+  - bounded improvement candidate:
+    - `stage_slack_repair`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the explicit timing skeleton creates either
+    `T < 10` on all smoke targets or at least a clear multi-row high-T move
+    without worsening the Family B guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v614_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1389`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2970`
+    - `prob_40: 9318 -> 9228` (`timeout` both)
+- diagnostic evidence:
+  - the explicit timing skeleton did not preserve the small positive signal
+    from `v613`; instead it reopened `prob_11` and `prob_19` while leaving the
+    rest of the high-T set flat.
+  - `prob_40` improved numerically, but it remained timed out and therefore did
+    not help the hard gate.
+  - taken together, this means the current two-stage realization is still too
+    rigid for the broad Family A lane and does not justify a full-40 run.
+- decision:
+  - `v614` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A cluster decomposition`
+  - target Family A subtype:
+    - `4-bay and 5-bay ultra-tight mixed rows where one global ordering is too coarse, and the residual T appears to come from due-window/slack clusters that should be constructed separately before merge`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - decompose the Family A lane by due-window / slack / bay-pressure cluster,
+      build each cluster with its own constructive, and merge them under the
+      same T-first wrapper instead of another monolithic whole-instance lane
+
+## 2026-07-07 reboot_v615_20260707_familyA_cluster_decomp_guarded_on_v318
+
+- parent/version:
+  - `reboot_v614_20260707_familyA_twostage_retime_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v613` showed a small positive Family A move, but both the monolithic
+    two-stage and earlier cluster attempts were still too brittle because they
+    treated the whole residual set with one coarse realization rule.
+  - this cycle returns to `Family A cluster decomposition`, but under the now
+    stable retimed wrapper and with a narrower hypothesis: split the residual
+    Family A set by due-window / slack / bay-pressure cluster, construct each
+    cluster separately, then merge under the same T-first wrapper.
+- target Family A subtype:
+  - `4-bay and 5-bay ultra-tight mixed rows where one global ordering is too coarse, and the residual T appears to come from due-window/slack clusters that should be constructed separately before merge`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `cluster_pref_compact`
+  - T-zero constructive:
+    - `cluster_due_balanced`
+  - bounded improvement candidate:
+    - `cluster_pressure_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the clustered constructive produces either
+    `T < 10` on all smoke targets or a clear multi-row high-T improvement while
+    preserving the Family B guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v615_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1460`
+  - row deltas:
+    - `prob_10: 43 -> 94`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 4672`
+    - `prob_40: 9318 -> 9139` (`timeout` both)
+- diagnostic evidence:
+  - the clustered merge was materially worse than the small positive `v613`
+    bay-first signal and even worse than the rejected `v614` two-stage lane.
+  - the biggest clue is that both `prob_10` and `prob_36` reopened sharply,
+    which points to the merge/placement layer introducing too much spatial
+    fragmentation rather than solving the timing residual cleanly.
+  - `prob_40` improved numerically again but stayed timed out, so it still does
+    not help the hard gate.
+- decision:
+  - `v615` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A spatial/orientation constructive`
+  - target Family A subtype:
+    - `4-bay and 5-bay high packing-pressure rows where due/slack clustering alone is too coarse and the remaining T appears tied to spatial fragmentation, especially when prob10/prob36-style rows reopen`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build Family A candidates around large-area/high-pressure-first ordering,
+      multi-orientation choice, and corner/edge hugging instead of another
+      timing-only repartition or clustered merge
+
+## 2026-07-07 reboot_v616_20260707_familyA_spatial_orient_guarded_on_v318
+
+- parent/version:
+  - `reboot_v615_20260707_familyA_cluster_decomp_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - the last two lanes suggest the remaining residual is not being unlocked by
+    another timing-only reordering; instead, when the merge/realization layer
+    gets worse, `prob_10` and `prob_36` reopen sharply.
+  - this cycle therefore switches to a `Family A spatial/orientation
+    constructive`: large-area/high-pressure blocks first, multi-orientation
+    candidate generation, and corner/edge hugging so the lane attacks spatial
+    fragmentation directly under the stable wrapper.
+- target Family A subtype:
+  - `4-bay and 5-bay high packing-pressure rows where due/slack clustering alone is too coarse and the remaining T appears tied to spatial fragmentation, especially when prob10/prob36-style rows reopen`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `spatial_area_fast`
+  - T-zero constructive:
+    - `spatial_due_balanced`
+  - bounded improvement candidate:
+    - `spatial_fragment_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the spatial lane improves multiple high-T Family A
+    rows or clearly moves the first8 aggregate toward `T-zero` without
+    reopening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v616_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1370`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3174`
+    - `prob_40: 9318 -> 9508` (`timeout` both)
+- diagnostic evidence:
+  - the spatial/orientation lane was much more stable than `v615` and avoided
+    reopening `prob_10`, but it still failed the hard gate because the Family A
+    aggregate moved in the wrong direction and only `prob_19` changed, again
+    for the worse.
+  - the Family B guard also reopened, especially on `prob_36`, so this is not
+    a wrapper-ready promotion path even as a training-best-only branch.
+  - this points to deterministic spatial ordering being too rigid; the next
+    useful change is likely diversified constructive seeds rather than another
+    single fixed order.
+- decision:
+  - `v616` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A GRASP/randomized constructive`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay packing-pressure rows where deterministic spatial and timing orders stay flat, but diversified tie-break, bay, orientation, and position seeds may unlock multiple high-T rows at once`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - generate a small portfolio of randomized Family A constructive candidates
+      with bounded seed diversity and keep only T-first winners instead of
+      another single deterministic constructive order
+
+## 2026-07-07 reboot_v617_20260707_familyA_grasp_portfolio_guarded_on_v318
+
+- parent/version:
+  - `reboot_v616_20260707_familyA_spatial_orient_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v616` was much stabler than `v615`, but it still stayed almost flat on the
+    Family A targets because the deterministic order/placement choices never
+    escaped the same local construction pattern.
+  - this cycle keeps the same stable wrapper and switches the standalone lane to
+    a bounded `Family A GRASP/randomized constructive` portfolio with limited
+    seed diversity over order, bay, orientation, and position choices.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay packing-pressure rows where deterministic spatial and timing orders stay flat, but diversified tie-break, bay, orientation, and position seeds may unlock multiple high-T rows at once`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `grasp_due_fast`
+  - T-zero constructive:
+    - `grasp_tzero_balanced`
+  - bounded improvement candidate:
+    - `grasp_pressure_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the randomized portfolio improves multiple high-T
+    Family A rows or clearly moves the first8 aggregate toward `T-zero`
+    without reopening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v617_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1410`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3242`
+    - `prob_40: 9318 -> 9976` (`timeout` both)
+- diagnostic evidence:
+  - the bounded GRASP portfolio did not unlock the hoped-for multi-row move;
+    it recreated the same weak residual pattern as earlier failed lanes, with
+    `prob_11` and `prob_19` reopening while the rest stayed flat.
+  - guard behavior also worsened, especially `prob_40`, so seed diversity alone
+    is not enough when the constructive still lacks a stronger global timing
+    direction.
+  - that suggests the next useful change should alter the timing model itself,
+    not just diversify local constructive choices.
+- decision:
+  - `v617` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A global backward constructive`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay ultra-tight release/due rows where current forward-style constructives keep the same late residual blocks alive, especially around prob11/prob19, and a latest-feasible backward placement may change which blocks absorb tardiness`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build Family A candidates by placing blocks from due-date backward with
+      release-aware bay/spatial realization instead of another forward
+      constructive or randomized local portfolio
+
+## 2026-07-07 reboot_v618_20260707_familyA_backward_retime_guarded_on_v318
+
+- parent/version:
+  - `reboot_v617_20260707_familyA_grasp_portfolio_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - recent deterministic, clustered, spatial, and randomized forward lanes all
+    left nearly the same late residual pattern alive, especially around
+    `prob_11` / `prob_19`.
+  - this cycle keeps the stable wrapper but flips the constructive timing
+    direction: build Family A candidates from due date backward so a different
+    subset of blocks absorbs tardiness before spatial realization.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay ultra-tight release/due rows where current forward-style constructives keep the same late residual blocks alive, especially around prob11/prob19, and a latest-feasible backward placement may change which blocks absorb tardiness`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `backward_due_fast`
+  - T-zero constructive:
+    - `backward_due_balanced`
+  - bounded improvement candidate:
+    - `backward_release_refine`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the backward lane improves multiple high-T Family
+    A rows or clearly moves the first8 aggregate toward `T-zero` without
+    reopening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v618_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1574`
+  - row deltas:
+    - `prob_10: 43 -> 94`
+    - `prob_11: 367 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 149`
+    - `prob_20: 164 -> 278`
+  - Family B guard:
+    - `prob_36: 2822 -> 5214`
+    - `prob_40: 9318 -> 9976` (`timeout` both)
+- diagnostic evidence:
+  - the backward direction changed which blocks absorbed tardiness, but it did
+    so in the wrong way: `prob_10`, `prob_20`, and especially `prob_36`
+    reopened sharply.
+  - that means a pure backward timing hypothesis is too coarse for this
+    residual set under the current spatial realization; it is not just a matter
+    of flipping the constructive direction.
+  - the next useful branch should compare multiple global orders inside one
+    coherent candidate family rather than committing to one fixed direction.
+- decision:
+  - `v618` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A beam portfolio from scratch`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay ultra-tight rows where forward, backward, clustered, and randomized single-order constructives all fail differently, suggesting the residual needs a bounded portfolio across multiple global priority rules`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build a small from-scratch beam over EDD, min-slack, release/due hybrid,
+      and area-pressure orders, then keep only T-first checked winners instead
+      of another single constructive direction
+
+## 2026-07-07 reboot_v619_20260707_familyA_beam_portfolio_guarded_on_v318
+
+- parent/version:
+  - `reboot_v618_20260707_familyA_backward_retime_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - recent lanes show that committing to one global ordering is too brittle:
+    forward, backward, clustered, spatial, and randomized constructions each
+    fail on different rows.
+  - this cycle keeps the stable wrapper and switches the standalone lane to a
+    bounded `Family A beam portfolio from scratch`, comparing multiple global
+    order hypotheses inside one coherent candidate family.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay ultra-tight rows where forward, backward, clustered, and randomized single-order constructives all fail differently, suggesting the residual needs a bounded portfolio across multiple global priority rules`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `beam_slack_portfolio`
+  - T-zero constructive:
+    - `beam_due_portfolio`
+  - bounded improvement candidate:
+    - `beam_release_balance`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the beam portfolio improves multiple high-T
+    Family A rows or clearly moves the first8 aggregate toward `T-zero`
+    without reopening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v619_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1370`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2892`
+    - `prob_40: 9318 -> 9976` (`timeout` both)
+- diagnostic evidence:
+  - the beam portfolio was the most stable recent lane after `v613`: it held
+    `prob_10`, `prob_11`, and `prob_20` flat while only slightly worsening
+    `prob_19`.
+  - however, it still failed the hard gate because the Family A aggregate did
+    not move meaningfully toward `T-zero`, and both guard rows remained worse
+    than trusted best.
+  - this suggests the broad portfolio idea is directionally safer than backward
+    or clustered lanes, but it still needs a stronger bay/timing decomposition
+    to change which rows improve.
+- decision:
+  - `v619` is rejected and closed without full 40.
+- next architecture:
+  - move to a `Family A bay-first timing-second solver`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay ultra-tight rows where broad beam portfolios stay too flat, but the earlier v613 signal suggests explicit bay-pressure partitioning can still shift prob11/prob19-style residuals if timing is rebuilt more aggressively`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - repartition by feasible-bay pressure first, rebuild timing per bay with a
+      stronger latest-feasible bias, and keep Family B on fallback-only routing
+      instead of another whole-instance global order portfolio
+
+## 2026-07-07 reboot_v620_20260707_familyA_bayfirst_latest_guarded_on_v318
+
+- parent/version:
+  - `reboot_v619_20260707_familyA_beam_portfolio_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v619` was the most stable recent broad lane but still too flat, while the
+    earlier `v613` result hinted that explicit bay-pressure partitioning can
+    move the right residual rows.
+  - this cycle returns to `Family A bay-first timing-second`, but changes the
+    failure mode: after bay partitioning, each bay now scores multiple feasible
+    placements with a stronger latest-feasible / T-first selector instead of
+    taking the first feasible candidate.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay ultra-tight rows where broad beam portfolios stay too flat, but the earlier v613 signal suggests explicit bay-pressure partitioning can still shift prob11/prob19-style residuals if timing is rebuilt more aggressively`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `bay_pref_latest`
+  - T-zero constructive:
+    - `bay_due_latest_strong`
+  - bounded improvement candidate:
+    - `bay_release_latest_balance`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the stronger intra-bay latest-feasible selector
+    improves multiple high-T Family A rows or clearly moves the first8
+    aggregate toward `T-zero` without reopening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v620_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1365 -> 1355`
+  - row deltas:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 353`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2822`
+    - `prob_40: 9318 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - this is the strongest recent broad Family A signal since `v613`: it keeps
+    `prob_10` and `prob_36` flat, materially improves `prob_11`, and improves
+    the first8 aggregate by `10`.
+  - however, it still misses the hard gate because the improvement is not broad
+    enough across the high-T target set, `prob_19` regresses slightly, and the
+    `prob_40` guard worsens while staying timed out.
+  - that makes `v620` a useful training-best-only seed, but not a promotion
+    candidate and not sufficient to justify a full-40 run.
+- decision:
+  - `v620` is rejected and closed without full 40, but record it as the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `micro CP-SAT/MIP tardy-cluster repair on top of Family A bay-first timing-second seed`
+  - target Family A subtype:
+    - `mixed 4-bay and 5-bay ultra-tight rows where the stronger bay-first latest-feasible seed now isolates a smaller tardy core around prob11/prob19-style residuals, and a bounded 5-20 block repair may improve T without reopening prob10/prob36`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - keep the improved bay-first latest-feasible seed as the standalone base,
+      then apply only a bounded tardy-cluster repair candidate instead of
+      another whole-instance construction change
+
+## 2026-07-07 reboot_v621_20260707_familyA_bayfirst_microexact_guarded_on_v318
+
+- parent/version:
+  - `reboot_v620_20260707_familyA_bayfirst_latest_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v620` is the strongest recent Family A seed: it materially improves
+    `prob_11`, keeps `prob_10` and `prob_36` flat, and avoids the broad
+    regressions seen in the other lanes.
+  - this cycle keeps that bay-first latest-feasible constructive intact and
+    adds only a bounded tardy-window repair candidate on top of the best checked
+    standalone seed, so the architecture change is local to the residual tardy
+    core instead of rewriting the whole construction again.
+- target Family A subtype:
+  - `mixed 4-bay and 5-bay ultra-tight rows where the stronger bay-first latest-feasible seed now isolates a smaller tardy core around prob11/prob19-style residuals, and a bounded 5-20 block repair may improve T without reopening prob10/prob36`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `bay_pref_latest`
+  - T-zero constructive:
+    - `bay_due_latest_strong`
+  - bounded improvement candidate:
+    - `bay_microexact_tardy_window`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the bounded tardy-window repair broadens the
+    `v620` signal into multi-row high-T improvement or clearly lowers the
+    first8 aggregate again without reopening the guards
+- smoke result:
+  - initial attempt:
+    - `reports/ogc2026_benchmark/probe_v621_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+    - import failure on all rows due to wrong helper-module path; fixed before
+      judging the candidate
+  - judged run:
+    - `reports/ogc2026_benchmark/probe_v621_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_002`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1355 -> 1434` versus the `v620` seed
+  - row deltas versus `v620`:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 353 -> 397`
+    - `prob_13: 443 -> 466` (`timeout` both)
+    - `prob_14: 186 -> 198`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3051`
+    - `prob_40: 9716 -> 9603` (`timeout` both)
+- diagnostic evidence:
+  - once the import issue was fixed, the microexact repair did not preserve the
+    useful `v620` basin. The first8 aggregate regressed by `79`, and the key
+    target rows `prob_11` and `prob_14` both worsened.
+  - `prob_40` improved slightly in raw `T` but remained timed out, so it does
+    not count as an accepted guard recovery.
+  - because the bounded tardy-window repair worsened Family A aggregate and
+    reopened `prob_36`, this lane fails the strengthened Family A smoke gate
+    and is not eligible for full40.
+- decision:
+  - `v621` is rejected and closed at smoke. Keep `v620` as the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `Family A selector-broadened bay-first timing-second standalone`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 moderate-area Family A lane that is currently split between family_a_like and uncertain, with emphasis on runtime-headroom-positive prob10/prob11/prob14/prob19/prob20-style rows`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - keep the bay-first latest-feasible constructive shape from `v620`, but
+      broaden the feature gate back toward the observed residual Family A smoke
+      rows and compare only fallback versus standalone bay-first candidates
+      without any extra post-repair layer
+
+## 2026-07-07 reboot_v622_20260707_familyA_bayfirst_pressure_window_guarded_on_v318
+
+- parent/version:
+  - `reboot_v620_20260707_familyA_bayfirst_latest_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v620` is still the only recent broad Family A lane with a real same-batch
+    T improvement signal, but its constructive remains too flat on
+    `prob_13/14/19/20` and the microexact tail in `v621` destroyed that basin.
+  - this cycle keeps the same fallback-protected broad Family A standalone lane
+    but changes the construction stage itself: repartition the block set with a
+    stronger pressure-window global order and pressure-aware bay split, then
+    realize each bay with a due-and-workload-biased latest-feasible timing
+    order.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane, especially mixed prob10/prob11/prob14/prob19/prob20-style rows where plain bay-first latest-feasible stays too flat`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `bay_pref_latest`
+  - T-zero constructive:
+    - `bay_pressure_due_window`
+  - bounded improvement candidate:
+    - `bay_pressure_release_balance`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the pressure-window constructive improves
+    multiple high-T Family A rows or clearly lowers the first8 aggregate
+    without worsening the Family B guard
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v622_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1355 -> 1365` versus the `v620` seed
+  - row deltas versus `v620`:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 353 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3403`
+    - `prob_40: 9716 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the pressure-window constructive did lower objective on some rows, but it
+    did not improve the governing `T` metric. The first8 aggregate regressed by
+    `10`, and the only moved Family A rows (`prob_11`, `prob_14`) both got
+    worse on `T`.
+  - the `prob_36` guard reopened materially, which is enough to reject the lane
+    even before considering that the Family A smoke hard gate was missed.
+  - this makes `v622` a polish-only objective variant, not a valid T-first
+    breakthrough candidate.
+- decision:
+  - `v622` is rejected and closed at smoke. `v620` remains the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `Family A two-stage solver`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane, especially prob_10/prob_11/prob_13/prob_14/prob_19/prob_20-style rows where bay-first variants now failed three consecutive cycles`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build a T-first timing skeleton for the broad Family A lane first, then
+      perform bounded bay/spatial realization repair; do not add any local
+      tardy-cluster post-repair on top of the selected seed
+
+## 2026-07-07 reboot_v623_20260707_familyA_twostage_skeleton_guarded_on_v318
+
+- parent/version:
+  - `reboot_v620_20260707_familyA_bayfirst_latest_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v620` remains the only broad Family A lane with a real T improvement
+    signal, but three consecutive bay-first follow-ups (`v621`, `v622`, plus
+    the original flat rows inside `v620`) suggest the remaining backlog is no
+    longer mainly a bay-split problem.
+  - this cycle switches the Family A standalone lane to a true two-stage
+    constructive: stage 1 builds a T-first bay/timing skeleton from scratch
+    using virtual schedule tails, and stage 2 realizes that skeleton with
+    bounded spatial/bay placement inside each assigned bay.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane, especially prob_10/prob_11/prob_13/prob_14/prob_19/prob_20-style rows where bay-first variants now failed three consecutive cycles`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `twostage_pref_window`
+  - T-zero constructive:
+    - `twostage_latest_due`
+  - bounded improvement candidate:
+    - `twostage_slack_balance`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the timing-skeleton lane improves multiple
+    high-T Family A rows or clearly lowers the first8 aggregate without
+    worsening the Family B guard
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v623_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1355 -> 1364` versus the `v620` seed
+  - row deltas versus `v620`:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 353 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 123`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2970`
+    - `prob_40: 9716 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the two-stage timing skeleton did create a different basin: `prob_19`
+    improved by `5`, objective fell materially, and runtime stayed controlled.
+  - however the governing T-first metric still regressed overall because
+    `prob_11` worsened by `14`, the first8 aggregate rose by `9`, and the
+    `prob_36` guard reopened by `148`.
+  - that means the lane is interesting as a structural contrast, but it still
+    fails the strengthened Family A smoke gate and cannot justify full40.
+- decision:
+  - `v623` is rejected and closed at smoke. `v620` remains the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `Family A global backward constructive`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane, especially due-window-critical prob_10/prob_11/prob_13/prob_14/prob_19/prob_20-style rows where both bay-first and two-stage forward realization remain too flat`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build the Family A candidate from due-date backward with release-aware
+      bay assignment and bounded spatial realization, comparing only fallback
+      versus coherent backward constructive candidates
+
+## 2026-07-07 reboot_v624_20260707_familyA_backward_aggrmix_guarded_on_v318
+
+- parent/version:
+  - `reboot_v618_20260707_familyA_backward_retime_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v623` showed a new basin on `prob_19`, but forward realization is still
+    too flat overall; the next clean architecture turn is still a true global
+    backward constructive.
+  - this cycle reuses the broad guarded backward lane, but changes the internal
+    candidate mix so the checked backward branches emphasize more aggressive
+    due-window and release-cliff realization instead of the flatter balanced
+    mix used before.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane, especially due-window-critical prob_10/prob_11/prob_13/prob_14/prob_19/prob_20-style rows`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `backward_due_fast`
+  - T-zero constructive:
+    - `backward_due_edge_aggr`
+  - bounded improvement candidate:
+    - `backward_release_pressure`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the more aggressive backward mix improves
+    multiple high-T Family A rows or clearly lowers the first8 aggregate
+    without worsening the Family B guard
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v624_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1355 -> 1409` versus the `v620` seed
+  - row deltas versus `v620`:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 353 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 149`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 3051`
+    - `prob_40: 9716 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the aggressive backward mix did force more backward branches into the
+    checked pool, but the resulting basin was still worse on the governing
+    T-first metric.
+  - the main regressions concentrated exactly where the residual pain still is:
+    `prob_11` worsened by `33`, `prob_19` worsened by `21`, and the first8
+    aggregate rose by `54`.
+  - because the broadened backward branch still loses on the critical Family A
+    rows and reopens the `prob_36` guard, the backward architecture remains
+    non-competitive for the current residual lane.
+- decision:
+  - `v624` is rejected and closed at smoke. `v620` remains the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `Family A beam portfolio from scratch`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane where bay-first, two-stage, and backward constructives now fail differently across prob_11/prob_13/prob_19-style rows`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - build several from-scratch global priority rules inside the Family A
+      lane and checker-compare only coherent beam candidates versus fallback,
+      with no local post-repair layer
+
+## 2026-07-07 reboot_v625_20260707_familyA_beam_aggrmix_guarded_on_v318
+
+- parent/version:
+  - `reboot_v619_20260707_familyA_beam_portfolio_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v619` was one of the most stable recent broad lanes, but its checked beam
+    candidates stayed too flat and did not move the critical residual rows.
+  - this cycle keeps the broad guarded beam architecture but changes the
+    checked candidate mix: emphasize more aggressive edge/pressure selectors
+    and allow one extra distinct checked beam branch before fallback
+    comparison.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane where flat beam candidates stayed too close to fallback on prob_11/prob_13/prob_19-style rows`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `beam_due_edge_aggr`
+  - T-zero constructive:
+    - `beam_release_pressure`
+  - bounded improvement candidate:
+    - `beam_due_balance_wide`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the more aggressive beam mix improves multiple
+    high-T Family A rows or clearly lowers the first8 aggregate without
+    worsening the Family B guard
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v625_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - `1355 -> 1359` versus the `v620` seed
+  - row deltas versus `v620`:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 353 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 123`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 2822 -> 2892`
+    - `prob_40: 9716 -> 10412` (`timeout` both)
+- diagnostic evidence:
+  - the aggressive beam mix was materially more competitive than the recent
+    backward and two-stage lanes: it improved `prob_19` by `5`, kept most rows
+    flat, and produced the best recent 10-row `obj1_sum` among the post-`v620`
+    trials.
+  - however, the governing Family A metric still missed: `prob_11` regressed by
+    `9`, the first8 aggregate rose by `4`, and the `prob_40` guard worsened
+    sharply while staying timed out.
+  - that makes `v625` a useful alternative signal, but not a T-first
+    breakthrough and not enough to displace `v620` as the strongest recent
+    training-only Family A candidate.
+- decision:
+  - `v625` is rejected and closed at smoke. Keep `v620` as the current
+    strongest recent training-only Family A signal.
+- next architecture:
+  - move to a `Family A GRASP/randomized constructive`
+  - target Family A subtype:
+    - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane where deterministic beam, bay-first, backward, and two-stage constructives each move different rows but none lower the aggregate enough`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - keep the standalone lane fully from scratch, but diversify tie-break,
+      bay, orientation, and position seeds under a bounded randomized
+      constructive portfolio with T-first checker comparison only
+
+## 2026-07-07 reboot_v626_20260707_familyA_grasp_aggrmix_guarded_on_v318
+
+- parent/version:
+  - `reboot_v617_20260707_familyA_grasp_portfolio_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v617` already proved that plain seed diversity on top of the same narrow
+    checked pool does not move the Family A residual envelope enough.
+  - this cycle stays in the required standalone `Family A GRASP/randomized
+    constructive` lane, but changes the construction-stage comparison itself:
+    use a more aggressive mix of due-gap / window-gap / release-pressure /
+    area-biased GRASP builds and widen checker comparison to more distinct
+    from-scratch candidates when runtime headroom allows.
+- target Family A subtype:
+  - `broad residual 4~5 bay 190~320 block high-w1 ultra-tight Family A lane where the prior GRASP family was too narrow, while broader checked from-scratch mixes may move multiple high-T rows without touching the Family B wrapper`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `grasp_due_gap_fast`
+  - T-zero constructive:
+    - `grasp_window_gap_balanced`
+  - bounded improvement candidate:
+    - `grasp_release_pressure_refine`
+  - extra diversified candidate:
+    - `grasp_area_edge_mix`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the wider checked GRASP pool improves multiple
+    high-T Family A rows or clearly lowers the first8 aggregate without
+    worsening the guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v626_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - Family A first8 total T:
+    - same-batch active `1388 -> 1478`
+    - versus current strongest recent training-only signal `v620`: `1355 -> 1478`
+  - row deltas versus same-batch active:
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 278`
+  - Family B guard:
+    - `prob_36: 3110 -> 3706`
+    - `prob_40: 10106 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the widened GRASP mix still failed the hard gate. The aggregate regressed by
+    `90` versus the same-batch active surface and by `123` versus the retained
+    `v620` training-only signal.
+  - the apparent `prob_11` gain was not a standalone constructive win; the log
+    shows `lane_budget=0.00s` there, so the candidate simply exposed the
+    isolated direct `v317` fallback while the GRASP lane never executed.
+  - on rows where headroom existed, the aggressive GRASP branches mostly
+    aborted before checker comparison or stayed surrogate-only, and the one
+    clear changed high-T row was a harmful `prob_20: 164 -> 278`.
+  - this means the present failure mode is not just search quality; the broad
+    residual Family A lane is also runtime-headroom-starved under the current
+    fallback-first wrapper, so this GRASP family cannot be promoted.
+- decision:
+  - `v626` is rejected and closed at smoke. No full 40.
+  - keep `v620` as the strongest recent training-only Family A signal and keep
+    active `v318` / direct `v317` chain as the trusted BEST surface.
+- next architecture:
+  - move to a `Family A cluster decomposition`
+  - target Family A subtype:
+    - `4~5 bay 200~300 block high-w1 ultra-tight residual rows where the fallback consumes 41~57s and broad standalone lanes collapse before checker evaluation, so the next solver must build and evaluate cheap due-window / slack clusters instead of one monolithic construction`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - keep Family B on fallback-only guard behavior
+    - split Family A-like rows into small due-window / slack / bay-pressure
+      clusters, construct each cluster from scratch under a bounded budget, and
+      compare only a few merged cluster schedules T-first so the standalone
+      lane actually reaches checker evaluation under live runtime headroom
+
+## 2026-07-07 reboot_v627_20260707_familyA_cluster_budgeted_guarded_on_v318
+
+- parent/version:
+  - `reboot_v626_20260707_familyA_grasp_aggrmix_guarded_on_v318`
+- status:
+  - pending smoke
+- hypothesis:
+  - `v626` showed that the broad residual Family A lane is runtime-headroom
+    starved more than it is search-diversity starved: the standalone path often
+    never reached checker comparison once the trusted fallback consumed
+    `~55-57s`.
+  - this cycle keeps the required standalone Family A lane, but switches the
+    construction stage to a cheap `cluster decomposition` portfolio and loosens
+    the late runtime gate enough to allow one or two tiny cluster candidates to
+    be checker-tested after the fallback on headroom-tight rows.
+- target Family A subtype:
+  - `4~5 bay 200~300 block high-w1 ultra-tight residual rows where monolithic from-scratch lanes miss the checker window, but small due-window / slack / bay-pressure cluster builds may still be realized and compared T-first`
+  - intended smoke rows:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+      `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback:
+    - active `v317` under isolated call path
+  - fast Family A constructive:
+    - `cluster_tight_fast`
+  - T-zero constructive:
+    - `cluster_slack_tzero`
+  - bounded improvement candidate:
+    - `cluster_pressure_merge`
+- hard gate intent:
+  - reuse the 10-row smoke with Family B guard rows `prob_36`, `prob_40`
+  - reject immediately unless the cluster lane both reaches checker comparison
+    on the tight rows and creates a multi-row T improvement signal without
+    worsening Family B guards
+- smoke result:
+  - run:
+    - `reports/ogc2026_benchmark/probe_v627_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+  - accepted_for_score:
+    - `8/10`
+  - timeout/invalid:
+    - `2 timeout`, `0 invalid`
+  - artifact note:
+    - run completed and wrote `results.csv`, but the benchmark CLI exited after
+      the final cumulative-CSV append step because the legacy
+      `reports/ogc2026_benchmark/benchmark_results.csv` schema no longer
+      matches the current runner contract
+  - Family A first8 total T:
+    - same-batch active `1488 -> 1364`
+    - versus current strongest recent training-only signal `v620`: `1355 -> 1364`
+  - row deltas versus same-batch active:
+    - `prob_10: 94 -> 43`
+    - `prob_11: 397 -> 362`
+    - `prob_13: 460 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 149 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family B guard:
+    - `prob_36: 3174 -> 2892`
+    - `prob_40: 10328 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - unlike `v626`, the cluster lane really did execute inside the late-headroom
+    window on the hard rows. `prob_11` logged two checked cluster candidates
+    under `lane_budget=1.45s`, proving the relaxed runtime gate is sufficient
+    for real standalone comparison even after the trusted fallback.
+  - the quality, however, is still far from the target basin. The checked
+    cluster candidates on `prob_11` were enormous (`T 17523` / `17698`) and
+    `prob_20` only reached one tiny checked cluster candidate before falling
+    back, so the coarse cluster realization is now the limiting factor.
+  - this is still useful structural progress: the runtime model is no longer
+    the blocker on the tight rows, and the cluster family gives a clean place
+    to attach a bounded exact tardy-cluster repair next.
+- decision:
+  - `v627` is rejected and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - keep `v620` as the strongest recent training-only Family A signal by the
+    primary aggregate metric, but retain `v627` as the clearest proof that a
+    late-budget standalone Family A lane can still reach checker evaluation.
+- next architecture:
+  - move to a `Family A cluster decomposition + micro exact tardy-cluster repair`
+  - target Family A subtype:
+    - `4~5 bay 200~300 block high-w1 ultra-tight residual rows where late-budget cluster constructives now reach checker evaluation, but their coarse merged timing is catastrophically tardy unless a 5~20 block tardy cluster is repaired exactly`
+  - structural rule next:
+    - keep the trusted fallback wrapper unchanged
+    - keep Family B on fallback-only guard behavior
+    - use the cheap cluster decomposition only to create a scoreable skeleton,
+      then run a tiny dependency-free exact repair on the worst tardy cluster
+      before checker comparison so the standalone lane changes quality rather
+      than just proving runtime feasibility
+
+## 2026-07-04 reboot_v509_20260704_familyA_tight_beamcap_on_v317
+
+- parent/version: `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+- status: pending probe + smoke
+- hypothesis:
+  - `v508` showed that simply shrinking the two-stage lane did not restore the
+    needed runtime headroom on the ultra-tight subtype.
+  - this cycle keeps the same `4-bay ultra-tight high-w1` target lane but
+    switches to a very hard-capped `single-check beam portfolio` so the solver
+    changes its search shape while keeping checker calls and in-lane work as
+    small as possible.
+- target Family A subtype:
+  - `4-bay ultra-tight high-w1 residual lane`
+  - intended representatives: `prob_11`, `prob_13`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`serial slack`)
+  - T-zero constructive (`surrogate-scored beam candidates from scratch`)
+  - bounded improvement (`compact timing variants on the best beam branch`)
+- hard gate intent:
+  - probe one representative before the 12-row smoke
+  - no full 40 unless all smoke rows stay accepted, Family B guards do not
+    worsen, and the ultra-tight target subtype shows a real T-zero signal
+
+## 2026-07-07 reboot_v628_20260707_familyA_cluster_microexact_guarded_on_v318
+
+- parent/version: `reboot_v627_20260707_familyA_cluster_budgeted_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v627` proved a late-budget Family A standalone cluster lane can still
+    reach real checker evaluation on the hard residual rows, but the coarse
+    cluster realization remained far too tardy to compete.
+  - this cycle keeps the same feature-gated standalone cluster architecture and
+    attaches a tiny `5~20 block` micro exact tardy-window repair before final
+    checker comparison so the lane changes solution quality rather than only
+    runtime survivability.
+- target Family A subtype:
+  - `4~5 bay 200~300 block high-w1 ultra-tight residual rows with cluster-checkable standalone skeletons but catastrophic merged-timing tardiness`
+- planned comparisons inside the same hypothesis:
+  - trusted fallback (`v317`/active surface)
+  - fast constructive (`cluster_tight_fast`)
+  - T-zero constructive (`cluster_slack_tzero`)
+  - bounded improvement (`cluster_pressure_merge` plus micro exact tardy-cluster repair)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the repaired cluster lane gets all smoke rows accepted,
+    shows either `T < 10` across the targets or at least `3` large target-row
+    improvements, and does not worsen the guard rows
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v628_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v628`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 278` (worse)
+  - Family B guard:
+    - `prob_36: 3051 -> 4512` (worse)
+    - `prob_40: 9716 -> 9976` (`timeout` both, worse)
+  - first8 Family A total T:
+    - `1388 -> 1483` (worse)
+- diagnostic evidence:
+  - the micro exact repair never actually fired on the decisive rows. The
+    `prob_11` and `prob_20` logs both ended with `repair=[]`, so the added
+    operator changed code shape but not the checked candidate quality.
+  - `prob_11` still improved, but only through the inherited trusted active
+    route inside the wrapper (`367`) rather than through a repaired standalone
+    cluster candidate.
+  - the late-budget cluster lane remains checker-reachable, but once runtime
+    headroom falls below roughly `1.0~1.5s`, the current cluster skeleton is
+    too poor for the tiny exact repair window to matter.
+  - the Family B guard worsened even though the route stayed `fallback_only`,
+    which is a strong signal that the current trusted fallback call path inside
+    this wrapper is not equivalent to the external active benchmark surface.
+- decision:
+  - `v628` is rejected and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - do not promote the repaired cluster lane; it failed both the Family A
+    aggregate and Family B guard requirements.
+- next architecture:
+  - move to `Family A two-stage timing skeleton + bay-first latest-feasible standalone`
+  - target Family A subtype:
+    - `4~5 bay 200~300 block high-w1 ultra-tight residual rows where the main failure is coarse timing collapse before spatial feasibility, so stage 1 must build a near-T-zero bay-time skeleton before any spatial realization`
+  - structural rule next:
+    - preserve a direct-wrapper trusted fallback path that exactly mirrors the
+      external active surface for both Family B and uncertain rows
+    - stop spending the tiny late headroom on post-cluster exact repair unless
+      the constructive stage first produces a materially better tardiness basin
+
+## 2026-07-07 reboot_v629_20260707_familyA_twostage_bayfirst_guarded_on_v318
+
+- parent/version: `reboot_v623_20260707_familyA_twostage_skeleton_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v623` showed the timing-skeleton lane can open a different basin on rows
+    like `prob_19`, but it still loses the practical `prob_11/prob_20` floor
+    that the better bay-first rows can keep under tighter headroom.
+  - this cycle keeps the broad Family A standalone lane, but turns it into a
+    mixed two-stage timing-skeleton plus bay-first latest-feasible portfolio:
+    use a clean wrapper-equivalent fallback path first, keep one fast bay-first
+    constructive for tight headroom, and let the two-stage candidates compete
+    only when they can materially beat that floor on `T`.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where coarse timing collapse dominates, but a narrow subset still needs bay-first latest-feasible realization to preserve the low-T floor under 1~2s headroom`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path when safely available)
+  - fast Family A constructive (`bayfirst_pref_latest`)
+  - T-zero constructive (`twostage_latest_due`)
+  - bounded improvement candidate (`twostage_slack_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the mixed lane gets all smoke rows accepted, improves at
+    least three high-T targets or drives the whole target set below `T < 10`,
+    and preserves the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v629_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v629`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 367`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 164`
+  - Family A first8 total T:
+    - `1388 -> 1369` versus same-batch active
+    - still above the current trusted broad signal floor `1355`
+  - Family B guard:
+    - `prob_36: 2970 -> 4835` (worse)
+    - `prob_40: 9847 -> 9847` (`timeout` both)
+- diagnostic evidence:
+  - the new clean-wrapper fallback path did fix the obvious drift on some rows:
+    `prob_20` and `prob_40` now matched the same-batch active result instead of
+    regressing like `v628`.
+  - however the decisive failure mode moved one level earlier: on the hardest
+    Family A rows the standalone lane never got any usable headroom.
+    `prob_11` and `prob_20` both logged `lane_budget=0.00s`, so the final
+    result came entirely from the inherited fallback path rather than from the
+    intended two-stage or bay-first constructives.
+  - `prob_11` still improved to `367`, but that was again just the active
+    fallback signal leaking through, not evidence that the new standalone
+    architecture actually changed the solution basin.
+  - `prob_36` remained badly unstable even under the cleaner fallback route,
+    which suggests the current trusted fallback itself is materially stochastic
+    across fresh runner processes on Family B-like rows.
+- decision:
+  - `v629` is rejected and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - keep `v620` as the strongest recent training-only broad Family A signal.
+- next architecture:
+  - move to `Family A active-deferred global backward constructive`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where the main blocker is not just constructive quality but zero standalone headroom after fallback, so a 2~4s pre-fallback due-date-backward candidate must be built before the trusted wrapper consumes the budget`
+  - structural rule next:
+    - preserve a trusted fallback candidate, but stop running it first on
+      Family A-like rows; instead reserve a bounded pre-fallback standalone
+      slice, then run the wrapper fallback and choose T-first among the
+      accepted candidates
+
+## 2026-07-07 reboot_v630_20260707_familyA_prefallback_backward_guarded_on_v318
+
+- parent/version: `reboot_v624_20260707_familyA_backward_aggrmix_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - the last two cycles showed that the main mechanical blocker on broad
+    Family A rows is often zero post-fallback headroom rather than only bad
+    constructive quality.
+  - this cycle keeps the global backward constructive architecture but moves
+    it into a bounded pre-fallback slice so the standalone lane gets a real
+    chance to generate and checker-evaluate candidates before the trusted
+    wrapper consumes the time budget.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where a 2~4s pre-fallback constructive can still run, but the remaining question is whether backward construction can beat the fallback floor`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with remaining budget)
+  - fast Family A constructive (`backward_due_fast`)
+  - T-zero constructive (`backward_due_edge_aggr`)
+  - bounded improvement candidate (`backward_release_pressure`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the pre-fallback backward lane generates accepted
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v630_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v630`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 362 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 283` (worse)
+  - Family A first8 total T:
+    - `1365 -> 1483` versus same-batch active
+    - still far above the trusted recent broad signal floor `1355`
+  - Family B guard:
+    - `prob_36: 3174 -> 4835` (worse)
+    - `prob_40: 9847 -> 9847` (`timeout` both)
+- diagnostic evidence:
+  - the structural goal of the cycle did succeed: the standalone lane finally
+    executed before fallback on the hard rows. `prob_11` got a real
+    `2.80s` pre-fallback slice and `prob_20` got `3.40s`, which confirms the
+    pre-fallback wrapper pattern is mechanically viable.
+  - the quality, however, was unusable. On `prob_11` the backward surrogates
+    were still enormous (`T 13283` and `21524`), and the checked backward
+    candidates were effectively dead (`0.0` logs / non-competitive), so the
+    result fell back unchanged to the trusted floor.
+  - on `prob_20` the failure mode got worse: the pre-fallback backward lane
+    consumed `3.38s`, produced no checked candidate at all, and then the
+    reduced fallback budget degraded the final result from `164` to `283`.
+  - that means the active-deferred wrapper shape is promising, but the
+    backward constructive itself is the wrong architecture for this subtype.
+- decision:
+  - `v630` is rejected and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - do not reuse the same backward constructive under the same pre-fallback
+    pattern again on this residual subtype.
+- next architecture:
+  - move to `Family A pre-fallback beam portfolio from scratch`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows, especially 5-bay prob20-like cases where backward surrogates are catastrophically bad and the solver needs multiple global priority rules before fallback`
+  - structural rule next:
+    - keep the pre-fallback standalone budget pattern
+    - replace the backward constructor with a tiny beam portfolio from scratch
+      so at least one checked candidate can exist before the fallback floor is
+      exposed
+
+## 2026-07-07 reboot_v631_20260707_familyA_prefallback_beam_guarded_on_v318
+
+- parent/version: `reboot_v625_20260707_familyA_beam_aggrmix_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v630` proved the pre-fallback wrapper shape works mechanically, but the
+    backward constructor was too weak to populate a competitive checked pool.
+  - this cycle keeps the same pre-fallback budget pattern and swaps only the
+    construction stage to a tiny from-scratch beam portfolio, aiming to
+    produce at least one real checked candidate on the `prob_11/prob_20`
+    residual rows before the trusted fallback floor is exposed.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows, especially 5-bay prob20-like cases where pre-fallback time exists but the standalone constructor must search multiple global priority rules to become scoreable`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with remaining budget)
+  - fast Family A constructive (`beam_due_edge_aggr`)
+  - T-zero constructive (`beam_release_pressure`)
+  - bounded improvement candidate (`beam_due_balance_wide`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the pre-fallback beam lane generates accepted
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v631_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v631`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 367 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 123`
+    - `prob_20: 164 -> 283` (worse)
+  - Family A first8 total T:
+    - `1369 -> 1495` versus same-batch active
+    - still far above the trusted broad signal floor `1355`
+  - Family B guard:
+    - `prob_36: 2822 -> 4092` (worse)
+    - `prob_40: 9716 -> 9847` (`timeout` both, worse)
+- diagnostic evidence:
+  - the wrapper shape again worked mechanically: `prob_11` got a real
+    `3.00s` pre-fallback beam slice and `prob_20` got `3.60s`.
+  - unlike `v630`, however, the beam constructor did not even reach a scored
+    surrogate candidate on the decisive rows. `prob_11` logged
+    `beam_due_edge_aggr_abort` and `beam_release_pressure_abort`; `prob_20`
+    logged three straight beam aborts with an empty checked pool.
+  - the observed gains on `prob_11` and `prob_19` therefore still came only
+    from the fallback surface, while the reduced fallback budget again broke
+    the `prob_20` floor badly (`164 -> 283`).
+  - that means the residual subtype is now rejecting both pre-fallback
+    backward and pre-fallback beam families for the same root reason: the
+    from-scratch constructive cannot generate a scoreable candidate inside the
+    tiny viable headroom window.
+- decision:
+  - `v631` is rejected and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - do not reuse the same pre-fallback beam architecture unchanged on this
+    subtype.
+- next architecture:
+  - move to `Family A pre-fallback bay-first timing-second standalone`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where monolithic from-scratch beam/backward constructs abort under 3~4s headroom, so the next standalone lane must use cheaper feasible-bay pressure partitioning before latest-feasible timing`
+  - structural rule next:
+    - keep the pre-fallback standalone budget pattern
+    - replace the beam family with a very cheap bay-first timing-second lane so
+      the standalone path can at least emit one checked candidate before the
+      fallback floor is exposed
+
+## 2026-07-07 reboot_v632_20260707_familyA_prefallback_bayfirst_guarded_on_v318
+
+- parent/version: `reboot_v622_20260707_familyA_bayfirst_pressure_window_guarded_on_v318`
+- status: rejected after smoke, retained as training-best-only signal
+- hypothesis:
+  - `v631` showed that the pre-fallback wrapper shape is viable, but the
+    from-scratch beam family was still too expensive to emit even one scoreable
+    candidate inside `3~4s`.
+  - this cycle keeps the same pre-fallback budget pattern and swaps the
+    construction stage to the cheapest broad standalone lane we have:
+    feasible-bay pressure partitioning plus latest-feasible timing-second
+    realization, with the specific goal of producing at least one checked
+    candidate before fallback on `prob_11/prob_20`-style rows.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where beam/backward families abort under 3~4s headroom, so the next lane must sacrifice global search breadth for cheap scoreable bay-first candidates`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with remaining budget)
+  - fast Family A constructive (`bay_pref_latest`)
+  - T-zero constructive (`bay_pressure_due_window`)
+  - bounded improvement candidate (`bay_pressure_release_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the pre-fallback bay-first lane generates accepted
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v632_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v632`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 149 -> 128`
+    - `prob_20: 780 -> 278`
+  - Family A first8 total T:
+    - `2025 -> 1502` versus same-batch active
+    - still above the trusted retained broad signal floor `1355`
+  - Family B guard:
+    - `prob_36: 5459 -> 3498`
+    - `prob_40: 11973 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - this is the first recent pre-fallback architecture that produced a strong
+    same-batch aggregate move in the right direction on both Family A and
+    Family B representative rows.
+  - however the constructive evidence is still weak. On `prob_11`, the
+    bay-first lane did emit checked candidates, but they were effectively dead
+    (`0.0` logs / non-competitive). On `prob_20`, all three pre-fallback
+    bay-first candidates still aborted before checker comparison.
+  - that means the visible gains are not yet a clean standalone constructive
+    breakthrough. They likely come from how the pre-fallback wrapper interacts
+    with the fallback route and process-level stochasticity, rather than from a
+    proven T-first Family A candidate that can be trusted on the full train40.
+  - because two smoke rows are still timed out (`prob_13`, `prob_40`), the
+    strengthened smoke hard gate is not satisfied and the run cannot be
+    promoted to full40 despite the positive same-batch deltas.
+- decision:
+  - `v632` is rejected for promotion and closed at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - retain `v632` as a training-best-only signal because it is the strongest
+    recent same-batch pre-fallback aggregate move, but do not point
+    `baseline_hh.py` at it.
+- next architecture:
+  - move to `Family A pre-fallback two-stage timing skeleton with fallback parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where cheap bay-first partitioning can improve same-batch aggregate, but the solver still needs a stronger constructive explanation than fallback-surface recovery to beat the trusted floor cleanly`
+  - structural rule next:
+    - keep the pre-fallback standalone budget pattern
+    - add a stricter fallback parity guard while switching the constructive
+      stage back to a very cheap timing-skeleton realization, so we can test
+      whether the new signal survives when the fallback surface is held closer
+      to parity and the standalone candidate actually has to earn the win
+
+## 2026-07-07 reboot_v633_20260707_familyA_prefallback_twostage_guarded_on_v318
+
+- parent/version: `reboot_v623_20260707_familyA_twostage_skeleton_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v632` produced the strongest recent same-batch signal, but the signal was
+    still too entangled with fallback-surface recovery to trust as a standalone
+    Family A breakthrough.
+  - this cycle keeps the pre-fallback lane shape but swaps the constructive
+    core back to the cheaper two-stage timing-skeleton family, while reserving
+    more fallback headroom so the active route stays closer to parity.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where a scoreable from-scratch timing skeleton may survive under ~2s pre-fallback headroom, and where the main question is whether the signal persists once fallback parity is tightened`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with stronger remaining-budget guard)
+  - fast Family A constructive (`twostage_pref_window`)
+  - T-zero constructive (`twostage_latest_due`)
+  - bounded improvement candidate (`twostage_slack_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the pre-fallback two-stage lane creates accepted checked
+    candidates that materially improve multiple high-T rows without breaking
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v633_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v633`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 278`
+  - Family A first8 total T:
+    - `1389 -> 1502` versus same-batch active
+    - above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 2970 -> 5214`
+    - `prob_40: 9603 -> 10223` (`timeout` both)
+- diagnostic evidence:
+  - the stricter fallback-parity guard did what it was supposed to do: it
+    removed the large same-batch recovery signal seen in `v632`, which strongly
+    suggests that the earlier improvement was not coming from a proven
+    standalone Family A constructive.
+  - the two-stage lane still emitted only dead checked candidates on the key
+    rows:
+    - `prob_11`: checked `twostage_pref_window -> (0.0, 0.0)` after surrogate
+      `T~17941`
+    - `prob_20`: checked `twostage_slack_balance / twostage_pref_window ->
+      (0.0, 0.0)` after surrogate `T~27477 / 29162`
+  - because the standalone route still cannot produce a competitive checked
+    candidate under bounded headroom, and because both `prob_20` and the
+    Family B guard regressed sharply, the hypothesis is falsified at smoke.
+- decision:
+  - reject `v633` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - interpret `v633` as evidence that fallback-parity tightening removes the
+    apparent gain, so the next cycle must change the constructive architecture
+    again rather than re-tuning this two-stage lane.
+- next architecture:
+  - move to `Family A pre-fallback global backward constructive with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where due-window
+      backward packing may create a real T-first schedule skeleton, unlike the
+      current forward-ish two-stage realizations that collapse to dead checked
+      candidates under 2~3s headroom`
+
+## 2026-07-07 reboot_v634_20260707_familyA_prefallback_backward_parity_guarded_on_v318
+
+- parent/version: `reboot_v630_20260707_familyA_prefallback_backward_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v630` proved that the pre-fallback backward lane can open before the
+    trusted fallback, but the resulting quality was unusable and the signal was
+    entangled with fallback-surface behavior.
+  - `v633` then showed that tightening fallback parity removes the apparent
+    same-batch gain from the forward two-stage lane. This cycle applies that
+    same parity discipline back to the backward architecture so we can test
+    whether any real backward constructive survives once fallback headroom is
+    held closer to parity.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where a due-date backward lane may still be structurally different from bay-first/two-stage, but only matters if it can emit a competitive checked candidate under ~2s pre-fallback headroom`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with tighter remaining-budget reserve)
+  - fast Family A constructive (`backward_due_fast`)
+  - T-zero constructive (`backward_due_edge_aggr`)
+  - bounded improvement candidate (`backward_release_pressure`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the parity-guarded backward lane creates accepted checked
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v634_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v634`):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 278`
+  - Family A first8 total T:
+    - `1388 -> 1503` versus same-batch active
+    - above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 2970 -> 3596`
+    - `prob_40: 9847 -> 10106` (`timeout` both)
+- diagnostic evidence:
+  - the stricter fallback-parity reserve did exactly what it was meant to do:
+    it removed any ambiguity about fallback-surface assistance, and the
+    backward lane still failed cleanly on its own merits.
+  - the key rows reproduced the same unusable constructive signature already
+    seen in `v630`:
+    - `prob_11`: surrogates stayed catastrophic
+      (`backward_due_fast ~21524`, `backward_due_edge_aggr ~13283`) and the
+      only checked branch was dead `(0.0, 0.0)`
+    - `prob_20`: `backward_due_fast ~32246`, while the more aggressive
+      branches aborted before checker comparison
+  - because the parity-tightened rerun preserves the same failure mode, this is
+    now stronger evidence that the global backward constructive itself is not a
+    viable standalone lane for the current broad Family A residual subtype.
+- decision:
+  - reject `v634` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - treat the backward family as falsified for this broad residual lane under
+    bounded pre-fallback headroom.
+- next architecture:
+  - move to `Family A pre-fallback GRASP/randomized constructive with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where deterministic backward, bay-first, and two-stage lanes all collapse to dead checked candidates, so the next test should diversify global priority rules, bay choice, and spatial tie-breaks under the same bounded headroom`
+
+## 2026-07-07 reboot_v635_20260707_familyA_prefallback_grasp_parity_guarded_on_v318
+
+- parent/version: `reboot_v626_20260707_familyA_grasp_aggrmix_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v626` already had the broad residual GRASP/randomized candidate mix we
+    want, but it ran in the old fallback-first shape, so its signal was still
+    entangled with the post-lane fallback budget.
+  - this cycle keeps the same broad GRASP family and changes only the wrapper
+    structure: run the randomized lane first under a bounded pre-fallback slice
+    with a tighter parity reserve, then compare against the trusted fallback
+    using the remaining budget.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where deterministic backward / bay-first / two-stage lanes all collapse to dead checked candidates, so the next test should diversify order, bay, orientation, and position seeds under ~2s pre-fallback headroom`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with parity reserve)
+  - fast Family A constructive (`grasp_due_gap_fast`)
+  - T-zero constructive (`grasp_window_gap_balanced`, `grasp_area_edge_mix`)
+  - bounded improvement candidate (`grasp_release_pressure_refine`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the parity-guarded GRASP lane creates accepted checked
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v635_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v635` in the same batch):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 397 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 186`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 283`
+  - Family A first8 total T:
+    - `1399 -> 1483` versus same-batch active
+    - above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 2892 -> 3110`
+    - `prob_40: 9847 -> 10223` (`timeout` both)
+- diagnostic evidence:
+  - the parity-guarded pre-fallback wrapper stayed stable and preserved the
+    intended bounded headroom, but the standalone GRASP lane still did not
+    produce any checked candidate on the decisive rows.
+  - on `prob_11`, all pre-fallback GRASP branches aborted before checker
+    comparison, yet the row still landed at `T 362`; that means the visible
+    improvement came from the fallback route or same-batch active drift, not
+    from a validated standalone GRASP candidate.
+  - on `prob_20`, every randomized branch also aborted before checker
+    comparison, and the row regressed to `T 283`.
+  - because the randomized lane failed to emit even one live checked branch on
+    the highest-value rows, this cycle does not satisfy the requirement for a
+    coherent standalone Family A solver even though one row improved in the
+    combined wrapper outcome.
+- decision:
+  - reject `v635` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - retain the `prob_11 397 -> 362` same-batch signal as training-best-only
+    evidence, but do not attribute it to a proven standalone GRASP lane.
+- next architecture:
+  - move to `Family A pre-fallback spatial/orientation constructive with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where backward /
+      bay-first / two-stage / GRASP all fail before checker comparison, so the
+      next lane should change the spatial model itself with large-area,
+      wall-corner, and multi-orientation placement bias under the same bounded
+      headroom`
+
+## 2026-07-07 reboot_v636_20260707_familyA_prefallback_spatial_parity_guarded_on_v318
+
+- parent/version: `reboot_v616_20260707_familyA_spatial_orient_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v616` was the most stable recent broad residual spatial/orientation lane,
+    but it still ran fallback-first, so its signal could not be separated from
+    the inherited active route.
+  - this cycle keeps the same broad spatial candidate family and changes only
+    the wrapper structure: run the spatial/orientation lane first under a
+    bounded pre-fallback slice with a tighter parity reserve, then compare it
+    against the trusted fallback using the remaining budget.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where backward /
+    bay-first / two-stage / GRASP all fail before checker comparison, so the
+    next test should change the spatial model itself with large-area,
+    wall-corner, multi-orientation, and fragmentation-aware placement bias`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with parity reserve)
+  - fast Family A constructive (`spatial_area_fast`)
+  - T-zero constructive (`spatial_due_balanced`)
+  - bounded improvement candidate (`spatial_fragment_refine`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the parity-guarded spatial lane creates accepted checked
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v636_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v636` in the same batch):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 362`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 123 -> 123`
+    - `prob_20: 164 -> 278`
+  - Family A first8 total T:
+    - `1384 -> 1474` versus same-batch active
+    - above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 3051 -> 3317`
+    - `prob_40: 9847 -> 9847` (`timeout` both)
+- diagnostic evidence:
+  - the parity-guarded spatial wrapper stayed structurally clean, but the
+    standalone spatial lane still did not emit any live checked candidate on
+    the decisive rows.
+  - on `prob_11`, the pre-fallback spatial branch did at least produce a finite
+    surrogate (`spatial_area_fast ~16284`), which is mildly stronger evidence
+    than the pure abort pattern from the GRASP lane, but it still failed to
+    reach checker comparison before budget closed.
+  - on `prob_20`, all three spatial candidates aborted before checker
+    comparison, so the 5-bay high-pressure row remains completely unsolved by
+    this architecture under bounded headroom.
+  - because the visible `prob_11` improvement again arrived without any scored
+    standalone spatial candidate, it cannot be credited as a true Family A
+    standalone breakthrough and does not satisfy the smoke hard gate.
+- decision:
+  - reject `v636` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - retain the `prob_11 386 -> 362` same-batch signal as training-best-only
+    evidence, but do not attribute it to a validated standalone spatial lane.
+- next architecture:
+  - move to `Family A pre-fallback beam portfolio from scratch with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where backward /
+      bay-first / two-stage / GRASP / spatial all fail to close a scored
+      standalone candidate under 2~3s headroom, so the next lane should keep
+      multiple global order rules live in a tiny beam rather than committing to
+      one deterministic constructive family`
+
+## 2026-07-07 reboot_v637_20260707_familyA_prefallback_beam_parity_guarded_on_v318
+
+- parent/version: `reboot_v631_20260707_familyA_prefallback_beam_guarded_on_v318`
+- status: rejected after smoke
+- hypothesis:
+  - `v631` showed the pre-fallback beam wrapper could carve out headroom, but
+    the beam itself still spent too much of that slice expanding prefixes and
+    never reached a live checked candidate on the decisive residual rows.
+  - this cycle keeps the same standalone beam architecture and changes only the
+    parity discipline: tighten the pre-fallback reserve further and shrink the
+    beam/prefix caps so the lane is forced to emit a cheaper checked candidate
+    before the trusted fallback floor is exposed.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows, especially
+    prob11/prob20-like cases where multiple global order rules are still
+    needed, but the standalone lane must reach checker comparison under about
+    2s of real headroom`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with tighter parity reserve)
+  - fast Family A constructive (`beam_due_edge_tiny`)
+  - T-zero constructive (`beam_release_pressure_tiny`)
+  - bounded improvement candidate (`beam_due_balance_trim`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the parity-tightened beam lane produces accepted checked
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v637_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v637` in the same batch):
+    - `prob_10: 43 -> 43`
+    - `prob_11: 386 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 187 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 128 -> 128`
+    - `prob_20: 164 -> 278`
+  - Family A first8 total T:
+    - `1389 -> 1503` versus same-batch active
+    - still well above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 2892 -> 3596`
+    - `prob_40: 9508 -> 9716` (`timeout` both)
+- diagnostic evidence:
+  - the tighter parity reserve removed even the weak same-batch `prob_11`
+    drift seen in `v631/v635/v636`: every retained row except the known danger
+    rows stayed exactly on the active surface, which is strong evidence that
+    the standalone beam lane still failed to generate a checked winner.
+  - once that fallback drift disappeared, the only visible effect of the
+    standalone slice was a worse floor on `prob_20`, `prob_36`, and `prob_40`,
+    which means the cheaper beam caps still did not buy a scoreable Family A
+    breakthrough before the trusted fallback budget was reduced.
+  - this closes the loop on the current pre-fallback beam family: broad beam,
+    tiny beam, and parity-tight beam all fail the same smoke gate on the
+    decisive residual subtype.
+- decision:
+  - reject `v637` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - mark the pre-fallback beam family as exhausted for the current residual
+    subtype and rotate architecture.
+- next architecture:
+  - move to `Family A cluster decomposition with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where monolithic
+      backward / bay-first / two-stage / GRASP / spatial / beam constructors
+      all fail under bounded headroom, so the next standalone lane should
+      decompose due-window and bay-pressure clusters first, then construct and
+      merge locally instead of searching one global schedule`
+
+## 2026-07-07 reboot_v638_20260707_familyA_prefallback_cluster_parity_guarded_on_v318
+
+- parent/version: `reboot_v632_20260707_familyA_prefallback_bayfirst_guarded_on_v318`
+- status: rejected after smoke, retained as training-best-only signal
+- hypothesis:
+  - `v632` already contained the cheapest broad pressure-window machinery and
+    produced the strongest recent same-batch drift signal, but it still led
+    with a monolithic bay-first reconstruction, so the constructive evidence
+    remained ambiguous.
+  - this cycle promotes the latent cluster-decomposition builder inside that
+    same parent to the primary standalone lane and adds a parity-tight fallback
+    reserve, so the due-window / bay-pressure cluster family has to generate
+    its own checked signal instead of borrowing recovery from the fallback
+    surface.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where monolithic
+    global constructors die under bounded headroom, but a coarse
+    due-window/slack/bay-pressure decomposition might still emit a cheap
+    checked candidate before the fallback floor is exposed`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with parity reserve)
+  - fast Family A constructive (`cluster_tight_pref`)
+  - T-zero constructive (`cluster_pressure_due`)
+  - bounded improvement candidate (`cluster_slack_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the parity-guarded cluster lane produces accepted checked
+    candidates that materially improve multiple high-T rows without worsening
+    the Family B guard
+- smoke run:
+  - `reports/ogc2026_benchmark/probe_v638_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score: `8/10`
+  - timeout: `2`
+  - invalid/error: `0`
+  - Family A target rows (`active -> v638` in the same batch):
+    - `prob_10: 94 -> 43`
+    - `prob_11: 397 -> 386`
+    - `prob_13: 443 -> 443` (`timeout` both)
+    - `prob_14: 186 -> 187`
+    - `prob_15: 25 -> 25`
+    - `prob_17: 13 -> 13`
+    - `prob_19: 149 -> 123`
+    - `prob_20: 278 -> 278`
+  - Family A first8 total T:
+    - `1585 -> 1498` versus same-batch active
+    - still above the trusted retained first20 floor `1355`
+  - Family B guard:
+    - `prob_36: 3110 -> 3174`
+    - `prob_40: 9716 -> 10106` (`timeout` both)
+- diagnostic evidence:
+  - the cluster-decomposition lane recreated the same kind of same-batch drift
+    pattern seen earlier around the stronger `v632` signal: `prob_10`,
+    `prob_11`, and `prob_19` moved in the right direction versus the active
+    line from that batch.
+  - however the decisive residual rows still did not break open cleanly.
+    `prob_20` stayed pinned at `278`, `prob_36` regressed, and the two timeout
+    rows remained timed out, so the standalone cluster lane still does not
+    satisfy the smoke hard gate.
+  - because the aggregate move depends on a same-batch active surface that is
+    visibly drifting on several rows, this cannot be credited yet as a trusted
+    standalone constructive breakthrough even though it is directionally better
+    than the parity-tight beam failure.
+- decision:
+  - reject `v638` and close at smoke. No full 40.
+  - keep active `v318` / direct `v317` as the trusted BEST surface.
+  - retain `v638` as training-best-only evidence for the cluster-decomposition
+    architecture, but do not promote it.
+- next architecture:
+  - move to `Family A global backward constructive with parity guard`
+  - target Family A subtype:
+    - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where
+      cluster-decomposition can recover some same-batch rows but still cannot
+      move the prob20-like tail, so the next bounded lane should force a
+      latest-feasible due-backward build from scratch under the same parity
+      reserve and see whether the timing model itself is the missing lever`
+
+## 2026-07-07 reboot_v639_20260707_familyA_prefallback_backward_trim_parity_guarded_on_v318
+
+- parent/version: `reboot_v634_20260707_familyA_prefallback_backward_parity_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v634` already falsified the expensive backward family: catastrophic
+    surrogates and aborted aggressive branches meant the lane never produced a
+    usable checked candidate before fallback.
+  - this cycle keeps the same due-backward architecture but changes the failure
+    mode we are testing: shrink the candidate family to tiny checked-first
+    backward arms so the lane is forced to emit at least one cheap
+    latest-feasible backward candidate under the parity reserve, rather than
+    spending the whole slice on expensive surrogates that never reach checker
+    comparison.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where previous
+    backward arms died before checker comparison, so the only remaining
+    question is whether an aggressively trimmed due-backward constructor can
+    create any live T-first checked schedule at all`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with parity reserve)
+  - fast Family A constructive (`backward_due_trim`)
+  - T-zero constructive (`backward_due_balance_trim`)
+  - bounded improvement candidate (`backward_release_trim`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the trimmed parity-guarded backward lane produces
+    accepted checked candidates that materially improve multiple high-T rows
+    without worsening the Family B guard
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v639,path=ogc2026/baseline/alg_versions/reboot_v639_20260707_familyA_prefallback_backward_trim_parity_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v639_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v639_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v639_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 386 -> 362`
+    - `prob_13 443 -> 443` (timeout both)
+    - `prob_14 186 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 128 -> 142`
+    - `prob_20 164 -> 278`
+  - Family A aggregate on the smoke target set moved the wrong way:
+    `1388 -> 1493`
+  - Family B guard:
+    - `prob_36 3110 -> 2970`
+    - `prob_40 9847 -> 9508` (timeout both)
+- decision:
+  - reject for promotion; no full 40
+  - the trimmed backward lane did prove it can emit live checked candidates,
+    but it still failed the Track A hard gate because it improved only
+    `prob_11`, regressed `prob_14/prob_19/prob_20`, and worsened the Family A
+    smoke aggregate despite guard stability on `prob_36/prob_40`
+- next pivot:
+  - move away from pure backward timing and try a different standalone
+    architecture: `Family A micro CP-SAT tardy-cluster repair on top of a
+    standalone cluster/two-stage seed`, targeting `5-bay 190~320 block
+    high-w1 ultra-tight rows where constructors reach feasible floors but
+    prob_20-like tardy tails remain`
+
+## 2026-07-07 reboot_v640_20260707_familyA_cluster_microexact_guarded_on_v318
+
+- parent/version: `reboot_v602_20260707_familyA_cluster_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v602` proved the broad standalone cluster lane can emit live checked
+    Family A candidates, but the plain constructives stall on prob20-like
+    tardy tails after reaching a feasible floor.
+  - OR-Tools CP-SAT is unavailable in the current workspace runtime, so this
+    cycle tests the same structural idea with a dependency-free bounded
+    improvement proxy: keep the standalone cluster constructors, then run a
+    tiny exact tardy-cluster permutation/reinsert repair only on the
+    standalone candidate lane under a tight parity guard.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight residual rows where a
+    standalone cluster seed reaches feasibility but leaves a small tardy tail,
+    especially prob20-like tails with a few decisive late blocks`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` clean wrapper path with parity reserve)
+  - fast Family A constructive (`cluster_pref_small`)
+  - T-zero constructive (`cluster_due_balanced`)
+  - bounded improvement candidate (`cluster_slack_refine` + micro exact
+    tardy-cluster repair)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the repaired standalone lane creates multi-row Family A
+    T movement without guard regression
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v640,path=ogc2026/baseline/alg_versions/reboot_v640_20260707_familyA_cluster_microexact_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v640_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v640_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v640_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 340 -> 367`
+    - `prob_13 443 -> 443` (timeout both)
+    - `prob_14 187 -> 186`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 149 -> 128`
+    - `prob_20 278 -> 164`
+  - Family A aggregate on the smoke target set moved in the right direction:
+    `1478 -> 1369`
+  - Family B guard:
+    - `prob_36 4930 -> 3596`
+    - `prob_40 9508 -> 9318` (timeout both)
+- decision:
+  - reject for promotion; no full 40
+  - this was the first recent standalone lane to produce clear multi-row
+    Family A movement, but the Track A hard gate still fails because
+    `accepted_for_score` stayed `8/10` and the timeout rows `prob_13/prob_40`
+    remain unresolved
+  - keep as training-best-only evidence that the cluster seed plus micro exact
+    tardy repair can materially improve `prob_19/prob_20/prob_36`
+- next pivot:
+  - keep the same Family A standalone lane family, but shift the failure cause
+    from tardy-tail repair to acceptance/runtime repair:
+    `Family A bay-first timing-second solver with parity-tight checked-first
+    reserve and earlier cutoffs`, targeting `4~5 bay ultra-tight rows where
+    the constructive lane can improve T but currently misses the official
+    limit on prob_13/prob_40-style runtime pressure`
+
+## 2026-07-07 reboot_v641_20260707_familyA_bayfirst_standalonefirst_guarded_on_v318
+
+- parent/version: `reboot_v603_20260707_familyA_bayfirst_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - recent signals say the standalone Family A lane can move `T`, but
+    fallback-first execution burns most of the official budget before the
+    standalone constructor gets a chance on runtime-sensitive rows.
+  - this cycle changes the structural order: for Family A-like rows, run the
+    bay-first timing-second standalone constructor first under a hard checked
+    reserve, and keep the trusted fallback only as a rescue/compare path when
+    enough budget remains or the standalone lane fails to produce a checked
+    feasible candidate.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight rows with runtime pressure,
+    especially prob13/prob20-like instances where the standalone lane needs a
+    chance before fallback runtime consumes the whole 60s limit`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route, rescue-only on
+    Family A-like rows, default on Family B/uncertain rows)
+  - fast Family A constructive (`bay_pref_fast`)
+  - T-zero constructive (`bay_due_latest`)
+  - bounded improvement candidate (`bay_load_refine`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the standalone-first order improves Family A and
+    converts the timeout-acceptance failure mode
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v641,path=ogc2026/baseline/alg_versions/reboot_v641_20260707_familyA_bayfirst_standalonefirst_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v641_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v641_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v641_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `1/10`; invalid/error `1/10`
+  - Family A target T deltas:
+    - `prob_10 94 -> 367`
+    - `prob_11 397 -> error`
+    - `prob_13 460 -> 923` (timeout fixed but T exploded)
+    - `prob_14 187 -> 329`
+    - `prob_15 25 -> 88`
+    - `prob_17 13 -> 13`
+    - `prob_19 149 -> 389`
+    - `prob_20 164 -> 3079`
+  - Family B guard:
+    - `prob_36 2892 -> 3110`
+    - `prob_40 9508 -> 9228` (timeout both)
+- decision:
+  - reject for promotion; no full 40
+  - the standalone-first order did reduce the smoke timeout count, but it
+    badly regressed Family A quality across nearly every target row and also
+    introduced an execution error on `prob_11`, so this architecture is not a
+    viable Track A path in its current form
+  - this is the third failed bay-first subtype attempt in the current
+    standalone lane family, so do not keep iterating the same subtype
+- next pivot:
+  - switch architecture class completely:
+    `Family A two-stage solver with timing skeleton first and spatial/bay
+    feasibility repair second`, targeting `250-block 4-bay runtime-sensitive
+    ultra-tight rows where bay-first standalone-first fixed time pressure only
+    by destroying T quality`
+
+## 2026-07-07 reboot_v642_20260707_familyA_compact_twostage_checkedfirst_guarded_on_v318
+
+- parent/version: `reboot_v633_20260707_familyA_prefallback_twostage_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - the recent bay-first subtype is now exhausted, but the twostage family
+    still has one untested structural variant: compact 4-bay runtime-sensitive
+    rows where the timing skeleton is allowed to reach checker comparison
+    without paying a full fallback tax afterward.
+  - this cycle narrows the target subtype, trims the candidate family, and
+    changes the wrapper order again: if a checked standalone twostage candidate
+    exists, return it directly; keep the trusted fallback only as a rescue path
+    when the standalone lane fails to produce a checked feasible candidate.
+- target Family A subtype:
+  - `190~260 block 4-bay high-w1 ultra-tight compact rows, especially
+    prob13/prob14-like runtime-sensitive instances where the main failure mode
+    is that the timing skeleton never gets a real checked-first turn`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route, rescue-only inside
+    the compact twostage subtype, default outside it)
+  - fast Family A constructive (`twostage_pref_window`)
+  - T-zero constructive (`twostage_latest_due`)
+  - bounded improvement candidate (`twostage_slack_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact checked-first twostage lane creates clear
+    multi-row Family A movement without timeout/error/guard regression
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v642,path=ogc2026/baseline/alg_versions/reboot_v642_20260707_familyA_compact_twostage_checkedfirst_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v642_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v642_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v642_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `9/10`; timeout `1/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 17204`
+    - `prob_11 386 -> 18516`
+    - `prob_13 443(timeout) -> 47919(accepted)`
+    - `prob_14 186 -> 31619`
+    - `prob_15 25 -> 42484`
+    - `prob_17 13 -> 13`
+    - `prob_19 128 -> 123`
+    - `prob_20 164 -> 164`
+  - Family A aggregate on the smoke target set exploded:
+    `1388 -> 158042`
+  - Family B guard:
+    - `prob_36 4512 -> 2970`
+    - `prob_40 9847 -> 9603` (timeout both)
+- decision:
+  - reject for promotion; no full 40
+  - the compact checked-first twostage lane did prove that it can convert
+    `prob_13` from timeout to accepted, but only by collapsing T quality on
+    nearly every compact 4-bay target row; this is not a viable T-first Track
+    A path
+  - treat this as a falsification of the compact timing-skeleton subtype, not
+    as a near miss
+- next pivot:
+  - switch away from the compact twostage subtype:
+    `Family A spatial/orientation constructive with compact 4-bay pressure-first
+    ordering`, targeting `200~260 block 4-bay ultra-tight rows where
+    timing-skeleton acceptance is possible but the realization stage destroys T`
+
+## 2026-07-07 reboot_v643_20260707_familyA_compact_spatial_checkedfirst_guarded_on_v318
+
+- parent/version: `reboot_v605_20260707_familyA_spatial_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v642` showed that the compact 4-bay subtype can sometimes reach accepted
+    checker comparison when fallback is moved out of the way, but the twostage
+    realization logic then destroys `T` on nearly every target row.
+  - this cycle keeps the same checked-first wrapper discipline but changes the
+    construction stage itself: start from the safer spatial/orientation family,
+    narrow it to the compact 4-bay subtype, and trim the candidate menu to
+    conservative compact placements that should avoid the `T` blow-up seen in
+    the twostage lane.
+- target Family A subtype:
+  - `190~260 block 4-bay high-w1 ultra-tight compact rows, especially the
+    subset where a standalone checked-first lane is runtime-necessary but the
+    timing-skeleton realization model has already been falsified`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route, rescue-only inside
+    the compact spatial subtype, default outside it)
+  - fast Family A constructive (`spatial_due_corner`)
+  - T-zero constructive (`spatial_large_edge`)
+  - bounded improvement candidate (`spatial_slack_mixed`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact checked-first spatial lane creates clear
+    multi-row Family A movement without timeout/error/guard regression
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v643,path=ogc2026/baseline/alg_versions/reboot_v643_20260707_familyA_compact_spatial_checkedfirst_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v643_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v643_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v643_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 15484`
+    - `prob_11 397 -> 397`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 186 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 149 -> 149`
+    - `prob_20 278 -> 278`
+  - Family A aggregate on the smoke target set exploded:
+    `1534 -> 16976`
+  - Family B guard:
+    - `prob_36 5885 -> 5686`
+    - `prob_40 13353(timeout) -> 14712(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - the compact checked-first spatial lane stayed isolated from Family B and
+    mostly fell back cleanly, but its one real standalone success was
+    catastrophic: `prob_10` moved from a good accepted row to `T=15484`.
+  - the remaining compact rows mostly rescued back to the trusted fallback,
+    which means this architecture is paying wrapper cost without creating the
+    required multi-row T-zero movement.
+  - the smoke hard gate fails on both acceptance count and Family A quality, so
+    this subtype/architecture combination is closed.
+- next pivot:
+  - widen back out and change architecture class again:
+    `Family A cluster decomposition with due-window / slack / bay-pressure
+    clusters merged under a checked-first wrapper`, targeting `4~5 bay
+    200~320 block ultra-tight residual rows where compact subtype overfitting
+    causes either catastrophic standalone T or fallback-only no-op behavior`
+
+## 2026-07-07 reboot_v644_20260707_familyA_cluster_checkedreserve_guarded_on_v318
+
+- parent/version: `reboot_v640_20260707_familyA_cluster_microexact_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v640` already showed the cluster-decomposition family can make real
+    Family A T progress on `prob_19/prob_20/prob_36`, but the wrapper spent
+    too much time on fallback-first parity and still missed the official limit
+    on the runtime-sensitive rows.
+  - `v643` then showed the opposite failure mode: checked-first without a good
+    reserve can isolate Family B but also let one bad standalone candidate
+    blow up a previously healthy Family A row.
+  - this cycle keeps the proven cluster constructive core, but changes the
+    structure around it: broad residual cluster-tail subtype gate, much tighter
+    standalone budget, checked-first construction, and fallback used only as a
+    rescue or on low-risk compare rows where the reserve can still protect the
+    official limit.
+- target Family A subtype:
+  - `4~5 bay 200~320 block high-w1 ultra-tight residual rows where the cluster
+    seed can move T, but the wrapper currently fails by either burning too much
+    time before comparison or overcommitting one unchecked standalone result`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route, rescue-only on
+    runtime-risk rows, low-risk compare on rows with enough reserve)
+  - fast Family A constructive (`cluster_pref_small`)
+  - T-zero constructive (`cluster_due_balanced`)
+  - bounded improvement candidate (`cluster_slack_refine` + micro exact tardy
+    cluster repair)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the checked-reserve cluster lane improves multiple high-T
+    rows while keeping `accepted_for_score`, timeout, and guard stability
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v644,path=ogc2026/baseline/alg_versions/reboot_v644_20260707_familyA_cluster_checkedreserve_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v644_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001 --cumulative-csv reports/ogc2026_benchmark/probe_v644_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v644_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260707_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 397(timeout) -> 386(accepted)`
+    - `prob_13 460(timeout) -> 443(timeout)`
+    - `prob_14 198 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 149 -> 123`
+    - `prob_20 278 -> 164`
+  - Family A aggregate on the smoke target set moved clearly in the right
+    direction:
+    `1563 -> 1384`
+  - Family B guard:
+    - `prob_36 5367 -> 2892`
+    - `prob_40 15162(timeout) -> 13112(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - this is stronger than `v643` and materially better than the old fallback
+    floor on several rows: it recovered `prob_11` to accepted, improved
+    `prob_19/prob_20`, and substantially improved the Family B guard row
+    `prob_36`.
+  - however, the smoke hard gate still fails because `accepted_for_score`
+    remains `8/10`, the timeout rows `prob_13/prob_40` are still unresolved,
+    and the high-T breakthrough is concentrated in too few rows to justify a
+    full40 run.
+  - keep as training-best-only evidence that the cluster family is directionally
+    correct but still structurally too abort-heavy on runtime-sensitive 250x4
+    rows.
+- next pivot:
+  - switch architecture class instead of repeating the same cluster wrapper:
+    `Family A global backward constructive with checked-first reserve`,
+    targeting `250-block 4-bay ultra-tight runtime-sensitive rows where the
+    cluster family improves stable rows but its constructors abort before
+    opening a genuine accepted candidate on prob_13/prob_40-like pressure`
+
+## 2026-07-08 reboot_v645_20260708_familyA_backward_checkedreserve_guarded_on_v318
+
+- parent/version: `reboot_v639_20260707_familyA_prefallback_backward_trim_parity_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v644` showed that the checked-reserve discipline can create real Family A
+    movement, but the cluster architecture still aborts too often on the
+    runtime-sensitive `250-block / 4-bay` pressure rows before it opens a
+    genuinely competitive accepted candidate.
+  - this cycle changes architecture class again instead of repeating the
+    cluster family: keep the residual Family A standalone lane, but swap the
+    constructive core back to the global backward family and pair it with a
+    checked-first reserve wrapper plus a narrow runtime-sensitive subtype gate.
+  - the target is to preserve the useful multi-row movement seen in
+    `prob_11/19/20`-type rows while giving `prob_13/prob_40`-like rows a
+    faster accepted backward route than the cluster constructors could manage.
+- target Family A subtype:
+  - `4-bay 200~320 block high-w1 ultra-tight runtime-sensitive rows where
+    fallback-only behavior is too weak, but cluster-tail constructors still
+    miss the official limit before a checked candidate is opened`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route, rescue-only on the
+    high-risk subtype, low-risk compare only when reserve remains ample)
+  - fast Family A constructive (`backward_due_trim`)
+  - T-zero constructive (`backward_due_balance_trim`)
+  - bounded improvement candidate (`backward_release_trim`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the backward checked-reserve lane creates either
+    all-target `T < 10` or clear multi-row high-T breakthrough without timeout,
+    invalid, or Family B guard regression
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v645,path=ogc2026/baseline/alg_versions/reboot_v645_20260708_familyA_backward_checkedreserve_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v645_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v645_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v645_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 362 -> 367`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 186 -> 186`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 128 -> 128`
+    - `prob_20 164 -> 164`
+  - Family A aggregate on the smoke target set regressed slightly:
+    `1364 -> 1369`
+  - Family B guard:
+    - `prob_36 3051 -> 5214`
+    - `prob_40 9716(timeout) -> 9847(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - the backward checked-reserve wrapper stayed operational and preserved the
+    timeout floor on `prob_13`, but it failed the smoke hard gate almost
+    completely: no meaningful high-T breakthrough, no timeout recovery, and
+    a clear regression on the Family B guard row `prob_36`.
+  - compared with `v644`, this architecture class moved backward rather than
+    forward: the useful `prob_11/prob_19/prob_20` improvements disappeared,
+    while the runtime-sensitive rows remained unresolved.
+  - close this backward runtime-sensitive subtype for now and change
+    architecture class again instead of spending more cycles on wrapper tuning.
+- next pivot:
+  - switch to `Family A bay-first timing-second solver`, targeting
+    `4-bay 200~320 block ultra-tight runtime-sensitive rows where backward
+    constructive mirrors the fallback too closely to open a better accepted
+    candidate and where bay workload partitioning may reduce both prob_13-like
+    timeout pressure and prob_36-like guard regression`
+
+## 2026-07-08 reboot_v646_20260708_familyA_bayfirst_checkedreserve_guarded_on_v318
+
+- parent/version: `reboot_v641_20260707_familyA_bayfirst_standalonefirst_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v645` showed that the fallback-mirroring risk is real: a standalone lane
+    can stay isolated yet still produce almost no new signal while reopening a
+    guard regression if fallback isolation is weak.
+  - this cycle keeps the bay-first timing-second architecture class but changes
+    the wrapper discipline and the runtime-sensitive subtype gate: use the
+    standalone-first bay-first lane only on the narrow `4-bay / 200~320 block /
+    high-w1` subtype, strengthen the latest-feasible candidate menu, and route
+    every fallback/compare through an isolated trusted-active helper to avoid
+    Family B drift.
+  - the target is to open a faster accepted candidate on `prob_13`-like rows
+    without replaying the `prob_36` regression seen in the previous cycle.
+- target Family A subtype:
+  - `4-bay 200~320 block high-w1 ultra-tight runtime-sensitive rows where
+    backward constructive stayed too fallback-like and where bay-first latest
+    timing may relieve timeout pressure without touching Family B-like guards`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh` trusted active route through isolated copy
+    and random-state protection, rescue-only on risky rows, compare only with
+    ample reserve)
+  - fast Family A constructive (`bay_pref_latest`)
+  - T-zero constructive (`bay_due_latest_strong`)
+  - bounded improvement candidate (`bay_release_latest_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the bay-first checked-reserve lane creates either
+    all-target `T < 10` or a clear multi-row high-T breakthrough without
+    timeout, invalid, or Family B guard regression
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v646,path=ogc2026/baseline/alg_versions/reboot_v646_20260708_familyA_bayfirst_checkedreserve_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v646_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v646_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v646_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `7/10`; timeout `1/10`; invalid/error `1/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 367`
+    - `prob_11 362 -> exception`
+    - `prob_13 443(timeout) -> 923(accepted)`
+    - `prob_14 186 -> 329`
+    - `prob_15 25 -> 88`
+    - `prob_17 13 -> 13`
+    - `prob_19 123 -> 389`
+    - `prob_20 164 -> 164`
+  - Family A aggregate on the accepted smoke targets worsened sharply:
+    `1359 -> 2273` before even counting the `prob_11` exception row
+  - Family B guard:
+    - `prob_36 3051 -> 2970`
+    - `prob_40 9603(timeout) -> 9318(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - the isolated fallback helper did stabilize the Family B guard rows, but the
+    actual bay-first standalone lane was decisively wrong for the target
+    subtype: it worsened nearly every important Family A target row and also
+    introduced an exception on `prob_11`.
+  - this fails the smoke hard gate on all key dimensions: acceptance count,
+    correctness, and Family A quality. The slight guard improvement is not
+    enough to justify any full40 run.
+  - close the bay-first timing-second architecture for this runtime-sensitive
+    subtype and move to a more diversity-oriented from-scratch construction.
+- next pivot:
+  - switch to `Family A beam portfolio from scratch`, targeting
+    `4-bay 200~320 block ultra-tight high-w1 rows where both backward and
+    bay-first constructions overcommit one ordering bias and need parallel EDD /
+    min-slack / release-due hybrid seeds to open a genuinely new accepted lane`
+
+## 2026-07-08 reboot_v647_20260708_familyA_beam_checkedreserve_guarded_on_v318
+
+- parent/version: `reboot_v637_20260707_familyA_prefallback_beam_parity_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v645` and `v646` showed that the narrow runtime-sensitive Family A subtype
+    still needs a true standalone construction, but the wrapper discipline also
+    matters: bay-first regressed the target rows badly and the fallback path was
+    not isolated enough to trust exception-free comparison behavior.
+  - this cycle keeps the from-scratch beam portfolio architecture and narrows it
+    to the same `4-bay / 200~320 block / high-w1 / ultra-tight` subtype, while
+    changing the wrapper to checked-reserve style with direct trusted-active
+    isolation, tiny lane budgets, and compare-only fallback on clearly safe
+    rows.
+  - the target is not small polish on a single row; it is to see whether
+    diversity across due/slack/release beam seeds can reopen a genuinely better
+    accepted lane on multiple Family A high-T rows without touching Family B.
+- target Family A subtype:
+  - `4-bay 200~320 block ultra-tight high-w1 rows where both backward and
+    bay-first constructions overcommitted one ordering bias and where a beam
+    portfolio from scratch may open a different accepted timing/spatial lane`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through direct isolated call only)
+  - fast Family A constructive (`beam_due_edge_tiny`)
+  - T-zero constructive (`beam_release_pressure_tiny`)
+  - bounded improvement candidate (`beam_due_balance_trim`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the beam checked-reserve lane creates either all-target
+    `T < 10` or a clear multi-row high-T breakthrough with zero timeout,
+    invalid, and guard regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v647,path=ogc2026/baseline/alg_versions/reboot_v647_20260708_familyA_beam_checkedreserve_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v647_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v647_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v647_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 386 -> 386`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 187 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 123 -> 128`
+    - `prob_20 164 -> 164`
+  - Family A aggregate on the smoke target set regressed slightly:
+    `1384 -> 1389`
+  - Family B guard:
+    - `prob_36 3051 -> 5459`
+    - `prob_40 10106(timeout) -> 13623(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - the direct isolated fallback path did remove the exception hazard from
+    `v646`, but the beam checked-reserve lane still failed the real goal: it
+    produced no high-T breakthrough on the Family A target rows, reopened a
+    `prob_19` regression, and badly damaged the Family B guard rows.
+  - this is the third failed cycle on the same narrow runtime-sensitive subtype
+    across three different architecture classes (`backward`, `bay-first`,
+    `beam`). Per the steering rule, stop grinding this subtype and switch either
+    the subtype or the solver architecture family entirely.
+- next pivot:
+  - switch to `Family A two-stage solver`, targeting
+    `high-w1 ultra-tight Family A rows where ordering diversity is no longer
+    enough and where a T-zero timing skeleton plus bounded spatial repair may
+    open a different lane than the repeated 4-bay runtime-sensitive ordering
+    subtypes`
+
+## 2026-07-08 reboot_v648_20260708_familyA_twostage_checkedreserve_guarded_on_v318
+
+- parent/version: `reboot_v645_20260708_familyA_backward_checkedreserve_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - the last three cycles showed that merely changing ordering bias inside the
+    same tight 4-bay runtime-sensitive pocket is not enough. Beam, bay-first,
+    and backward variants all failed to open a new accepted lane.
+  - this cycle changes both the architecture family and the targeted subtype:
+    use the existing two-stage timing-skeleton plus bounded spatial repair
+    machinery, but widen the Family A target from the repeated 4-bay runtime
+    pocket to broader `high-w1 ultra-tight` rows including 5-bay cases such as
+    `prob_20`-like instances.
+  - the target is a genuinely different lane: construct a coarse T-first timing
+    skeleton, then realize it spatially with bounded orientation/position
+    choices, while keeping the trusted fallback isolated and protected.
+- target Family A subtype:
+  - `high-w1 ultra-tight Family A rows across 4/5 bays where a timing skeleton
+    plus bounded spatial repair may improve multiple high-T residual rows more
+    effectively than pure ordering-portfolio constructors`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`twostage_due_compact`)
+  - T-zero constructive (`twostage_slack_window`)
+  - bounded improvement candidate (`twostage_release_tail`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the two-stage checked-reserve lane creates either
+    all-target `T < 10` or a clear multi-row high-T breakthrough with zero
+    timeout, invalid, and guard regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v648,path=ogc2026/baseline/alg_versions/reboot_v648_20260708_familyA_twostage_checkedreserve_guarded_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v648_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v648_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v648_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas:
+    - `prob_10 43 -> 43`
+    - `prob_11 386 -> 362`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 187 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 128 -> 123`
+    - `prob_20 164 -> 278`
+  - Family A aggregate on the smoke target set moved the wrong way overall:
+    `1389 -> 1474`
+  - Family B guard:
+    - `prob_36 2970 -> 5686`
+    - `prob_40 9228(timeout) -> 10412(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - the two-stage standalone lane still failed to open a checked candidate on
+    the key broader rows: on `prob_19` and `prob_20` all three two-stage
+    variants aborted under the bounded lane budget, and `prob_13` stayed on the
+    timed-out fallback.
+  - the apparent `prob_11` / `prob_19` improvements are not trusted standalone
+    signal; they came from fallback-route drift versus the same-batch active
+    comparator, not from a successful two-stage constructive breakthrough.
+  - `prob_20` regressed sharply and the Family B guard broke badly, so this
+    candidate is still below the smoke hard gate even as training-best-only
+    evidence.
+- next pivot:
+  - switch to `Family A cluster decomposition`, targeting
+    `broader high-w1 ultra-tight rows, especially 5-bay or mixed-bay-pressure
+    cases where full-instance constructors abort under small budgets and where
+    due-window / slack / bay-pressure clusters may let bounded subconstructors
+    finish while keeping a stricter Family B fallback guard`
+
+## 2026-07-08 reboot_v649_20260708_familyA_cluster_guardplus_on_v318
+
+- parent/version: `reboot_v644_20260707_familyA_cluster_checkedreserve_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v644` remains the best directional signal among the recent standalone
+    construction lines: it improved multiple Family A rows, including `prob_20`
+    and `prob_36`, but the same-batch surface still mixed in fallback drift and
+    the cluster lane itself often aborted before checker comparison on the
+    broader rows.
+  - this cycle keeps the cluster decomposition architecture but changes the
+    wrapper discipline again: isolate the trusted fallback, strengthen
+    Family B-like fallback-only protection, and give the 5-bay / mixed
+    bay-pressure Family A subtype slightly more standalone headroom so at least
+    one checked cluster candidate can survive before rescue.
+  - the target is not tiny polish; it is to test whether the cluster family can
+    actually reach checked comparison on broader high-w1 ultra-tight rows
+    without reopening guard damage.
+- target Family A subtype:
+  - `broader 4~5 bay high-w1 ultra-tight rows, especially 5-bay or mixed
+    bay-pressure cases where the prior cluster lane aborted before checker
+    comparison and where stricter Family B fallback-only protection is needed`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`cluster_pref_small`)
+  - T-zero constructive (`cluster_due_balanced`)
+  - bounded improvement candidate (`cluster_slack_refine` plus micro exact
+    tardy-cluster repair)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the guard-plus cluster lane creates either all-target
+    `T < 10` or a clear multi-row high-T breakthrough with zero timeout,
+    invalid, and guard regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v649,path=ogc2026/baseline/alg_versions/reboot_v649_20260708_familyA_cluster_guardplus_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v649_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v649_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v649_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas versus same-batch active:
+    - `prob_10 43 -> 43`
+    - `prob_11 397 -> 386`
+    - `prob_13 460(timeout) -> 460(timeout)`
+    - `prob_14 186 -> 186`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 123 -> 128`
+    - `prob_20 278 -> 164`
+  - Family A aggregate on the smoke target set improved versus the same-batch
+    active comparator:
+    `1525 -> 1405`
+  - but it still does not beat the trusted current BEST reference level
+    (`first20 Total T 1355`) and does not clear the smoke hard gate
+  - Family B guard:
+    - `prob_36 4835 -> 2970`
+    - `prob_40 9318(timeout) -> 9139(timeout)`
+- decision:
+  - reject for promotion; no full 40
+  - keep as training-best-only evidence that the stricter guard-plus cluster
+    wrapper recovered useful same-batch movement on `prob_11`, `prob_20`, and
+    the Family B guard rows without introducing invalid/error drift.
+  - still below promotion quality because only two Family A high-T targets moved
+    materially, `prob_13` remained timed out, `prob_19` regressed, and the
+    smoke target aggregate remains above the trusted BEST reference.
+- next pivot:
+  - switch to `Family A GRASP/randomized constructive`, targeting
+    `broader 4~5 bay high-w1 ultra-tight rows where deterministic cluster merge
+    bias still leaves prob13/prob19-style residuals untouched and where
+    diversified tie-break / bay / orientation seeds may create a new checked
+    candidate before fallback`
+
+## 2026-07-08 reboot_v650_20260708_familyA_grasp_guardplus_on_v318
+
+- parent/version: `reboot_v649_20260708_familyA_cluster_guardplus_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v649` recovered the cleanest recent guard behavior and produced useful
+    same-batch movement on `prob_11`, `prob_20`, and the Family B guard rows,
+    but the deterministic cluster merge still left `prob_13 / prob_19` mostly
+    untouched and often funneled the lane into the same narrow placement bias.
+  - this cycle keeps the stricter guard-plus wrapper and isolated trusted
+    fallback, but swaps the standalone Family A architecture from cluster
+    decomposition to diversified GRASP/randomized constructive so the lane can
+    explore different due-window / bay / orientation / edge-placement mixes
+    before rescue.
+  - the goal is a broader high-w1 ultra-tight 4~5 bay breakthrough, not a
+    `prob_11`-only repair.
+- target Family A subtype:
+  - `broader 4~5 bay high-w1 ultra-tight rows, especially prob13/prob19-like
+    residuals where deterministic cluster ordering appears too sticky and where
+    diversified constructive seeds may create a checked candidate before
+    fallback`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`grasp_due_gap_fast`)
+  - T-zero constructive (`grasp_window_gap_balanced`)
+  - bounded improvement candidate (`grasp_release_pressure_refine`)
+  - extra diversified constructive (`grasp_area_edge_mix`) when lane budget
+    permits
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the GRASP lane shows either all-target `T < 10` or a
+    clear multi-row high-T breakthrough with zero timeout, invalid, and guard
+    regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v650,path=ogc2026/baseline/alg_versions/reboot_v650_20260708_familyA_grasp_guardplus_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v650_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v650_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v650_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas versus same-batch active:
+    - `prob_10 43 -> 43`
+    - `prob_11 386 -> 397`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 186 -> 186`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 149 -> 149`
+    - `prob_20 278 -> 164`
+  - Family A aggregate on the smoke target set improved versus the same-batch
+    active comparator:
+    `1523 -> 1420`
+  - Family B guard:
+    - `prob_36 5686 -> 3983`
+    - `prob_40 14333(timeout) -> 10816(timeout)`
+  - but the standalone GRASP lane itself did not generate a checked candidate
+    on the decisive Family A rows:
+    `prob_11` and `prob_20` logs show every GRASP candidate aborted, so the
+    observed movement came from trusted fallback drift rather than from a real
+    standalone constructive breakthrough.
+- decision:
+  - reject for promotion; no full 40
+  - keep only as evidence that the guard-plus wrapper still protects Family B,
+    but the current GRASP implementation/budget is not surviving to checked
+    comparison on the target subtype.
+  - this does not satisfy the smoke hard gate because only `prob_20` moved
+    materially on the Family A target set, `prob_11` regressed, `prob_13`
+    timed out again, and the signal is fallback-derived instead of standalone.
+- next pivot:
+  - switch to `Family A spatial/orientation constructive`, targeting
+    `4~5 bay ultra-tight rows with high feasible-bay pressure where the recent
+    cluster and GRASP lines both abort before checker comparison and where a
+    more deterministic wall/corner/edge placement seed may survive within the
+    bounded standalone budget`
+
+## 2026-07-08 reboot_v651_20260708_familyA_spatial_guardplus_on_v318
+
+- parent/version: `reboot_v650_20260708_familyA_grasp_guardplus_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v650` confirmed that the current guard-plus wrapper can keep Family B
+    protected, but the GRASP standalone lane still aborted before checker
+    comparison on decisive Family A rows, especially under tiny pre-fallback
+    headroom.
+  - this cycle keeps the same isolated fallback and Family B guard discipline,
+    but swaps the standalone constructor to a more deterministic
+    spatial/orientation lane using large-area ordering plus wall/corner/edge
+    placement bias.
+  - the goal is to see whether a less branchy, more placement-driven seed can
+    survive to checked comparison on high feasible-bay-pressure ultra-tight
+    rows where recent cluster and GRASP lanes died before producing a real
+    scored candidate.
+- target Family A subtype:
+  - `4~5 bay 200~320 block high-w1 ultra-tight rows with high
+    feasible-bay-pressure and low effective bay flexibility, where the current
+    issue appears to be constructive survival rather than fallback quality`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`spatial_due_corner`)
+  - T-zero constructive (`spatial_large_edge`)
+  - bounded improvement candidate (`spatial_slack_mixed`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the spatial lane shows either all-target `T < 10` or a
+    clear multi-row high-T breakthrough with zero timeout, invalid, and guard
+    regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v651,path=ogc2026/baseline/alg_versions/reboot_v651_20260708_familyA_spatial_guardplus_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v651_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v651_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v651_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - Family A target T deltas versus same-batch active:
+    - `prob_10 43 -> 43`
+    - `prob_11 386 -> 386`
+    - `prob_13 443(timeout) -> 443(timeout)`
+    - `prob_14 187 -> 186`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 128 -> 128`
+    - `prob_20 164 -> 164`
+  - Family A aggregate on the smoke target set barely moved:
+    `1389 -> 1388`
+  - Family B guard:
+    - `prob_36 3110 -> 2892`
+    - `prob_40 9318(timeout) -> 9603(timeout)` worse
+  - the standalone spatial lane still did not survive as a real checked
+    breakthrough on the decisive rows:
+    - `prob_14` log shows every spatial candidate aborted before checker
+      comparison and the final one-point gain came from trusted fallback rescue
+    - `prob_20` likewise aborted all three spatial candidates and fell back
+      to trusted active
+    - `prob_11` did at least produce finite spatial surrogates, but the
+      checked candidates were not creditable and final selection still rescued
+      trusted active `T=386`
+- decision:
+  - reject for promotion; no full 40
+  - keep only as evidence that the spatial lane can emit finite surrogate
+    structure on `prob_11`, but it still does not generate a usable standalone
+    checked candidate under the current bounded budget.
+  - this misses the smoke hard gate because the Family A target movement is
+    effectively flat, `prob_13` still times out, and `prob_40` guard worsened.
+- next pivot:
+  - switch to `Family A bay-first timing-second solver`, targeting
+    `4~5 bay ultra-tight rows with very high feasible-bay pressure where both
+    GRASP and spatial constructors die early, suggesting bay partitioning /
+    latest-feasible timing may need to be fixed before placement detail`
+
+## 2026-07-08 reboot_v652_20260708_familyA_bayfirst_guardplus_on_v318
+
+- parent/version: `reboot_v651_20260708_familyA_spatial_guardplus_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v651` showed that the stricter guard-plus wrapper still protects Family B,
+    but the spatial standalone lane remains too fragile: decisive Family A rows
+    either abort before checker comparison or only survive through trusted
+    fallback rescue.
+  - this cycle keeps the same isolated fallback / checked-first wrapper, but
+    replaces the standalone constructor with a broader
+    `bay-first timing-second` lane so that the first decision is bay workload /
+    preference partitioning and the second decision is latest-feasible local
+    timing within each bay.
+  - the aim is not a tiny `prob_11` repair but a structural test of whether
+    dense 4~5 bay ultra-tight Family A rows need better bay partitioning before
+    placement detail.
+- target Family A subtype:
+  - `4~5 bay 200~320 block high-w1 ultra-tight rows with high
+    feasible-bay-pressure, low effective bay flexibility, and recent evidence
+    that GRASP/spatial seeds die before producing a credible checked
+    standalone candidate`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`bay_due_latest`)
+  - T-zero constructive (`bay_pref_due`)
+  - bounded improvement candidate (`bay_balance_slack`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the bay-first lane shows either all-target `T < 10` or a
+    clear multi-row high-T breakthrough with zero timeout, invalid, and guard
+    regressions
+- smoke run:
+  - `python ogc2026/batchrunner/benchmark.py --algorithm name=active,version=v318,path=ogc2026/baseline --algorithm name=hh,version=v652,path=ogc2026/baseline/alg_versions/reboot_v652_20260708_familyA_bayfirst_guardplus_on_v318.py --problem train/prob_10.json --problem train/prob_11.json --problem train/prob_13.json --problem train/prob_14.json --problem train/prob_15.json --problem train/prob_17.json --problem train/prob_19.json --problem train/prob_20.json --problem train/prob_36.json --problem train/prob_40.json --timelimit 60 --run-id probe_v652_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001 --cumulative-csv reports/ogc2026_benchmark/probe_v652_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/cumulative.csv --require-fresh-cumulative`
+  - artifacts: `reports/ogc2026_benchmark/probe_v652_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001`
+- smoke result:
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - same-batch benchmark deltas versus `active:v318`:
+    - `prob_10 82 -> 43`
+    - `prob_11 421(timeout) -> 362`
+    - `prob_13 460(timeout) -> 443(timeout)`
+    - `prob_14 198 -> 187`
+    - `prob_15 25 -> 25`
+    - `prob_17 13 -> 13`
+    - `prob_19 142 -> 128`
+    - `prob_20 164 -> 164`
+    - `prob_36 2892 -> 3051` worse
+    - `prob_40 9508(timeout) -> 9508(timeout)`
+  - standalone lane evidence from logs is still negative:
+    - `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20` all
+      show `bay_due_latest`, `bay_pref_due`, and `bay_balance_slack` aborting
+      before checker comparison
+    - the visible gains came from trusted fallback rescue, not from a surviving
+      checked standalone bay-first candidate
+- decision:
+  - reject for promotion; no full 40
+  - keep as evidence that the guard-plus wrapper remains stable and that the
+    current bay-first constructor still dies inside the tiny pre-fallback
+    budget window
+  - this misses the smoke hard gate because all three standalone candidates
+    aborted on decisive Family A rows, `prob_13` and `prob_40` still timed out,
+    and Family B guard `prob_36` regressed
+- next pivot:
+  - switch to `Family A global backward constructive`, targeting
+    `4~5 bay ultra-tight rows with extreme feasible-bay-pressure where forward
+    bay-first and spatial builders both die early, suggesting we should try a
+    due-driven backward skeleton before forward placement detail`
+
+## 2026-07-08 reboot_v653_20260708_familyA_backward_pressure_guardplus_on_v318
+
+- parent/version: `reboot_v645_20260708_familyA_backward_checkedreserve_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v645` revisited the backward family, but with a narrow `4-bay
+    runtime-sensitive` gate and effectively only one cheap backward arm under
+    the checked-reserve budget. That was enough to reject the architecture for
+    that subtype, but not enough to test whether the same due-backward idea can
+    behave differently on the broader `4~5 bay extreme feasible-bay-pressure`
+    residual lane now exposed by `v651/v652`.
+  - this cycle keeps the checked-first / fallback-preserving wrapper but
+    changes the failure cause: broaden the subtype to the current residual
+    Family A pressure lane and size the pre-fallback menu so at least two
+    coherent backward candidates can be attempted before rescue.
+  - the aim is to verify whether a due-driven backward skeleton can create any
+    real checked standalone signal on the mixed `prob_10/11/13/14/19/20`
+    pressure set, instead of failing by narrow gating or one-arm starvation.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight rows with extreme
+    feasible-bay-pressure and low effective bay flexibility, where the current
+    constructive issue appears to be that forward bay-first / spatial seeds die
+    before opening a checked standalone candidate`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`backward_due_fast`)
+  - T-zero constructive (`backward_due_balanced`)
+  - bounded improvement candidate (`backward_release_refine`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the backward lane shows either all-target `T < 10` or a
+    clear multi-row high-T breakthrough with zero timeout, invalid, and guard
+    regressions
+
+## 2026-07-08 reboot_v654_20260708_familyA_beam_pressure_guardplus_on_v318
+
+- parent/version: `reboot_v653_20260708_familyA_backward_pressure_guardplus_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v653` confirmed that widening the subtype to the current extreme-pressure
+    residual lane can still uncover useful fallback-side movement, but the
+    deterministic backward constructive itself remained non-competitive:
+    checked pools were empty or obviously dominated, and the final gains still
+    came from trusted fallback rescue.
+  - this cycle changes architecture class again rather than retuning backward:
+    keep the same standalone-first / fallback-compare wrapper, but replace the
+    constructive core with a broader from-scratch beam family that already
+    proved scoreable in earlier July beam runs, instead of the tighter
+    abort-prone `v647` beam menu.
+  - the goal is to see whether multiple global order rules inside one bounded
+    beam can create a real checked standalone candidate on the mixed
+    `prob_10/11/13/14/19/20` extreme-pressure set where backward, bay-first,
+    and spatial single-order lanes keep collapsing to fallback rescue.
+- target Family A subtype:
+  - `4~5 bay 190~320 block high-w1 ultra-tight rows with extreme
+    feasible-bay-pressure and low effective bay flexibility, where
+    deterministic single-order constructives abort or explode before opening a
+    checked standalone candidate`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`beam_slack_portfolio`)
+  - T-zero constructive (`beam_due_portfolio`)
+  - bounded improvement candidate (`beam_release_balance`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the beam lane shows either all-target `T < 10` or a
+    clear multi-row high-T breakthrough with zero timeout, invalid, and guard
+    regressions
+
+## 2026-07-08 reboot_v655_20260708_familyA_twostage_microexact_guardplus_on_v318
+
+- parent/version: `reboot_v648_20260708_familyA_twostage_checkedreserve_guarded_on_v318`
+- status: implementing smoke candidate
+- hypothesis:
+  - `v648` already uses the right standalone architecture family for the
+    current residual subtype, but its bounded tardy-cluster repair is still
+    disconnected and the fallback compare is too conservative on large 4/5-bay
+    rows, letting bad standalone branches survive on `prob_20`-like cases.
+  - this cycle keeps the same two-stage timing skeleton lane, but turns the
+    bounded-improvement role into a real tiny tardy-cluster reinsert repair
+    and broadens the guard-plus fallback compare so the trusted active surface
+    can overrule regressed standalone candidates on large rows.
+- target Family A subtype:
+  - `4~5 bay high-w1 ultra-tight residual rows, especially prob19/prob20-like
+    cases where the timing skeleton can finish but still leaves a small tardy
+    cluster that should be repaired under a very small bounded budget`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`twostage_due_compact`)
+  - T-zero constructive (`twostage_slack_window`)
+  - bounded improvement candidate (`best twostage seed + tardy-cluster
+    microexact reinsert repair`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the repaired two-stage lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid, and
+    no Family B guard regression
+
+## 2026-07-08 reboot_v656_20260708_familyA_cluster_compact_guardplus_on_v318
+
+- parent/version: `reboot_v649_20260708_familyA_cluster_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v649` already matched the right residual Family A subtype, but on the
+    current 300-block 4~5-bay rows the standalone cluster candidates mostly
+    died before opening a checked result at all: `prob_19`, `prob_20`, and
+    `prob_13` all showed `checked=[]` after every cluster seed aborted under
+    a `1.10~1.42s` lane budget.
+  - this is a construction-stage runtime failure, not another narrow
+    neighborhood miss, so the next cycle keeps the same Family A standalone
+    lane but compacts it structurally: smaller standalone menu, more lane
+    headroom, and a partial deep-search / cheap-tail constructive so the lane
+    can actually finish a from-scratch Family A candidate on the largest
+    residual rows instead of rescuing immediately to trusted fallback.
+- target Family A subtype:
+  - `4~5 bay 240~320 block high-w1 ultra-tight rows with feasible_bay_pressure
+    near 1.0, where cluster/twostage/backward lanes keep aborting before a
+    checked standalone candidate is available`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through isolated direct call)
+  - fast Family A constructive (`cluster_pref_compact`)
+  - T-zero constructive (`cluster_due_compact`)
+  - bounded improvement candidate (`cluster_slack_refine` with deeper search
+    only when the row is small enough to support it)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact cluster lane creates either all-target
+    `T < 10` or a clear multi-row high-T breakthrough with zero timeout,
+    invalid, and no Family B guard regression
+
+## 2026-07-08 reboot_v657_20260708_familyA_beam_isolated_guardplus_on_v318
+
+- parent/version: `reboot_v654_20260708_familyA_beam_pressure_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v654` is still the cleanest recent evidence that the current residual
+    Family A lane might respond to a from-scratch beam family rather than
+    another repair-on-warm variant: in same-batch smoke it preserved most rows,
+    improved `prob_19`, and improved the Family B guard row `prob_36`.
+  - but the standalone beam itself was still too heavy on the 300-block rows:
+    `prob_19` and `prob_20` both showed `beam_*_abort` with `checked=[]`,
+    which means the next attempt must change the beam construction stage so it
+    can finish at least one checked candidate instead of only rescuing.
+  - `v656` also exposed a wrapper-level issue: in-process fallback calls can
+    drift from the active benchmark surface, so this cycle hardens the wrapper
+    first by isolating the active fallback in a fresh subprocess that uses the
+    same loader pattern as the official batchrunner path.
+- target Family A subtype:
+  - `4~5 bay 240~320 block high-w1 ultra-tight rows with feasible_bay_pressure
+    near 1.0, where the beam family still looks like the best global
+    construction architecture but the current beam is too branchy to finish a
+    checked candidate under ~2s pre-fallback headroom`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`isolated active wrapper call` with direct-trusted
+    fallback only on subprocess failure)
+  - fast Family A constructive (`beam_slack_compact`)
+  - T-zero constructive (`beam_due_compact`)
+  - bounded improvement candidate (`beam_release_compact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact beam lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v658_20260708_familyA_grasp_compact_guardplus_on_v318
+
+- parent/version: `reboot_v650_20260708_familyA_grasp_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the first subtype rotation target is now the `200~250 block / 4-bay /
+    high-w1 / ultra-tight` Family A residual lane because the larger
+    `240~320` subtype has already failed three consecutive architecture tries
+    (`v655`, `v656`, `v657`) without a smoke breakthrough.
+  - `v650` already had the right architecture family for this rotated subtype,
+    but it failed structurally before any checked result existed: all GRASP
+    candidates aborted under a `1.16s` lane budget while still expanding large
+    candidate-position lists on every block.
+  - this cycle keeps the standalone GRASP idea but compacts the construction
+    stage itself: narrower subtype gate, larger 4-bay headroom, very small
+    bay/orientation/position branching, and capped position generation via a
+    bounded iterator instead of full candidate-position expansion.
+- target Family A subtype:
+  - `200~250 block 4-bay high-w1 ultra-tight rows with feasible_bays_mean near
+    1.0 and feasible_bay_pressure near 1.0, especially prob_10 / prob_11 /
+    prob_13 / prob_14 / prob_15-like residuals`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`grasp_due_compact`)
+  - T-zero constructive (`grasp_slack_compact`)
+  - bounded improvement candidate (`grasp_release_compact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact GRASP lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v659_20260708_familyA_bayfirst_compact_guardplus_on_v318
+
+- parent/version: `reboot_v652_20260708_familyA_bayfirst_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the rotated `200~250 block / 4-bay / high-w1 / ultra-tight` subtype is
+    still the right target after `v658`, but the GRASP family never opened a
+    checked standalone candidate there either; the visible smoke gains came
+    from fallback, not from the standalone lane itself.
+  - `v652` is the better architecture fit for this subtype because its main
+    structure is already lower-branch: assign bays first and realize timing
+    second. But it still failed by construction-stage runtime, with all
+    `bay_due_latest / bay_pref_due / bay_balance_slack` candidates aborting
+    under about `1.24s`.
+  - this cycle keeps the bay-first timing-second family but compacts it
+    structurally: narrower 4-bay subtype gate, more 4-bay headroom, a
+    deep-search head on only the early blocks, and a cheap tail that uses
+    selected-bay-first placement before falling back to the trusted active
+    solution.
+- target Family A subtype:
+  - `190~260 block 4-bay high-w1 ultra-tight rows with feasible_bays_mean near
+    1.0 and feasible_bay_pressure near 1.0, especially prob_10 / prob_11 /
+    prob_13 / prob_14 / prob_15-like residuals`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`bay_due_compact`)
+  - T-zero constructive (`bay_pref_compact`)
+  - bounded improvement candidate (`bay_balance_compact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact bay-first lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v660_20260708_familyA_twostage_strictguard_on_v318
+
+- parent/version: `reboot_v655_20260708_familyA_twostage_microexact_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v659` finally produced standalone checked rows on the rotated
+    `190~260 block / 4-bay / high-w1 / ultra-tight` subtype, but it exposed a
+    structural selection bug rather than a pure construction failure.
+  - on `prob_15`, the checked log contained a suspicious
+    `('bay_pref_compact', 0.0, 0.0)` result plus a catastrophic
+    `('bay_due_compact', 49982.0, 740904285.0)` result, yet the lane still
+    skipped fallback comparison and selected the catastrophic candidate.
+  - on `prob_11`, the same subtype showed the safer behavior we actually want:
+    suspicious checked zeros appeared, fallback was compared or rescued, and
+    the trusted active route was preserved.
+  - this cycle returns to the two-stage timing-skeleton architecture for the
+    same rotated subtype, but the main structural change is stricter checked
+    result safety: suspicious checked outputs are rejected for selection, and
+    any surviving standalone candidate on this subtype must still compare
+    against the trusted fallback before it can win.
+- target Family A subtype:
+  - `190~260 block 4-bay high-w1 ultra-tight rows with feasible_bays_mean near
+    1.0 and feasible_bay_pressure near 1.0, especially prob_10 / prob_11 /
+    prob_13 / prob_14 / prob_15-like residuals`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`twostage_due_compact`)
+  - T-zero constructive (`twostage_slack_window`)
+  - bounded improvement candidate (`twostage_release_tail_microexact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the strict-guard two-stage lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v661_20260708_familyA_globalbackward_exactguard_on_v318
+
+- parent/version: `reboot_v657_20260708_familyA_beam_isolated_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the rotated `190~260 block / 4-bay / ultra-tight` subtype has now failed
+    three consecutive architecture families without a smoke breakthrough
+    (`v658` GRASP, `v659` bay-first, `v660` two-stage), so this cycle rotates
+    away from that subtype entirely as required.
+  - the next target is the older residual `240~320 block / 4~5 bay / high-w1 /
+    due-window crowding` Family A lane, especially `prob_13 / prob_19 /
+    prob_20`-like rows where the active trusted route still carries large T.
+  - `v657` already had the exact-fallback isolation we want for Family B
+    protection, but its constructive family was still a compact beam portfolio.
+    This cycle keeps the exact active fallback wrapper, strips the standalone
+    lane down to backward-first due-window priorities, and adds the strict
+    checked-result guard learned from `v660`.
+  - the bounded-improvement role is restored as a tiny tardy-window microexact
+    repair on top of the best backward seed so the hypothesis still compares
+    fast / T-zero / improvement candidates inside one coherent solver family.
+- target Family A subtype:
+  - `240~320 block 4~5 bay high-w1 due-window crowding rows with tight slack,
+    high feasible_bay_pressure, and residual T concentrated in prob_13 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_wrapper` through isolated exact active call)
+  - fast Family A constructive (`backward_window_fast`)
+  - T-zero constructive (`backward_due_anchor`)
+  - bounded improvement candidate (`backward_release_balance_microexact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the global-backward lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v662_20260708_familyA_globalbackward_directguard_on_v318
+
+- parent/version: `reboot_v661_20260708_familyA_globalbackward_exactguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v661` finally showed small due-window subtype signal on the right rows
+    (`prob_14: 187 -> 186`, `prob_19: 149 -> 128`, `prob_40: 9603 -> 8987`)
+    while holding `prob_15`, so the global-backward hypothesis itself is not
+    the main failure.
+  - the dominant regression came from the fallback path: rows outside the
+    target subtype or rescued after no checked candidate went through the exact
+    `myalgorithm.py -> baseline_hh.py` wrapper, which drifted into older
+    runtime-heavy logic and produced `90s` subprocess timeouts on `prob_11`
+    and `prob_13`.
+  - this cycle keeps the same due-window global-backward constructive lane and
+    the same strict checked-result guard, but removes the exact wrapper
+    experiment entirely. Fallback is pinned back to the stable trusted-direct
+    `trusted_active_surface` call so we can judge the standalone signal without
+    wrapper-path noise.
+- target Family A subtype:
+  - `240~320 block 4~5 bay high-w1 due-window crowding rows with tight slack,
+    high feasible_bay_pressure, and residual T concentrated in prob_13 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`backward_window_fast`)
+  - T-zero constructive (`backward_due_anchor`)
+  - bounded improvement candidate (`backward_release_balance_microexact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the direct-guard backward lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v663_20260708_familyA_bayfirst_duewindow_directguard_on_v318
+
+- parent/version: `reboot_v652_20260708_familyA_bayfirst_guardplus_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the `240~320 block / 4~5 bay / high-w1 / due-window crowding` subtype has
+    now rejected the global-backward family twice (`v661`, `v662`). After
+    removing wrapper drift in `v662`, the standalone signal itself still did
+    not improve the target rows: `prob_19` and `prob_20` worsened and
+    `prob_13` stayed timed out.
+  - this means the next retry on the same subtype must change the construction
+    stage, not just the wrapper policy. The best structural contrast is
+    bay-first timing-second: partition the load by bay under feasible-bay
+    pressure first, then realize timing with a latest-feasible bias.
+  - `v652` already provides the clean direct trusted fallback behavior we want,
+    plus a compact bay-first lane and a tiny micro-exact tardy repair that can
+    restore the bounded-improvement role inside one coherent hypothesis.
+  - this cycle narrows that bay-first family onto the due-window subtype,
+    restores the micro-exact candidate as an explicit bounded-improvement
+    candidate, and adds the strict checked-result guard learned from `v660`.
+- target Family A subtype:
+  - `240~320 block 4~5 bay high-w1 due-window crowding rows with tight slack,
+    high feasible_bay_pressure, and residual T concentrated in prob_13 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`bay_due_duewindow`)
+  - T-zero constructive (`bay_pref_duewindow`)
+  - bounded improvement candidate (`bay_release_balance_microexact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the bay-first due-window lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+
+## 2026-07-08 reboot_v664_20260708_familyA_beam_duewindow_directguard_on_v318
+
+- parent/version: `reboot_v657_20260708_familyA_beam_isolated_guardplus_on_v318`
+- status: rejected after smoke; keep as training-best-only evidence
+- evidence behind the architecture change:
+  - the `240~320 block / 4~5 bay / high-w1 / due-window crowding` subtype has
+    now rejected three distinct constructive families in sequence on the same
+    residual target set: global-backward (`v661`, `v662`) and bay-first
+    timing-second (`v663`).
+  - `v663` was especially informative because the wrapper path stayed clean but
+    the standalone signal still failed the smoke hard gate: `prob_11` and
+    `prob_14` improved only slightly, `prob_19` and `prob_20` regressed, and
+    the Family B guard `prob_36` worsened materially.
+  - the next bounded cycle therefore keeps the same due-window subtype but
+    changes the construction stage again, this time to a tiny beam portfolio
+    from scratch. The goal is not another local repair or another single-rule
+    constructor, but a parallel comparison of due/slack/release priority
+    families under a strict checked-first wrapper.
+  - `v657` already contains the most mature from-scratch beam machinery in the
+    current tree. This cycle reuses that core, narrows it onto the due-window
+    subtype, trims branching so the 300-block rows can actually emit checked
+    candidates, and restores the strict directguard-style comparison policy so
+    the trusted fallback always protects Family B.
+- target Family A subtype:
+  - `240~320 block 4~5 bay high-w1 due-window crowding rows with tight slack,
+    high feasible_bay_pressure, and residual T concentrated in prob_13 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_wrapper` through isolated active call)
+  - fast Family A constructive (`beam_due_duewindow`)
+  - T-zero constructive (`beam_slack_duewindow`)
+  - bounded improvement candidate (`beam_release_duewindow`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the due-window beam lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v664_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - accepted_for_score `6/10`; timeout `4/10`; invalid/error `0/10`
+  - target-row results vs trusted active:
+    - `prob_10`: `T 94 -> 43`, but runtime `84.27s` so `accepted_for_score=false`
+    - `prob_11`: subprocess timeout at `90.0s`, no scored candidate
+    - `prob_13`: subprocess timeout at `90.0s`, no scored candidate
+    - `prob_14`: flat at `T 186`
+    - `prob_15`: flat at `T 25`
+    - `prob_17`: flat at `T 13`
+    - `prob_19`: improved `T 149 -> 123`
+    - `prob_20`: improved `T 278 -> 164`
+  - Family B guard rows:
+    - `prob_36`: improved `T 3983 -> 2892`
+    - `prob_40`: worsened `T 9847 -> 10106` and remained timeout
+- decision:
+  - reject for promotion and skip full 40
+  - the beam-from-scratch lane did produce real T signal on `prob_10`,
+    `prob_19`, `prob_20`, and `prob_36`, but it failed the smoke hard gate
+    outright because not all rows were `accepted_for_score=true`, `prob_11`
+    and `prob_13` turned into hard timeouts, and `prob_40` regressed
+  - this is now the third consecutive failure on the current
+    `240~320 block / 4~5 bay / high-w1 / due-window crowding` subtype after
+    global-backward and bay-first retries, so the next bounded cycle must
+    rotate away from this subtype rather than keep grinding it
+
+## 2026-07-08 reboot_v665_20260708_familyA_cluster_compact4_directguard_on_v318
+
+- parent/version: `reboot_v656_20260708_familyA_cluster_compact_guardplus_on_v318`
+- status: rejected after smoke; keep as training-best-only evidence
+- evidence behind the architecture change:
+  - the `240~320 block / 4~5 bay / due-window crowding` subtype is now closed
+    for the moment after three structural failures (`v662`, `v663`, `v664`).
+    We need a real subtype rotation, not another wrapper-only tweak.
+  - earlier compact cluster variants were the least bad family for narrower
+    ultra-tight rows because they could at least finish checked candidates
+    without the heavy abort pattern seen in beam/GRASP/spatial runs.
+  - `v656` already contains the right architecture ingredients for the rotated
+    pocket: cluster decomposition with a compact head, cheap tail completion,
+    and an in-family micro-exact bounded-improvement candidate.
+  - this cycle narrows that architecture to the `200~250 block / 4-bay /
+    high-w1 / ultra-tight mixed residual` subtype (`prob_10/prob_11/prob_14/
+    prob_15`-like) and adds a strict checked-result directguard policy so the
+    trusted fallback always protects rows outside the pocket or rows where the
+    standalone candidate is not clearly creditable.
+- target Family A subtype:
+  - `200~250 block 4-bay high-w1 ultra-tight mixed residual rows with tight
+    slack, moderate preference spread, and enough feasible-bay pressure that a
+    compact cluster-first head may survive while larger monolithic builders
+    overrun or overcommit`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`cluster_pref_compact4`)
+  - T-zero constructive (`cluster_due_compact4`)
+  - bounded improvement candidate (`cluster_slack_refine_microexact`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact-4bay cluster lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v665_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - accepted_for_score `8/10`; timeout `2/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 386 -> 362`
+    - `prob_13`: `T 443(timeout) -> 443(timeout)`
+    - `prob_14`: `T 187 -> 186`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 128 -> 128`
+    - `prob_20`: `T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36`: `T 3051 -> 2970`
+    - `prob_40`: `T 9976(timeout) -> 9420(timeout)`
+- decision:
+  - reject for promotion and skip full 40
+  - this rotated subtype behaved much more cleanly than the previous
+    due-window crowding experiments: no new invalid/error rows, no guard
+    regression, and a real standalone-quality improvement on `prob_11`
+    together with a small gain on `prob_14`.
+  - however the smoke hard gate still fails because the movement is too
+    narrow: only `prob_11` improved materially, `prob_13` remains timed out,
+    and `prob_10/prob_15/prob_17/prob_19/prob_20` stayed flat.
+  - keep this as training-best-only evidence that the compact 4-bay cluster
+    lane is stable and directionally useful on the `prob_11`-like residual
+    pocket, but it is not yet a Family A standalone breakthrough.
+
+## 2026-07-08 reboot_v666_20260708_familyA_backward_compact4_directguard_on_v318
+
+- parent/version: `reboot_v645_20260708_familyA_backward_checkedreserve_guarded_on_v318`
+- status: rejected for promotion after smoke; keep as training-best-only signal
+- evidence behind the architecture change:
+  - `v665` showed that the rotated `200~250 block / 4-bay / high-w1 /
+    ultra-tight mixed residual` subtype is at least stable under a compact
+    standalone lane: no new invalid/error rows, no Family B regression, and a
+    real `prob_11` improvement.
+  - however the compact cluster lane still looked too sticky: it moved
+    `prob_11`, barely nudged `prob_14`, and left `prob_10/prob_13/prob_15`
+    flat. That points back to the timing model, not just cluster order.
+  - this cycle keeps the same rotated subtype but changes the construction
+    stage to a global backward due-date skeleton. The intent is to test
+    whether latest-feasible backward timing can unlock a broader improvement on
+    the compact 4-bay pocket without reopening the large guard regressions seen
+    on broader backward runs.
+  - `v645` already provides the smallest checked-first backward wrapper in the
+    current tree. This cycle narrows its subtype gate, removes wrapper-surface
+    ambiguity in the trusted fallback path, and adds strict checked-result
+    directguard comparison before any result can beat fallback.
+- target Family A subtype:
+  - `200~250 block 4-bay high-w1 ultra-tight mixed residual rows with tight
+    slack, moderate preference spread, and runtime pressure concentrated in
+    prob_10/prob_11/prob_13/prob_14/prob_15-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`trusted_active_v317` through stable direct call)
+  - fast Family A constructive (`backward_due_compact4`)
+  - T-zero constructive (`backward_due_balance_compact4`)
+  - bounded improvement candidate (`backward_release_compact4`)
+- hard gate intent:
+  - smoke the current high-T Family A rows plus Family B guards first
+  - no full 40 unless the compact-4bay backward lane creates either all-target
+    `T < 10` or a clear multi-row breakthrough with zero timeout, invalid,
+    and no Family B guard regression
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v666_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 82 -> 43`
+    - `prob_11`: `T 386 -> 334`
+    - `prob_13`: `T 443(timeout) -> 443(accepted)`
+    - `prob_14`: `T 187 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2187` worse
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this is the strongest compact-4bay standalone signal so far on Family A:
+    the candidate cleared acceptance on every smoke row, fixed the `prob_13`
+    acceptance failure, and improved four target rows at once
+    (`prob_10/prob_11/prob_13-runtime/prob_14`).
+  - however the smoke hard gate still fails because Family B guard condition 5
+    is not met: `prob_36` regressed materially against the same-batch trusted
+    active comparator.
+  - keep this as training-best-only evidence. The next retry should preserve
+    the same compact4 backward constructive signal but add a stricter Family B
+    fallback guard / compare rule before considering any promotion.
+
+## 2026-07-08 reboot_v667_20260708_familyA_backward_compact4_surfaceguard_on_v318
+
+- parent/version: `reboot_v666_20260708_familyA_backward_compact4_directguard_on_v318`
+- status: rejected after smoke; do not run full 40
+- evidence behind the architecture change:
+  - `v666` is the strongest recent Family A standalone signal on the residual
+    compact 4-bay subtype: accepted_for_score `10/10`, timeout `0/10`,
+    invalid/error `0/10`, broader movement on
+    `prob_10/prob_11/prob_13-runtime/prob_14`, and no need to reopen the old
+    warm-incumbent local-repair loop.
+  - the blocker was no longer the Family A construction stage. The blocker was
+    family selector / fallback isolation: `prob_36`-like low-`w1`,
+    high-preference-concentration, high-processing rows still drifted even
+    though they are clearly outside the intended compact4 Family A subtype.
+  - feature evidence for the guard subtype:
+    - Family A residual target rows mostly have `w1 >= 9697`,
+      `pref_concentration <= 0.304`, `pref_pressure <= 0.273`,
+      `proc_mean <= 7.720`, `tight2 >= 0.776`
+    - `prob_36` has `w1 = 667`, `pref_concentration = 0.808`,
+      `pref_pressure = 0.701`, `proc_mean = 11.384`, `tight2 = 0.596`
+    - `prob_40` has `w1 = 667`, `pref_concentration = 0.760`,
+      `pref_pressure = 0.695`, `proc_mean = 21.688`, `tight2 = 0.312`
+  - this bounded retry keeps the same Family A standalone constructive lane but
+    changes the family selector / fallback surface:
+    - add a stronger Family B surface-guard subtype
+    - if that subtype matches, return the current trusted `baseline_hh.py`
+      surface directly instead of the standalone lane
+    - keep the compact4 backward constructive menu unchanged for Family A-like
+      rows so the `v666` signal is not diluted
+- target Family A subtype:
+  - unchanged from `v666`: `200~250 block 4-bay high-w1 ultra-tight mixed
+    residual rows with tight slack, moderate preference spread, and runtime
+    pressure concentrated in prob_10/prob_11/prob_13/prob_14/prob_15-like
+    instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`backward_due_compact4`)
+  - T-zero constructive (`backward_due_balance_compact4`)
+  - bounded improvement candidate (`backward_release_compact4`)
+- hard gate intent:
+  - rerun the same 10-row smoke first
+  - no full 40 unless the `v666` Family A signal remains and `prob_36`-like
+    Family B guard rows no longer regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v667_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - note:
+    - the benchmark process finished all 20 row executions and wrote
+      `results.csv`, then exited non-zero only because the legacy cumulative
+      CSV schema at `reports/ogc2026_benchmark/benchmark_results.csv` no
+      longer matches the reboot benchmark schema
+    - smoke row evidence is therefore valid from `results.csv`; no full rerun
+      is needed for this rejection decision
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 337 -> 334`
+    - `prob_13`: `T 443(timeout) -> 443(accepted)`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the surface guard did exactly what it was supposed to do on Family B:
+    `prob_36` and `prob_40` matched the same-batch trusted surface row-for-row,
+    and the smoke cleaned up the `prob_13` timeout acceptance failure.
+  - however the Family A breakthrough signal collapsed from the prior `v666`
+    run. The target aggregate only moved by `1329 -> 1326`, and there is no
+    longer a 3-row material improvement pattern on the current high-T residual
+    set.
+  - this is the third consecutive failure on the same compact-4bay residual
+    subtype (`v665`, `v666`, `v667`). Per the standing rule, the next bounded
+    cycle must switch away from this subtype and move to a different Family A
+    solver architecture rather than continue probing the same compact pocket.
+
+## 2026-07-08 reboot_v668_20260708_familyA_bayfirst_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v663_20260708_familyA_bayfirst_duewindow_directguard_on_v318`
+- status: rejected after smoke; do not run full 40
+- evidence behind the architecture change:
+  - the compact-4bay residual subtype is now closed after three consecutive
+    failures (`v665`, `v666`, `v667`), even though `v666` briefly showed the
+    strongest signal there. Per rule, the next bounded cycle must rotate away
+    from that subtype instead of revisiting `prob_11`-like pockets.
+  - the older `due-window crowding` subtype is also effectively closed after
+    three structural attempts (`v662`, `v663`, `v664`). However, the underlying
+    bay-first timing-second architecture is still worth one more bounded test
+    if the subtype is changed, because it is the cleanest from-scratch
+    constructive family for broad residual rows and already contains the
+    required fast / T-zero / bounded-improvement roles.
+  - this cycle therefore changes both the subtype and the fallback isolation:
+    - subtype rotates to `250~300 block / 4~5 bay / high-w1 / mixed residual`
+      rows with tight slack, diffuse preferences, and near-saturated
+      feasible-bay pressure
+    - Family B-like rows and low-`w1` high-preference-concentration rows use
+      the current trusted `baseline_hh.py` surface directly, carrying forward
+      the guard lesson learned from `v667`
+    - the bay-first lane is widened for 280+ block rows so the portfolio still
+      emits multiple constructive candidates instead of collapsing to a single
+      narrow branch
+- target Family A subtype:
+  - `250~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 7.8,
+    slack_mean about 1.2~1.7, tight2 >= 0.76, diffuse preference pressure, and
+    feasible_bay_pressure near 1.0, especially prob_13 / prob_14 / prob_15 /
+    prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`bay_due_duewindow`)
+  - T-zero constructive (`bay_pref_duewindow`)
+  - bounded improvement candidate (`bay_release_balance_microexact`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 high-T Family A rows improve materially while
+    keeping `accepted_for_score=true` everywhere and leaving Family B guard
+    rows non-regressed
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v668_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8549 -> 8429` improved
+- decision:
+  - reject for promotion and skip full 40
+  - the guard behavior is clean and the smoke row acceptance is perfect, but
+    the Family A target set is completely flat: target aggregate stayed
+    `1326 -> 1326` and there is no material movement on any of the current
+    high-T residual rows.
+  - this means the broader mixed-residual bay-first lane is effectively just
+    rediscovering the current trusted surface rather than producing a new
+    standalone Family A signal.
+  - keep the evidence because it confirms the fallback isolation is stable, but
+    the next bounded cycle must change the constructive family again rather
+    than continue refining this bay-first route.
+
+## 2026-07-08 reboot_v669_20260708_familyA_twostage_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v648_20260708_familyA_twostage_checkedreserve_guarded_on_v318`
+- status: rejected after smoke; keep as training-best-only evidence
+- evidence behind the architecture change:
+  - `v668` proved that the current-surface fallback guard can keep Family B
+    clean on the standard 10-row smoke, but it also proved the broad bay-first
+    mixed-residual lane is too inert: target aggregate stayed `1326 -> 1326`
+    with zero T movement on every current Family A residual row.
+  - this means the next bounded cycle must change the construction stage again,
+    not just the subtype gate or compare policy. The natural contrast is the
+    Family A two-stage solver: build a timing skeleton first, then realize it
+    spatially/bay-feasibly under the same standalone lane.
+  - `v648` is the best current-tree two-stage skeleton base, but its old guard
+    policy still compared against the direct trusted active import and its
+    subtype was too broad/old. This cycle reuses the two-stage construction
+    core while:
+    - carrying forward the `v667/v668` current-surface Family B guard
+    - rotating the subtype to the same `250~300 block / 4~5 bay / high-w1 /
+      mixed residual` band used in `v668`
+    - keeping the three required candidate roles inside one coherent
+      timing-skeleton hypothesis
+- target Family A subtype:
+  - `250~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 7.8,
+    slack_mean about 1.15~1.75, tight2 >= 0.76, diffuse preference pressure,
+    and feasible_bay_pressure near 1.0, especially prob_13 / prob_14 /
+    prob_15 / prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`twostage_due_compact`)
+  - T-zero constructive (`twostage_slack_window`)
+  - bounded improvement candidate (`twostage_release_tail`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+
+## 2026-07-09 reboot_v695_20260709_familyA_grasp_heteroslack_surfaceguard_on_v318
+
+- parent/version: `reboot_v671_20260708_familyA_grasp_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v693` and `v694` closed two broad mixed-residual retries with different
+    deterministic construction stages:
+    - `v693` broad beam portfolio: fully score-safe, but only leaked a single
+      `prob_11` improvement
+    - `v694` heterogeneous-slack cluster lane: fully score-safe, but completely
+      flat across the intended Family A front
+  - the next bounded cycle should keep the same broad `high-w1 mixed residual`
+    target front but rotate the construction stage again, this time to a
+    genuinely randomized standalone Family A lane
+  - this is not a replay of the earlier broad GRASP candidates as-is:
+    - base constructor: reuse `v671` because it already has the
+      current-surface fallback wrapper and checked candidate comparison
+    - subtype gate: replace the older `250~300` mixed-residual gate with the
+      broader `190~310` heterogeneous-slack gate just exercised by `v694`
+    - seed mechanics: diversify bay/orientation/position seeds through
+      `slack_std`-aware feature hashing and wider randomized choice caps, so
+      the lane tests a different construction hypothesis than the now-flat
+      deterministic cluster path
+- target Family A subtype:
+  - `190~310 block / 4~5 bay / w1 >= 9000 / proc_mean <= 8.05 /
+    slack_mean 0.90~1.95 / slack_std high / tight2 >= 0.74 / tight1 >= 0.42 /
+    pref_concentration <= 0.34 / pref_pressure <= 0.31 /
+    pref_gap_mean >= 20 / feasible_bay_pressure >= 0.82`
+  - intended representatives on the current residual front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`grasp_due_slack_fast`)
+  - T-zero constructive (`grasp_heteroslack_tzero`)
+  - bounded improvement candidate (`grasp_release_window_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v693_20260709_familyA_beam_mixedportfolio_surfaceguard_on_v318.py`
+    from `v676`
+  - kept the broad mixed-residual beam gate and the current-BEST fallback
+    wrapper
+  - changed the beam portfolio itself instead of only tightening the subtype:
+    - added `critical_ratio` global ordering
+    - added `release_due_proc` hybrid ordering
+    - allowed a tiny width-2 beam only for the T-zero candidate so the
+      portfolio can branch at least once on the broader mixed front
+  - compared:
+    - `beam_due_fast`
+    - `beam_critical_ratio_tzero`
+    - `beam_release_hybrid_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v693_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v693_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A smoke rows:
+    - `prob_11 T 340 -> 334` improved
+    - `prob_10 T 43 -> 43`, `prob_13 T 443 -> 443`, `prob_14 T 181 -> 181`,
+      `prob_15 T 25 -> 25`, `prob_17 T 13 -> 13`, `prob_19 T 123 -> 123`,
+      `prob_20 T 164 -> 164` all flat
+  - Family B guard rows:
+    - `prob_36 T 2010 -> 2010` flat
+    - `prob_40 T 8429 -> 8429` flat
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the broadened beam portfolio is completely score-safe, but it
+    still fails the smoke hard gate because only one high-T target row
+    (`prob_11`) improves while the rest of the intended Family A front stays
+    flat
+- next action:
+  - close the broad `245~300 block / 4~5 bay / high-w1 mixed residual`
+    beam retry after this portfolio-level miss
+  - next bounded cycle should switch to `Family A cluster decomposition`,
+    targeting a different cross-residual subtype:
+    `190~310 block / 4~5 bay / high-w1 / heterogeneous slack mixed residual`
+    where due-window, slack, and feasible-bay-pressure clusters may let
+    `prob_10 / prob_11 / prob_13 / prob_14 / prob_19 / prob_20` move together
+
+## 2026-07-09 reboot_v694_20260709_familyA_cluster_heteroslack_surfaceguard_on_v318
+
+- parent/version: `reboot_v678_20260708_familyA_cluster_duepressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v693` closed the broad mixed-residual beam retry: it was fully score-safe
+    but again only moved `prob_11`
+  - the next bounded cycle should keep the broad Family A residual front but
+    change the construction stage to cluster decomposition
+  - among the older cluster lanes, `v678` already has richer block signatures
+    (`slack_bucket`, due bucket, feasible-bay pressure), so it is the best base
+    for a heterogeneous-slack retry
+  - this cycle narrows the route not by instance identity but by feature
+    dispersion: broad mixed residual rows whose slack profile is heterogeneous
+    enough that explicit slack clustering may separate the dominant tardy front
+- target Family A subtype:
+  - `190~310 block / 4~5 bay / w1 >= 9000 / proc_mean <= 8.05 /
+    slack_mean 0.90~1.95 / slack_std high / tight2 >= 0.74 / tight1 >= 0.42 /
+    pref_concentration <= 0.34 / pref_pressure <= 0.31 /
+    pref_gap_mean >= 20 / feasible_bay_pressure >= 0.82`
+  - intended representatives on the current residual front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`cluster_due_slack_fast`)
+  - T-zero constructive (`cluster_heteroslack_tzero`)
+  - bounded improvement candidate (`cluster_release_slack_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v694_20260709_familyA_cluster_heteroslack_surfaceguard_on_v318.py`
+    from `v678`
+  - added `slack_std` to the Family A feature vector and replaced the old
+    due-pressure gate with a heterogeneous-slack subtype gate
+  - added the `heterogeneous_slack_merge` cluster mode so the standalone lane
+    can interleave tight / medium / loose slack blocks rather than only grouping
+    by due-pressure buckets
+  - compared:
+    - `cluster_due_slack_fast`
+    - `cluster_heteroslack_tzero`
+    - `cluster_release_slack_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v694_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v694_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A smoke rows:
+    - all target rows stayed flat versus the same-batch active lane:
+      - `prob_10 T 43 -> 43`
+      - `prob_11 T 334 -> 334`
+      - `prob_13 T 443 -> 443`
+      - `prob_14 T 181 -> 181`
+      - `prob_15 T 25 -> 25`
+      - `prob_17 T 13 -> 13`
+      - `prob_19 T 123 -> 123`
+      - `prob_20 T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36 T 2010 -> 2010` flat
+    - `prob_40 T 8429 -> 8429` flat
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the lane is fully score-safe and keeps Family B protected, but it
+    is completely flat on the intended broad Family A residual front and
+    therefore fails the smoke hard gate with zero breakthrough signal
+- next action:
+  - close this heterogeneous-slack cluster retry as another no-signal miss
+  - next bounded cycle should rotate to `Family A GRASP/randomized
+    constructive`, targeting the same broad `190~310 block / 4~5 bay /
+    high-w1 mixed residual` subtype with randomized bay/orientation/position
+    seeds instead of another deterministic cluster decomposition replay
+
+## 2026-07-09 reboot_v693_20260709_familyA_beam_mixedportfolio_surfaceguard_on_v318
+
+- parent/version: `reboot_v676_20260708_familyA_beam_areapressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - the narrow `prob_14 / prob_15` placement-heavy subtype is now closed after
+    two structurally different misses (`v691` spatial-first, `v692` two-stage)
+  - dense4 is also exhausted across backward / beam / bay-first / two-stage /
+    GRASP, so the next bounded cycle must switch away from that tighter slice
+  - the remaining broad Family A front that still justifies a from-scratch
+    constructive retry is the `250~300 block / 4~5 bay / high-w1 mixed
+    residual` lane used by `v668~v680`
+  - older beam retries on that lane were score-safe but too similar in
+    ordering behavior; this cycle keeps the beam architecture while changing
+    the construction portfolio itself rather than only tightening the gate
+- target Family A subtype:
+  - `245~300 block / 4~5 bay / w1 >= 9000 / proc_mean <= 8.0 /
+    slack_mean 1.10~1.80 / tight2 >= 0.74 / tight1 >= 0.44 /
+    pref_concentration <= 0.33 / pref_pressure <= 0.30 /
+    pref_gap_mean >= 24 / feasible_bay_pressure >= 0.90`
+  - intended representatives on the current residual front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`, `prob_17`,
+    `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`beam_due_fast`)
+  - T-zero constructive (`beam_critical_ratio_tzero`)
+  - bounded improvement candidate (`beam_release_hybrid_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v688_20260709_familyA_cluster_tail300_hardguard_on_v318.py`
+    from `v672`
+  - narrowed the standalone subtype gate to the `300-block / 4~5 bay` mixed
+    tail slice
+  - switched trusted fallback isolation from the active alias to direct
+    `reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314`
+  - kept the coherent cluster-decomposition hypothesis but trimmed the
+    candidate menu to:
+    - `cluster_tail300_due_fast`
+    - `cluster_tail300_slack_tzero`
+    - `cluster_tail300_pressure_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v688_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v688_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 9/10`
+    - timeout `1` (`prob_40`)
+    - invalid/error `0`
+  - Family A smoke rows:
+    - `prob_11 T 386 -> 334` improved strongly
+    - `prob_14 T 180 -> 181` regressed
+    - `prob_17 T 13 -> 13` flat
+    - `prob_19 T 123 -> 123` flat
+    - `prob_20 T 164 -> 164` flat
+    - `prob_10 T 43 -> 43`, `prob_15 T 25 -> 25`, `prob_13 T 443 -> 443`
+      stayed flat; `prob_13` did at least become accepted under time while the
+      active smoke row exceeded the official limit
+  - Family B guard rows:
+    - `prob_36 T 2010 -> 2010` flat
+    - `prob_40 T 8429 -> 8622` regressed and timed out
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the lane does not move the intended tail300 residual front
+    (`prob_17 / 19 / 20` all flat), only reopens the old `prob_11` pocket, and
+    it breaks the hard gate outright with `prob_40` timeout/regression
+- next action:
+  - abandon the current cluster-tail wrapper family for this subtype
+  - next bounded cycle should switch to `Family A bay-first timing-second`
+    on the `300-block mixed-tail` subtype, with bay workload partition first
+    and latest-feasible per-bay scheduling second
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v673_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - same-batch active comparator was stable again and matched the trusted
+    residual smoke table
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - target aggregate:
+    - `1326 -> 1326`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this confirms that the new spatial/orientation lane is just as stable as
+    the cluster lane, but it still contributes no standalone Family A signal:
+    every target and guard row is identical to the trusted surface.
+  - taken together, the recent cross-residual cluster and spatial lanes now
+    show that changing only merge logic or placement logic is not enough on
+    this envelope when the candidate still collapses back into the same basin.
+  - the next bounded cycle should pivot to a `Family A global backward
+    constructive` targeting compact 4-bay ultra-tight residual rows with
+    feasible-bay counts near 1.0 and due/slack compression, so we finally
+    change the timing direction instead of replaying the trusted forward basin.
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v672_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - same-batch active comparator was stable again on this run and matched the
+    trusted residual smoke table
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - target aggregate:
+    - `1326 -> 1326`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this confirms the new cross-residual cluster lane is scoreable and cleanly
+    isolated from Family B, but it contributes no standalone Family A signal
+    at all: every target and guard row is identical to the trusted surface.
+  - that means the cluster decomposition as currently shaped is just
+    rediscovering the trusted v318 basin, not opening a new candidate lane.
+  - the next bounded cycle should rotate away from timing/cluster structure
+    and try a `Family A spatial/orientation constructive` on large-footprint,
+    high-feasible-bay-pressure residual rows so we change the placement model,
+    not just the ordering logic.
+
+## 2026-07-08 reboot_v673_20260708_familyA_spatial_crossresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v672_20260708_familyA_cluster_crossresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the cross-residual cluster lane (`v672`) restored perfect scoreability and
+    guard isolation, but it proved the opposite of what we need: the cluster
+    wrapper simply reproduced the trusted v318 surface row-for-row.
+  - that means another timing/order decomposition is unlikely to help. The
+    next bounded cycle must change the placement model itself, not just the
+    merge logic.
+  - this cycle therefore rotates to `Family A spatial/orientation constructive`
+    while keeping the same standalone wrapper discipline:
+    - preserve the `v667+` current-surface Family B guard
+    - preserve the trusted fallback compare/rescue path
+    - add footprint / area-pressure features to gate a placement-heavy lane
+    - compare several wall/corner/edge-hugging constructive variants from
+      scratch inside one coherent spatial hypothesis
+- target Family A subtype:
+  - `220~310 block 4~5 bay high-w1 large-footprint residual rows with
+    tight2 >= 0.76, diffuse preference pressure, max_area_ratio/p90_area_ratio
+    elevated, and feasible_bay_pressure high, especially prob_10 / prob_11 /
+    prob_14 / prob_20-like placement-heavy rows`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`spatial_area_edge_fast`)
+  - T-zero constructive (`spatial_due_corner_tzero`)
+  - bounded improvement candidate (`spatial_slack_mix_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v671_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - same-batch active comparator reopened one timeout on `prob_13`, so
+    promotion was judged against both the same-batch smoke surface and the
+    already trusted `v318` residual table
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 367 -> 334`
+    - `prob_13`: `T 443(timeout) -> 443(accepted)`
+    - `prob_14`: `T 187 -> 187`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - target aggregate:
+    - same-batch active smoke: `1365 -> 1332`
+    - trusted BEST residual table: `1326 -> 1332`
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this candidate is scoreable and guard-safe, and it did recover the
+    same-batch `prob_13` timeout plus the `prob_11` drift that occasionally
+    reopens on the active wrapper surface.
+  - however, against the trusted BEST residual table it is not a real Family A
+    advance: only one row moves relative to the noisy same-batch comparator,
+    and the trusted target aggregate is actually worse (`1326 -> 1332`) because
+    `prob_14` stays above the trusted `181` line.
+  - this is the fourth consecutive failure on the same broad mixed-residual
+    subtype (`v668` bay-first, `v669` two-stage, `v670` beam, `v671` grasp),
+    so the next bounded cycle must rotate away from this subtype rather than
+    keep trimming construction parameters here.
+
+## 2026-07-08 reboot_v672_20260708_familyA_cluster_crossresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v669_20260708_familyA_twostage_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the broad mixed-residual subtype has now failed four consecutive
+    construction-stage rotations:
+    - `v668` bay-first: scoreable but flat
+    - `v669` two-stage: weak signal only
+    - `v670` beam: fully flat
+    - `v671` grasp: scoreable, but not a trusted-best improvement
+  - per the operating rule, we should not keep chiseling that same subtype.
+    The next bounded cycle therefore rotates both the architecture and the
+    subtype:
+    - architecture: `Family A cluster decomposition`
+    - subtype: cross-residual `compact 4-bay ultra-tight + 5-bay residual`
+      lane, so the candidate can still touch multiple current high-T rows
+      without collapsing back into the same mixed-residual-only basin
+  - this keeps the now-stable `v667+` current-surface Family B guard and the
+    same trusted fallback wrapper, but changes the constructive stage to:
+    - split by due-window / slack / bay-pressure clusters
+    - build each cluster with a lighter local order
+    - merge cluster outputs under one T-first lane
+- target Family A subtype:
+  - `220~310 block 4~5 bay high-w1 residual rows with tight2 >= 0.76,
+    diffuse preference pressure, and either compact 4-bay ultra-tight pressure
+    or 5-bay residual bay-pressure, especially prob_10 / prob_11 / prob_13 /
+    prob_14 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`cluster_due_window_fast`)
+  - T-zero constructive (`cluster_slack_window_tzero`)
+  - bounded improvement candidate (`cluster_pressure_merge_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+
+## 2026-07-08 reboot_v671_20260708_familyA_grasp_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v669_20260708_familyA_twostage_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the last three broad mixed-residual cycles have now covered three distinct
+    construction families on the same `250~300 block / 4~5 bay / high-w1`
+    residual lane:
+    - `v668` bay-first: scoreable but fully flat
+    - `v669` two-stage: small signal on `prob_14` and `prob_19`, but still
+      well short of the smoke hard gate
+    - `v670` beam: accepted and guard-safe, but completely identical to the
+      trusted surface on all 10 smoke rows
+  - that is enough evidence that we should not keep trimming deterministic
+    order/beam variants on this subtype. The next bounded cycle should keep
+    the now-stable mixed-residual gate and current-surface fallback wrapper,
+    but rotate the standalone construction stage to a much lighter
+    `Family A GRASP/randomized constructive` lane.
+  - this is not a return to the earlier compact or broad GRASP failures as-is:
+    those old trials either targeted different subtypes or died before checked
+    evaluation. This cycle reuses only the bounded seed mechanics while:
+    - keeping the `v667+` current-surface Family B guard
+    - staying on the scoreable mixed-residual subtype proven by `v668~v670`
+    - shrinking branch count so at least one checked randomized candidate can
+      survive before fallback
+- target Family A subtype:
+  - `250~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 7.8,
+    slack_mean about 1.15~1.75, tight2 >= 0.76, diffuse preference pressure,
+    and feasible_bay_pressure near 1.0, especially prob_13 / prob_14 /
+    prob_15 / prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`grasp_due_gap_fast`)
+  - T-zero constructive (`grasp_window_gap_balanced`)
+  - bounded improvement candidate (`grasp_release_pressure_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v669_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443(timeout) -> 443(accepted)`
+    - `prob_14`: `T 186 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 128 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - Family B guard rows:
+    - `prob_36`: `T 2307 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this is cleaner than `v668` and directionally useful: it restored
+    `prob_13` to accepted_for_score, improved `prob_14`, improved `prob_19`,
+    and improved the volatile Family B guard row `prob_36`.
+  - however the smoke hard gate still fails because the Family A movement is
+    not large enough. The target aggregate only moved `1336 -> 1326`, and the
+    only T reductions were `prob_14 -5` and `prob_19 -5` while the other large
+    residual rows stayed flat.
+  - keep this as training-best-only evidence that the broad mixed-residual
+    two-stage lane is at least alive and scoreable, but it is not yet a
+    breakthrough candidate for the first20 Total T objective.
+
+## 2026-07-08 reboot_v670_20260708_familyA_beam_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v664_20260708_familyA_beam_duewindow_directguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v669` finally showed that the broader `250~300 block / 4~5 bay /
+    mixed residual` Family A lane can stay scoreable and produce real, if small,
+    T movement (`prob_14`, `prob_19`) while keeping Family B safe.
+  - that makes it the right place to retry the beam family. The old `v664`
+    beam attempt had stronger directional signal on `prob_19` and `prob_20`,
+    but it was still too heavy and spilled into `prob_11/prob_13` timeouts.
+  - this cycle therefore changes both the subtype and the cost envelope:
+    - move the beam lane off the older `240~320 due-window crowding` gate and
+      onto the broader `250~300 mixed residual` gate, excluding the compact
+      `prob_10/prob_11` pocket
+    - carry forward the `v667+` current-surface Family B guard instead of the
+      older subprocess/direct-import fallback path
+    - trim beam width / prefix depth so the 250~300 block rows can emit checked
+      candidates without reopening the `90s` timeout pattern
+- target Family A subtype:
+  - `250~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 7.8,
+    slack_mean about 1.15~1.75, tight2 >= 0.76, diffuse preference pressure,
+    and feasible_bay_pressure near 1.0, especially prob_13 / prob_14 /
+    prob_15 / prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`beam_due_mixed`)
+  - T-zero constructive (`beam_slack_mixed`)
+  - bounded improvement candidate (`beam_release_mixed`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+
+## 2026-07-08 reboot_v674_20260708_familyA_backward_latest_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v667_20260708_familyA_backward_compact4_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the compact `4-bay / prob_10-prob_11` subtype is already closed after the
+    three-attempt sequence `v665 -> v666 -> v667`, so this cycle cannot be
+    another compact pocket retry.
+  - the broader mixed-residual lane (`v668~v673`) restored scoreability and
+    current-surface guard stability, but the constructive families there
+    either went flat or produced only one-row movement. That points back to
+    the timing realization stage rather than the wrapper.
+  - the earlier backward family still has the clearest multi-row signal
+    (`v666`), but inspection shows its so-called backward lane still realizes
+    blocks with forward `earliest-slot` timing after a coarse skeleton.
+  - this bounded cycle therefore changes both subtype and construction stage:
+    - widen from the closed compact4 pocket to `4~5 bay / 190~310 block /
+      high-w1 / tight mixed residual` Family A rows
+    - preserve the `v667+` current-surface Family B guard wrapper
+    - replace stage-2 forward realization with a latest-feasible backward
+      realization that tries to anchor each block near its due window before
+      falling back
+- target Family A subtype:
+  - `190~310 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    slack_mean about 1.0~1.9, tight2 >= 0.74, diffuse preference pressure,
+    and residual bay-pressure, especially prob_10 / prob_11 / prob_13 /
+    prob_14 / prob_15 / prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`backward_latest_due_mixed`)
+  - T-zero constructive (`backward_latest_balance_mixed`)
+  - bounded improvement candidate (`backward_latest_release_mixed`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v674_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - note:
+    - the benchmark command exited non-zero only because the comparator
+      `active_surface` still carries the known same-batch `prob_13` timeout,
+      so the overall 20-row summary contains one failed row
+    - the candidate row evidence itself is valid from `results.csv` and
+      `readable_results.csv`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 367 -> 334`
+    - `prob_13`: `T 443(timeout) -> 443(accepted)`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 128` worse
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1359 -> 1331`
+    - this is still worse than the current trusted residual target sum `1326`
+      already shown by the accepted surface-safe line
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this confirms the construction-stage change was real: the new latest
+    backward realization can reproduce the strongest surviving `prob_11`
+    improvement while keeping Family B guards exactly flat and restoring
+    `prob_13` to accepted_for_score under the current run surface.
+  - however the smoke hard gate still fails because the movement is not broad
+    enough. Only `prob_11` improved materially, `prob_19` regressed, and the
+    target aggregate does not beat the current trusted residual line.
+  - keep this as training-best-only evidence that true latest-feasible
+    backward realization is viable, but it is not the Family A breakthrough.
+
+## 2026-07-08 reboot_v675_20260708_familyA_bayfirst_latest_mixedresidual_surfaceguard_on_v318
+
+- parent/version: `reboot_v668_20260708_familyA_bayfirst_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v668` is still the cleanest broad mixed-residual bay-first standalone
+    lane, but its smoke table was completely flat on Family A despite perfect
+    scoreability and clean guards.
+  - code inspection shows why: despite the design note saying
+    `latest-feasible per-bay timing second`, the actual realization still uses
+    forward `_find_earliest_slot`, so the lane is effectively rediscovering
+    the trusted surface rather than testing the intended timing model.
+  - this bounded cycle keeps the Family B guard wrapper and bay-first global
+    partition idea, but changes the timing model itself:
+    - same broad `4~5 bay / high-w1 / mixed residual` Family A lane
+    - widen the subtype slightly so the lane covers the full
+      `prob_13/prob_14/prob_15/prob_17/prob_19/prob_20`-like band
+    - realize each fixed bay partition with latest-feasible slot search before
+      any fallback to earliest placement
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    slack_mean about 1.1~1.8, tight2 >= 0.74, diffuse preference pressure,
+    and high feasible-bay pressure, especially prob_13 / prob_14 / prob_15 /
+    prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`bay_latest_duewindow`)
+  - T-zero constructive (`bay_latest_prefwindow`)
+  - bounded improvement candidate (`bay_latest_release_balance_microexact`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v675_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 327 -> 334` worse
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1319 -> 1326`
+    - the candidate merely returned to the older trusted residual line `1326`
+      and did not create new T-zero movement
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - this confirms the code-path change was real, but not useful: once the
+    mixed-residual bay-first lane uses true latest-feasible slots, it still
+    does not open broad Family A gains and in this smoke it loses to the
+    current surface on `prob_11`.
+  - keep as training-best-only evidence that the bay-first architecture is now
+    accurately implemented, but this solver family remains too inert for the
+    current Family A gap.
+
+## 2026-07-08 reboot_v676_20260708_familyA_beam_areapressure_surfaceguard_on_v318
+
+- parent/version: `reboot_v670_20260708_familyA_beam_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - the broad mixed-residual beam lane is still the best candidate for a
+    genuine from-scratch Family A constructive on the `prob_13/prob_14/...`
+    side of the residual set, but the old `v670` portfolio mostly cycled over
+    due/slack/release orders and converged to the same basin.
+  - `v675` now closes the bay-first timing family as accurately implemented but
+    still inert, so this bounded cycle should rotate back to beam rather than
+    keep polishing timing-only variants.
+  - this cycle keeps the current-surface Family B guard and beam-first
+    wrapper, but changes both subtype and portfolio diversity:
+    - widen from `250~300` to `245~300` blocks so the lane can cover the full
+      high-pressure mixed residual front
+    - loosen the gate slightly on feasible-bay pressure and preference spread
+    - replace the old slack-only secondary beam with an `area-pressure` order
+      so the portfolio explicitly tests large-footprint / high-pressure early
+      placement instead of only date-based variants
+    - keep the beam tiny enough that at least one checked candidate survives
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    slack_mean about 1.1~1.8, tight2 >= 0.74, diffuse preference pressure,
+    and high feasible-bay pressure, especially prob_13 / prob_14 / prob_15 /
+    prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`beam_due_mixed`)
+  - T-zero constructive (`beam_area_pressure_mixed`)
+  - bounded improvement candidate (`beam_release_mixed`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v676_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1326 -> 1326`
+    - no multi-row movement and no T-zero signal
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the broadened beam portfolio stayed perfectly scoreable and guard-safe, so
+    the wrapper and runtime envelope are healthy.
+  - however the new area-pressure beam order still collapsed to the exact same
+    checked solution basin as the active surface. With zero row movement on
+    every Family A target, this lane does not meet the smoke hard gate and
+    should be treated as exhausted for the current mixed-residual beam family.
+
+## 2026-07-08 reboot_v677_20260708_familyA_spatial_fragment_surfaceguard_on_v318
+
+- parent/version: `reboot_v673_20260708_familyA_spatial_crossresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v673` proved that the broad spatial/orientation lane can stay perfectly
+    scoreable and Family B-safe, but it also showed that the old wall/corner/
+    edge scoring mostly collapses to the same checked basin as the active
+    surface.
+  - `v676` now closes the broadened mixed-residual beam retry as exhausted for
+    this residual front, so the next bounded cycle should return to spatial but
+    change the placement model itself rather than only order rules.
+  - this cycle therefore keeps the same current-surface guard wrapper and the
+    broad high-w1 spatial gate, but changes both subtype and placement score:
+    - widen from the older cross-residual gate to `245~300 block / 4~5 bay /
+      high feasible-bay pressure` rows
+    - add explicit fragmentation / corner-trapping penalties on top of
+      wall/corner/edge hugging so the constructive lane prefers placements that
+      leave larger contiguous residual regions for later blocks
+    - keep several spatial candidates inside one coherent large-area/high-
+      pressure hypothesis
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    slack_mean about 1.0~1.8, tight2 >= 0.74, diffuse preference pressure, and
+    high feasible-bay pressure, especially prob_13 / prob_14 / prob_15 /
+    prob_17 / prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`spatial_area_fragment_fast`)
+  - T-zero constructive (`spatial_due_corner_fragment_tzero`)
+  - bounded improvement candidate (`spatial_slack_fragment_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v677_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1326 -> 1326`
+    - no multi-row movement and no T-zero signal
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the fragmentation-aware spatial scorer preserved scoreability and guard
+    safety, but it still collapsed to the exact same checked solution basin as
+    the current active surface across every Family A smoke target.
+  - treat the current broad spatial/orientation family as exhausted for this
+    residual front; the next bounded cycle should rotate to a different
+    standalone architecture instead of further polishing corner/edge placement
+    scores inside the same lane.
+
+## 2026-07-08 reboot_v678_20260708_familyA_cluster_duepressure_surfaceguard_on_v318
+
+- parent/version: `reboot_v672_20260708_familyA_cluster_crossresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v672` kept the standalone cluster wrapper score-safe, but its
+    cross-residual cluster builder still chunked a mostly linear global order
+    and converged to the same checked basin as the current trusted surface.
+  - `v677` then closed the broad spatial lane as exhausted for this same
+    residual front, so the next bounded cycle should stay in the cluster
+    architecture but change the decomposition rule itself.
+  - this cycle therefore keeps the guarded standalone/fallback wrapper but
+    changes the Family A constructive hypothesis:
+    - split Family A-like rows by due-window and feasible-bay pressure instead
+      of only slicing one global order into fixed spans
+    - separate the most bay-constrained / tight-window blocks early so they
+      are realized as their own clusters before lower-pressure blocks consume
+      the same bays and time windows
+    - compare a fast due-pressure cluster candidate, a tighter T-zero cluster
+      candidate, and a bounded merge/refine candidate inside one coherent
+      lane
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    tight2 >= 0.74, tight1 >= 0.42, diffuse preference pressure, and high
+    feasible-bay pressure, especially prob_13 / prob_14 / prob_15 / prob_17 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`cluster_duepressure_fast`)
+  - T-zero constructive (`cluster_tight_duepressure_tzero`)
+  - bounded improvement candidate (`cluster_merge_duepressure_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v678_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 332 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1324 -> 1326`
+    - relative to the trusted residual line, the candidate only reproduced the
+      older `1326` basin and did not generate new T-zero movement
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the due-window / bay-pressure cluster decomposition kept the wrapper
+    healthy, but it still failed to unlock any multi-row Family A movement and
+    slightly regressed `prob_11` in this same-batch smoke.
+  - treat the current cluster-decomposition family as exhausted for this
+    mixed-residual front and rotate next to a different standalone
+    architecture rather than continuing to polish cluster slicing rules.
+
+## 2026-07-08 reboot_v679_20260708_familyA_twostage_duepressure_surfaceguard_on_v318
+
+- parent/version: `reboot_v669_20260708_familyA_twostage_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v669` kept the two-stage wrapper score-safe, but its timing skeleton was
+    still driven mostly by broad due/slack orders and did not separate the
+    most bay-constrained tight-window blocks early enough to create new Family
+    A movement.
+  - `v678` then closed the cluster-decomposition retry for this residual front,
+    so the next bounded cycle should keep the two-stage architecture but change
+    stage 1 itself rather than only retrying cluster slicing or spatial scores.
+  - this cycle therefore keeps the guarded standalone/fallback wrapper and the
+    same stage-2 realization shell, but changes the stage-1 timing hypothesis:
+    - build the skeleton from due-window plus feasible-bay-pressure signals
+    - force the most bay-constrained / tight-window blocks to the front of the
+      timing skeleton before relaxed blocks consume the same bays
+    - compare a fast due-pressure skeleton, a tighter T-zero skeleton, and a
+      bounded release-wave refine candidate inside one coherent two-stage lane
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    tight2 >= 0.74, tight1 >= 0.42, diffuse preference pressure, and high
+    feasible-bay pressure, especially prob_13 / prob_14 / prob_15 / prob_17 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`twostage_duepressure_fast`)
+  - T-zero constructive (`twostage_tight_duepressure_tzero`)
+  - bounded improvement candidate (`twostage_release_duepressure_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v679_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 358 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1350 -> 1326`
+    - however, relative to the trusted residual line the candidate only
+      reproduced the older `1326` basin and did not create new multi-row
+      T-zero movement
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the due-pressure timing skeleton kept the two-stage lane score-safe and
+    neutralized a transient same-batch `prob_11` drift on the comparator side,
+    but it still failed to improve beyond the already-known trusted residual
+    basin.
+  - treat the current two-stage due-pressure retry as exhausted for this
+    residual front and rotate next to a different standalone architecture.
+
+## 2026-07-08 reboot_v680_20260708_familyA_grasp_duepressure_surfaceguard_on_v318
+
+- parent/version: `reboot_v671_20260708_familyA_grasp_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v671` proved the GRASP lane can stay score-safe and sometimes neutralize a
+    transient `prob_11` comparator drift, but its order portfolio was still too
+    close to due/slack/release basins already explored by other architectures.
+  - `v679` then closed the two-stage due-pressure retry for the same residual
+    front, so the next bounded cycle should keep the randomized constructive
+    architecture but change the construction order and seed diversity itself.
+  - this cycle therefore keeps the guarded standalone/fallback wrapper but
+    changes the GRASP hypothesis:
+    - widen to the same `245~300 block / 4~5 bay / high feasible-bay pressure`
+      residual front used by the recent cluster and twostage attempts
+    - build randomized construction from due-window plus bay-pressure orderings
+      instead of only the older due/slack/release mixes
+    - diversify bay/orientation/position tie-breaks more aggressively while
+      still selecting feasible candidates by T-first
+- target Family A subtype:
+  - `245~300 block 4~5 bay high-w1 mixed residual rows with proc_mean <= 8.0,
+    tight2 >= 0.74, tight1 >= 0.42, diffuse preference pressure, and high
+    feasible-bay pressure, especially prob_13 / prob_14 / prob_15 / prob_17 /
+    prob_19 / prob_20-like instances`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`grasp_duepressure_fast`)
+  - T-zero constructive (`grasp_tight_duepressure_tzero`)
+  - bounded improvement candidate (`grasp_release_duepressure_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v680_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1326 -> 1326`
+    - zero multi-row movement and no T-zero signal
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the due-pressure GRASP lane preserved scoreability and guard safety, but
+    the stronger order/seed diversification still collapsed to the exact same
+    checked solution basin as the current active surface.
+  - treat the current broad mixed-residual GRASP retry as exhausted and rotate
+    next to a different standalone architecture / tighter subtype rather than
+    continuing to polish randomized tie-breaks inside the same lane.
+
+## 2026-07-08 reboot_v681_20260708_familyA_backward_ultratight4_surfaceguard_on_v318
+
+- parent/version: `reboot_v674_20260708_familyA_backward_latest_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v674` showed that the latest-feasible backward realization is a real
+    structural change, but on the broad mixed-residual front it still converged
+    back to the known `1326` basin.
+  - `v680` then closed the broad GRASP due-pressure retry with zero movement,
+    so the next bounded cycle should not keep attacking the same wide subtype.
+  - this cycle therefore keeps the backward/latest architecture but narrows the
+    target to a more specific residual pocket:
+    - 4-bay ultra-tight rows with very high feasible-bay pressure and low
+      feasible-bays mean
+    - due-window crowding where latest-feasible timing may matter more than on
+      the wider 5-bay mixed front
+    - separate due-pressure and release-wave backward skeleton orders inside
+      the same hypothesis
+- target Family A subtype:
+  - `4 bay / 220~275 block / w1 high / proc_mean <= 8.0 / tight2 >= 0.80 /
+    tight1 >= 0.46 / feasible_bays_mean <= 1.20 / feasible_bay_pressure >= 0.90`
+    ultra-tight Family A rows, especially the 4-bay residual portion of the
+    current high-T front
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`backward_ultratight_due_fast`)
+  - T-zero constructive (`backward_ultratight_duepressure_tzero`)
+  - bounded improvement candidate (`backward_ultratight_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v681_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 354 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 181`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1346 -> 1326`
+    - however, relative to the trusted residual line the candidate again only
+      reproduced the known `1326` basin and did not generate new multi-row
+      T-zero movement
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - the tighter 4-bay ultra-tight backward lane stayed stable and neutralized
+    another transient same-batch `prob_11` comparator drift, but it still did
+    not improve beyond the already-known trusted residual front.
+  - close this backward ultra-tight retry and rotate next to a different
+    standalone architecture rather than keep polishing backward ordering.
+
+## 2026-07-08 reboot_v682_20260708_familyA_beam_ultratight4_surfaceguard_on_v318
+
+- parent/version: `reboot_v676_20260708_familyA_beam_areapressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v676` showed the broad beam wrapper is score-safe, but its mixed-residual
+    subtype and global order rules still collapsed to the same `1326` basin.
+  - `v681` then closed the tighter backward retry for the 4-bay ultra-tight
+    pocket, so the next bounded cycle should keep the tighter subtype but
+    switch the construction family itself.
+  - this cycle therefore keeps the beam-from-scratch architecture but narrows
+    the target and changes the order portfolio:
+    - route only the 4-bay ultra-tight due-window crowding subtype
+    - maintain multiple beam orders from scratch under one coherent hypothesis
+      (`tight due-pressure`, `release-wave`, `area-pressure`)
+    - keep T-first checked comparison and current-surface Family B protection
+- target Family A subtype:
+  - `4 bay / 220~275 block / w1 high / proc_mean <= 8.0 / tight2 >= 0.80 /
+    tight1 >= 0.46 / feasible_bays_mean <= 1.20 / feasible_bay_pressure >= 0.90`
+    ultra-tight Family A rows, especially the 4-bay residual portion of the
+    current high-T front
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`beam_ultratight_due_fast`)
+  - T-zero constructive (`beam_ultratight_duepressure_tzero`)
+  - bounded improvement candidate (`beam_ultratight_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run path:
+    `reports/ogc2026_benchmark/probe_v682_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score `10/10`; timeout `0/10`; invalid/error `0/10`
+  - target-row results vs same-batch active:
+    - `prob_10`: `T 43 -> 43`
+    - `prob_11`: `T 334 -> 334`
+    - `prob_13`: `T 443 -> 443`
+    - `prob_14`: `T 181 -> 180`
+    - `prob_15`: `T 25 -> 25`
+    - `prob_17`: `T 13 -> 13`
+    - `prob_19`: `T 123 -> 123`
+    - `prob_20`: `T 164 -> 164`
+  - smoke target aggregate:
+    - same-batch active target sum `1326 -> 1325`
+    - this is a real one-row T improvement, but still far below the hard gate:
+      only one row moved and the aggregate change is too small to justify a
+      full 40 rerun
+  - Family B guard rows:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+- decision:
+  - reject for promotion and skip full 40
+  - keep as training-best-only evidence: the tighter beam portfolio finally
+    changed a high-T Family A row (`prob_14`, `T 181 -> 180`) without harming
+    the guards, so the ultra-tight 4-bay subtype is at least directionally
+    relevant.
+  - however this is still only a one-row micro-improvement, so the beam lane
+    does not clear the smoke hard gate and should not be promoted yet.
+
+## 2026-07-08 reboot_v683_20260708_familyA_bayfirst_ultratight4_surfaceguard_on_v318
+
+- parent/version: `reboot_v675_20260708_familyA_bayfirst_latest_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture change:
+  - `v682` is the first recent standalone lane that produced a real T
+    improvement on the current trusted residual front (`prob_14`, `181 -> 180`)
+    without harming Family B guards, and it did so on the tighter 4-bay
+    ultra-tight subtype.
+  - the next bounded cycle should therefore stay on that tighter subtype but
+    change construction stage again rather than polishing the beam family.
+  - this cycle keeps the true latest-feasible timing implementation from the
+    bay-first lane, but narrows the route and changes the bay partition order:
+    - target only the 4-bay ultra-tight due-window crowding subtype
+    - partition bays first with due-pressure / release-wave ordering before
+      latest-feasible per-bay realization
+    - compare a fast due-pressure candidate, a tighter T-zero candidate, and a
+      bounded release-wave refine candidate inside one coherent hypothesis
+- target Family A subtype:
+  - `4 bay / 220~275 block / w1 high / proc_mean <= 8.0 / tight2 >= 0.80 /
+    tight1 >= 0.46 / feasible_bays_mean <= 1.20 / feasible_bay_pressure >= 0.90`
+    ultra-tight Family A rows, especially the 4-bay residual portion of the
+    current high-T front
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`bay_ultratight_due_fast`)
+  - T-zero constructive (`bay_ultratight_duepressure_tzero`)
+  - bounded improvement candidate (`bay_ultratight_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run dir:
+    `reports/ogc2026_benchmark/probe_v683_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - accepted_for_score: `10/10`
+  - timeout: `0`
+  - invalid/error: `0`
+  - same-batch target-row changes:
+    - `prob_11`: `T 367 -> 334`, objective `8701664 -> 7986128`
+    - `prob_14`: `T 181 -> 180`, objective `3795716 -> 3777938`
+    - all other Family A smoke rows stayed flat in `T`
+  - Family B guards stayed flat:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: `T 8429 -> 8429`
+  - same-batch Family A target sum moved `1359 -> 1325`
+- decision:
+  - reject for promotion and do not run full40
+  - reason: the candidate is clean and produces real two-row signal, but the
+    smoke hard gate still fails because the improvement does not extend to at
+    least 3 high-T target rows and `prob_11` remains vulnerable to transient
+    same-batch active-side drift
+  - keep as training-best-only evidence that the bay-first latest-feasible lane
+    can preserve the `prob_14` gain while also reopening the stronger
+    `prob_11` basin on the 4-bay tight front
+  - ultra-tight4 has now failed three bounded retries in a row
+    (`v681`/`v682`/`v683`) to break through the smoke gate, so the next cycle
+    must rotate to a different Family A subtype instead of polishing the same
+    pocket again
+
+## 2026-07-08 reboot_v684_20260708_familyA_backward_dense4_surfaceguard_on_v318
+
+- parent/version: `reboot_v681_20260708_familyA_backward_ultratight4_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - the tighter ultra-tight4 subtype is now exhausted for this loop:
+    `v681` backward, `v682` beam, and `v683` bay-first all stayed score-safe
+    but still failed the smoke hard gate
+  - the remaining signal suggests a different 4-bay Family A slice:
+    lower block-count but still very high-`w1`, very low feasible-bay-count,
+    dense release/due rows where `prob_10`, `prob_11`, and neighboring
+    `prob_13`/`prob_14`/`prob_15` share a common pressure shape
+  - this cycle rotates both subtype and construction stage:
+    - subtype: dense 4-bay `190~255 block / w1 >= 14000 / feasible_bays_mean <= 1.05`
+      Family A rows
+    - architecture: global backward constructive with due-pressure and
+      release-wave variants from scratch
+    - keep the current-surface Family B guard wrapper unchanged
+- target Family A subtype:
+  - `4 bay / 190~255 block / w1 >= 14000 / proc_mean <= 7.8 /
+    slack_mean 1.20~1.60 / tight1 >= 0.50 / tight2 >= 0.77 /
+    pref_concentration <= 0.31 / pref_pressure <= 0.28 /
+    pref_gap_mean >= 34 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`backward_dense4_due_fast`)
+  - T-zero constructive (`backward_dense4_duepressure_tzero`)
+  - bounded improvement candidate (`backward_dense4_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run dir:
+    `reports/ogc2026_benchmark/probe_v684_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score: `10/10`
+  - candidate timeout: `0`
+  - candidate invalid/error: `0`
+  - same-batch comparator note:
+    - active-side `prob_13` timed out in this smoke, so the run-level aggregate
+      is not promotion-grade even though the candidate lane itself stayed clean
+  - candidate row changes versus same-batch active:
+    - `prob_11`: `T 335 -> 334`, objective `7990106 -> 7986128`
+    - `prob_13`: candidate preserved acceptance while same-batch active timed
+      out; `T` itself stayed `443 -> 443`
+    - all other Family A target rows stayed flat in `T`
+  - Family B guard rows did not regress:
+    - `prob_36`: `T 2010 -> 2010`
+    - `prob_40`: candidate stayed at the trusted line `T 8429`, while the
+      same-batch active comparator drifted worse
+  - same-batch Family A target sum moved only `1327 -> 1326`
+- decision:
+  - reject for promotion and do not run full40
+  - reason: the dense4 backward lane is score-safe and does recover a real
+    `prob_11` one-point gain, but it still fails the smoke hard gate because
+    the improvement does not spread to at least 3 high-T target rows
+  - keep as training-best-only evidence that the dense4 subtype is real and
+    stable under the stricter wrapper, but the backward realization is still
+    too narrow to create a Family A breakthrough
+
+## 2026-07-08 reboot_v685_20260708_familyA_twostage_dense4_surfaceguard_on_v318
+
+- parent/version: `reboot_v679_20260708_familyA_twostage_duepressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v684` confirmed the dense4 subtype is real and score-safe, but also showed
+    that a pure backward realization only moves `prob_11` by one point and does
+    not propagate to neighboring dense 4-bay rows
+  - the next bounded cycle should keep the dense4 subtype but change the
+    construction stage itself, not just the backward order
+  - this cycle therefore rotates to a two-stage standalone lane:
+    - stage 1 builds a dense4 timing skeleton from scratch with due-pressure or
+      release-wave bay assignment
+    - stage 2 realizes the skeleton spatially with the existing checked-first
+      repair-safe wrapper
+    - compare fast / T-zero / bounded-improvement dense4 candidates inside one
+      coherent hypothesis
+- target Family A subtype:
+  - `4 bay / 190~255 block / w1 >= 14000 / proc_mean <= 7.8 /
+    slack_mean 1.20~1.60 / tight1 >= 0.50 / tight2 >= 0.77 /
+    pref_concentration <= 0.31 / pref_pressure <= 0.28 /
+    pref_gap_mean >= 34 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (`baseline_hh.py` current trusted BEST surface)
+  - fast Family A constructive (`twostage_dense4_fast`)
+  - T-zero constructive (`twostage_dense4_tzero`)
+  - bounded improvement candidate (`twostage_dense4_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run dir:
+    `reports/ogc2026_benchmark/probe_v685_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score: `10/10`
+  - candidate timeout: `0`
+  - candidate invalid/error: `0`
+  - same-batch comparator note:
+    - active-side `prob_13` timed out again in this smoke, so run-level
+      aggregate is not promotion-grade even before comparing row quality
+  - Family A target-row signal versus same-batch active:
+    - `prob_11`: `T 337 -> 334`, objective `8049554 -> 7986128`
+    - `prob_14`: `T 181 -> 180`, objective `3795716 -> 3777938`
+    - `prob_13`: candidate preserved acceptance while same-batch active timed
+      out; `T` itself stayed `443 -> 443`
+    - all other Family A target rows stayed flat in `T`
+  - same-batch Family A target sum moved `1329 -> 1325`
+  - Family B guard regression:
+    - `prob_36`: `T 2010 -> 2759`
+    - `prob_40`: `T 8429 -> 8622`
+- decision:
+  - reject for promotion and do not run full40
+  - reason: this is the strongest recent dense4 Family A signal so far, but it
+    clearly fails the smoke hard gate because Family B guards regress badly
+  - keep as training-best-only evidence that the dense4 two-stage skeleton can
+    reopen the `prob_11 + prob_14` basin together
+  - the next dense4 retry should preserve this subtype signal but harden Family
+    B isolation further before any standalone comparison
+
+## 2026-07-08 reboot_v686_20260708_familyA_grasp_dense4_hardguard_on_v318
+
+- parent/version: `reboot_v671_20260708_familyA_grasp_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v685` showed the dense4 subtype can reopen the same `prob_11 + prob_14`
+    basin under a from-scratch timing build, so the next cycle should keep
+    dense4 and change construction stage again rather than go back to the old
+    ultra-tight slice
+  - however the failure mode was Family B guard leakage, not the Family A
+    signal itself
+  - this cycle therefore changes two things together:
+    - architecture: GRASP/randomized constructive from scratch on the dense4
+      subtype
+    - wrapper: harden fallback isolation by routing non-target rows through the
+      direct trusted active implementation rather than the broader surface alias
+- target Family A subtype:
+  - `4 bay / 190~255 block / w1 >= 14000 / proc_mean <= 7.8 /
+    slack_mean 1.20~1.60 / tight1 >= 0.50 / tight2 >= 0.77 /
+    pref_concentration <= 0.31 / pref_pressure <= 0.28 /
+    pref_gap_mean >= 34 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (direct trusted active v317 implementation)
+  - fast Family A constructive (`grasp_dense4_due_fast`)
+  - T-zero constructive (`grasp_dense4_window_tzero`)
+  - bounded improvement candidate (`grasp_dense4_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run dir:
+    `reports/ogc2026_benchmark/probe_v686_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260708_001/`
+  - candidate accepted_for_score: `8/10` in the shared run because
+    `prob_13` timed out on both active and candidate sides
+  - candidate timeout: `1` (`prob_13`)
+  - candidate invalid/error: `0`
+  - Family A target-row signal versus same-batch active:
+    - `prob_14`: `T 181 -> 180`, objective `3795716 -> 3777938`
+    - `prob_11`: flat at `T 367`
+    - `prob_19`: flat at `T 128`
+    - all other accepted Family A smoke rows stayed flat in `T`
+  - accepted-only Family A target sum moved `921 -> 920`
+  - Family B guard behavior:
+    - `prob_36`: improved `T 2698 -> 2369`
+    - `prob_40`: regressed `T 8549 -> 8622`
+- decision:
+  - reject for promotion and do not run full40
+  - reason: the stronger hardguard did help one Family B guard (`prob_36`),
+    but the smoke still fails on both axes that matter:
+    - timeout remains on `prob_13`
+    - `prob_40` still regresses
+    - Family A target improvement is again only one row (`prob_14`)
+  - keep as training-best-only evidence that direct trusted-active fallback
+    isolation changes the guard pattern, but the dense4 GRASP lane is still not
+    a breakthrough
+
+## 2026-07-09 reboot_v687_20260709_familyA_beam_dense4_hardguard_on_v318
+
+- parent/version: `reboot_v676_20260708_familyA_beam_areapressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v686` showed that dense4 plus harder trusted-active fallback does change
+    the guard pattern in a useful way (`prob_36` recovered) even though the
+    GRASP constructor stayed too flat on Family A and still let `prob_40`
+    drift
+  - the next bounded cycle should therefore keep the dense4 subtype and the
+    harder fallback isolation, but change construction stage again
+  - this cycle rotates to a tiny beam-from-scratch lane:
+    - dense4 feature gate only
+    - direct trusted-active fallback for non-target / guard-sensitive rows
+    - smaller beam width and prefix caps than the older mixed beam lanes to try
+      to avoid the recurring `prob_13` timeout while still comparing multiple
+      coherent order hypotheses
+- target Family A subtype:
+  - `4 bay / 190~255 block / w1 >= 14000 / proc_mean <= 7.8 /
+    slack_mean 1.20~1.60 / tight1 >= 0.50 / tight2 >= 0.77 /
+    pref_concentration <= 0.31 / pref_pressure <= 0.28 /
+    pref_gap_mean >= 34 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_10`, `prob_11`, `prob_13`, `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (direct trusted active v317 implementation)
+  - fast Family A constructive (`beam_dense4_due_fast`)
+  - T-zero constructive (`beam_dense4_area_tzero`)
+  - bounded improvement candidate (`beam_dense4_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- smoke evidence:
+  - run dir:
+    `reports/ogc2026_benchmark/probe_v687_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - candidate accepted_for_score: `10/10`
+  - candidate timeout: `0`
+  - candidate invalid/error: `0`
+  - same-batch comparator note:
+    - active-side `prob_13` timed out again while candidate stayed accepted, so
+      cross-row aggregate needs to be read with that comparator drift in mind
+  - Family A target-row signal versus same-batch active:
+    - `prob_11`: `T 386 -> 342`, objective `9136031 -> 8164735`
+    - `prob_13`: candidate preserved acceptance while same-batch active timed
+      out; `T` itself stayed `443 -> 443`
+    - `prob_14`: regressed slightly `T 186 -> 187`
+    - all other accepted Family A target rows stayed flat in `T`
+  - on the common accepted Family A target subset
+    (`prob_10/11/14/15/17/19/20`), target sum moved `945 -> 902`
+  - Family B guards both improved:
+    - `prob_36`: `T 2369 -> 2333`
+    - `prob_40`: `T 8622 -> 8549`
+- decision:
+  - reject for promotion and do not run full40
+  - reason: this is the cleanest dense4 candidate so far, but it still fails
+    the smoke hard gate because the improvement remains concentrated in one
+    real high-T row (`prob_11`) while `prob_14` regresses and the target front
+    still lacks the required 3-row breakthrough signal
+  - keep as training-best-only evidence that the dense4 beam family plus
+    hardguard fallback is the best dense4 wrapper seen so far
+  - dense4 has now failed repeatedly across backward / two-stage / GRASP / beam
+    lanes, so the next bounded cycle must rotate to a different Family A
+    subtype rather than keep polishing the same dense4 pocket
+
+## 2026-07-09 reboot_v688_20260709_familyA_cluster_tail300_hardguard_on_v318
+
+- parent/version: `reboot_v672_20260708_familyA_cluster_crossresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - dense4 has now been exercised across backward / two-stage / GRASP / beam
+    and still cannot clear the smoke hard gate, so the next bounded cycle must
+    rotate to a different Family A residual front
+  - the remaining untouched high-T tail is the `300-block / 4~5 bay` slice
+    around `prob_17`, `prob_19`, and `prob_20`
+  - earlier broad cluster lanes were score-safe on this tail but too linear and
+    too broad; this cycle narrows both subtype and wrapper:
+    - subtype: 300-block mixed tail only
+    - architecture: cluster decomposition with pressure-heavy merge bias
+    - wrapper: direct trusted-active hardguard fallback, not the broader active
+      alias
+- target Family A subtype:
+  - `300 block / 4~5 bay / w1 >= 9500 / proc_mean <= 7.75 /
+    slack_mean 1.35~1.62 / tight2 >= 0.77 / tight1 >= 0.50 /
+    pref_concentration <= 0.29 / pref_pressure <= 0.27 /
+    pref_gap_mean >= 29 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_17`, `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (direct trusted active v317 implementation)
+  - fast Family A constructive (`cluster_tail300_due_fast`)
+  - T-zero constructive (`cluster_tail300_slack_tzero`)
+  - bounded improvement candidate (`cluster_tail300_pressure_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+
+## 2026-07-09 reboot_v689_20260709_familyA_bayfirst_tail300_surfaceguard_on_v318
+
+- parent/version: `reboot_v675_20260708_familyA_bayfirst_latest_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v688` confirmed that the tail300 cluster wrapper does not actually move
+    the intended `prob_17 / prob_19 / prob_20` front and, worse, its direct
+    fallback isolation reopened a Family B risk on `prob_40`
+  - the next bounded cycle should therefore keep the target subtype but switch
+    architecture and restore the trusted current BEST surface as the fallback
+    guard:
+    - subtype: `300-block mixed tail only`
+    - architecture: `Family A bay-first timing-second`
+    - fallback: current trusted BEST wrapper, not direct `v317`
+  - among prior bay-first lanes, `v675` is the cleanest implementation of true
+    latest-feasible per-bay timing second, so it is the best reusable base for
+    a narrow tail300 retry
+- target Family A subtype:
+  - `300 block / 4~5 bay / w1 >= 9500 / proc_mean <= 7.75 /
+    slack_mean 1.35~1.62 / tight2 >= 0.77 / tight1 >= 0.50 /
+    pref_concentration <= 0.29 / pref_pressure <= 0.27 /
+    pref_gap_mean >= 29 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_17`, `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`bay_tail300_due_fast`)
+  - T-zero constructive (`bay_tail300_slack_tzero`)
+  - bounded improvement candidate (`bay_tail300_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v689_20260709_familyA_bayfirst_tail300_surfaceguard_on_v318.py`
+    from `v675`
+  - narrowed the route from broad mixed residual to the tail300 subtype only
+  - kept true latest-feasible per-bay timing second
+  - restored fallback protection to the current trusted BEST surface wrapper
+    instead of the direct `v317` path that had reopened `prob_40` risk in
+    `v688`
+  - compared:
+    - `bay_tail300_due_fast`
+    - `bay_tail300_slack_tzero`
+    - `bay_tail300_release_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v689_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v689_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A smoke rows:
+    - `prob_11 T 335 -> 334` improved by only `1`
+    - `prob_13 T 443 -> 443` flat, but candidate stayed under the official
+      limit while the active smoke row exceeded it
+    - `prob_14 T 181 -> 181` flat
+    - `prob_17 T 13 -> 13` flat
+    - `prob_19 T 123 -> 123` flat
+    - `prob_20 T 164 -> 164` flat
+    - `prob_10 T 43 -> 43`, `prob_15 T 25 -> 25` flat
+  - Family B guard rows:
+    - `prob_36 T 2010 -> 2010` flat
+    - `prob_40 T 8429 -> 8549` regressed, though it remained accepted under
+      time
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the wrapper protection is better than `v688`, but the standalone
+    tail300 bay-first lane still fails the substantive signal test because it
+    leaves the intended tail front (`prob_17 / prob_19 / prob_20`) completely
+    flat and only reproduces a trivial `prob_11` improvement
+- next action:
+  - keep the `300-block mixed-tail` subtype for one more structurally different
+    test
+  - next bounded cycle should switch to `Family A global backward
+    constructive`, scheduling from due dates first and then reconciling
+    release/bay feasibility under the same current-BEST fallback guard
+
+## 2026-07-09 reboot_v690_20260709_familyA_backward_tail300_surfaceguard_on_v318
+
+- parent/version: `reboot_v674_20260708_familyA_backward_latest_mixedresidual_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v689` restored wrapper safety, but the tail300 bay-first lane still left
+    `prob_17 / prob_19 / prob_20` completely flat
+  - the next bounded cycle should therefore keep the same subtype but swap the
+    constructive stage entirely:
+    - subtype: `300-block mixed tail only`
+    - architecture: `Family A global backward constructive`
+    - fallback: current trusted BEST surface wrapper
+  - `v674` is the cleanest recent implementation of a checked-first backward
+    lane with latest-feasible backward realization, so it is the best reusable
+    base for a tail300-specific retry
+- target Family A subtype:
+  - `300 block / 4~5 bay / w1 >= 9500 / proc_mean <= 7.75 /
+    slack_mean 1.35~1.62 / tight2 >= 0.77 / tight1 >= 0.50 /
+    pref_concentration <= 0.29 / pref_pressure <= 0.27 /
+    pref_gap_mean >= 29 / feasible_bays_mean <= 1.05`
+  - intended representatives on the current high-T front:
+    `prob_17`, `prob_19`, `prob_20`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`backward_tail300_due_fast`)
+  - T-zero constructive (`backward_tail300_duepressure_tzero`)
+  - bounded improvement candidate (`backward_tail300_release_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v690_20260709_familyA_backward_tail300_surfaceguard_on_v318.py`
+    from `v674`
+  - narrowed the backward lane from broad mixed residual to the tail300 subtype
+    only
+  - preserved current-BEST fallback protection for all non-target rows
+  - compared:
+    - `backward_tail300_due_fast`
+    - `backward_tail300_duepressure_tzero`
+    - `backward_tail300_release_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v690_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v690_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A smoke rows:
+    - `prob_19 T 128 -> 123` improved
+    - `prob_17 T 13 -> 13` flat
+    - `prob_20 T 164 -> 164` flat
+    - `prob_10 T 43 -> 43`, `prob_13 T 443 -> 443`, `prob_14 T 181 -> 181`,
+      `prob_15 T 25 -> 25` flat
+    - `prob_11 T 330 -> 334` regressed in the same batch
+  - Family B guard rows:
+    - `prob_36 T 2010 -> 2010` flat
+    - `prob_40 T 8429 -> 8549` regressed, though still accepted under time
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the backward tail300 lane is score-safe, but it still fails the
+    smoke hard gate because only one target row (`prob_19`) improves, the
+    other intended tail rows stay flat, and `prob_40` regresses again
+- next action:
+  - tail300 is now exhausted across three structurally different standalone
+    architectures in sequence:
+    - `v688` cluster decomposition
+    - `v689` bay-first timing-second
+    - `v690` global backward constructive
+  - per the subtype-rotation rule, the next bounded cycle must switch away from
+    this subtype
+  - next bounded cycle should move to `Family A spatial/orientation
+    constructive`, targeting the `250-block 4-bay placement-heavy due-window`
+    subtype around `prob_14 / prob_15` where the current residual front still
+    lacks a true from-scratch placement-first attack
+
+## 2026-07-09 reboot_v691_20260709_familyA_spatial_p14p15_surfaceguard_on_v318
+
+- parent/version: `reboot_v677_20260708_familyA_spatial_fragment_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - tail300 has now failed three consecutive subtype-specific architecture
+    changes, so the next bounded cycle must rotate to a different Family A
+    front
+  - the remaining reachable front with placement-heavy behavior is the
+    `250-block / 4-bay / due-window / high area-pressure` slice around
+    `prob_14 / prob_15`
+  - prior broad spatial lanes proved score-safe and occasionally moved
+    `prob_14`, but they were too broad; this cycle narrows both route and
+    candidate family:
+    - subtype: `250-block 4-bay placement-heavy due-window`
+    - architecture: `Family A spatial/orientation constructive`
+    - fallback: current trusted BEST surface wrapper
+- target Family A subtype:
+  - `250 block / 4 bay / w1 >= 9000 / proc_mean <= 7.90 /
+    slack_mean 1.10~1.60 / tight2 >= 0.75 / tight1 >= 0.45 /
+    pref_concentration <= 0.34 / pref_pressure <= 0.32 /
+    pref_gap_mean >= 20 / feasible_bays_mean <= 1.08 /
+    max_area_ratio >= 0.18 / p90_area_ratio >= 0.12 /
+    large_area_ratio >= 0.20`
+  - intended representatives on the current high-T front:
+    `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`spatial_p14p15_area_fast`)
+  - T-zero constructive (`spatial_p14p15_due_corner_tzero`)
+  - bounded improvement candidate (`spatial_p14p15_slack_edge_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress
+- implementation:
+  - created `ogc2026/baseline/alg_versions/reboot_v691_20260709_familyA_spatial_p14p15_surfaceguard_on_v318.py`
+    from `v677`
+  - narrowed the spatial/orientation route to the `250-block / 4-bay
+    placement-heavy due-window` subtype
+  - kept the current-BEST fallback protection for all non-target rows
+  - compared:
+    - `spatial_p14p15_area_fast`
+    - `spatial_p14p15_due_corner_tzero`
+    - `spatial_p14p15_slack_edge_refine`
+- smoke benchmark:
+  - run id:
+    `probe_v691_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001`
+  - report dir:
+    `reports/ogc2026_benchmark/probe_v691_prob10_prob11_prob13_prob14_prob15_prob17_prob19_prob20_prob36_prob40_20260709_001/`
+  - `python -m py_compile` passed before smoke
+  - candidate acceptance on smoke rows:
+    - candidate `accepted_for_score 10/10`
+    - timeout `0`
+    - invalid/error `0`
+  - Family A smoke rows:
+    - target subtype rows stayed flat:
+      - `prob_14 T 181 -> 181`
+      - `prob_15 T 25 -> 25`
+    - surrounding rows:
+      - `prob_10 43 -> 43`, `prob_13 443 -> 443`, `prob_17 13 -> 13`,
+        `prob_20 164 -> 164` flat
+      - `prob_19 123 -> 128` regressed
+      - `prob_11` improved in the same batch (`367 -> 334`), but that is not
+        the intended subtype signal and is not enough for the smoke gate
+  - Family B guard rows:
+    - `prob_36 2010 -> 2010` flat
+    - `prob_40 8429 -> 8429` flat
+- decision:
+  - reject / training-best-only
+  - no full 40
+  - reason: the lane is score-safe and guard-safe, but it produces no movement
+    at all on the intended `prob_14 / prob_15` front and even regresses
+    `prob_19`
+- next action:
+  - keep this subtype for one more structurally different attempt
+  - next bounded cycle should switch to `Family A two-stage solver`,
+    targeting the same `250-block 4-bay placement-heavy due-window` subtype:
+    stage 1 should build a T-zero-oriented timing skeleton first, then stage 2
+    should realize placement/spatial feasibility without relying on the flat
+    spatial-first construction
+
+## 2026-07-09 reboot_v692_20260709_familyA_twostage_p14p15_surfaceguard_on_v318
+
+- parent/version: `reboot_v679_20260708_familyA_twostage_duepressure_surfaceguard_on_v318`
+- status: implementing smoke candidate
+- evidence behind the architecture/subtype change:
+  - `v691` kept Family B safe and preserved the wrapper, but the spatial-first
+    lane produced no movement on the intended `prob_14 / prob_15`
+    placement-heavy front
+  - the next bounded cycle should therefore keep the same narrow subtype while
+    changing the internal solver structure rather than widening the route again
+  - the best reusable two-stage core in the current tree is `v679`, whose
+    timing-skeleton structure is already score-safe under the current wrapper
+  - this cycle narrows that two-stage lane onto the `250-block 4-bay
+    placement-heavy due-window` slice and adds the `v691` area-pressure gate
+- target Family A subtype:
+  - `250 block / 4 bay / w1 >= 9000 / proc_mean <= 7.90 /
+    slack_mean 1.10~1.60 / tight2 >= 0.75 / tight1 >= 0.45 /
+    pref_concentration <= 0.34 / pref_pressure <= 0.32 /
+    pref_gap_mean >= 20 / feasible_bays_mean <= 1.08 /
+    max_area_ratio >= 0.18 / p90_area_ratio >= 0.12 /
+    large_area_ratio >= 0.20`
+  - intended representatives on the current high-T front:
+    `prob_14`, `prob_15`
+- planned candidate roles inside the same hypothesis:
+  - trusted fallback (current BEST surface wrapper)
+  - fast Family A constructive (`twostage_p14p15_fast`)
+  - T-zero constructive (`twostage_p14p15_tzero`)
+  - bounded improvement candidate (`twostage_p14p15_spatial_refine`)
+- hard gate intent:
+  - rerun the standard 10-row smoke first
+  - no full 40 unless at least 3 current high-T Family A rows improve
+    materially while all smoke rows remain accepted_for_score and Family B
+    guard rows do not regress

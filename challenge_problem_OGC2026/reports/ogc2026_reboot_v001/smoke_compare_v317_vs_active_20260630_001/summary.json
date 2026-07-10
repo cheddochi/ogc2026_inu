@@ -1,0 +1,51 @@
+{
+  "run_id": "smoke_compare_v317_vs_active_20260630_001",
+  "timestamp": "2026-06-30T09:41:05",
+  "summary": {
+    "total": 30,
+    "feasible": 30,
+    "accepted_for_score": 30,
+    "checker_feasible": 30,
+    "timed_out": 0,
+    "failed": 0,
+    "objective_sum": 569831619.0,
+    "objective_avg": 18994387.3,
+    "obj1_sum": 63367.0,
+    "obj1_avg": 2112.233333333333,
+    "obj1_max": 11120.0,
+    "obj2_avg": 2557.2,
+    "obj3_avg": 5520.666666666667,
+    "runtime_sum": 1321.444687,
+    "runtime_avg": 44.04815623333333,
+    "runtime_max": 58.474797
+  },
+  "algorithms": [
+    {
+      "name": "active",
+      "version": "v315_active_surface",
+      "path": "ogc2026\\baseline\\myalgorithm.py"
+    },
+    {
+      "name": "hh",
+      "version": "v317_prob13_only_window_multiblock",
+      "path": "ogc2026\\baseline\\alg_versions\\reboot_v317_20260630_trackA_prob13_only_window_multiblock_on_v314.py"
+    }
+  ],
+  "problems": [
+    "train\\prob_1.json",
+    "train\\prob_6.json",
+    "train\\prob_10.json",
+    "train\\prob_11.json",
+    "train\\prob_13.json",
+    "train\\prob_14.json",
+    "train\\prob_19.json",
+    "train\\prob_20.json",
+    "train\\prob_24.json",
+    "train\\prob_28.json",
+    "train\\prob_33.json",
+    "train\\prob_36.json",
+    "train\\prob_38.json",
+    "train\\prob_39.json",
+    "train\\prob_40.json"
+  ]
+}
